@@ -2,7 +2,7 @@
   "name": "sonification-explorer",
   "version": "1.0.0",
   "description": "Edit and visualize data with charts and sound",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "jest"
   },
