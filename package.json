@@ -1,0 +1,32 @@
+{
+  "name": "sonification-explorer",
+  "version": "1.0.0",
+  "description": "Edit and visualize data with charts and sound",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/highcharts/sonification-explorer.git"
+  },
+  "keywords": [
+    "sonification",
+    "dataviz",
+    "chart",
+    "data"
+  ],
+  "author": "Highsoft AS",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/highcharts/sonification-explorer/issues"
+  },
+  "homepage": "https://github.com/highcharts/sonification-explorer#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "eslint": "^6.2.2",
+    "jest": "^24.9.0"
+  }
+}
