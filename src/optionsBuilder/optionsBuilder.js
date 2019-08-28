@@ -9,7 +9,7 @@ export class OptionsBuilder {
         return this.newOptions || {};
     }
 
-    setOption(option, val) {
-        setNestedChildProp(this.newOptions, option, val);
+    setOption(nestedOptionName, val) {
+        setNestedChildProp(this.newOptions, nestedOptionName, val);
     }
 }
