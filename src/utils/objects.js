@@ -30,13 +30,41 @@ export function deepFreeze(obj) {
 export function deepClone(obj) {
     /*
      * Todo:
-     * - Needs to deep clone objects
-     * - Needs to merge arrays (series)
      * - Needs to handle circular references by replacing the references with
      *  cloned objects
-     * - Does not need to merge functions
-     * - Needs to handle date objects
      */
+    const shouldBeCloned = x => typeof x === 'object' && x !== null,
+        isDate = x => x instanceof Date,
+        cloneDate = x => new Date(x.getTime()),
+        cloneArray = x => {
+            let i = x.length;
+            const newArray = [];
+            while(i--) {
+                newArray[i] = shouldBeCloned(x[i]) ?
+                    cloneObject(x[i]) : x[i];
+            }
+            return newArray;
+        };
 
-    return Object.assign({}, obj);
+    function cloneObject(o) {
+        if (Array.isArray(o)) {
+            return cloneArray(o);
+        }
+        if (isDate(o)) {
+            return cloneDate(o);
+        }
+
+        const newObject = {};
+        Object.getOwnPropertyNames(o).forEach(prop => {
+            const val = o[prop];
+            if (shouldBeCloned(val)) {
+                newObject[prop] = cloneObject(val);
+            } else {
+                newObject[prop] = val;
+            }
+        });
+        return newObject;
+    }
+
+    return cloneObject(obj);
 }
