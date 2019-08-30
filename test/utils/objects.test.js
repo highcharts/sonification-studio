@@ -1,4 +1,50 @@
-import { deepFreeze } from '../../src/utils/objects';
+import { setNestedChildProp, deepFreeze } from '../../src/utils/objects';
+
+describe('setNestedChildProp tests', () => {
+    test('Setting single prop on empty object', () => {
+        const empty = {};
+        setNestedChildProp(empty, 'a', 1);
+        expect(empty).toEqual({ a: 1 });
+    });
+
+    test('Setting single prop on non-empty object', () => {
+        const obj = { a: 3 };
+        setNestedChildProp(obj, 'b', 1);
+        expect(obj).toEqual({ a: 3, b: 1 });
+    });
+
+    test('Modifying single prop', () => {
+        const obj = { a: 3 };
+        setNestedChildProp(obj, 'a', 1);
+        expect(obj).toEqual({ a: 1 });
+    });
+
+    test('Setting nested prop on empty object', () => {
+        const empty = {};
+        setNestedChildProp(empty, 'a.b.c', 1);
+        expect(empty).toEqual({ a: { b: { c: 1 } } });
+    });
+
+    test('Setting nested prop on non-empty object', () => {
+        const obj = { d: { e: 3 }};
+        setNestedChildProp(obj, 'a.b.c', 1);
+        expect(obj).toEqual({ d: { e: 3 }, a: { b: { c: 1 } } });
+    });
+
+    test('Setting nested prop on existing object', () => {
+        const obj = { a: { b: { c: { d: 5 } } } };
+        setNestedChildProp(obj, 'a.b.f', 1);
+        expect(obj).toEqual({ a: { b: { f: 1, c: { d: 5 } } } });
+    });
+
+    test('Modifying nested prop on existing object', () => {
+        const obj = { a: { b: { c: { d: 5 } } } };
+        setNestedChildProp(obj, 'a.b.c.d', 1);
+        expect(obj).toEqual({ a: { b: { c: { d: 1 } } } });
+        setNestedChildProp(obj, 'a.b.c', 2);
+        expect(obj).toEqual({ a: { b: { c: 2 } } });
+    });
+});
 
 describe('deepFreeze tests', () => {
     const testIllegalOperation = (obj, illegal) => {
