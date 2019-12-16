@@ -5,9 +5,9 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "build-dev": "webpack --mode=development && node ./build/build.js",
-    "watch": "nodemon --exec npm run build-dev",
-    "build": "webpack --mode=production && node ./build/build.js"
+    "clean": "trash dist",
+    "dev": "parcel src/public/index.html",
+    "build": "parcel build src/public/index.html --no-source-maps"
   },
   "repository": {
     "type": "git",
@@ -24,17 +24,31 @@
   "bugs": {
     "url": "https://github.com/highcharts/sonification-explorer/issues"
   },
+  "babel": {
+    "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": "current"
+            }
+          }
+        ]
+    ]
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  },
   "homepage": "https://github.com/highcharts/sonification-explorer#readme",
   "devDependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
-    "clean-webpack-plugin": "^3.0.0",
-    "cssmin": "^0.4.3",
+    "@babel/core": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
+    "babel-jest": "^24.9.0",
     "eslint": "^6.2.2",
     "jest": "^24.9.0",
-    "nodemon": "^1.19.1",
-    "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.7"
+    "parcel-bundler": "^1.12.4",
+    "trash-cli": "^3.0.0"
   }
 }

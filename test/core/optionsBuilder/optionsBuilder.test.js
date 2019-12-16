@@ -1,5 +1,5 @@
-import { OptionsBuilder } from '../../src/optionsBuilder/optionsBuilder';
-import { deepFreeze } from '../../src/utils/objects';
+import { OptionsBuilder } from '../../../src/core/optionsBuilder/optionsBuilder';
+import { deepFreeze } from '../../../src/core/utils/objects';
 
 describe('Tests for optionsBuilder', () => {
     const defaultOptions = deepFreeze({

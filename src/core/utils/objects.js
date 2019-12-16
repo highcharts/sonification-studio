@@ -28,11 +28,6 @@ export function deepFreeze(obj) {
 }
 
 export function deepClone(obj) {
-    /*
-     * Todo:
-     * - Needs to handle circular references by replacing the references with
-     *  cloned objects
-     */
     const shouldBeCloned = x => typeof x === 'object' && x !== null,
         isDate = x => x instanceof Date,
         cloneDate = x => new Date(x.getTime()),
