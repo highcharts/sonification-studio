@@ -11,7 +11,8 @@ describe('Tests for optionsBuilder', () => {
                 test6: { test7: 'test' }
             }
         });
-    const expectOutput = (ob, output) => expect(ob.build()).toEqual(output);
+    const expectOutput = (ob: OptionsBuilder, output: object) =>
+        expect(ob.build()).toEqual(output);
 
     test('Given no options it should return empty object', () => {
         const ob = new OptionsBuilder();

@@ -51,7 +51,7 @@ describe('setNestedChildProp tests', () => {
 });
 
 describe('deepFreeze tests', () => {
-    const testIllegalOperation = (obj, illegal) => {
+    const testIllegalOperation = (obj: any, illegal: (param: any) => void): void => {
         const frozen = deepFreeze(obj);
         expect(() => illegal(frozen)).toThrow();
     };
@@ -100,8 +100,8 @@ describe('deepFreeze tests', () => {
 });
 
 describe('deepClone tests', () => {
-    const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-    const modifyObject = o => {
+    const isEqual = (a: object, b: object) => JSON.stringify(a) === JSON.stringify(b);
+    const modifyObject = (o: any) => {
             const names = Object.getOwnPropertyNames(o);
             names.forEach(prop => {
                 const val = o[prop];
@@ -117,7 +117,7 @@ describe('deepClone tests', () => {
                 o.__newProp__ = 1;
             }
         };
-    const isClone = (a, b) => {
+    const isClone = (a: object, b: object) => {
             if (!isEqual(a, b)) {
                 return false;
             }
@@ -125,7 +125,7 @@ describe('deepClone tests', () => {
             modifyObject(b);
             return !isEqual(a, b);
         };
-    const testClone = o => {
+    const testClone = (o: object) => {
             expect(isClone(o, deepClone(o))).toBe(true);
         };
 

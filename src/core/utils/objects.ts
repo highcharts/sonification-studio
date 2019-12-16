@@ -1,6 +1,10 @@
-export function setNestedChildProp(obj: object, propStr: string, val: any): void {
+export function setNestedChildProp(obj: any, propStr: string, val: any): void {
     const props = propStr.split('.');
     const firstProp = props.shift();
+    if (!firstProp) {
+        return;
+    }
+
     if (!props.length) {
         obj[firstProp] = val;
     } else {
@@ -9,7 +13,7 @@ export function setNestedChildProp(obj: object, propStr: string, val: any): void
     }
 }
 
-export function deepFreeze(obj: object): object {
+export function deepFreeze(obj: any): object {
     if (obj === undefined) {
         return obj;
     }
@@ -27,21 +31,21 @@ export function deepFreeze(obj: object): object {
     return obj;
 }
 
-export function deepClone(obj: object): object {
-    const shouldBeCloned = x => typeof x === 'object' && x !== null;
-    const isDate = x => x instanceof Date;
-    const cloneDate = x => new Date(x.getTime());
-    const cloneArray = x => {
-            let i = x.length;
-            const newArray = [];
-            while (i--) {
-                newArray[i] = shouldBeCloned(x[i]) ?
-                    cloneObject(x[i]) : x[i];
-            }
-            return newArray;
-        };
+export function deepClone(obj: any): object {
+    const shouldBeCloned = (x: any) => typeof x === 'object' && x !== null;
+    const isDate = (x: any) => x instanceof Date;
+    const cloneDate = (x: any) => new Date(x.getTime());
+    const cloneArray = (x: any) => {
+        let i = x.length;
+        const newArray = [];
+        while (i--) {
+            newArray[i] = shouldBeCloned(x[i]) ?
+                cloneObject(x[i]) : x[i];
+        }
+        return newArray;
+    };
 
-    function cloneObject(o: object): object {
+    function cloneObject(o: any): object {
         if (Array.isArray(o)) {
             return cloneArray(o);
         }
@@ -49,7 +53,7 @@ export function deepClone(obj: object): object {
             return cloneDate(o);
         }
 
-        const newObject = {};
+        const newObject: any = {};
         Object.getOwnPropertyNames(o).forEach(prop => {
             const val = o[prop];
             if (shouldBeCloned(val)) {
