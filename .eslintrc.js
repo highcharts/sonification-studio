@@ -1,24 +1,25 @@
+/* global module */
 module.exports = {
-    'env': {
-        'browser': true,
-        'es6': true
+    env: {
+        browser: true,
+        es6: true
     },
-    'extends': [
+    extends: [
         'eslint:recommended',
         'plugin:@typescript-eslint/eslint-recommended',
-        "plugin:@typescript-eslint/recommended"
-      ],
-    'globals': {
+        'plugin:@typescript-eslint/recommended'
+    ],
+    globals: {
         'Atomics': 'readonly',
         'SharedArrayBuffer': 'readonly'
     },
-    "parser": "@typescript-eslint/parser",
-    "plugins": ["@typescript-eslint"],          
-    'parserOptions': {
-        'ecmaVersion': 2018,
-        'sourceType': 'module'
+    parser: '@typescript-eslint/parser',
+    plugins: ['@typescript-eslint'],
+    parserOptions: {
+        ecmaVersion: 2018,
+        sourceType: 'module'
     },
-    'rules': {
+    rules: {
         'indent': [
             'error',
             4
@@ -34,7 +35,11 @@ module.exports = {
         'no-trailing-spaces': [
             'error'
         ],
-        '@typescript-eslint/explicit-function-return-type': false,
-        '@typescript-eslint/no-explicit-any': false
+        'no-multi-spaces': [
+            'error'
+        ],
+        '@typescript-eslint/explicit-function-return-type': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-use-before-define': 'off'
     }
 };

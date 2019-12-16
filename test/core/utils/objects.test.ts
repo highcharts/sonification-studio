@@ -102,32 +102,32 @@ describe('deepFreeze tests', () => {
 describe('deepClone tests', () => {
     const isEqual = (a: object, b: object) => JSON.stringify(a) === JSON.stringify(b);
     const modifyObject = (o: any) => {
-            const names = Object.getOwnPropertyNames(o);
-            names.forEach(prop => {
-                const val = o[prop];
-                if (Array.isArray(val)) {
-                    val.push(42);
-                } else if (typeof val === 'object' && val !== null) {
-                    modifyObject(val);
-                } else {
-                    o[prop] = null;
-                }
-            });
-            if (!names.length) {
-                o.__newProp__ = 1;
+        const names = Object.getOwnPropertyNames(o);
+        names.forEach(prop => {
+            const val = o[prop];
+            if (Array.isArray(val)) {
+                val.push(42);
+            } else if (typeof val === 'object' && val !== null) {
+                modifyObject(val);
+            } else {
+                o[prop] = null;
             }
-        };
+        });
+        if (!names.length) {
+            o.__newProp__ = 1;
+        }
+    };
     const isClone = (a: object, b: object) => {
-            if (!isEqual(a, b)) {
-                return false;
-            }
-            deepFreeze(a);
-            modifyObject(b);
-            return !isEqual(a, b);
-        };
+        if (!isEqual(a, b)) {
+            return false;
+        }
+        deepFreeze(a);
+        modifyObject(b);
+        return !isEqual(a, b);
+    };
     const testClone = (o: object) => {
-            expect(isClone(o, deepClone(o))).toBe(true);
-        };
+        expect(isClone(o, deepClone(o))).toBe(true);
+    };
 
     test('Clones empty object', () => {
         testClone({});

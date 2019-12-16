@@ -3,14 +3,14 @@ import { deepFreeze } from '../../../src/core/utils/objects';
 
 describe('Tests for optionsBuilder', () => {
     const defaultOptions = deepFreeze({
-            test1: 0,
-            test2: '1',
-            test3: [3, 4, 5],
-            test4: {
-                test5: [4, 5, 6],
-                test6: { test7: 'test' }
-            }
-        });
+        test1: 0,
+        test2: '1',
+        test3: [3, 4, 5],
+        test4: {
+            test5: [4, 5, 6],
+            test6: { test7: 'test' }
+        }
+    });
     const expectOutput = (ob: OptionsBuilder, output: object) =>
         expect(ob.build()).toEqual(output);
 
@@ -56,8 +56,8 @@ describe('Tests for optionsBuilder', () => {
 
     test('Modifying nested option should not modify default', () => {
         const defaultOptionsFactory = () => ({
-                a: { b: { c: { d: 'initialVal' } } }
-            });
+            a: { b: { c: { d: 'initialVal' } } }
+        });
         const defaultOpts = defaultOptionsFactory();
         const ob = new OptionsBuilder(defaultOpts);
         ob.setOption('a.b.c.newVal', 2);
