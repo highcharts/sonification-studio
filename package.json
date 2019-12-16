@@ -6,8 +6,9 @@
   "scripts": {
     "test": "jest",
     "clean": "trash dist",
-    "dev": "parcel src/app/public/index.html --open",
-    "build": "parcel build src/app/public/index.html --no-source-maps"
+    "lint": "eslint --ext .ts,.js,.vue .",
+    "dev": "npm run lint && parcel src/app/public/index.html --open",
+    "build": "npm run lint && parcel build src/app/public/index.html --no-source-maps"
   },
   "repository": {
     "type": "git",
