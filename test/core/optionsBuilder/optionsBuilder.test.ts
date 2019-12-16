@@ -10,8 +10,8 @@ describe('Tests for optionsBuilder', () => {
                 test5: [4, 5, 6],
                 test6: { test7: 'test' }
             }
-        }),
-        expectOutput = (ob, output) => expect(ob.build()).toEqual(output);
+        });
+    const expectOutput = (ob, output) => expect(ob.build()).toEqual(output);
 
     test('Given no options it should return empty object', () => {
         const ob = new OptionsBuilder();
@@ -30,8 +30,8 @@ describe('Tests for optionsBuilder', () => {
     });
 
     test('Modifying option should not modify default', () => {
-        const defaultOptionsShort = { test: 'initialVal' },
-            ob = new OptionsBuilder(defaultOptionsShort);
+        const defaultOptionsShort = { test: 'initialVal' };
+        const ob = new OptionsBuilder(defaultOptionsShort);
         ob.setOption('test', 2);
         expectOutput(ob, { test: 2 });
         expect(defaultOptionsShort).toEqual({ test: 'initialVal' });
@@ -56,9 +56,9 @@ describe('Tests for optionsBuilder', () => {
     test('Modifying nested option should not modify default', () => {
         const defaultOptionsFactory = () => ({
                 a: { b: { c: { d: 'initialVal' } } }
-            }),
-            defaultOpts = defaultOptionsFactory(),
-            ob = new OptionsBuilder(defaultOpts);
+            });
+        const defaultOpts = defaultOptionsFactory();
+        const ob = new OptionsBuilder(defaultOpts);
         ob.setOption('a.b.c.newVal', 2);
         expect(defaultOpts).toEqual(defaultOptionsFactory());
     });

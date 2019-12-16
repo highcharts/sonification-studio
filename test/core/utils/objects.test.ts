@@ -1,7 +1,7 @@
 import {
-    setNestedChildProp,
+    deepClone,
     deepFreeze,
-    deepClone
+    setNestedChildProp
 } from '../../../src/core/utils/objects';
 
 describe('setNestedChildProp tests', () => {
@@ -79,7 +79,7 @@ describe('deepFreeze tests', () => {
 
     test('Given frozen object, can not modify function prop', () => {
         testIllegalOperation(
-            { a: function () {} },
+            { a(): void { return; } },
             o => o.a.prototype = {}
         );
     });
@@ -100,8 +100,8 @@ describe('deepFreeze tests', () => {
 });
 
 describe('deepClone tests', () => {
-    const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b),
-        modifyObject = o => {
+    const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    const modifyObject = o => {
             const names = Object.getOwnPropertyNames(o);
             names.forEach(prop => {
                 const val = o[prop];
@@ -113,17 +113,19 @@ describe('deepClone tests', () => {
                     o[prop] = null;
                 }
             });
-            if (!names.length)
+            if (!names.length) {
                 o.__newProp__ = 1;
-        },
-        isClone = (a, b) => {
-            if (!isEqual(a, b))
+            }
+        };
+    const isClone = (a, b) => {
+            if (!isEqual(a, b)) {
                 return false;
+            }
             deepFreeze(a);
             modifyObject(b);
             return !isEqual(a, b);
-        },
-        testClone = o => {
+        };
+    const testClone = o => {
             expect(isClone(o, deepClone(o))).toBe(true);
         };
 
@@ -132,7 +134,7 @@ describe('deepClone tests', () => {
     });
 
     test('Clones simple object', () => {
-        const func = () => {};
+        const func = () => void 0;
         testClone({
             a: 1,
             b: null,
@@ -217,7 +219,7 @@ describe('deepClone tests', () => {
     });
 
     test('Clones date', async () => {
-        function waitMs(ms) {
+        function waitMs(ms: number): Promise<void> {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
         const initialDate = new Date();
