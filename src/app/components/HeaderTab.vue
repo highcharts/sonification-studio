@@ -26,14 +26,14 @@ button {
     background-color: @header-tab-btn-bg;
 	color: @header-tab-btn-color;
 	border: none;
-	padding: 0;
 	font: inherit;
 	cursor: pointer;
     text-decoration: underline;
+    display: block;
     height: 100%;
     width: 100%;
-    margin: 1px;
-    display: block;
+    padding: 2px;
+    box-sizing: border-box;
 }
 
 .selected {

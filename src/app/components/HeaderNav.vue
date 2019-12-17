@@ -62,5 +62,6 @@ ol {
 }
 li {
     display: block;
+    padding: 1px;
 }
 </style>

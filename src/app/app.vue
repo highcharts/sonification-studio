@@ -10,11 +10,13 @@
 
 <script lang="ts">
 import Header from './components/Header.vue';
+import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
 
 export default {
     components: {
         Header
-    }
+    },
+    mounted: removeFocusOutlineUnlessKeypress
 };
 </script>
 

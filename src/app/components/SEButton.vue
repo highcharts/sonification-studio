@@ -33,7 +33,8 @@ export default {
             color: @sebutton-hover-color;
         }
         &:active {
-            background-color: darken(@sebutton-hover-bg, 10%);
+            background-color: darken(@sebutton-hover-bg, 5%);
+            color: @sebutton-hover-color;
         }
     }
 
@@ -47,7 +48,8 @@ export default {
             border-color: @sebutton-dark-hover-color;
         }
         &:active {
-            background-color: darken(@sebutton-dark-hover-bg, 10%);
+            background-color: darken(@sebutton-dark-hover-bg, 5%);
+            color: @sebutton-dark-hover-color;
         }
     }
 </style>
