@@ -1,15 +1,18 @@
 <template>
     <header>
-        <HeaderNav class="navbar" />
+        <HeaderNav class="section-nav" />
+        <HeaderExport class="section-export" />
     </header>
 </template>
 
 <script lang="ts">
 import HeaderNav from './HeaderNav.vue';
+import HeaderExport from './HeaderExport.vue';
 
 export default {
     components: {
-        HeaderNav
+        HeaderNav,
+        HeaderExport
     }
 };
 </script>
@@ -18,8 +21,12 @@ export default {
 header {
     width: 100%;
     background-color: white;
+    display: flex;
 }
-.navbar {
-    width: 50%;
+.section-nav {
+    flex: 3;
+}
+.section-export {
+    flex: 2;
 }
 </style>
