@@ -20,12 +20,14 @@ export default {
 
     button {
         margin: 5px;
-        padding: 5px 10px;
+        padding: 6px 15px;
         background-color: @sebutton-bg;
         color: @sebutton-color;
         border: 1px solid @sebutton-color;
         border-radius: 14px;
         font: inherit;
+        font-size: 14px;
+        font-weight: bold;
         cursor: pointer;
         display: block;
         &:hover {

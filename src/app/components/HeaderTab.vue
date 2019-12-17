@@ -1,6 +1,7 @@
 <template>
     <button
         role="tab"
+        class="header-tab"
         :class="{ selected: selected }"
         :aria-selected="selected"
         :aria-controls="controls"
@@ -26,7 +27,8 @@ button {
     background-color: @header-tab-btn-bg;
 	color: @header-tab-btn-color;
 	border: none;
-	font: inherit;
+    font: inherit;
+    font-size: 18px;
 	cursor: pointer;
     text-decoration: underline;
     display: block;
@@ -40,5 +42,6 @@ button {
     background-color: @header-tab-btn-selected-bg;
     color: @header-tab-btn-selected-color;
     text-decoration: none;
+    font-weight: bold;
 }
 </style>
