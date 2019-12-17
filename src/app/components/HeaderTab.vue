@@ -29,7 +29,6 @@ button {
 	padding: 0;
 	font: inherit;
 	cursor: pointer;
-    outline: inherit;
     text-decoration: underline;
     height: 100%;
     width: 100%;

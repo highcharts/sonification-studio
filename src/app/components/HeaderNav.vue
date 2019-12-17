@@ -58,6 +58,7 @@ nav {
 ol {
     display: flex;
     list-style: none;
+    height: 100%;
 }
 li {
     display: block;
