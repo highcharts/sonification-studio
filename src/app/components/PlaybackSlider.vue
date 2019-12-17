@@ -1,13 +1,24 @@
 <template>
     <div>
-        Playback slider goes here
+        <SESlider
+            id="slider-playback"
+            :value="0"
+            dark
+        >
+            Playback
+        </SESlider>
     </div>
 </template>
 
 <script lang="ts">
-export default {};
+import SESlider from './SESlider.vue';
+
+export default {
+    components: {
+        SESlider
+    }
+};
 </script>
 
 <style lang="less" scoped>
-    @import "../colors";
 </style>
