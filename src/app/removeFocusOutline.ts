@@ -21,7 +21,7 @@ export function removeFocusOutlineUnlessKeypress(): void {
     document.addEventListener('keydown', function(){
         setCss(`
             :focus{outline: solid 4px ${outlineColor};}
-            ::-moz-focus-inner{border: 4px solid ${outlineColor};}
+            ::-moz-focus-inner{border:0;}
         `);
     });
 }

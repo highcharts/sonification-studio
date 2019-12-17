@@ -28,6 +28,7 @@ export default {
         background-color: @play-controls-bg;
         color: @play-controls-color;
         display: flex;
+        padding: 5px;
     }
 
     .playControlItem {
