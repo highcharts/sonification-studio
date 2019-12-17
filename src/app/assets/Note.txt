@@ -1,0 +1,5 @@
+NOTE
+
+SVGs sourced from the FontAwesome project, among their free icons. Minor modifications have been made.
+
+FontAwesome license can be found in this directory.
