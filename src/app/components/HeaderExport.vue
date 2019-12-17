@@ -32,7 +32,6 @@ export default {
 <style lang="less" scoped>
 .export-container {
     width: 100%;
-    background: red;
     display: flex;
     justify-content: flex-end;
 }

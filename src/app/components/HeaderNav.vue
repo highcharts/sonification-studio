@@ -53,7 +53,6 @@ export default {
 <style lang="less" scoped>
 nav {
     width: 100%;
-    background-color: gray;
 }
 ol {
     display: flex;
@@ -62,6 +61,7 @@ ol {
 }
 li {
     display: block;
+    flex: 1;
     padding: 1px;
 }
 </style>
