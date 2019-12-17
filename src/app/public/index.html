@@ -1,6 +1,30 @@
-<html>
+<!DOCTYPE html>
+<!--[if lte IE 9]><html>
+    <body><h1>Error: Browser not supported. Please update to a newer browser.</h1></body>
+</html><![endif]-->
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="Highsoft AS">
+        <meta name="viewport" content="width=device-width, initial-scale=0.86, maximum-scale=4.0, minimum-scale=0.86">
+        <meta name="description" content="Design and play charts using sound. Visualize data with music.">
+        <meta name="keywords" content="sonification,chart,dataviz,studio,science">
+        <title>Chart Sonification Studio</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            html, body {
+                height: 100%;
+            }
+        </style>
+    </head>
     <body>
-        <div id="app"></div>
+        <div style="max-width:1200px;height:100%;margin:0 auto;">
+            <div id="app"></div>
+        </div>
+
         <script src="./app.ts"></script>
     </body>
 </html>
