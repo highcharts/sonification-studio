@@ -5,16 +5,22 @@
 <template>
     <div class="app-container">
         <Header />
+        <MainContentView id="mainContentView" />
+        <Footer />
     </div>
 </template>
 
 <script lang="ts">
 import Header from './components/Header.vue';
+import MainContentView from './components/MainContentView.vue';
+import Footer from './components/Footer.vue';
 import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
 
 export default {
     components: {
-        Header
+        Header,
+        MainContentView,
+        Footer
     },
     mounted: removeFocusOutlineUnlessKeypress
 };
@@ -29,6 +35,13 @@ export default {
     height: 100%;
     width: 100%;
     min-width: 600px;
+    min-height: 600px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+#mainContentView {
+    flex: 1;
 }
 </style>
