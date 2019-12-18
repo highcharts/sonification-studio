@@ -31,18 +31,18 @@ export default {
 </script>
 
 <style lang="less" scoped>
-header {
-    display: flex;
-    flex-direction: column;
-}
-.topRow {
-    width: 100%;
-    display: flex;
-}
-.section-nav {
-    flex: 3;
-}
-.section-export {
-    flex: 2;
-}
+    header {
+        display: flex;
+        flex-direction: column;
+    }
+    .topRow {
+        width: 100%;
+        display: flex;
+    }
+    .section-nav {
+        flex: 3;
+    }
+    .section-export {
+        flex: 2;
+    }
 </style>

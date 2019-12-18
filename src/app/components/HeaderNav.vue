@@ -55,23 +55,23 @@ export default {
 </script>
 
 <style lang="less" scoped>
-nav {
-    width: 100%;
-}
-ol {
-    display: flex;
-    list-style: none;
-    height: 100%;
-}
-li:first-child .header-tab {
-    border-radius: 4px 0px 0px 4px;
-}
-li:last-child .header-tab {
-    border-radius: 0px 4px 4px 0px;
-}
-li {
-    display: block;
-    flex: 1;
-    padding: 1px;
-}
+    nav {
+        width: 100%;
+    }
+    ol {
+        display: flex;
+        list-style: none;
+        height: 100%;
+    }
+    li:first-child .header-tab {
+        border-radius: 4px 0px 0px 4px;
+    }
+    li:last-child .header-tab {
+        border-radius: 0px 4px 4px 0px;
+    }
+    li {
+        display: block;
+        flex: 1;
+        padding: 1px;
+    }
 </style>

@@ -30,10 +30,10 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.export-container {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
+    .export-container {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
 </style>
