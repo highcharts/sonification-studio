@@ -7,13 +7,11 @@
                 class="fullscreen"
             />
 
-            <section
+            <MappingControls
                 v-show="selectedView === 'mappingsContent'"
                 id="mappingsContent"
                 class="sidebar"
-            >
-                Mapping controls
-            </section>
+            />
 
             <section
                 v-show="selectedView === 'chartContent'"
@@ -40,12 +38,14 @@
 import TextDescription from './TextDescription.vue';
 import Preview from './Preview.vue';
 import Data from './Data.vue';
+import MappingControls from './MappingControls.vue';
 
 export default {
     components: {
         TextDescription,
         Preview,
-        Data
+        Data,
+        MappingControls
     },
     props: {
         selectedView: { type: String, required: true }
