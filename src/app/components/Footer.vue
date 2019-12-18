@@ -29,29 +29,29 @@ export default {
 </script>
 
 <style lang="less" scoped>
-footer {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-#copyright {
-    font-size: 0.7em;
-    margin-top: 8px;
-    margin-bottom: 2px;
-}
-
-#title {
-    margin-top: 15px;
-    font-size: 0.8em;
-    letter-spacing: 0.1em;
-    display: flex;
-    align-items: center;
-    img {
-        width: 16px;
-        height: $width;
-        margin: 0 8px;
+    footer {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
-}
+
+    #copyright {
+        font-size: 0.7em;
+        margin-top: 8px;
+        margin-bottom: 2px;
+    }
+
+    #title {
+        margin-top: 15px;
+        font-size: 0.8em;
+        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        img {
+            width: 16px;
+            height: $width;
+            margin: 0 8px;
+        }
+    }
 </style>
