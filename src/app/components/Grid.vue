@@ -1,10 +1,18 @@
 <template>
-    <ag-grid-vue
-        class="se-grid ag-theme-balham"
-        suppress-menu-hide="true"
-        :column-defs="columnDefs"
-        :row-data="rowData"
-    />
+    <div
+        class="se-grid-container"
+        tabindex="0"
+        @keyup.enter="focusGrid"
+        @keyup.esc="unfocusGrid"
+    >
+        <ag-grid-vue
+            ref="grid"
+            class="se-grid ag-theme-balham"
+            suppress-menu-hide="true"
+            :column-defs="columnDefs"
+            :row-data="rowData"
+        />
+    </div>
 </template>
 
 <script lang="ts">
@@ -53,6 +61,26 @@ export default {
             }
 
             return res;
+        },
+
+        focusGrid() {
+            const grid: any = this.$refs.grid;
+            const gridOptions = grid?.gridOptions;
+            const api = gridOptions?.api;
+
+            if (api) {
+                api.ensureIndexVisible(0);
+
+                const firstCol = gridOptions.columnApi.getAllDisplayedColumns()[0];
+                api.ensureColumnVisible(firstCol);
+
+                api.setFocusedCell(0, firstCol);
+            }
+        },
+
+        unfocusGrid() {
+            const el: any = this.$el;
+            el.focus();
         }
     }
 };
@@ -81,7 +109,7 @@ export default {
         padding-left: 15px;
     }
 
-    .se-grid {
+    .se-grid, .se-grid-container {
         width: 100%;
         height: 100%;
     }
