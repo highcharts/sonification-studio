@@ -31,17 +31,20 @@
             Preview
         </section>
 
-        <section
+        <TextDescription
             v-show="selectedView !== 'dataContent'"
             class="description"
-        >
-            Text description
-        </section>
+        />
     </main>
 </template>
 
 <script lang="ts">
+import TextDescription from './TextDescription.vue';
+
 export default {
+    components: {
+        TextDescription
+    },
     props: {
         selectedView: { type: String, required: true }
     }
@@ -51,13 +54,9 @@ export default {
 <style lang="less" scoped>
     main {
         display: grid;
-        grid-template-rows: 3fr 1fr;
+        grid-template-rows: 1.8fr 1fr;
         grid-template-columns: 350px 1fr;
         grid-gap: 5px;
-    }
-
-    section {
-        background-color: gray;
     }
 
     .fullscreen {
