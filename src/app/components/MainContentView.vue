@@ -24,7 +24,7 @@
             </section>
 
             <Preview
-                v-show="selectedView !== 'dataContent'"
+                v-if="selectedView !== 'dataContent'"
                 class="preview"
             />
 
