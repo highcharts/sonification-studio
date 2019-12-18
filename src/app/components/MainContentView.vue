@@ -1,12 +1,10 @@
 <template>
     <main>
-        <section
+        <Data
             v-show="selectedView === 'dataContent'"
             id="dataContent"
             class="fullscreen"
-        >
-            Data input
-        </section>
+        />
 
         <section
             v-show="selectedView === 'mappingsContent'"
@@ -39,11 +37,13 @@
 <script lang="ts">
 import TextDescription from './TextDescription.vue';
 import Preview from './Preview.vue';
+import Data from './Data.vue';
 
 export default {
     components: {
         TextDescription,
-        Preview
+        Preview,
+        Data
     },
     props: {
         selectedView: { type: String, required: true }
