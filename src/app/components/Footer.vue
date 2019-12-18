@@ -1,10 +1,12 @@
 <template>
     <footer>
         <div id="title">
-            <img
-                alt="Highcharts logo"
-                :src="highchartsIcon"
-            >
+            <a href="https://www.highcharts.com">
+                <img
+                    alt="Highcharts.com logo"
+                    :src="highchartsIcon"
+                >
+            </a>
             Chart Sonification Studio
         </div>
         <div id="copyright">
