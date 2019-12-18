@@ -1,39 +1,39 @@
 <template>
     <main>
         <section
+            v-show="selectedView === 'dataContent'"
             id="dataContent"
             class="fullscreen"
-            :class="{ show: selectedView === 'dataContent' }"
         >
             Data input
         </section>
 
         <section
+            v-show="selectedView === 'mappingsContent'"
             id="mappingsContent"
             class="sidebar"
-            :class="{ show: selectedView === 'mappingsContent' }"
         >
             Mapping controls
         </section>
 
         <section
+            v-show="selectedView === 'customizeContent'"
             id="customizeContent"
             class="sidebar"
-            :class="{ show: selectedView === 'customizeContent' }"
         >
             Customize controls
         </section>
 
         <section
+            v-show="selectedView !== 'dataContent'"
             class="preview"
-            :class="{ show: selectedView !== 'dataContent' }"
         >
             Preview
         </section>
 
         <section
+            v-show="selectedView !== 'dataContent'"
             class="description"
-            :class="{ show: selectedView !== 'dataContent' }"
         >
             Text description
         </section>
@@ -57,12 +57,7 @@ export default {
     }
 
     section {
-        background-color: white;
-        display: none;
-    }
-
-    .show {
-        display: block;
+        background-color: gray;
     }
 
     .fullscreen {
