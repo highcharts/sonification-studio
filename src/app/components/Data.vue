@@ -1,8 +1,6 @@
 <template>
     <section aria-label="Data input">
-        <div>
-            Controls
-        </div>
+        <GridControls />
         <div id="gridContainer">
             <Grid />
         </div>
@@ -11,10 +9,11 @@
 
 <script lang="ts">
 import Grid from './Grid.vue';
+import GridControls from './GridControls.vue';
 
 export default {
     components: {
-        Grid
+        Grid, GridControls
     }
 };
 </script>
@@ -25,6 +24,8 @@ export default {
     section {
         display: flex;
         flex-direction: column;
+        background-color: @main-content-bg-color;
+        padding: 20px;
     }
 
     #gridContainer {

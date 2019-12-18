@@ -1,6 +1,9 @@
 <template>
     <div class="se-dropdown sedropdown-container">
-        <select :aria-label="label">
+        <select
+            :aria-label="label"
+            :aria-labelledby="labelledby"
+        >
             <option
                 v-for="opt in options"
                 :key="opt.name"
@@ -23,7 +26,8 @@ import arrowIcon from '../assets/arrow-down.svg';
 export default {
     props: {
         options: { type: Array, required: true },
-        label: { type: String, required: true }
+        label: { type: String, default: '' },
+        labelledby: { type: String, default: '' },
     },
     data: function () {
         return {
@@ -58,6 +62,7 @@ export default {
         line-height: 1;
         padding: .4em 1.2em .4em .7em;
         width: 100%;
+        height: 30px;
         max-width: 100%;
         box-sizing: border-box;
         margin: 0;
@@ -76,7 +81,7 @@ export default {
 
     img {
         position: absolute;
-        top: 0px;
+        top: 2px;
         right: 5px;
         pointer-events: none;
         width: 18px;

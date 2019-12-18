@@ -36,8 +36,8 @@ export default {
             color: @sebutton-hover-color;
         }
         &:active {
-            background-color: darken(@sebutton-hover-bg, 3%);
-            color: darken(@sebutton-hover-color, 3%);
+            background-color: darken(@sebutton-hover-bg, 5%);
+            color: darken(@sebutton-hover-color, 5%);
         }
     }
 
