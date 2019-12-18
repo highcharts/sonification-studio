@@ -15,11 +15,11 @@
         </section>
 
         <section
-            v-show="selectedView === 'customizeContent'"
-            id="customizeContent"
+            v-show="selectedView === 'chartContent'"
+            id="chartContent"
             class="sidebar"
         >
-            Customize controls
+            Chart controls
         </section>
 
         <Preview

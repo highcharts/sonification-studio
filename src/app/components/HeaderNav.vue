@@ -36,8 +36,8 @@ export default {
                 name: 'Mappings',
                 controls: 'mappingsContent',
             }, {
-                name: 'Customize',
-                controls: 'customizeContent',
+                name: 'Chart',
+                controls: 'chartContent',
             }],
             selectedTab: 'Data'
         };
