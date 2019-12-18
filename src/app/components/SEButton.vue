@@ -1,6 +1,6 @@
 <template>
     <button
-        :class="{ dark: dark }"
+        :class="{ dark: dark, wide: wide }"
         @click="$emit('click')"
     >
         <slot />
@@ -10,7 +10,8 @@
 <script lang="ts">
 export default {
     props: {
-        dark: { type: Boolean, default: false }
+        dark: { type: Boolean, default: false },
+        wide: { type: Boolean, default: false }
     }
 };
 </script>
@@ -35,8 +36,8 @@ export default {
             color: @sebutton-hover-color;
         }
         &:active {
-            background-color: darken(@sebutton-hover-bg, 5%);
-            color: @sebutton-hover-color;
+            background-color: darken(@sebutton-hover-bg, 3%);
+            color: darken(@sebutton-hover-color, 3%);
         }
     }
 
@@ -50,8 +51,16 @@ export default {
             border-color: @sebutton-dark-hover-color;
         }
         &:active {
-            background-color: darken(@sebutton-dark-hover-bg, 5%);
-            color: @sebutton-dark-hover-color;
+            background-color: darken(@sebutton-dark-hover-bg, 3%);
+            color: darken(@sebutton-dark-hover-color, 3%);
         }
+    }
+
+    .wide {
+        padding: 6px 30px;
+    }
+
+    button::-moz-focus-inner {
+        border: 0;
     }
 </style>
