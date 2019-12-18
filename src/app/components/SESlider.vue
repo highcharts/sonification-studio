@@ -127,4 +127,8 @@ export default {
             .inputStyles(@seslider-dark-color);
         }
     }
+
+    input[type=range]::-moz-focus-outer {
+        border: 0;
+    }
 </style>

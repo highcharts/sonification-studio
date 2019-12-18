@@ -15,13 +15,12 @@ export function removeFocusOutlineUnlessKeypress(): void {
     head.appendChild(styleElement);
 
     document.addEventListener('mousedown', function(){
-        setCss(':focus{outline:0}::-moz-focus-inner{border:0;}');
+        setCss(':focus{outline:0}');
     });
 
     document.addEventListener('keydown', function(){
         setCss(`
-            :focus{outline: solid 4px ${outlineColor};}
-            ::-moz-focus-inner{border:0;}
+            :focus{outline: solid 4px ${outlineColor};}            
         `);
     });
 }

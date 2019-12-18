@@ -49,4 +49,8 @@ export default {
             margin: 6px auto;
         }
     }
+
+    button::-moz-focus-inner {
+        border: 0;
+    }
 </style>
