@@ -36,11 +36,12 @@ footer {
 
 #copyright {
     font-size: 0.7em;
-    margin: 8px;
+    margin-top: 8px;
+    margin-bottom: 2px;
 }
 
 #title {
-    margin-top: 10px;
+    margin-top: 15px;
     font-size: 0.8em;
     letter-spacing: 0.1em;
     display: flex;
