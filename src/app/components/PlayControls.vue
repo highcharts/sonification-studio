@@ -30,6 +30,7 @@ export default {
         display: flex;
         align-items: center;
         padding: 5px;
+        box-sizing: border-box;
     }
 
     .playControlItem {
