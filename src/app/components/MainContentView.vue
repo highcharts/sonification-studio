@@ -1,36 +1,38 @@
 <template>
     <main>
-        <Data
-            v-show="selectedView === 'dataContent'"
-            id="dataContent"
-            class="fullscreen"
-        />
+        <div id="mainGrid">
+            <Data
+                v-show="selectedView === 'dataContent'"
+                id="dataContent"
+                class="fullscreen"
+            />
 
-        <section
-            v-show="selectedView === 'mappingsContent'"
-            id="mappingsContent"
-            class="sidebar"
-        >
-            Mapping controls
-        </section>
+            <section
+                v-show="selectedView === 'mappingsContent'"
+                id="mappingsContent"
+                class="sidebar"
+            >
+                Mapping controls
+            </section>
 
-        <section
-            v-show="selectedView === 'chartContent'"
-            id="chartContent"
-            class="sidebar"
-        >
-            Chart controls
-        </section>
+            <section
+                v-show="selectedView === 'chartContent'"
+                id="chartContent"
+                class="sidebar"
+            >
+                Chart controls
+            </section>
 
-        <Preview
-            v-show="selectedView !== 'dataContent'"
-            class="preview"
-        />
+            <Preview
+                v-show="selectedView !== 'dataContent'"
+                class="preview"
+            />
 
-        <TextDescription
-            v-show="selectedView !== 'dataContent'"
-            class="description"
-        />
+            <TextDescription
+                v-show="selectedView !== 'dataContent'"
+                class="description"
+            />
+        </div>
     </main>
 </template>
 
@@ -52,8 +54,10 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    main {
+    #mainGrid {
         display: grid;
+        width: 100%;
+        height: 100%;
         grid-template-rows: 1.8fr 1fr;
         grid-template-columns: 350px 1fr;
         grid-gap: 5px;
@@ -76,6 +80,7 @@ export default {
         grid-column-start: 2;
         grid-column-end: 3;
         grid-row-start: 1;
+        grid-row-end: 2;
     }
 
     .description {

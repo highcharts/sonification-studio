@@ -1,9 +1,11 @@
 <template>
     <section aria-label="Chart preview">
-        <highcharts
-            class="chart"
-            :options="chartOptions"
-        />
+        <div class="chart-container">
+            <highcharts
+                class="chart"
+                :options="chartOptions"
+            />
+        </div>
     </section>
 </template>
 
@@ -35,6 +37,15 @@ export default {
     section {
         background-color: @main-content-bg-color;
         padding: 30px;
+        position: relative;
+    }
+
+    .chart-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
     }
 
     .chart {
