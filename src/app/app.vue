@@ -4,8 +4,11 @@
 -->
 <template>
     <div class="app-container">
-        <Header />
-        <MainContentView id="mainContentView" />
+        <Header @tab-selected="tabSelected" />
+        <MainContentView
+            id="mainContentView"
+            :selected-view="selectedView"
+        />
         <Footer />
     </div>
 </template>
@@ -22,7 +25,17 @@ export default {
         MainContentView,
         Footer
     },
-    mounted: removeFocusOutlineUnlessKeypress
+    data: function () {
+        return {
+            selectedView: ''
+        };
+    },
+    mounted: removeFocusOutlineUnlessKeypress,
+    methods: {
+        tabSelected: function (controlsId: string): void {
+            this.selectedView = controlsId;
+        }
+    }
 };
 </script>
 

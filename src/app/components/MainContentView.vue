@@ -1,18 +1,40 @@
 <template>
     <main>
-        <section class="fullscreen">
+        <section
+            id="dataContent"
+            class="fullscreen"
+            :class="{ show: selectedView === 'dataContent' }"
+        >
             Data input
         </section>
-        <section class="sidebar">
+
+        <section
+            id="mappingsContent"
+            class="sidebar"
+            :class="{ show: selectedView === 'mappingsContent' }"
+        >
             Mapping controls
         </section>
-        <section class="sidebar">
+
+        <section
+            id="customizeContent"
+            class="sidebar"
+            :class="{ show: selectedView === 'customizeContent' }"
+        >
             Customize controls
         </section>
-        <section class="preview">
+
+        <section
+            class="preview"
+            :class="{ show: selectedView !== 'dataContent' }"
+        >
             Preview
         </section>
-        <section class="description">
+
+        <section
+            class="description"
+            :class="{ show: selectedView !== 'dataContent' }"
+        >
             Text description
         </section>
     </main>
@@ -20,6 +42,9 @@
 
 <script lang="ts">
 export default {
+    props: {
+        selectedView: { type: String, required: true }
+    }
 };
 </script>
 
@@ -29,6 +54,15 @@ export default {
         grid-template-rows: 3fr 1fr;
         grid-template-columns: 350px 1fr;
         grid-gap: 5px;
+    }
+
+    section {
+        background-color: white;
+        display: none;
+    }
+
+    .show {
+        display: block;
     }
 
     .fullscreen {

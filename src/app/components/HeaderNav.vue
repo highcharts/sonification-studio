@@ -11,7 +11,7 @@
                 <HeaderTab
                     :selected="selectedTab === tab.name"
                     :controls="tab.controls"
-                    @click="tabClicked(tab.name)"
+                    @click="tabClicked(tab.name, tab.controls)"
                 >
                     {{ tab.name }}
                 </HeaderTab>
@@ -42,9 +42,13 @@ export default {
             selectedTab: 'Data'
         };
     },
+    created: function () {
+        this.$emit('tab-selected', 'dataContent');
+    },
     methods: {
-        tabClicked: function (tabId: string) {
+        tabClicked: function (tabId: string, controlsId: string): void {
             this.selectedTab = tabId;
+            this.$emit('tab-selected', controlsId);
         }
     }
 };
