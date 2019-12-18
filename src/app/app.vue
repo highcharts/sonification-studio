@@ -47,7 +47,7 @@ export default {
     padding: 10px;
     height: 100%;
     width: 100%;
-    min-width: 600px;
+    min-width: 800px;
     min-height: 800px;
     box-sizing: border-box;
     display: flex;
