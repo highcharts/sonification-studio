@@ -24,12 +24,10 @@
             Customize controls
         </section>
 
-        <section
+        <Preview
             v-show="selectedView !== 'dataContent'"
             class="preview"
-        >
-            Preview
-        </section>
+        />
 
         <TextDescription
             v-show="selectedView !== 'dataContent'"
@@ -40,10 +38,12 @@
 
 <script lang="ts">
 import TextDescription from './TextDescription.vue';
+import Preview from './Preview.vue';
 
 export default {
     components: {
-        TextDescription
+        TextDescription,
+        Preview
     },
     props: {
         selectedView: { type: String, required: true }
