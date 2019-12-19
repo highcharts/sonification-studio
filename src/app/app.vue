@@ -56,5 +56,6 @@ export default {
 
 #mainContentView {
     flex: 1;
+    margin-top: 5px;
 }
 </style>
