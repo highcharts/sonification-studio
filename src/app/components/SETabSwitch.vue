@@ -1,6 +1,6 @@
 <template>
     <div
-        class="se-toggle-container"
+        class="se-tabswitch-container"
         role="tablist"
     >
         <button
@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-export interface SEToggleButtonDefinition {
+export interface SETabDefinition {
     name: string;
     controls: string;
     selected?: boolean;
@@ -34,13 +34,13 @@ export default {
         };
     },
     created: function (): void {
-        const defs = this.options as Array<SEToggleButtonDefinition>;
+        const defs = this.options as Array<SETabDefinition>;
         const defWithSelection = defs.find(def => def.selected) || defs[0];
         this.selectedButton = defWithSelection.name;
         this.$emit('click', defWithSelection.controls);
     },
     methods: {
-        onclick(button: SEToggleButtonDefinition) {
+        onclick(button: SETabDefinition) {
             this.selectedButton = button.name;
             this.$emit('click', button.controls);
         }
@@ -51,7 +51,7 @@ export default {
 <style lang="less" scoped>
     @import "../colors";
 
-    .se-toggle-container {
+    .se-tabswitch-container {
         display: flex;
         justify-content: center;
         width: 100%;
@@ -60,9 +60,9 @@ export default {
     button {
         margin: 0;
         padding: 4px 25px;
-        background-color: @sebutton-bg;
-        color: @sebutton-color;
-        border: 1px solid @sebutton-color;
+        background-color: @setabswitch-bg;
+        color: @setabswitch-color;
+        border: 1px solid @setabswitch-color;
         border-radius: 0;
         font: inherit;
         font-size: 13px;
@@ -70,16 +70,16 @@ export default {
         cursor: pointer;
         display: block;
         &:hover {
-            background-color: @setogglebutton-hover-bg;
-            color: @setogglebutton-hover-color;
+            background-color: @setabswitch-hover-bg;
+            color: @setabswitch-hover-color;
         }
         &:active {
-            background-color: darken(@sebutton-hover-bg, 5%);
-            color: darken(@sebutton-hover-color, 5%);
+            background-color: darken(@setabswitch-hover-bg, 5%);
+            color: darken(@setabswitch-hover-color, 5%);
         }
         &.selected {
-            background-color: @sebutton-hover-bg;
-            color: @sebutton-hover-color;
+            background-color: @setabswitch-selected-bg;
+            color: @setabswitch-selected-color;
         }
         &:first-child {
             border-radius: 5px 0 0 5px;

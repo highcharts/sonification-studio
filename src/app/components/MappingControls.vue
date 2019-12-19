@@ -1,6 +1,6 @@
 <template>
     <section aria-label="Audio mapping controls">
-        <SEToggleButton
+        <SETabSwitch
             :options="toggleMappingOptions"
             class="toggleView"
             @click="toggleMappingActivated"
@@ -14,13 +14,13 @@
 </template>
 
 <script lang="ts">
-import SEToggleButton from './SEToggleButton.vue';
+import SETabSwitch from './SETabSwitch.vue';
 import MappingsColumn from './MappingsColumn.vue';
 import MappingsGlobal from './MappingsGlobal.vue';
 
 export default {
     components: {
-        SEToggleButton,
+        SETabSwitch,
         MappingsColumn,
         MappingsGlobal
     },
