@@ -2,11 +2,13 @@
     <section aria-label="Audio mapping controls">
         <SEToggleButton
             :options="toggleMappingOptions"
+            class="toggleView"
             @click="toggleMappingActivated"
         />
         <div
             :is="activeView"
             :id="activeView"
+            class="activeView"
         />
     </section>
 </template>
@@ -51,5 +53,14 @@ export default {
         padding: 10px;
         display: flex;
         flex-direction: column;
+    }
+
+    .activeView {
+        width: 100%;
+    }
+
+    .toggleView {
+        width: 100%;
+        margin-bottom: 15px;
     }
 </style>
