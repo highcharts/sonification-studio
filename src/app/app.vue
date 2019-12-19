@@ -40,22 +40,22 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import "colors";
+    @import "colors";
 
-.app-container {
-    background-color: @app-bg-color;
-    padding: 10px;
-    height: 100%;
-    width: 100%;
-    min-width: 850px;
-    min-height: 800px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-}
+    .app-container {
+        background-color: @app-bg-color;
+        padding: 10px;
+        height: 100%;
+        width: 100%;
+        min-width: 850px;
+        min-height: 800px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
 
-#mainContentView {
-    flex: 1;
-    margin-top: 5px;
-}
+    #mainContentView {
+        flex: 1;
+        margin-top: 5px;
+    }
 </style>
