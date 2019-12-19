@@ -1,5 +1,8 @@
 <template>
-    <div class="se-toggle-container">
+    <div
+        class="se-toggle-container"
+        role="tablist"
+    >
         <button
             v-for="btn in options"
             :key="btn.name"
@@ -50,13 +53,13 @@ export default {
 
     .se-toggle-container {
         display: flex;
-        justify-items: stretch;
+        justify-content: center;
         width: 100%;
     }
 
     button {
         margin: 0;
-        padding: 4px 20px;
+        padding: 4px 25px;
         background-color: @sebutton-bg;
         color: @sebutton-color;
         border: 1px solid @sebutton-color;
