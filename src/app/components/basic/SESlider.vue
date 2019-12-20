@@ -50,7 +50,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    @import "../colors";
+    @import "../../colors";
 
     .se-slider {
         display: flex;

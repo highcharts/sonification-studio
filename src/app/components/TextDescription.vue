@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts">
-import SEButton from './SEButton.vue';
-import SEDropdown from './SEDropdown.vue';
+import SEButton from './basic/SEButton.vue';
+import SEDropdown from './basic/SEDropdown.vue';
 
 export default {
     components: {

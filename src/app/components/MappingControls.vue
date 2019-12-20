@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import SETabSwitch from './SETabSwitch.vue';
+import SETabSwitch from './basic/SETabSwitch.vue';
 import MappingsColumn from './MappingsColumn.vue';
 import MappingsGlobal from './MappingsGlobal.vue';
 

@@ -35,7 +35,7 @@ export default {
                 name: 'Data',
                 controls: 'dataContent',
             }, {
-                name: 'Mappings',
+                name: 'Audio',
                 controls: 'mappingsContent',
             }, {
                 name: 'Chart',

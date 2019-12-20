@@ -66,7 +66,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    @import "../colors";
+    @import "../../colors";
 
     button {
         position: relative;

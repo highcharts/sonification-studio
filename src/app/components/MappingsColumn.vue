@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import SEAccordionItem from './SEAccordionItem.vue';
+import SEAccordionItem from './basic/SEAccordionItem.vue';
 import MappingsColumnScales from './MappingsColumnScales.vue';
 import MappingsColumnPan from './MappingsColumnPan.vue';
 import MappingsColumnPitch from './MappingsColumnPitch.vue';

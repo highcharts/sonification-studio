@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import arrowIcon from '../assets/arrow-down.svg';
+import arrowIcon from '../../assets/arrow-down.svg';
 
 export default {
     props: {
@@ -47,7 +47,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    @import "../colors";
+    @import "../../colors";
 
     .sedropdown-container {
         position: relative;

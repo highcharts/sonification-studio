@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import SESlider from './SESlider.vue';
+import SESlider from './basic/SESlider.vue';
 
 export default {
     components: {

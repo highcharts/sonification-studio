@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import SEButton from './SEButton.vue';
+import SEButton from './basic/SEButton.vue';
 
 export default {
     components: {
