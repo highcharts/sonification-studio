@@ -25,6 +25,17 @@
         >
             <SESlider id="myid" />
         </SEControl>
+
+        <SEControl
+            control-id="mcp-polarity"
+            label="Polarity"
+            helptext="Set the polarity of the audio mapping."
+        >
+            <SERadioGroup
+                id="mcp-polarity"
+                :options="mcpPolarityOptions"
+            />
+        </SEControl>
     </div>
 </template>
 
@@ -32,12 +43,23 @@
 import SEControl from './basic/SEControl.vue';
 import SESlider from './basic/SESlider.vue';
 import SECheckbox from './basic/SECheckbox.vue';
+import SERadioGroup from './basic/SERadioGroup.vue';
 
 export default {
     components: {
         SEControl,
         SESlider,
-        SECheckbox
+        SECheckbox,
+        SERadioGroup
+    },
+    data: function () {
+        return {
+            mcpPolarityOptions: [{
+                value: 'pos', label: 'Positive', selected: true
+            }, {
+                value: 'neg', label: 'Negative'
+            }]
+        };
     }
 };
 </script>

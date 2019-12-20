@@ -3,9 +3,13 @@
 
     Props:
         - options: Array<{ label, value, selected? }> - The radio options.
+        - [id]: String - Id to put on the group.
 -->
 <template>
-    <div class="seradio-group">
+    <div
+        :id="id || null"
+        class="seradio-group"
+    >
         <div
             v-for="btn in radioButtons"
             :key="btn.value"
@@ -42,7 +46,8 @@ function getUniqueId(val: string): string {
 
 export default {
     props: {
-        options: { type: Array, required: true }
+        options: { type: Array, required: true },
+        id: { type: String, default: '' }
     },
 
     computed: {
@@ -69,13 +74,14 @@ export default {
         display: flex;
         flex-wrap: wrap;
         width: 100%;
+        margin: 3px 0;
 
         .seradio-item {
             display: flex;
             flex-direction: row-reverse;
             justify-content: center;
             align-items: center;
-            margin: 0 5px;
+            margin-right: 10px;
             input {
                 cursor: pointer;
                 display: block;
