@@ -10,9 +10,20 @@
                 {{ heading }}
             </button>
         </h3>
-        <div v-show="isSelected">
-            <slot :id="contentId" />
-        </div>
+        <transition
+            name="fold"
+            @enter="startFold"
+            @after-enter="endFold"
+            @before-leave="startFold"
+            @after-leave="endFold"
+        >
+            <div
+                v-show="isSelected"
+                class="se-accordion-item-content"
+            >
+                <slot :id="contentId" />
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -30,6 +41,14 @@ export default {
     },
     created: function () {
         this.isSelected = this.selected;
+    },
+    methods: {
+        startFold(el: HTMLElement) {
+            el.style.height = el.scrollHeight + 'px';
+        },
+        endFold(el: HTMLElement) {
+            el.style.height = '';
+        }
     }
 };
 </script>
@@ -67,4 +86,14 @@ export default {
     button::-moz-focus-inner {
         border: 0;
     }
+
+    .fold-enter-active, .fold-leave-active {
+        will-change: height;
+        transition: height 0.2s ease;
+        overflow: hidden;
+    }
+    .fold-enter, .fold-leave-to {
+        height: 0 !important;
+    }
+
 </style>
