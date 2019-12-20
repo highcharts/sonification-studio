@@ -1,12 +1,12 @@
 <template>
     <div>
         <SEControl
-            label-id="myid"
+            control-id="myid"
             label="Label goes here"
             helptext="Helptext"
             horizontal
         >
-            <SESlider labelledby="myid" />
+            <SESlider id="myid" />
         </SEControl>
     </div>
 </template>

@@ -2,10 +2,9 @@
     <div>
         <SESlider
             id="slider-volume"
+            label="Volume"
             dark
-        >
-            Volume
-        </SESlider>
+        />
     </div>
 </template>
 

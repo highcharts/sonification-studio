@@ -2,11 +2,10 @@
     <div>
         <SESlider
             id="slider-playback"
+            label="Playback"
             :value="0"
             dark
-        >
-            Playback
-        </SESlider>
+        />
     </div>
 </template>
 

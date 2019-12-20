@@ -1,24 +1,23 @@
 <!--
     A reusable slider with consistent cross-browser styling.
-    Provide label for the slider in default slot. For external label,
-    provide empty slot and set the "labelledby" prop.
 
     Props:
-        - [id]: String - Id for the slider. Automatically set on the input control.
+        - id: String - Id for the slider. Automatically set on the input control.
+        - [label]: String - Label text to add to the slider.
         - [min]: Number - Min value for slider.
         - [max]: Number - Max value for slider.
         - [value]: Number - Current slider value (one-way binding only).
         - [step]: Number - Step for slider values.
         - [dark]: Boolean - Alternate styling for dark backgrounds.
-        - [labelledby]: String - Aria-labelledby for slider, in case of external label.
 -->
 <template>
     <div class="se-slider">
         <label
+            v-if="label"
             :for="id"
             :class="{ dark: dark }"
         >
-            <slot />
+            {{ label }}
         </label>
         <div class="se-slider-inner">
             <input
@@ -29,7 +28,6 @@
                 :value="value"
                 :step="step"
                 :class="{ dark: dark }"
-                :aria-labelledby="labelledby || null"
             >
         </div>
     </div>
@@ -38,13 +36,13 @@
 <script lang="ts">
 export default {
     props: {
-        id: { type: String, default: '' },
+        id: { type: String, required: true },
+        label: { type: String, default: '' },
         dark: { type: Boolean, default: false },
         min: { type: Number, default: 0 },
         max: { type: Number, default: 100 },
         value: { type: Number, default: 50 },
-        step: { type: Number, default: 1 },
-        labelledby: { type: String, default: '' }
+        step: { type: Number, default: 1 }
     }
 };
 </script>
@@ -60,10 +58,6 @@ export default {
 
     .dark {
         color: @seslider-dark-color;
-    }
-
-    .se-slider-inner {
-        height: 20px;
     }
 
     .track(@color, @border-color) {
