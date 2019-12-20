@@ -60,17 +60,17 @@ export default {
         color: @seslider-dark-color;
     }
 
-    .track(@color, @border-color) {
+    .track(@color, @border) {
         width: 100%;
         height: 4px;
         cursor: pointer;
         border-radius: 5px;
-        border: 1px solid @border-color;
+        border: @border;
         background: @color;
     }
 
-    .thumb(@color, @border-color) {
-        border: 1px solid @border-color;
+    .thumb(@color, @border) {
+        border: @border;
         height: 16px;
         width: 16px;
         border-radius: 50%;
@@ -78,37 +78,37 @@ export default {
         cursor: pointer;
     }
 
-    .inputStyles(@inputColor, @border-color) {
+    .inputStyles(@inputColor, @border) {
         &::-moz-range-track {
-            .track(@inputColor, @border-color);
+            .track(@inputColor, @border);
         }
 
         &::-webkit-slider-runnable-track {
-            .track(@inputColor, @border-color);
+            .track(@inputColor, @border);
             height: 5px;
         }
 
         &::-moz-range-thumb {
-            .thumb(@inputColor, @border-color);
+            .thumb(@inputColor, @border);
         }
 
         &::-ms-thumb {
-            .thumb(@inputColor, @border-color);
+            .thumb(@inputColor, @border);
         }
 
         &::-webkit-slider-thumb {
-            .thumb(@inputColor, @border-color);
+            .thumb(@inputColor, @border);
             -webkit-appearance: none;
-            margin-top: -6.5px;
+            margin-top: -6px;
         }
 
         &::-moz-range-progress {
-            .track(@inputColor, @border-color);
+            .track(@inputColor, @border);
             background: @seslider-progress-color;
         }
 
         &::-ms-track {
-            .track(@inputColor, @border-color);
+            .track(@inputColor, @border);
             background: transparent;
             border-color: transparent;
             border-width: 16px 0;
@@ -132,10 +132,10 @@ export default {
         margin: 8px 0;
         width: 100%;
 
-        .inputStyles(@seslider-color, @seslider-border-color);
+        .inputStyles(@seslider-color, 1px solid @seslider-border-color);
 
         &.dark {
-            .inputStyles(@seslider-dark-color, @seslider-dark-border-color);
+            .inputStyles(@seslider-dark-color, none);
         }
     }
 
