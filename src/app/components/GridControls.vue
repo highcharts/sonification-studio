@@ -2,7 +2,7 @@
     <div class="grid-controls">
         <div class="grid-controls-group">
             <span
-                role="presentation"
+                aria-hidden="true"
                 class="control-label grid-controls-center"
             >
                 Add
@@ -13,7 +13,7 @@
                 aria-label="Add rows"
             >
             <span
-                role="presentation"
+                aria-hidden="true"
                 class="control-label grid-controls-center"
             >
                 rows
