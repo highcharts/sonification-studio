@@ -7,11 +7,12 @@
         - controlId: String - Id of the input control.
         - [helptext]: String - Show help icon with text popup.
         - [horizontal]: Boolean - Show label to the right of control, rather than above.
+        - [expandContent]: Boolean - Expand the control content to fill empty space.
 -->
 <template>
     <div
         class="se-control"
-        :class="{ horizontal: horizontal }"
+        :class="{ horizontal: horizontal, 'expand-content': expandContent }"
     >
         <div class="se-control-label-container">
             <label
@@ -20,6 +21,7 @@
             >
                 {{ label }}
             </label>
+
             <button
                 v-if="helptext"
                 class="helpicon"
@@ -29,15 +31,17 @@
                 @keyup.esc="helptextActive = false"
             >
                 ?
+
+                <div class="helptext-popup-container">
+                    <div
+                        v-show="helptextActive"
+                        class="helptext-popup"
+                    >
+                        <p>{{ helptext }}</p>
+                        <div class="helptext-arrow" />
+                    </div>
+                </div>
             </button>
-            <div
-                v-show="helptextActive"
-                class="helptext-popup"
-                @click="helptextActive = false"
-            >
-                <p>{{ helptext }}</p>
-                <div class="helptext-arrow" />
-            </div>
         </div>
         <div class="se-control-content">
             <slot />
@@ -51,7 +55,8 @@ export default {
         label: { type: String, required: true },
         controlId: { type: String, required: true },
         helptext: { type: String, default: '' },
-        horizontal: { type: Boolean, default: false }
+        horizontal: { type: Boolean, default: false },
+        expandContent: { type: Boolean, default: false }
     },
     data: function () {
         return {
@@ -74,19 +79,26 @@ export default {
     .se-control {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        justify-content: center;
         width: 100%;
         &.horizontal {
             flex-direction: row-reverse;
             justify-content: flex-end;
+            align-items: center;
             .se-control-label {
-                margin-left: 10px;
+                margin-left: 6px;
+                cursor: pointer;
+            }
+            .se-control-content {
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
         }
-    }
-
-    .se-control-content {
-        flex: 1;
+        &.expand-content .se-control-content {
+            flex: 1;
+            display: block;
+        }
     }
 
     .se-control-label-container {
@@ -102,10 +114,8 @@ export default {
     .helpicon {
         margin: 2px;
         margin-left: 4px;
-        padding-left: 0.5px;
         width: 18px;
         height: $width;
-        overflow: hidden;
         background-color: @secontrol-helpicon-bg;
         color: @secontrol-helpicon-color;
         border: 1px solid @secontrol-helpicon-color;
@@ -127,15 +137,21 @@ export default {
         }
     }
 
+    .helptext-popup-container {
+        position: relative;
+    }
+
     .helptext-popup {
         cursor: pointer;
         position: absolute;
         box-shadow: 0 1px 10px @secontrol-helptext-shadow;
         width: 200px;
-        right: -89px;
+        right: -92px;
         bottom: 0;
         font-size: 12px;
-        margin-bottom: 30px;
+        font-weight: normal;
+        text-align: left;
+        margin-bottom: 25px;
         z-index: 99;
         padding: 10px;
         box-sizing: border-box;
