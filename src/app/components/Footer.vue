@@ -10,7 +10,7 @@
             Chart Sonification Studio
         </div>
         <div id="copyright">
-            © Copyright {{ year }} Highsoft AS - designed in collaboration with Georgia Institue of Technology
+            © Copyright {{ year }} Highsoft AS - designed in collaboration with Georgia Institute of Technology
         </div>
     </footer>
 </template>
