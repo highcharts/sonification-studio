@@ -4,8 +4,6 @@
 
     Props:
         - heading: String - Heading text.
-        - contentId: String - Id of the element containing the content of the item.
-            Note: The ID has to be set manually on the element.
         - [selected]: Boolean - Preselect item, render as expanded.
 -->
 <template>
@@ -13,7 +11,6 @@
         <button
             :class="{ selected: isSelected }"
             :aria-expanded="isSelected ? 'true' : 'false'"
-            :aria-controls="contentId"
             @click="isSelected = !isSelected"
         >
             <h3>{{ heading }}</h3>
@@ -43,7 +40,6 @@
 export default {
     props: {
         heading: { type: String, required: true },
-        contentId: { type: String, required: true },
         selected: { type: Boolean, default: false }
     },
     data: function () {

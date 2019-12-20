@@ -23,6 +23,8 @@
             <button
                 v-if="helptext"
                 class="helpicon"
+                aria-label="Help"
+                :aria-expanded="helptextActive ? 'true' : 'false'"
                 @click="helptextActive = !helptextActive"
                 @keyup.esc="helptextActive = false"
             >

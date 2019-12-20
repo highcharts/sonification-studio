@@ -6,12 +6,4 @@ describe('HeaderNav.vue', () => {
         const h = shallowMount(HeaderNav);
         expect(h.html()).toContain('nav');
     });
-    test('Should contain ol element', () => {
-        const h = shallowMount(HeaderNav);
-        expect(h.html()).toContain('ol');
-    });
-    test('Should contain several li elements', () => {
-        const h = shallowMount(HeaderNav);
-        expect(h.findAll('li').length).toBeGreaterThan(2);
-    });
 });

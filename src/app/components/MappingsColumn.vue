@@ -6,14 +6,10 @@
                 v-for="item in accordionItems"
                 :key="item.component"
                 :heading="item.heading"
-                :content-id="item.contentId"
                 :selected="item.selected"
             >
                 <keep-alive>
-                    <component
-                        :is="item.component"
-                        :id="item.contentId"
-                    />
+                    <component :is="item.component" />
                 </keep-alive>
             </SEAccordionItem>
         </div>
@@ -39,20 +35,16 @@ export default {
         return {
             accordionItems: [{
                 heading: 'Sound scales',
-                contentId: 'mapping-scales',
                 component: 'MappingsColumnScales'
             }, {
                 heading: 'Pitch',
-                contentId: 'mapping-pitch',
                 component: 'MappingsColumnPitch'
             }, {
                 heading: 'Pan (left to right)',
-                contentId: 'mapping-pan',
                 component: 'MappingsColumnPan',
                 selected: true
             }, {
                 heading: 'Volume',
-                contentId: 'mapping-volume',
                 component: 'MappingsColumnVolume'
             }]
         };

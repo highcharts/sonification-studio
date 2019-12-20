@@ -1,24 +1,22 @@
 <template>
     <nav>
-        <ol
+        <div
             role="tablist"
+            class="header-tablist"
             aria-label="Select design stage"
         >
-            <li
+            <HeaderTab
                 v-for="tab in headerTabs"
                 :key="tab.name"
                 role="tab"
                 :aria-selected="selectedTab === tab.name ? 'true' : 'false'"
                 :aria-controls="tab.controls"
+                :selected="selectedTab === tab.name"
+                @click="tabClicked(tab.name, tab.controls)"
             >
-                <HeaderTab
-                    :selected="selectedTab === tab.name"
-                    @click="tabClicked(tab.name, tab.controls)"
-                >
-                    {{ tab.name }}
-                </HeaderTab>
-            </li>
-        </ol>
+                {{ tab.name }}
+            </HeaderTab>
+        </div>
     </nav>
 </template>
 
@@ -60,20 +58,21 @@ export default {
     nav {
         width: 100%;
     }
-    ol {
+    .header-tablist {
         display: flex;
-        list-style: none;
         height: 100%;
+        padding-bottom: 1px;
+        box-sizing: border-box;
     }
-    li:first-child .header-tab {
+    .header-tab:first-child {
         border-radius: 4px 0px 0px 4px;
     }
-    li:last-child .header-tab {
+    .header-tab:last-child {
         border-radius: 0px 4px 4px 0px;
     }
-    li {
+    .header-tab {
         display: block;
         flex: 1;
-        padding: 1px;
+        margin-right: 1px;
     }
 </style>
