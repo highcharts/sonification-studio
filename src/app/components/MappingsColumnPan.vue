@@ -1,11 +1,26 @@
 <template>
     <div>
-        Pan content here
+        <SEControl
+            label-id="myid"
+            label="Label goes here"
+            helptext="Helptext"
+            horizontal
+        >
+            <SESlider labelledby="myid" />
+        </SEControl>
     </div>
 </template>
 
 <script lang="ts">
-export default {};
+import SEControl from './SEControl.vue';
+import SESlider from './SESlider.vue';
+
+export default {
+    components: {
+        SEControl,
+        SESlider
+    }
+};
 </script>
 
 <style lang="less" scoped>
