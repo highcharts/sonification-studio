@@ -9,7 +9,7 @@
     "lint": "eslint --ext .ts,.js,.vue .",
     "dev": "npm run clean && npm run lint && parcel src/app/public/index.html --open",
     "build": "npm run clean && npm run lint && parcel build src/app/public/index.html --no-source-maps",
-    "copy-to-docs": "trash docs && copyfiles -f \"./dist/**/*\" ./docs",
+    "copy-to-docs": "trash docs && copyfiles -f \"./dist/**/*\" ./src/app/public/.nojekyll ./docs",
     "publish": " npm run build && npm run copy-to-docs"
   },
   "husky": {
