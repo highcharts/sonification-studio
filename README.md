@@ -16,6 +16,8 @@ To build the project and start a dev server, run `npm run dev`.
 
 To build for production, run `npm run build`. The build output is placed in the `dist` directory.
 
+To build and publish to GitHub pages, run `npm run publish`, commit, and push. The contents of the `docs` directory is served on the GitHub pages site.
+
 To lint without building, run `npm run lint`. Linting is otherwise ran automatically before each build and commit.
 
 We are using ParcelJS for bundling files. Typescript is used for transpilation, and Vue is used as a front-end
