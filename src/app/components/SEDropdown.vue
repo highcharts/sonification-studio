@@ -23,6 +23,7 @@
         </select>
         <img
             alt=""
+            aria-hidden="true"
             :src="arrowIcon"
         >
     </div>
