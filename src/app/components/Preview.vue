@@ -1,8 +1,13 @@
 <template>
     <section aria-label="Chart preview">
-        <div class="chart-container">
+        <div
+            class="chart-container"
+            role="image"
+            aria-label="Chart graphic"
+        >
             <highcharts
                 class="chart"
+                aria-hidden="true"
                 :options="chartOptions"
             />
         </div>
