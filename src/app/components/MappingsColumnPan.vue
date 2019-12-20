@@ -20,8 +20,8 @@
 
         <SEControl
             control-id="myid"
-            label="Slider"
-            helptext="Helptext"
+            label="Example slider"
+            helptext="Helptext goes here"
         >
             <SESlider id="myid" />
         </SEControl>
