@@ -1,3 +1,11 @@
+<!--
+    A reusable dropdown list. Provide options through props.
+
+    Props:
+        - options: Array<{ name, value, [selected] }> - Options in the dropdown.
+        - [label]: String - Aria label for the dropdown.
+        - [labelledby]: String - Aria labelledby for the dropdown.
+-->
 <template>
     <div class="se-dropdown sedropdown-container">
         <select

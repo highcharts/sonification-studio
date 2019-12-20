@@ -1,3 +1,12 @@
+<!--
+    A collapsible accordion heading/content pair.
+    Provide content in default slot.
+
+    Props:
+        - heading: String - Heading text.
+        - contentId: String - Automatically set on content.
+        - [selected]: Boolean - Preselect item, render as expanded.
+-->
 <template>
     <div class="se-accordion-item">
         <button

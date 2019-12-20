@@ -1,3 +1,15 @@
+<!--
+    A reusable slider with consistent cross-browser styling.
+    Provide label for the slider in default slot.
+
+    Props:
+        - id: String - Id for the slider. Automatically set on the input control.
+        - [min]: Number - Min value for slider.
+        - [max]: Number - Max value for slider.
+        - [value]: Number - Current slider value (one-way binding only).
+        - [step]: Number - Step for slider values.
+        - [dark]: Boolean - Alternate styling for dark backgrounds.
+-->
 <template>
     <div class="se-slider">
         <label

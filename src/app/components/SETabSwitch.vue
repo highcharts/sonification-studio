@@ -1,3 +1,14 @@
+<!--
+    A reusable tab switch styled as buttons. Provide tabs through options prop.
+    Does not perform switching logic, but emits click event with the active
+    content ID.
+
+    @todo: Rewrite to handle switching as well.
+
+    Props:
+        - options: Array<{ name, controls }> - Tab definitions. options[].controls
+            is the ID to the tab content activated by the switch.
+-->
 <template>
     <div
         class="se-tabswitch-container"

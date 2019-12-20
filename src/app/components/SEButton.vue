@@ -1,3 +1,10 @@
+<!--
+    A reusable button. Fixed height, not fixed width.
+
+    Props:
+        - [dark]: Boolean - Alternate styling for a dark button.
+        - [wide]: Boolean - Alternate styling for a wider button.
+-->
 <template>
     <button
         :class="{ dark: dark, wide: wide }"
