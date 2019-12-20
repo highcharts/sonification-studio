@@ -19,7 +19,7 @@
             :key="btn.name"
             role="tab"
             :class="{ selected: selectedButton === btn.name }"
-            :aria-selected="selectedButton === btn.name"
+            :aria-selected="selectedButton === btn.name ? 'true' : 'false'"
             :aria-controls="btn.controls"
             @click="onclick(btn)"
         >

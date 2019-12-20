@@ -10,7 +10,10 @@
                 :selected="item.selected"
             >
                 <keep-alive>
-                    <component :is="item.component" />
+                    <component
+                        :is="item.component"
+                        :id="item.contentId"
+                    />
                 </keep-alive>
             </SEAccordionItem>
         </div>
@@ -37,8 +40,7 @@ export default {
             accordionItems: [{
                 heading: 'Sound scales',
                 contentId: 'mapping-scales',
-                component: 'MappingsColumnScales',
-                selected: true
+                component: 'MappingsColumnScales'
             }, {
                 heading: 'Pitch',
                 contentId: 'mapping-pitch',
@@ -46,7 +48,8 @@ export default {
             }, {
                 heading: 'Pan (left to right)',
                 contentId: 'mapping-pan',
-                component: 'MappingsColumnPan'
+                component: 'MappingsColumnPan',
+                selected: true
             }, {
                 heading: 'Volume',
                 contentId: 'mapping-volume',

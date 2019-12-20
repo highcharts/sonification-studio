@@ -4,14 +4,15 @@
 
     Props:
         - heading: String - Heading text.
-        - contentId: String - Automatically set on content.
+        - contentId: String - Id of the element containing the content of the item.
+            Note: The ID has to be set manually on the element.
         - [selected]: Boolean - Preselect item, render as expanded.
 -->
 <template>
     <div class="se-accordion-item">
         <button
             :class="{ selected: isSelected }"
-            :aria-expanded="isSelected"
+            :aria-expanded="isSelected ? 'true' : 'false'"
             :aria-controls="contentId"
             @click="isSelected = !isSelected"
         >
@@ -31,7 +32,7 @@
         >
             <div v-show="isSelected">
                 <div class="se-accordion-item-content">
-                    <slot :id="contentId" />
+                    <slot />
                 </div>
             </div>
         </transition>
