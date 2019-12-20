@@ -1,15 +1,18 @@
 <template>
     <div class="se-accordion-item">
-        <h3>
-            <button
+        <button
+            :class="{ selected: isSelected }"
+            :aria-expanded="isSelected"
+            :aria-controls="contentId"
+            @click="isSelected = !isSelected"
+        >
+            <h3>{{ heading }}</h3>
+            <div
+                class="select-icon"
                 :class="{ selected: isSelected }"
-                :aria-expanded="isSelected"
-                :aria-controls="contentId"
-                @click="isSelected = !isSelected"
-            >
-                {{ heading }}
-            </button>
-        </h3>
+            />
+        </button>
+
         <transition
             name="fold"
             @enter="startFold"
@@ -57,34 +60,48 @@ export default {
     @import "../colors";
 
     button {
+        position: relative;
         margin: 0;
-        padding: 4px 25px;
+        padding: 10px;
         width: 100%;
-        background-color: @setabswitch-bg;
-        color: @setabswitch-color;
-        border: 1px solid @setabswitch-color;
-        border-radius: 0;
+        background-color: @seaccordionitem-bg;
+        color: @seaccordionitem-color;
+        border: none;
         font: inherit;
-        font-size: 13px;
+        font-size: 16px;
         font-weight: bold;
         cursor: pointer;
+        text-align: left;
         display: block;
-        &:hover {
-            background-color: @setabswitch-hover-bg;
-            color: @setabswitch-hover-color;
-        }
-        &:active {
-            background-color: darken(@setabswitch-hover-bg, 5%);
-            color: darken(@setabswitch-hover-color, 5%);
-        }
-        &.selected {
-            background-color: @setabswitch-selected-bg;
-            color: @setabswitch-selected-color;
+        &:hover, &:focus {
+            background-color: @seaccordionitem-hover-bg;
+            color: @seaccordionitem-hover-color;
+            .select-icon {
+                border-color: @seaccordionitem-arrow-hover-color;
+            }
         }
     }
 
     button::-moz-focus-inner {
         border: 0;
+    }
+
+    .select-icon {
+        width: 8px;
+        height: 8px;
+        position: absolute;
+        top: 0;
+        right: 1.25rem;
+        bottom: 0;
+        margin: auto;
+        border-right: 2px solid;
+        border-bottom: 2px solid;
+        border-color: @seaccordionitem-arrow-color;
+        transform: translateY(-2px) rotate(45deg);
+        transition: transform 0.2s ease;
+        &.selected {
+            transform: translateY(2px) rotate(225deg);
+        }
     }
 
     .fold-enter-active, .fold-leave-active {

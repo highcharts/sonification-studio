@@ -7,6 +7,7 @@
                 :key="item.component"
                 :heading="item.heading"
                 :content-id="item.contentId"
+                :selected="item.selected"
             >
                 <keep-alive>
                     <component :is="item.component" />
@@ -36,7 +37,8 @@ export default {
             accordionItems: [{
                 heading: 'Sound scales',
                 contentId: 'mapping-scales',
-                component: 'MappingsColumnScales'
+                component: 'MappingsColumnScales',
+                selected: true
             }, {
                 heading: 'Pitch',
                 contentId: 'mapping-pitch',
@@ -58,11 +60,17 @@ export default {
 <style lang="less" scoped>
     @import "../sidebar";
 
-    .accordion-container {
-        width: 100%;
+    h2 {
+        margin: 20px 5px;
     }
 
-    .se-accordion-item {
-        margin: 5px 0;
+    .accordion-container {
+        width: 100%;
+        border: 1px solid @accordion-container-border;
+        border-radius: 8px;
+    }
+
+    .se-accordion-item:not(:last-child) {
+        margin-bottom: 3px;
     }
 </style>
