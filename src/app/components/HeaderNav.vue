@@ -7,10 +7,12 @@
             <li
                 v-for="tab in headerTabs"
                 :key="tab.name"
+                role="tab"
+                :aria-selected="selectedTab === tab.name ? 'true' : 'false'"
+                :aria-controls="tab.controls"
             >
                 <HeaderTab
                     :selected="selectedTab === tab.name"
-                    :controls="tab.controls"
                     @click="tabClicked(tab.name, tab.controls)"
                 >
                     {{ tab.name }}

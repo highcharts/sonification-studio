@@ -1,10 +1,7 @@
 <template>
     <button
-        role="tab"
         class="header-tab"
         :class="{ selected: selected }"
-        :aria-selected="selected"
-        :aria-controls="controls"
         @click="$emit('click')"
     >
         <slot />
@@ -14,8 +11,7 @@
 <script lang="ts">
 export default {
     props: {
-        selected: { type: Boolean, default: false },
-        controls: { type: String, required: true }
+        selected: { type: Boolean, default: false }
     }
 };
 </script>
