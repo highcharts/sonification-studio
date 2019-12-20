@@ -20,11 +20,10 @@
             @before-leave="startFold"
             @after-leave="endFold"
         >
-            <div
-                v-show="isSelected"
-                class="se-accordion-item-content"
-            >
-                <slot :id="contentId" />
+            <div v-show="isSelected">
+                <div class="se-accordion-item-content">
+                    <slot :id="contentId" />
+                </div>
             </div>
         </transition>
     </div>
@@ -84,6 +83,11 @@ export default {
 
     button::-moz-focus-inner {
         border: 0;
+    }
+
+    .se-accordion-item-content {
+        padding: 10px;
+        box-sizing: border-box;
     }
 
     .select-icon {
