@@ -14,15 +14,15 @@ var t=arguments[3];Object.defineProperty(exports,"__esModule",{value:!0}),export
 "use strict";var e=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(exports,"__esModule",{value:!0});var t=e(require("./basic/SEButton.vue"));exports.default={components:{SEButton:t.default}};
 (function(){var t=exports.default||module.exports;"function"==typeof t&&(t=t.options),Object.assign(t,{render:function(){var t=this,e=t.$createElement,r=t._self._c||e;return r("div",{staticClass:"export-container",attrs:{role:"group","aria-label":"Export project"}},[r("SEButton",{attrs:{dark:""},on:{click:function(e){return t.$emit("save")}}},[t._v(" Save ")]),t._v(" "),r("SEButton",{attrs:{dark:""},on:{click:function(e){return t.$emit("publish")}}},[t._v(" Publish ")])],1)},staticRenderFns:[],_compiled:!0,_scopeId:"data-v-0b8ac3",functional:void 0});})();
 },{"./basic/SEButton.vue":"OUeO"}],"MY4G":[function(require,module,exports) {
-module.exports="/play.174228a3.svg";
+module.exports="play.174228a3.svg";
 },{}],"hFNC":[function(require,module,exports) {
-module.exports="/stop.64d3502b.svg";
+module.exports="stop.64d3502b.svg";
 },{}],"Izz2":[function(require,module,exports) {
-module.exports="/pause.681fad08.svg";
+module.exports="pause.681fad08.svg";
 },{}],"uRSD":[function(require,module,exports) {
-module.exports="/hold.518c9665.svg";
+module.exports="hold.518c9665.svg";
 },{}],"pHJx":[function(require,module,exports) {
-module.exports="/loop.44afc02b.svg";
+module.exports="loop.44afc02b.svg";
 },{}],"OvIr":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default={props:{iconPath:{type:String,required:!0}}};
 (function(){var t=exports.default||module.exports;"function"==typeof t&&(t=t.options),Object.assign(t,{render:function(){var t=this.$createElement,e=this._self._c||t;return e("div",{staticClass:"play-button"},[e("button",[e("img",{attrs:{alt:"",src:this.iconPath}}),this._v(" "),this._t("default")],2)])},staticRenderFns:[],_compiled:!0,_scopeId:"data-v-b01032",functional:void 0});})();
@@ -45,7 +45,7 @@ module.exports="/loop.44afc02b.svg";
 "use strict";var e=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(exports,"__esModule",{value:!0});var t=e(require("./HeaderNav.vue")),r=e(require("./HeaderExport.vue")),a=e(require("./PlayControls.vue"));exports.default={components:{HeaderNav:t.default,HeaderExport:r.default,PlayControls:a.default},methods:{propagateTabSelected:function(e){this.$emit("tab-selected",e)}}};
 (function(){var t=exports.default||module.exports;"function"==typeof t&&(t=t.options),Object.assign(t,{render:function(){var t=this.$createElement,e=this._self._c||t;return e("header",[e("div",{staticClass:"topRow"},[e("HeaderNav",{staticClass:"section-nav",on:{"tab-selected":this.propagateTabSelected}}),this._v(" "),e("HeaderExport",{staticClass:"section-export"})],1),this._v(" "),e("PlayControls")],1)},staticRenderFns:[],_compiled:!0,_scopeId:"data-v-d50af5",functional:void 0});})();
 },{"./HeaderNav.vue":"zLKO","./HeaderExport.vue":"nKtm","./PlayControls.vue":"wFpO"}],"t5bq":[function(require,module,exports) {
-module.exports="/arrow-down.50564735.svg";
+module.exports="arrow-down.50564735.svg";
 },{}],"Ga00":[function(require,module,exports) {
 "use strict";var e=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(exports,"__esModule",{value:!0});var t=e(require("../../assets/arrow-down.svg"));exports.default={props:{options:{type:Array,required:!0},label:{type:String,default:""},labelledby:{type:String,default:""}},data:function(){return{arrowIcon:t.default}}};
 (function(){var e=exports.default||module.exports;"function"==typeof e&&(e=e.options),Object.assign(e,{render:function(){var e=this,t=e.$createElement,a=e._self._c||t;return a("div",{staticClass:"se-dropdown sedropdown-container"},[a("select",{attrs:{"aria-label":e.label,"aria-labelledby":e.labelledby}},e._l(e.options,function(t){return a("option",{key:t.name,domProps:{value:t.value,selected:t.selected}},[e._v(" "+e._s(t.name)+" ")])}),0),e._v(" "),a("img",{attrs:{alt:"","aria-hidden":"true",src:e.arrowIcon}})])},staticRenderFns:[],_compiled:!0,_scopeId:"data-v-711b56",functional:void 0});})();
@@ -127,7 +127,7 @@ var e=require("process"),t=arguments[3];Object.defineProperty(exports,"__esModul
 "use strict";var e=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(exports,"__esModule",{value:!0});var t=e(require("./TextDescription.vue")),r=e(require("./Preview.vue")),u=e(require("./Data.vue")),i=e(require("./MappingControls.vue"));exports.default={components:{TextDescription:t.default,Preview:r.default,Data:u.default,MappingControls:i.default},props:{selectedView:{type:String,required:!0}}};
 (function(){var e=exports.default||module.exports;"function"==typeof e&&(e=e.options),Object.assign(e,{render:function(){var e=this,t=e.$createElement,s=e._self._c||t;return s("main",[s("div",{attrs:{id:"mainGrid"}},[s("Data",{directives:[{name:"show",rawName:"v-show",value:"dataContent"===e.selectedView,expression:"selectedView === 'dataContent'"}],staticClass:"fullscreen",attrs:{id:"dataContent"}}),e._v(" "),s("MappingControls",{directives:[{name:"show",rawName:"v-show",value:"mappingsContent"===e.selectedView,expression:"selectedView === 'mappingsContent'"}],staticClass:"sidebar",attrs:{id:"mappingsContent"}}),e._v(" "),s("section",{directives:[{name:"show",rawName:"v-show",value:"chartContent"===e.selectedView,expression:"selectedView === 'chartContent'"}],staticClass:"sidebar",attrs:{id:"chartContent"}},[e._v(" Chart controls ")]),e._v(" "),"dataContent"!==e.selectedView?s("Preview",{staticClass:"preview"}):e._e(),e._v(" "),s("TextDescription",{directives:[{name:"show",rawName:"v-show",value:"dataContent"!==e.selectedView,expression:"selectedView !== 'dataContent'"}],staticClass:"description"})],1)])},staticRenderFns:[],_compiled:!0,_scopeId:"data-v-4c814d",functional:void 0});})();
 },{"./TextDescription.vue":"iyZ5","./Preview.vue":"ImY4","./Data.vue":"jSOb","./MappingControls.vue":"rKaO"}],"IA9c":[function(require,module,exports) {
-module.exports="/highcharts-logo.32682632.svg";
+module.exports="highcharts-logo.32682632.svg";
 },{}],"Cmm3":[function(require,module,exports) {
 "use strict";var e=this&&this.__importDefault||function(e){return e&&e.__esModule?e:{default:e}};Object.defineProperty(exports,"__esModule",{value:!0});var t=e(require("../assets/highcharts-logo.svg"));exports.default={data:function(){return{highchartsIcon:t.default}},computed:{year:function(){return(new Date).getFullYear()}}};
 (function(){var t=exports.default||module.exports;"function"==typeof t&&(t=t.options),Object.assign(t,{render:function(){var t=this.$createElement,i=this._self._c||t;return i("footer",[i("div",{attrs:{id:"title"}},[i("a",{attrs:{href:"https://www.highcharts.com"}},[i("img",{attrs:{alt:"Highcharts.com logo",src:this.highchartsIcon}})]),this._v(" Chart Sonification Studio ")]),this._v(" "),i("div",{attrs:{id:"copyright"}},[this._v(" © Copyright "+this._s(this.year)+" Highsoft AS - designed in collaboration with Georgia Institute of Technology ")])])},staticRenderFns:[],_compiled:!0,_scopeId:"data-v-42dcaa",functional:void 0});})();
