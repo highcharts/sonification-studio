@@ -8,6 +8,8 @@
         <ag-grid-vue
             ref="grid"
             class="se-grid ag-theme-balham"
+            :single-click-edit="true"
+            :stop-editing-when-grid-loses-focus="true"
             :suppress-menu-hide="true"
             :suppress-column-virtualisation="true"
             :ensure-dom-order="true"
@@ -46,6 +48,7 @@ export default {
                     field: codeToChar(i),
                     sortable: true,
                     filter: true,
+                    editable: true,
                     cellStyle: { textAlign: 'center' }
                 });
             }
@@ -110,6 +113,10 @@ export default {
     .ag-header-cell-label {
         justify-content: center;
         padding-left: 15px;
+    }
+
+    .ag-cell-edit-input {
+        padding: 2px 6px;
     }
 
     .se-grid, .se-grid-container {
