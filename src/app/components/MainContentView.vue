@@ -2,19 +2,19 @@
     <main>
         <div id="mainGrid">
             <Data
-                v-show="selectedView === 'dataContent'"
+                v-show="selectedHeaderTabContent === 'dataContent'"
                 id="dataContent"
                 class="fullscreen"
             />
 
             <MappingControls
-                v-show="selectedView === 'mappingsContent'"
+                v-show="selectedHeaderTabContent === 'mappingsContent'"
                 id="mappingsContent"
                 class="sidebar"
             />
 
             <section
-                v-show="selectedView === 'chartContent'"
+                v-show="selectedHeaderTabContent === 'chartContent'"
                 id="chartContent"
                 class="sidebar"
             >
@@ -22,12 +22,12 @@
             </section>
 
             <Preview
-                v-if="selectedView !== 'dataContent'"
+                v-if="selectedHeaderTabContent !== 'dataContent'"
                 class="preview"
             />
 
             <TextDescription
-                v-show="selectedView !== 'dataContent'"
+                v-show="selectedHeaderTabContent !== 'dataContent'"
                 class="description"
             />
         </div>
@@ -39,6 +39,7 @@ import TextDescription from './TextDescription.vue';
 import Preview from './Preview.vue';
 import Data from './Data.vue';
 import MappingControls from './MappingControls.vue';
+import { mapState } from 'vuex';
 
 export default {
     components: {
@@ -47,9 +48,7 @@ export default {
         Data,
         MappingControls
     },
-    props: {
-        selectedView: { type: String, required: true }
-    }
+    computed: mapState('viewStore', ['selectedHeaderTabContent'])
 };
 </script>
 

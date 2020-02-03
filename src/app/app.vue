@@ -4,11 +4,8 @@
 -->
 <template>
     <div class="app-container">
-        <Header @tab-selected="tabSelected" />
-        <MainContentView
-            id="mainContentView"
-            :selected-view="selectedView"
-        />
+        <Header />
+        <MainContentView id="mainContentView" />
         <Footer />
     </div>
 </template>
@@ -17,25 +14,17 @@
 import Header from './components/Header.vue';
 import MainContentView from './components/MainContentView.vue';
 import Footer from './components/Footer.vue';
+import { store } from './store/store';
 import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
 
 export default {
+    store,
     components: {
         Header,
         MainContentView,
         Footer
     },
-    data: function () {
-        return {
-            selectedView: ''
-        };
-    },
-    mounted: removeFocusOutlineUnlessKeypress,
-    methods: {
-        tabSelected: function (controlsId: string): void {
-            this.selectedView = controlsId;
-        }
-    }
+    mounted: removeFocusOutlineUnlessKeypress
 };
 </script>
 

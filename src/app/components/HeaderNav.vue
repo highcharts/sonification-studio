@@ -9,9 +9,9 @@
                 v-for="tab in headerTabs"
                 :key="tab.name"
                 role="tab"
-                :aria-selected="selectedTab === tab.name ? 'true' : 'false'"
+                :aria-selected="selectedHeaderTabId === tab.name ? 'true' : 'false'"
                 :aria-controls="tab.controls"
-                :selected="selectedTab === tab.name"
+                :selected="selectedHeaderTabId === tab.name"
                 @click="tabClicked(tab.name, tab.controls)"
             >
                 {{ tab.name }}
@@ -22,6 +22,7 @@
 
 <script lang="ts">
 import HeaderTab from './HeaderTab.vue';
+import { mapState } from 'vuex';
 
 export default {
     components: {
@@ -38,17 +39,16 @@ export default {
             }, {
                 name: 'Chart',
                 controls: 'chartContent',
-            }],
-            selectedTab: 'Data'
+            }]
         };
     },
-    created: function () {
-        this.$emit('tab-selected', 'dataContent');
-    },
+    computed: mapState('viewStore', ['selectedHeaderTabId']),
     methods: {
         tabClicked: function (tabId: string, controlsId: string): void {
-            this.selectedTab = tabId;
-            this.$emit('tab-selected', controlsId);
+            this.$store.commit('viewStore/selectHeaderTab', {
+                selectedTabId: tabId,
+                contentId: controlsId
+            });
         }
     }
 };

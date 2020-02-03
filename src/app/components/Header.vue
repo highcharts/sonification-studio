@@ -1,10 +1,7 @@
 <template>
     <header>
         <div class="topRow">
-            <HeaderNav
-                class="section-nav"
-                @tab-selected="propagateTabSelected"
-            />
+            <HeaderNav class="section-nav" />
             <HeaderExport class="section-export" />
         </div>
         <PlayControls />
@@ -21,11 +18,6 @@ export default {
         HeaderNav,
         HeaderExport,
         PlayControls
-    },
-    methods: {
-        propagateTabSelected: function (controlsId: string): void {
-            this.$emit('tab-selected', controlsId);
-        }
     }
 };
 </script>
