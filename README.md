@@ -1,6 +1,10 @@
 # Sonification Explorer
 
-Edit data and create charts that play sound. Developed by [Highcharts](https://www.highcharts.com).
+Edit data and create charts that play sound. Developed by [Highcharts](https://www.highcharts.com). Designed in collaboration with [Georgia Institute of Technology](https://www.gatech.edu/).
+
+## License
+
+This project is MIT licensed, but makes use of the proprietary Highcharts library. A [Highcharts license](https://highcharts.com) is required for commercial use.
 
 ## Develop
 
@@ -16,7 +20,7 @@ To build the project and start a dev server, run `npm run dev`.
 
 To build for production, run `npm run build`. The build output is placed in the `dist` directory.
 
-To build and publish to GitHub pages, run `npm run publish`, commit, and push. The contents of the `docs` directory is served on the GitHub pages site.
+To build and publish to GitHub pages, set the app version in `package.json`, run `npm run publish`, commit, and push. The contents of the `docs` directory is served on the GitHub pages site. The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
 
 To lint without building, run `npm run lint`. Linting is otherwise ran automatically before each build and commit.
 
