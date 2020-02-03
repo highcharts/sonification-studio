@@ -8,12 +8,7 @@
         <ag-grid-vue
             ref="grid"
             class="se-grid ag-theme-balham"
-            :single-click-edit="true"
-            :stop-editing-when-grid-loses-focus="true"
-            :suppress-menu-hide="true"
-            :suppress-column-virtualisation="true"
-            :ensure-dom-order="true"
-            :row-buffer="400"
+            :grid-options="gridOptions"
             :column-defs="columnDefs"
             :row-data="rowData"
         />
@@ -22,6 +17,25 @@
 
 <script lang="ts">
 import { AgGridVue } from 'ag-grid-vue';
+import {
+    CellValueChangedEvent, Column, RowNode, GridApi, ColumnApi, GridOptions
+} from 'ag-grid-community';
+
+function getColumnIDsWithData(gridAPI: GridApi, columnAPI: ColumnApi): string[] {
+    const allColumns = columnAPI.getAllGridColumns();
+
+    return allColumns.filter(
+        (column: Column): boolean => {
+            let hasData = false;
+
+            gridAPI.forEachNodeAfterFilter((rowNode: RowNode) => {
+                hasData = hasData || !!gridAPI.getValue(column.getColId(), rowNode);
+            });
+
+            return hasData;
+        }
+    ).map((column: Column) => column.getColId());
+}
 
 export default {
     components: {
@@ -29,6 +43,29 @@ export default {
     },
     data() {
         return {
+            gridOptions: {
+                singleClickEdit: true,
+                stopEditingWhenGridLosesFocus: true,
+                suppressMenuHide: true,
+                suppressColumnVirtualisation: true,
+                ensureDomOrder: true,
+                rowBuffer: 200,
+                onCellValueChanged: (e: CellValueChangedEvent) => {
+                    const gridAPI = e.api;
+                    const columnsToExport = getColumnIDsWithData(gridAPI, e.columnApi);
+                    const csv = gridAPI.getDataAsCsv({
+                        columnKeys: columnsToExport,
+                        suppressQuotes: true,
+                        columnSeparator: ';',
+                        // Replace ; in the cells with space for the CSV.
+                        processCellCallback: (params: any): string => {
+                            return params?.value?.replace(/;/g, ' ') ?? null;
+                        }
+                    });
+
+                    this.$store.commit('dataStore/setTableCSV', csv);
+                }
+            },
             columnDefs: [{}],
             rowData: [{}]
         };
@@ -71,16 +108,18 @@ export default {
 
         focusGrid() {
             const grid: any = this.$refs.grid;
-            const gridOptions = grid?.gridOptions;
-            const api = gridOptions?.api;
+            const gridOptions: GridOptions = grid?.gridOptions;
+            const gridApi = gridOptions?.api;
+            const columnApi = gridOptions?.columnApi;
 
-            if (api) {
-                api.ensureIndexVisible(0);
+            if (gridApi && columnApi) {
+                const focusedCell = gridApi.getFocusedCell();
+                const rowToFocus = (focusedCell?.rowIndex ?? -1) + 1;
+                const columnToFocus = focusedCell.column || columnApi.getAllGridColumns()[0];
 
-                const firstCol = gridOptions.columnApi.getAllDisplayedColumns()[0];
-                api.ensureColumnVisible(firstCol);
-
-                api.setFocusedCell(0, firstCol);
+                gridApi.ensureIndexVisible(rowToFocus);
+                gridApi.ensureColumnVisible(columnToFocus);
+                gridApi.setFocusedCell(rowToFocus, columnToFocus);
             }
         },
 
@@ -117,6 +156,7 @@ export default {
 
     .ag-cell-edit-input {
         padding: 2px 6px;
+        text-align: center;
     }
 
     .se-grid, .se-grid-container {

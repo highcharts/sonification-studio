@@ -1,6 +1,14 @@
 
 export const dataStore = {
+    namespaced: true,
+
     state: {
-        count: 1
+        tableCSV: ''
+    },
+
+    mutations: {
+        setTableCSV(state: any, csv: string) {
+            state.tableCSV = csv;
+        }
     }
 };

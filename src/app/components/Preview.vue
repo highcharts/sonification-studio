@@ -15,23 +15,34 @@
 </template>
 
 <script lang="ts">
+import { mapState } from 'vuex';
+
+const defaultOptions = {
+    title: {
+        text: 'Test chart',
+        style: {
+            color: '#25386F',
+            fontSize: '24px',
+            fontFamily: 'Roboto'
+        }
+    },
+    data: {
+        csv: '',
+        itemDelimiter: ';'
+    }
+};
+
 export default {
-    data: function () {
-        return {
-            chartOptions: {
-                title: {
-                    text: 'Test chart',
-                    style: {
-                        color: '#25386F',
-                        fontSize: '24px',
-                        fontFamily: 'Roboto'
-                    }
-                },
-                series: [{
-                    data: [1, 2, 3, 4, 5, 6, 3, 2, 1, 6, 4, 3]
-                }]
-            }
-        };
+    computed: {
+        ...mapState('dataStore', ['tableCSV']),
+
+        chartOptions() {
+            return Object.assign({}, defaultOptions, {
+                data: {
+                    csv: this.tableCSV
+                }
+            });
+        }
     }
 };
 </script>
