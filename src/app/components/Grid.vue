@@ -8,7 +8,10 @@
         <ag-grid-vue
             ref="grid"
             class="se-grid ag-theme-balham"
-            suppress-menu-hide="true"
+            :suppress-menu-hide="true"
+            :suppress-column-virtualisation="true"
+            :ensure-dom-order="true"
+            :row-buffer="400"
             :column-defs="columnDefs"
             :row-data="rowData"
         />
