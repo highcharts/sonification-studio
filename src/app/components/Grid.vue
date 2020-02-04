@@ -10,15 +10,16 @@
             class="se-grid ag-theme-balham"
             :grid-options="gridOptions"
             :column-defs="columnDefs"
-            :row-data="rowData"
+            :row-data="tableRowData"
         />
     </div>
 </template>
 
 <script lang="ts">
+import { mapState } from 'vuex';
 import { AgGridVue } from 'ag-grid-vue';
 import {
-    Column, RowNode, GridApi, ColumnApi, GridOptions
+    Column, RowNode, GridApi, ColumnApi, GridOptions, CellValueChangedEvent
 } from 'ag-grid-community';
 
 function getColumnIDsWithData(gridAPI: GridApi, columnAPI: ColumnApi): string[] {
@@ -50,18 +51,27 @@ export default {
                 suppressColumnVirtualisation: true,
                 ensureDomOrder: true,
                 rowBuffer: 200,
-                onCellValueChanged: () => (this as any).updateCSV(),
-                onFirstDataRendered: () => (this as any).updateCSV()
+                onCellValueChanged: (e: CellValueChangedEvent) => (this as any).onCellValueChanged(e),
+                onFirstDataRendered: () => (this as any).updateCSV(),
+                onComponentStateChanged: () => (this as any).updateCSV()
             },
             columnDefs: [{}],
             rowData: [{}]
         };
     },
+    computed: mapState('dataStore', ['tableRowData']),
     beforeMount: function (): void {
         this.columnDefs = this.makeColumns();
-        this.rowData = this.makeFakeRows();
     },
     methods: {
+        onCellValueChanged(e: CellValueChangedEvent): void {
+            this.$store.commit('dataStore/updateCellValue', {
+                rowIndex: e.rowIndex,
+                columnName: e.colDef.field,
+                value: e.value
+            });
+        },
+
         makeColumns(): Array<object> {
             const codeToChar = (i: number) => String.fromCharCode(65 + i),
                 res = [];
@@ -74,19 +84,6 @@ export default {
                     filter: true,
                     editable: true,
                     cellStyle: { textAlign: 'center' }
-                });
-            }
-
-            return res;
-        },
-
-        makeFakeRows(): Array<object> {
-            const res = [];
-
-            for (let i = 0; i < 26; ++i) {
-                res.push({
-                    A: '' + i,
-                    B: Math.random().toFixed(2)
                 });
             }
 
@@ -123,7 +120,8 @@ export default {
 
             if (gridAPI && columnAPI) {
                 const columnsToExport = getColumnIDsWithData(gridAPI, columnAPI);
-                const csv = gridAPI.getDataAsCsv({
+
+                const csv = columnsToExport.length ? gridAPI.getDataAsCsv({
                     columnKeys: columnsToExport,
                     suppressQuotes: true,
                     columnSeparator: ';',
@@ -131,7 +129,7 @@ export default {
                     processCellCallback: (params: any): string => {
                         return params?.value?.replace(/;/g, ' ') ?? null;
                     }
-                });
+                }) : '';
 
                 this.$store.commit('dataStore/setTableCSV', csv);
             }

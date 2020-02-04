@@ -53,7 +53,9 @@
         </div>
 
         <div class="grid-controls-group">
-            <SEButton>Clear data</SEButton>
+            <SEButton @click="onClearDataClick">
+                Clear data
+            </SEButton>
             <SEButton>Import data</SEButton>
             <SEButton>Export data</SEButton>
         </div>
@@ -77,6 +79,11 @@ export default {
                 { name: 'D', value: 'D' }
             ]
         };
+    },
+    methods: {
+        onClearDataClick() {
+            this.$store.commit('dataStore/setTableRowData', []);
+        }
     }
 };
 </script>
