@@ -8,12 +8,16 @@
 -->
 <template>
     <label
+        tabindex="0"
         :class="{ dark: dark, wide: wide }"
+        @keydown.enter="triggerDialog()"
+        @keydown.space="triggerDialog()"
     >
         <slot />
         <input
             ref="fileInput"
             type="file"
+            tabindex="-1"
             :accept="fileTypes"
             @change="emitLoadEventWithFileContents"
         >
@@ -38,6 +42,13 @@ export default {
             const fileInput: any = this.$refs.fileInput;
             if (fileInput) {
                 fileInput.value = '';
+            }
+        },
+
+        triggerDialog() {
+            const fileInput: any = this.$refs.fileInput;
+            if (fileInput) {
+                fileInput.click();
             }
         }
     }
