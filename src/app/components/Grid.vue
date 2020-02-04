@@ -47,13 +47,15 @@ export default {
             gridOptions: {
                 singleClickEdit: true,
                 stopEditingWhenGridLosesFocus: true,
-                suppressMenuHide: true,
-                suppressColumnVirtualisation: true,
-                ensureDomOrder: true,
-                rowBuffer: 200,
                 onCellValueChanged: (e: CellValueChangedEvent) => (this as any).onCellValueChanged(e),
-                onFirstDataRendered: () => (this as any).updateCSV(),
-                onComponentStateChanged: () => (this as any).updateCSV()
+                onFirstDataRendered: () => (this as any).updateCSVInDataStore(),
+                onComponentStateChanged: () => (this as any).updateCSVInDataStore(),
+
+                // A11y concerns:
+                suppressMenuHide: true, // Always show column menu
+                suppressColumnVirtualisation: true, // Always render all columns in DOM
+                ensureDomOrder: true,
+                rowBuffer: 200 // Render up to 200 rows regardless of what is in view
             },
             columnDefs: [{}],
             rowData: [{}]
@@ -64,6 +66,7 @@ export default {
         this.columnDefs = this.makeColumns();
     },
     methods: {
+        // Ensure source data for the grid is always up to date with current values.
         onCellValueChanged(e: CellValueChangedEvent): void {
             this.$store.commit('dataStore/updateCellValue', {
                 rowIndex: e.rowIndex,
@@ -112,7 +115,8 @@ export default {
             el.focus();
         },
 
-        updateCSV() {
+        // Update the CSV render of the table data in the data store.
+        updateCSVInDataStore() {
             const grid: any = this.$refs.grid;
             const gridOptions: GridOptions = grid?.gridOptions;
             const gridAPI = gridOptions?.api;
