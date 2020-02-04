@@ -22,10 +22,10 @@ export default {
         makePlaceholderData(): Array<object> {
             const res = [];
 
-            for (let i = 0; i < 26; ++i) {
+            for (let i = 0; i < 175; ++i) {
                 res.push({
                     A: '' + i,
-                    B: Math.random().toFixed(2)
+                    B: (Math.sin(i / 3) * i / 2).toFixed(3)
                 });
             }
 

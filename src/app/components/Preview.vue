@@ -19,6 +19,7 @@ import { mapState } from 'vuex';
 
 const defaultOptions = {
     chart: {
+        type: 'spline',
         animation: {
             duration: 600
         }
