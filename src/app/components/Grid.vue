@@ -81,7 +81,10 @@ export default {
         },
 
         makeFakeRows(): Array<object> {
-            const res = [];
+            const res = [{
+                A: 'X',
+                B: 'Test data'
+            }];
 
             for (let i = 0; i < 26; ++i) {
                 res.push({
@@ -126,6 +129,7 @@ export default {
                 const csv = gridAPI.getDataAsCsv({
                     columnKeys: columnsToExport,
                     suppressQuotes: true,
+                    skipHeader: true,
                     columnSeparator: ';',
                     // Replace ; in the cells with space for the CSV to avoid accidental delimitors.
                     processCellCallback: (params: any): string => {
