@@ -18,12 +18,22 @@
 import { mapState } from 'vuex';
 
 const defaultOptions = {
+    chart: {
+        animation: {
+            duration: 600
+        }
+    },
     title: {
         text: 'Test chart',
         style: {
             color: '#25386F',
             fontSize: '24px',
             fontFamily: 'Roboto'
+        }
+    },
+    plotOptions: {
+        series: {
+            animation: false
         }
     },
     data: {
