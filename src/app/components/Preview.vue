@@ -48,9 +48,10 @@ export default {
         ...mapState('dataStore', ['tableCSV']),
 
         chartOptions() {
+            const emptyCSV = 'x;y\n';
             return Object.assign({}, defaultOptions, {
                 data: {
-                    csv: this.tableCSV
+                    csv: this.tableCSV || emptyCSV
                 }
             });
         }

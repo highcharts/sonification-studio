@@ -22,7 +22,7 @@
             </section>
 
             <Preview
-                v-if="selectedHeaderTabContent !== 'dataContent'"
+                v-show="selectedHeaderTabContent !== 'dataContent'"
                 class="preview"
             />
 
