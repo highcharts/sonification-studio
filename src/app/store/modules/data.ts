@@ -1,3 +1,16 @@
+/*
+    Data store for the chart/table data.
+
+    The source data for the table is kept here, and updating this will
+    update the data grid. Updating the data grid will trigger a recompute
+    of the CSV. We are using the table CSV generator in order to preserve
+    table sorting/filtering, but could consider rolling our own for better
+    performance.
+
+    Updating values in the data grid should be reflected in the source data,
+    so that the source data always mirrors the data the grid is working with.
+ */
+
 import Vue from 'vue';
 
 interface UpdateCellDataProps {
@@ -11,7 +24,7 @@ export const dataStore = {
 
     state: {
         tableCSV: '',
-        tableRowData: []
+        tableRowData: [] // Source data for table
     },
 
     mutations: {
