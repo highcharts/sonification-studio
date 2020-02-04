@@ -45,6 +45,13 @@ export const dataStore = {
             newRow[column] = cellData.value;
 
             rowData.splice(cellData.rowIndex, 1, newRow);
+        },
+
+        addTableRows(state: any, numRows: number) {
+            let i = numRows;
+            while (i--) {
+                state.tableRowData.push({});
+            }
         }
     }
 };

@@ -8,6 +8,7 @@
                 Add
             </span>
             <input
+                v-model.number="rowsToAdd"
                 type="number"
                 min="0"
                 aria-label="Add rows"
@@ -18,7 +19,10 @@
             >
                 rows
             </span>
-            <SEButton class="add-btn">
+            <SEButton
+                class="add-btn"
+                @click="onAddRowsClick"
+            >
                 Add
             </SEButton>
         </div>
@@ -77,12 +81,20 @@ export default {
                 { name: 'B', value: 'B' },
                 { name: 'C', value: 'C' },
                 { name: 'D', value: 'D' }
-            ]
+            ],
+            rowsToAdd: 1
         };
     },
     methods: {
         onClearDataClick() {
             this.$store.commit('dataStore/setTableRowData', []);
+        },
+
+        onAddRowsClick() {
+            const numRows = this.rowsToAdd;
+            if (numRows) {
+                this.$store.commit('dataStore/addTableRows', numRows);
+            }
         }
     }
 };

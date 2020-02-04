@@ -19,7 +19,8 @@
 import { mapState } from 'vuex';
 import { AgGridVue } from 'ag-grid-vue';
 import {
-    Column, RowNode, GridApi, ColumnApi, GridOptions, CellValueChangedEvent
+    Column, RowNode, GridApi, ColumnApi, GridOptions,
+    CellValueChangedEvent, ShouldRowBeSkippedParams
 } from 'ag-grid-community';
 
 function getColumnIDsWithData(gridAPI: GridApi, columnAPI: ColumnApi): string[] {
@@ -128,10 +129,15 @@ export default {
                 const csv = columnsToExport.length ? gridAPI.getDataAsCsv({
                     columnKeys: columnsToExport,
                     suppressQuotes: true,
+                    // Skip empty rows
+                    shouldRowBeSkipped: (params: ShouldRowBeSkippedParams): boolean => {
+                        const rowData = params.node.data;
+                        return !(Object.keys(rowData).length);
+                    },
                     columnSeparator: ';',
                     // Replace ; in the cells with space for the CSV to avoid accidental delimitors.
                     processCellCallback: (params: any): string => {
-                        return params?.value?.replace(/;/g, ' ') ?? null;
+                        return params?.value?.replace(/;/g, ' ');
                     }
                 }) : '';
 
