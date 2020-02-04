@@ -18,7 +18,7 @@
 <script lang="ts">
 import { AgGridVue } from 'ag-grid-vue';
 import {
-    CellValueChangedEvent, Column, RowNode, GridApi, ColumnApi, GridOptions
+    Column, RowNode, GridApi, ColumnApi, GridOptions
 } from 'ag-grid-community';
 
 function getColumnIDsWithData(gridAPI: GridApi, columnAPI: ColumnApi): string[] {
@@ -127,7 +127,7 @@ export default {
                     columnKeys: columnsToExport,
                     suppressQuotes: true,
                     columnSeparator: ';',
-                    // Replace ; in the cells with space for the CSV.
+                    // Replace ; in the cells with space for the CSV to avoid accidental delimitors.
                     processCellCallback: (params: any): string => {
                         return params?.value?.replace(/;/g, ' ') ?? null;
                     }
