@@ -103,7 +103,7 @@ export default {
             if (gridApi && columnApi) {
                 const focusedCell = gridApi.getFocusedCell();
                 const rowToFocus = (focusedCell?.rowIndex ?? -1) + 1;
-                const columnToFocus = focusedCell.column || columnApi.getAllGridColumns()[0];
+                const columnToFocus = focusedCell?.column || columnApi.getAllGridColumns()[0];
 
                 gridApi.ensureIndexVisible(rowToFocus);
                 gridApi.ensureColumnVisible(columnToFocus);
