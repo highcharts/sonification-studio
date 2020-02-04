@@ -94,11 +94,13 @@ export default {
 
         onExportDataClick() {
             const csv = this.$store.state.dataStore.tableCSV;
-            const dataURI = encodeURI(`data:text/csv;charset=utf-8,${csv}`);
-            const link = document.createElement('a');
-            link.setAttribute('href', dataURI);
-            link.setAttribute('download', 'export.csv');
-            link.click();
+            if (csv) {
+                const dataURI = encodeURI(`data:text/csv;charset=utf-8,${csv}`);
+                const link = document.createElement('a');
+                link.setAttribute('href', dataURI);
+                link.setAttribute('download', 'export.csv');
+                link.click();
+            }
         },
 
         onAddRowsClick() {
