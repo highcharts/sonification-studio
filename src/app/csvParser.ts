@@ -1,4 +1,5 @@
 // Adapted from http://stackoverflow.com/a/1293163/2343
+// TODO: Definitely needs tests. Look online for acid tests.
 export function parseCSV (strData: string, strDelimiter = ';'): Array<Array<string>> {
     // Create a regular expression to parse the CSV values.
     const objPattern = new RegExp(
