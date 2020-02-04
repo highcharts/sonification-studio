@@ -60,7 +60,9 @@
             <SEButton @click="onClearDataClick">
                 Clear data
             </SEButton>
-            <SEButton>Import data</SEButton>
+            <SEFileUploadButton @load="onDataImport">
+                Import data
+            </SEFileUploadButton>
             <SEButton @click="onExportDataClick">
                 Export data
             </SEButton>
@@ -70,11 +72,12 @@
 
 <script lang="ts">
 import SEButton from './basic/SEButton.vue';
+import SEFileUploadButton from './basic/SEFileUploadButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 
 export default {
     components: {
-        SEButton, SEDropdown
+        SEButton, SEFileUploadButton, SEDropdown
     },
     data: function () {
         return {
@@ -107,6 +110,12 @@ export default {
             const numRows = this.rowsToAdd;
             if (numRows) {
                 this.$store.commit('dataStore/addTableRows', numRows);
+            }
+        },
+
+        onDataImport(fileContents: string) {
+            if (fileContents) {
+                this.$store.dispatch('dataStore/loadFromCSV', fileContents);
             }
         }
     }

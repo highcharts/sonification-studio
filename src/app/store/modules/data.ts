@@ -12,6 +12,7 @@
  */
 
 import Vue from 'vue';
+import { parseCSV } from '../../csvParser';
 
 interface UpdateCellDataProps {
     rowIndex: number;
@@ -52,6 +53,29 @@ export const dataStore = {
             while (i--) {
                 state.tableRowData.push({});
             }
+        }
+    },
+
+    actions: {
+        loadFromCSV({ commit }: any, csv: string) {
+            const hasTab = csv.indexOf('\t') > -1;
+            const hasSemicolon = csv.indexOf(';') > -1;
+            const delim = hasTab ? '\t' : hasSemicolon ? ';' : ',';
+            const arr = parseCSV(csv, delim);
+            const firstRow = arr.shift() || []; // Remove first row
+
+            const objectifiedArr = arr.map((row: string[]) => {
+                const rowObject: any = {};
+                row.forEach((cell: string, i: number) => {
+                    if (cell) {
+                        const columnName = firstRow[i] || '_';
+                        rowObject[columnName] = cell;
+                    }
+                });
+                return rowObject;
+            });
+
+            commit('setTableRowData', objectifiedArr);
         }
     }
 };
