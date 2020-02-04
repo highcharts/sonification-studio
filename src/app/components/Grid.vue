@@ -50,21 +50,8 @@ export default {
                 suppressColumnVirtualisation: true,
                 ensureDomOrder: true,
                 rowBuffer: 200,
-                onCellValueChanged: (e: CellValueChangedEvent) => {
-                    const gridAPI = e.api;
-                    const columnsToExport = getColumnIDsWithData(gridAPI, e.columnApi);
-                    const csv = gridAPI.getDataAsCsv({
-                        columnKeys: columnsToExport,
-                        suppressQuotes: true,
-                        columnSeparator: ';',
-                        // Replace ; in the cells with space for the CSV.
-                        processCellCallback: (params: any): string => {
-                            return params?.value?.replace(/;/g, ' ') ?? null;
-                        }
-                    });
-
-                    this.$store.commit('dataStore/setTableCSV', csv);
-                }
+                onCellValueChanged: () => (this as any).updateCSV(),
+                onFirstDataRendered: () => (this as any).updateCSV()
             },
             columnDefs: [{}],
             rowData: [{}]
@@ -126,6 +113,28 @@ export default {
         unfocusGrid() {
             const el: any = this.$el;
             el.focus();
+        },
+
+        updateCSV() {
+            const grid: any = this.$refs.grid;
+            const gridOptions: GridOptions = grid?.gridOptions;
+            const gridAPI = gridOptions?.api;
+            const columnAPI = gridOptions?.columnApi;
+
+            if (gridAPI && columnAPI) {
+                const columnsToExport = getColumnIDsWithData(gridAPI, columnAPI);
+                const csv = gridAPI.getDataAsCsv({
+                    columnKeys: columnsToExport,
+                    suppressQuotes: true,
+                    columnSeparator: ';',
+                    // Replace ; in the cells with space for the CSV.
+                    processCellCallback: (params: any): string => {
+                        return params?.value?.replace(/;/g, ' ') ?? null;
+                    }
+                });
+
+                this.$store.commit('dataStore/setTableCSV', csv);
+            }
         }
     }
 };
