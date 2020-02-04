@@ -61,7 +61,9 @@
                 Clear data
             </SEButton>
             <SEButton>Import data</SEButton>
-            <SEButton>Export data</SEButton>
+            <SEButton @click="onExportDataClick">
+                Export data
+            </SEButton>
         </div>
     </div>
 </template>
@@ -88,6 +90,15 @@ export default {
     methods: {
         onClearDataClick() {
             this.$store.commit('dataStore/setTableRowData', []);
+        },
+
+        onExportDataClick() {
+            const csv = this.$store.state.dataStore.tableCSV;
+            const dataURI = encodeURI(`data:text/csv;charset=utf-8,${csv}`);
+            const link = document.createElement('a');
+            link.setAttribute('href', dataURI);
+            link.setAttribute('download', 'export.csv');
+            link.click();
         },
 
         onAddRowsClick() {
