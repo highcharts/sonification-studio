@@ -59,8 +59,8 @@ export default {
     },
 
     mounted: function () {
-        // Store reference to chart
-        (this as any).$seContext.chart = (this.$refs.chart as any).chart;
+        // Init ChartBridge with reference to chart
+        (this as any).$chartBridge.init((this.$refs.chart as any).chart);
     }
 };
 </script>
