@@ -11,6 +11,19 @@
 </template>
 
 <script lang="ts">
+import Vue from 'vue';
+import HighchartsVue from 'highcharts-vue';
+import Highcharts from 'highcharts';
+import hcDataInit from 'highcharts/modules/data';
+import hcNoDataInit from 'highcharts/modules/no-data-to-display';
+
+hcDataInit(Highcharts);
+hcNoDataInit(Highcharts);
+Vue.use(HighchartsVue);
+
+import context from './context';
+Vue.prototype.$seContext = context;
+
 import Header from './components/Header.vue';
 import MainContentView from './components/MainContentView.vue';
 import Footer from './components/Footer.vue';
