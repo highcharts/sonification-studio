@@ -110,6 +110,9 @@ export default {
             const numRows = this.rowsToAdd;
             if (numRows) {
                 this.$store.commit('dataStore/addTableRows', numRows);
+
+                // Scroll after row adding has been processed.
+                setTimeout(() => this.$emit('triggerScrollLastGridRowWithData'), 0);
             }
         },
 

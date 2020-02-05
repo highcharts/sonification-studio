@@ -1,8 +1,10 @@
 <template>
     <section aria-label="Data input">
-        <GridControls />
+        <GridControls
+            @triggerScrollLastGridRowWithData="onTriggerScrollLastGridRowWithData()"
+        />
         <div id="gridContainer">
-            <Grid />
+            <Grid ref="grid" />
         </div>
     </section>
 </template>
@@ -30,6 +32,10 @@ export default {
             }
 
             return res;
+        },
+
+        onTriggerScrollLastGridRowWithData() {
+            (this.$refs.grid as any).scrollToLastGridRowWithData();
         }
     }
 };

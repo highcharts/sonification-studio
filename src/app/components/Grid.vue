@@ -23,6 +23,7 @@ import {
     CellValueChangedEvent, ShouldRowBeSkippedParams
 } from 'ag-grid-community';
 
+
 function getColumnIDsWithData(gridAPI: GridApi, columnAPI: ColumnApi): string[] {
     const allColumns = columnAPI.getAllGridColumns();
 
@@ -39,6 +40,13 @@ function getColumnIDsWithData(gridAPI: GridApi, columnAPI: ColumnApi): string[] 
     ).map((column: Column) => column.getColId());
 }
 
+
+function hasRowData(rowNode: RowNode) {
+    const rowData = rowNode.data;
+    return !!Object.keys(rowData).length;
+}
+
+
 export default {
     components: {
         AgGridVue
@@ -48,6 +56,7 @@ export default {
             gridOptions: {
                 singleClickEdit: true,
                 stopEditingWhenGridLosesFocus: true,
+                suppressScrollOnNewData: true,
                 onCellValueChanged: (e: CellValueChangedEvent) => (this as any).onCellValueChanged(e),
                 onFirstDataRendered: () => (this as any).updateCSVInDataStore(),
                 onComponentStateChanged: () => (this as any).updateCSVInDataStore(),
@@ -56,7 +65,7 @@ export default {
                 suppressMenuHide: true, // Always show column menu
                 suppressColumnVirtualisation: true, // Always render all columns in DOM
                 ensureDomOrder: true,
-                rowBuffer: 200 // Render up to 200 rows regardless of what is in view
+                rowBuffer: 200 // Render this many rows regardless of what is in view
             },
             columnDefs: [{}],
             rowData: [{}]
@@ -69,11 +78,13 @@ export default {
     methods: {
         // Ensure source data for the grid is always up to date with current values.
         onCellValueChanged(e: CellValueChangedEvent): void {
-            this.$store.commit('dataStore/updateCellValue', {
-                rowIndex: e.rowIndex,
-                columnName: e.colDef.field,
-                value: e.value
-            });
+            if (e.oldValue !== e.newValue) {
+                this.$store.commit('dataStore/updateCellValue', {
+                    rowIndex: e.rowIndex,
+                    columnName: e.colDef.field,
+                    value: e.value
+                });
+            }
         },
 
         makeColumns(): Array<object> {
@@ -111,6 +122,18 @@ export default {
             }
         },
 
+        scrollToLastGridRowWithData() {
+            const gridApi: any = (this.$refs.grid as any)?.gridOptions?.api;
+
+            if (gridApi) {
+                const rows: Array<boolean> = [];
+                gridApi.forEachNode((node: RowNode) => rows.push(hasRowData(node)));
+
+                const lastRowWithDataIndex = rows.lastIndexOf(true);
+                gridApi.ensureIndexVisible(lastRowWithDataIndex, 'top');
+            }
+        },
+
         unfocusGrid() {
             const el: any = this.$el;
             el.focus();
@@ -129,10 +152,8 @@ export default {
                 const csv = columnsToExport.length ? gridAPI.getDataAsCsv({
                     columnKeys: columnsToExport,
                     suppressQuotes: true,
-                    // Skip empty rows
                     shouldRowBeSkipped: (params: ShouldRowBeSkippedParams): boolean => {
-                        const rowData = params.node.data;
-                        return !(Object.keys(rowData).length);
+                        return !hasRowData(params.node);
                     },
                     columnSeparator: ';',
                     // Replace ; in the cells with space for the CSV to avoid accidental delimitors.
