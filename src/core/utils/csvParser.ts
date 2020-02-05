@@ -18,7 +18,7 @@ export function parseCSV (strData: string, strDelimiter = ';'): Array<Array<stri
 
     // Create an array to hold our data. Give the array
     // a default empty first row.
-    const arrData = [[]];
+    const arrData: Array<Array<string>> = [[]];
 
     // Create an array to hold our individual pattern
     // matching groups.
