@@ -1,18 +1,33 @@
 <template>
     <div class="play-buttons-container">
-        <PlayButton :icon-path="playIcon">
+        <PlayButton
+            :icon-path="playIcon"
+            @click="$chartBridge.playChart()"
+        >
             Play
         </PlayButton>
-        <PlayButton :icon-path="stopIcon">
+        <PlayButton
+            :icon-path="stopIcon"
+            @click="$chartBridge.stopChart()"
+        >
             Stop
         </PlayButton>
-        <PlayButton :icon-path="pauseIcon">
+        <PlayButton
+            :icon-path="pauseIcon"
+            @click="$chartBridge.pauseChart()"
+        >
             Pause
         </PlayButton>
-        <PlayButton :icon-path="holdIcon">
+        <PlayButton
+            :icon-path="holdIcon"
+            @click="$chartBridge.holdChart()"
+        >
             Hold
         </PlayButton>
-        <PlayButton :icon-path="loopIcon">
+        <PlayButton
+            :icon-path="loopIcon"
+            @click="$chartBridge.loopChart()"
+        >
             Loop
         </PlayButton>
     </div>

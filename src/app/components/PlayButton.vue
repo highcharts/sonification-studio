@@ -1,6 +1,6 @@
 <template>
     <div class="play-button">
-        <button>
+        <button @click="$emit('click')">
             <img
                 alt=""
                 :src="iconPath"
