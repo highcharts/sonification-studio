@@ -6,6 +6,7 @@
             aria-label="Chart graphic"
         >
             <highcharts
+                ref="chart"
                 class="chart"
                 aria-hidden="true"
                 :options="chartOptions"
@@ -55,6 +56,11 @@ export default {
                 }
             });
         }
+    },
+
+    mounted: function () {
+        // Store reference to chart
+        (this as any).$seContext.chart = (this.$refs.chart as any).chart;
     }
 };
 </script>
