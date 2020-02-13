@@ -126,6 +126,7 @@ export default {
         font-weight: bold;
         cursor: pointer;
         display: block;
+        transition: all 0.1s;
         &:hover {
             background-color: @secontrol-helpicon-hover-bg;
             color: @secontrol-helpicon-hover-color;
