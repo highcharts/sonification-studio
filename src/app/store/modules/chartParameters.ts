@@ -4,5 +4,11 @@ export const chartParametersStore = {
 
     state: {
         type: 'line'
+    },
+
+    mutations: {
+        setType(state: any, type: string) {
+            state.type = type;
+        }
     }
 };
