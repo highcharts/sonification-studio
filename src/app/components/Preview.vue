@@ -46,11 +46,20 @@ const defaultOptions = {
 
 export default {
     computed: {
-        ...mapState('dataStore', ['tableCSV']),
+        ...mapState({
+            tableCSV: (state: any) => state.dataStore.tableCSV,
+            chartOptionsUpdateCounter: (state: any) => state.viewStore.chartOptionsUpdateCounter,
+        }),
+
+        parameterOptions() {
+            return (this as any)?.$chartBridge?.getCurrentChartOptions(
+                this.chartOptionsUpdateCounter
+            ) || {};
+        },
 
         chartOptions() {
             const emptyCSV = 'x;y\n';
-            return Object.assign({}, defaultOptions, {
+            return Object.assign({}, defaultOptions, this.parameterOptions, {
                 data: {
                     csv: this.tableCSV || emptyCSV
                 }

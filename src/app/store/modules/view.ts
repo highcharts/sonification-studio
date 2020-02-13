@@ -8,11 +8,20 @@ export const viewStore = {
     namespaced: true,
 
     state: {
-        selectedHeaderTabId: 'Data',
-        selectedHeaderTabContent: 'dataContent'
+        // Keep track of number of chart option updates, and create a
+        // reactive dependency to trigger the preview to update when
+        // the ChartBridge updates.
+        chartOptionsUpdateCounter: 0,
+
+        selectedHeaderTabContent: 'dataContent',
+        selectedHeaderTabId: 'Data'
     },
 
     mutations: {
+        incrementChartOptionsUpdateCounter(state: any) {
+            state.chartOptionsUpdateCounter++;
+        },
+
         selectHeaderTab(state: any, payload: SelectHeaderTabPayload) {
             state.selectedHeaderTabId = payload.selectedTabId;
             state.selectedHeaderTabContent = payload.contentId;

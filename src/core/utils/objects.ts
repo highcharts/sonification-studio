@@ -1,3 +1,5 @@
+export type GenericObject = { [key: string]: any };
+
 export function setNestedChildProp(obj: any, propStr: string, val: any): void {
     const props = propStr.split('.');
     const firstProp = props.shift();
