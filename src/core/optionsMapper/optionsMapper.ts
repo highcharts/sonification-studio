@@ -1,4 +1,4 @@
-import { GenericObject } from '../utils/objects';
+import { GenericObject, deepMerge } from '../utils/objects';
 import { ChartMappings } from './chartMappings';
 import { SonificationMappings } from './sonificationMappings';
 
@@ -15,16 +15,12 @@ class OptionsMapper {
 
     public addSonifyParameter(param: string, value: unknown) {
         const newOptions = (SonificationMappings as any)[param](value, this.options);
-        this.options = this.mergeOptions(this.options, newOptions);
+        this.options = deepMerge(this.options, newOptions);
     }
 
     public addChartParameter(param: string, value: any) {
         const newOptions = (ChartMappings as any)[param](value, this.options);
-        this.options = this.mergeOptions(this.options, newOptions);
-    }
-
-    private mergeOptions(a: GenericObject, b: GenericObject): GenericObject {
-        return Object.assign(a, b);
+        this.options = deepMerge(this.options, newOptions);
     }
 }
 

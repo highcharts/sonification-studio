@@ -17,31 +17,8 @@
 
 <script lang="ts">
 import { mapState } from 'vuex';
-
-const defaultOptions = {
-    chart: {
-        animation: {
-            duration: 600
-        }
-    },
-    title: {
-        text: 'Test chart',
-        style: {
-            color: '#25386F',
-            fontSize: '24px',
-            fontFamily: 'Roboto'
-        }
-    },
-    plotOptions: {
-        series: {
-            animation: false
-        }
-    },
-    data: {
-        csv: '',
-        itemDelimiter: ';'
-    }
-};
+import { deepMerge } from '../../core/utils/objects';
+import { defaultChartOptions } from '../../core/defaultChartOptions';
 
 export default {
     computed: {
@@ -58,11 +35,13 @@ export default {
 
         chartOptions() {
             const emptyCSV = 'x;y\n';
-            return Object.assign({}, defaultOptions, this.parameterOptions, {
+            const newOptions = Object.assign({
                 data: {
                     csv: this.tableCSV || emptyCSV
                 }
-            });
+            }, this.parameterOptions);
+
+            return deepMerge(defaultChartOptions, newOptions);
         }
     },
 
