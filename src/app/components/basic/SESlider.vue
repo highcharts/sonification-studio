@@ -9,6 +9,9 @@
         - [value]: Number - Current slider value (one-way binding only).
         - [step]: Number - Step for slider values.
         - [dark]: Boolean - Alternate styling for dark backgrounds.
+
+    Events:
+        - input: Re-emits the input event for use with v-model.
 -->
 <template>
     <div class="se-slider">
@@ -28,6 +31,7 @@
                 :value="value"
                 :step="step"
                 :class="{ dark: dark }"
+                @input="$emit('input', $event.target.value)"
             >
         </div>
     </div>
