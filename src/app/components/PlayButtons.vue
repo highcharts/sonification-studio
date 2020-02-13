@@ -21,7 +21,9 @@
         <PlayButton
             :icon-path="holdIcon"
             @mousedown="$chartBridge.pauseChart()"
-            @mouseup="$chartBridge.playChart()"
+            @mouseup="$chartBridge.isPaused() && $chartBridge.playChart()"
+            @keydown.space="$chartBridge.pauseChart()"
+            @keyup.space="$chartBridge.isPaused() && $chartBridge.playChart()"
         >
             Hold
         </PlayButton>

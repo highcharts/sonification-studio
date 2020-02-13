@@ -51,6 +51,11 @@ export class ChartBridge {
         return this.chartOptions;
     }
 
+    public isPaused(): boolean {
+        const timeline = this.chart?.sonification.timeline;
+        return timeline && !timeline.atStart();
+    }
+
 
     public playChart() {
         const chart = this.chart;
@@ -58,7 +63,7 @@ export class ChartBridge {
             return;
         }
 
-        if (!chart.sonification.timeline || chart.sonification.timeline.atStart()) {
+        if (!this.isPaused()) {
             chart.sonify();
         } else {
             chart.resumeSonify();

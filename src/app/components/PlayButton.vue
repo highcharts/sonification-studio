@@ -2,8 +2,10 @@
     <div class="play-button">
         <button
             @click="$emit('click')"
-            @mouseup="$emit('mouseup')"
-            @mousedown="$emit('mousedown')"
+            @mouseup="$emit('mouseup', $event)"
+            @mousedown="$emit('mousedown', $event)"
+            @keydown="$emit('keydown', $event)"
+            @keyup="$emit('keyup', $event)"
         >
             <img
                 alt=""
