@@ -53,17 +53,26 @@ export class ChartBridge {
 
 
     public playChart() {
-        console.log('Play chart');
+        const chart = this.chart;
+        if (!chart) {
+            return;
+        }
+
+        if (!chart.sonification.timeline || chart.sonification.timeline.atStart()) {
+            chart.sonify();
+        } else {
+            chart.resumeSonify();
+        }
     }
 
 
     public stopChart() {
-        console.log('Stop chart');
+        this.chart?.cancelSonify();
     }
 
 
     public pauseChart() {
-        console.log('Pause chart');
+        this.chart?.pauseSonify();
     }
 
 
