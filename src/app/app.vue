@@ -21,6 +21,7 @@ import hcSonificationInit from 'highcharts/modules/sonification';
 hcDataInit(Highcharts);
 hcNoDataInit(Highcharts);
 hcSonificationInit(Highcharts);
+window.Highcharts = Highcharts; // Expose on window for debugging
 Vue.use(HighchartsVue);
 
 import Header from './components/Header.vue';
