@@ -51,6 +51,7 @@ export class ChartBridge {
         return this.chartOptions;
     }
 
+
     public isPaused(): boolean {
         const timeline = this.chart?.sonification.timeline;
         return timeline && !timeline.atStart();
