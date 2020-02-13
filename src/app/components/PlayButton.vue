@@ -1,6 +1,10 @@
 <template>
     <div class="play-button">
-        <button @click="$emit('click')">
+        <button
+            @click="$emit('click')"
+            @mouseup="$emit('mouseup')"
+            @mousedown="$emit('mousedown')"
+        >
             <img
                 alt=""
                 :src="iconPath"

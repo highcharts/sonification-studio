@@ -76,13 +76,13 @@ export class ChartBridge {
     }
 
 
-    public holdChart() {
-        console.log('Hold chart');
-    }
-
-
     public loopChart() {
-        console.log('Loop chart');
+        this.chart?.sonify({
+            onEnd: (e: any) => {
+                e.path.timeline.resetCursor();
+                e.path.timeline.play();
+            }
+        });
     }
 
 
