@@ -17,8 +17,10 @@ import HighchartsVue from 'highcharts-vue';
 import Highcharts from 'highcharts';
 import hcDataInit from 'highcharts/modules/data';
 import hcNoDataInit from 'highcharts/modules/no-data-to-display';
+import hcSonificationInit from 'highcharts/modules/sonification';
 hcDataInit(Highcharts);
 hcNoDataInit(Highcharts);
+hcSonificationInit(Highcharts);
 Vue.use(HighchartsVue);
 
 import Header from './components/Header.vue';
