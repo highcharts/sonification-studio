@@ -5,7 +5,7 @@
             <SEControl
                 control-id="global-speed"
                 label="Speed"
-                helptext="Set the speed of the sonification"
+                helptext="Set the playing speed"
             >
                 <SESlider
                     id="global-speed"
