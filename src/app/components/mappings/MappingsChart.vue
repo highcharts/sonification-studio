@@ -5,7 +5,7 @@
             <SEControl
                 control-id="chart-title"
                 label="Title"
-                helptext="Chart title"
+                helptext="The chart title text"
             >
                 <SETextbox
                     id="chart-title"
@@ -16,7 +16,7 @@
             <SEControl
                 control-id="chart-subtitle"
                 label="Subtitle"
-                helptext="Chart subtitle"
+                helptext="The chart subtitle text"
             >
                 <SETextbox
                     id="chart-subtitle"
@@ -27,7 +27,7 @@
             <SEControl
                 control-id="chart-xaxis-title"
                 label="X-Axis title"
-                helptext="Title for the chart's X axis"
+                helptext="Title text for the chart's X axis"
             >
                 <SETextbox
                     id="chart-xaxis-title"
@@ -38,7 +38,7 @@
             <SEControl
                 control-id="chart-yaxis-title"
                 label="Y-Axis title"
-                helptext="Title for the chart's Y axis"
+                helptext="Title text for the chart's Y axis"
             >
                 <SETextbox
                     id="chart-yaxis-title"
