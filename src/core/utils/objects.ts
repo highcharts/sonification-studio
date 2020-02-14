@@ -12,8 +12,8 @@ export function isObject(x: unknown): boolean {
  * replacing the a value with the b value.
  */
 export function deepMerge(
-    a: GenericObject,
-    b: GenericObject
+    a: any,
+    b: any
 ): GenericObject {
     const isArray = (x: unknown): boolean => Array.isArray(x);
 
@@ -31,10 +31,7 @@ export function deepMerge(
     if (isArray(a) && isArray(b)) {
         const shouldDeepMergeArrays = a.length === b.length;
         if (shouldDeepMergeArrays) {
-            let i = a.length;
-            while(i--) {
-                res[i] = deepMerge(res[i], b[i]);
-            }
+            res = a.map((item: unknown, index: number) => deepMerge(item, b[index]));
         } else {
             res = b; // Replace arrays of different length
         }
