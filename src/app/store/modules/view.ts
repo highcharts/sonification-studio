@@ -14,7 +14,8 @@ export const viewStore = {
         chartOptionsUpdateCounter: 0,
 
         selectedHeaderTabContent: 'dataContent',
-        selectedHeaderTabId: 'Data'
+        selectedHeaderTabId: 'Data',
+        playbackProgress: 0
     },
 
     mutations: {
@@ -25,6 +26,10 @@ export const viewStore = {
         selectHeaderTab(state: any, payload: SelectHeaderTabPayload) {
             state.selectedHeaderTabId = payload.selectedTabId;
             state.selectedHeaderTabContent = payload.contentId;
+        },
+
+        setPlaybackProgress(state: any, progressPct: number) {
+            state.playbackProgress = progressPct;
         }
     }
 };

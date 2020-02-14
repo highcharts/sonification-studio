@@ -9,20 +9,19 @@ import { Store } from 'vuex';
 export class ChartBridge {
 
     private static updateChartIntervalMs = 500;
+    private static updateProgressIntervalMs = 20;
     private chart: GenericObject|null = null;
     private chartOptions: GenericObject = {};
     private chartParametersStore: GenericObject;
     private sonifyParametersStore: GenericObject;
-    private incrementUpdateCounter: () => void;
+    private commitToStore: (id: string, payload?: any) => void;
     private updateChartTimeout: number|null = null;
-
+    private updateProgressInterval: number|null = null;
 
     constructor(store: Store<any>) {
         this.chartParametersStore = store.state.chartParametersStore;
         this.sonifyParametersStore = store.state.sonifyParametersStore;
-        this.incrementUpdateCounter = () => {
-            store.commit('viewStore/incrementChartOptionsUpdateCounter');
-        };
+        this.commitToStore = (id: string, payload?: any) => store.commit(id, payload);
 
         store.subscribe(this.onStoreMutation.bind(this));
     }
@@ -58,14 +57,23 @@ export class ChartBridge {
     }
 
 
-    public playChart() {
+    public playChart(onEnd?: (e: any) => void) {
         const chart = this.chart;
-        if (!chart) {
+        if (!chart || this.isPlaying()) {
             return;
         }
 
+        this.startProgressUpdatePolling();
+
         if (!this.isPaused()) {
-            chart.sonify();
+            chart.sonify({
+                onEnd: (e: any) => {
+                    this.stopChart();
+                    if (onEnd) {
+                        onEnd(e);
+                    }
+                }
+            });
         } else {
             chart.resumeSonify();
         }
@@ -73,22 +81,25 @@ export class ChartBridge {
 
 
     public stopChart() {
+        this.stopProgressUpdatePolling();
         this.chart?.cancelSonify();
+        this.updatePlayProgress();
     }
 
 
     public pauseChart() {
+        this.stopProgressUpdatePolling();
         this.chart?.pauseSonify();
     }
 
 
     public loopChart() {
-        this.chart?.sonify({
-            onEnd: (e: any) => {
-                e.path.timeline.resetCursor();
-                e.path.timeline.play();
-            }
-        });
+        this.playChart(this.loopChart.bind(this));
+    }
+
+
+    private isPlaying(): boolean {
+        return !!Object.keys(this.chart?.sonification?.timeline?.pathsPlaying || {}).length;
     }
 
 
@@ -97,7 +108,7 @@ export class ChartBridge {
             this.sonifyParametersStore,
             this.chartParametersStore
         );
-        this.incrementUpdateCounter();
+        this.commitToStore('viewStore/incrementChartOptionsUpdateCounter');
     }
 
 
@@ -114,7 +125,7 @@ export class ChartBridge {
     }
 
 
-    // Limit number of updates to one every X milliseconds
+    // Limit number of chart updates to one every X milliseconds
     private queueChartOptionsUpdate() {
         if (!this.updateChartTimeout) {
             this.updateChartTimeout = setTimeout(() => {
@@ -122,5 +133,43 @@ export class ChartBridge {
                 this.updateChartTimeout = null;
             }, ChartBridge.updateChartIntervalMs);
         }
+    }
+
+
+    private startProgressUpdatePolling() {
+        this.stopProgressUpdatePolling();
+        this.updateProgressInterval = setInterval(
+            this.updatePlayProgress.bind(this), ChartBridge.updateProgressIntervalMs
+        );
+    }
+
+
+    private stopProgressUpdatePolling() {
+        if (this.updateProgressInterval) {
+            clearInterval(this.updateProgressInterval);
+        }
+    }
+
+
+    private updatePlayProgress() {
+        const progressPct = this.getCurrentPlayProgressPct();
+        this.commitToStore('viewStore/setPlaybackProgress', progressPct);
+    }
+
+
+    private getCurrentPlayProgressPct(): number {
+        const sonification = this.chart?.sonification;
+        const timeline = sonification?.timeline;
+
+        if (!timeline || timeline.atStart()) {
+            return 0;
+        }
+
+        const cursor = timeline.getCursor();
+        const curTime = Object.values(cursor).reduce((acc: number, cur: any) => cur.time, 0);
+        const totalDuration = sonification.duration;
+        const progressPercentage = Math.round(curTime / totalDuration * 100);
+
+        return progressPercentage;
     }
 }
