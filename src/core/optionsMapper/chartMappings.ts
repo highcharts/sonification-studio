@@ -17,4 +17,8 @@ export class ChartMappings {
     public static subtitle(value: string): GenericObject {
         return { subtitle: { text: value || null } };
     }
+
+    public static xAxisTitle(value: string): GenericObject {
+        return { xAxis: { title: { text: value || null } } };
+    }
 }

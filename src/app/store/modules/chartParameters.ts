@@ -6,7 +6,8 @@ export const chartParametersStore = {
         type: 'spline',
         legendEnabled: false,
         title: 'Test chart',
-        subtitle: ''
+        subtitle: '',
+        xAxisTitle: ''
     },
 
     mutations: {
@@ -25,5 +26,9 @@ export const chartParametersStore = {
         setSubtitle(state: any, subtitle: string) {
             state.subtitle = subtitle;
         },
+
+        setXAxisTitle(state: any, title: string) {
+            state.xAxisTitle = title;
+        }
     }
 };

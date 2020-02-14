@@ -25,6 +25,17 @@
             </SEControl>
 
             <SEControl
+                control-id="chart-xaxis-title"
+                label="X-Axis title"
+                helptext="Title for the chart's X axis"
+            >
+                <SETextbox
+                    id="chart-xaxis-title"
+                    v-model="xAxisTitle"
+                />
+            </SEControl>
+
+            <SEControl
                 control-id="chart-legend-enabled"
                 label="Enable legend"
                 helptext="Show a legend with an overview of data series"
@@ -62,6 +73,10 @@ export default {
         chartSubtitle: {
             get() { return (this as any).$store.state.chartParametersStore.subtitle; },
             set(val) { return this.$store.commit('chartParametersStore/setSubtitle', val); }
+        },
+        xAxisTitle: {
+            get() { return (this as any).$store.state.chartParametersStore.xAxisTitle; },
+            set(val) { return this.$store.commit('chartParametersStore/setXAxisTitle', val); }
         }
     }
 };
