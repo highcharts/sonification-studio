@@ -44,7 +44,17 @@
             >
                 <SECheckbox
                     id="global-panning"
-                    v-model="panning"
+                    v-model="panenabled"
+                />
+            </SEControl>
+            <SEControl
+                control-id="global-panwidth"
+                label="Pan width"
+                helptext="How wide to pan the sound when panning is enabled"
+            >
+                <SESlider
+                    id="global-panwidth"
+                    v-model.number="panwidth"
                 />
             </SEControl>
         </div>
@@ -65,19 +75,23 @@ export default {
     computed: {
         speed: {
             get() { return (this as any).$store.state.sonifyParametersStore.speed; },
-            set(speed) { return this.$store.commit('sonifyParametersStore/setSpeed', speed); }
+            set(val) { return this.$store.commit('sonifyParametersStore/setSpeed', val); }
         },
         minfreq: {
-            get() { return (this as any).$store.state.sonifyParametersStore.minimumFrequency; },
-            set(minfreq) { return this.$store.commit('sonifyParametersStore/setMinimumFrequency', minfreq); }
+            get() { return (this as any).$store.state.sonifyParametersStore.minFrequency; },
+            set(val) { return this.$store.commit('sonifyParametersStore/setMinFrequency', val); }
         },
         maxfreq: {
-            get() { return (this as any).$store.state.sonifyParametersStore.maximumFrequency; },
-            set(maxfreq) { return this.$store.commit('sonifyParametersStore/setMaximumFrequency', maxfreq); }
+            get() { return (this as any).$store.state.sonifyParametersStore.maxFrequency; },
+            set(val) { return this.$store.commit('sonifyParametersStore/setMaxFrequency', val); }
         },
-        panning: {
-            get() { return (this as any).$store.state.sonifyParametersStore.panning; },
-            set(panning) { return this.$store.commit('sonifyParametersStore/setPanning', panning); }
+        panenabled: {
+            get() { return (this as any).$store.state.sonifyParametersStore.panEnabled; },
+            set(val) { return this.$store.commit('sonifyParametersStore/setPanEnabled', val); }
+        },
+        panwidth: {
+            get() { return (this as any).$store.state.sonifyParametersStore.panWidth; },
+            set(val) { return this.$store.commit('sonifyParametersStore/setPanWidth', val); }
         }
     }
 };

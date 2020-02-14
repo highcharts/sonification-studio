@@ -24,7 +24,7 @@ export class SonificationMappings {
         };
     }
 
-    public static minimumFrequency(value: number): GenericObject {
+    public static minFrequency(value: number): GenericObject {
         return {
             sonification: {
                 instruments: [{
@@ -36,7 +36,7 @@ export class SonificationMappings {
         };
     }
 
-    public static maximumFrequency(value: number): GenericObject {
+    public static maxFrequency(value: number): GenericObject {
         return {
             sonification: {
                 instruments: [{
@@ -48,12 +48,25 @@ export class SonificationMappings {
         };
     }
 
-    public static panning(value: boolean): GenericObject {
+    public static panEnabled(value: boolean): GenericObject {
         return {
             sonification: {
                 instruments: [{
                     instrumentMapping: {
                         pan: value ? 'x' : 0
+                    }
+                }]
+            }
+        };
+    }
+
+    public static panWidth(value: number): GenericObject {
+        return {
+            sonification: {
+                instruments: [{
+                    instrumentOptions: {
+                        minPan: 0 - value / 100,
+                        maxPan: 0 + value / 100
                     }
                 }]
             }

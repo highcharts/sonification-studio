@@ -5,9 +5,10 @@ export const sonifyParametersStore = {
     state: {
         speed: 50,
         volume: 50,
-        minimumFrequency: 392, // G4
-        maximumFrequency: 1319, // G6
-        panning: false
+        minFrequency: 392, // G4
+        maxFrequency: 1319, // G6
+        panEnabled: false,
+        panWidth: 90
     },
 
     mutations: {
@@ -19,16 +20,20 @@ export const sonifyParametersStore = {
             state.volume = volume;
         },
 
-        setMinimumFrequency(state: any, minfreq: number) {
-            state.minimumFrequency = minfreq;
+        setMinFrequency(state: any, minfreq: number) {
+            state.minFrequency = minfreq;
         },
 
-        setMaximumFrequency(state: any, maxfreq: number) {
-            state.maximumFrequency = maxfreq;
+        setMaxFrequency(state: any, maxfreq: number) {
+            state.maxFrequency = maxfreq;
         },
 
-        setPanning(state: any, pan: boolean) {
-            state.panning = pan;
+        setPanEnabled(state: any, pan: boolean) {
+            state.panEnabled = pan;
+        },
+
+        setPanWidth(state: any, panWidth: number) {
+            state.panWidth = panWidth;
         }
     }
 };
