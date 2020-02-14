@@ -13,4 +13,8 @@ export class ChartMappings {
     public static title(value: string): GenericObject {
         return { title: { text: value } };
     }
+
+    public static subtitle(value: string): GenericObject {
+        return { subtitle: { text: value || null } };
+    }
 }

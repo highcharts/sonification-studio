@@ -14,6 +14,17 @@
             </SEControl>
 
             <SEControl
+                control-id="chart-subtitle"
+                label="Subtitle"
+                helptext="Chart subtitle"
+            >
+                <SETextbox
+                    id="chart-subtitle"
+                    v-model="chartSubtitle"
+                />
+            </SEControl>
+
+            <SEControl
                 control-id="chart-legend-enabled"
                 label="Enable legend"
                 helptext="Show a legend with an overview of data series"
@@ -47,6 +58,10 @@ export default {
         chartTitle: {
             get() { return (this as any).$store.state.chartParametersStore.title; },
             set(val) { return this.$store.commit('chartParametersStore/setTitle', val); }
+        },
+        chartSubtitle: {
+            get() { return (this as any).$store.state.chartParametersStore.subtitle; },
+            set(val) { return this.$store.commit('chartParametersStore/setSubtitle', val); }
         }
     }
 };
