@@ -9,7 +9,7 @@ import { Store } from 'vuex';
 export class ChartBridge {
 
     private static updateChartIntervalMs = 500;
-    private static updateProgressIntervalMs = 20;
+    private static updateProgressIntervalMs = 15;
     private chart: GenericObject|null = null;
     private chartOptions: GenericObject = {};
     private chartParametersStore: GenericObject;
@@ -165,8 +165,8 @@ export class ChartBridge {
             return 0;
         }
 
-        const cursor = timeline.getCursor();
-        const curTime = Object.values(cursor).reduce((acc: number, cur: any) => cur.time, 0);
+        const cursor: GenericObject = timeline.getCursor();
+        const curTime = Object.values(cursor)[0].time;
         const totalDuration = sonification.duration;
         const progressPercentage = Math.round(curTime / totalDuration * 100);
 
