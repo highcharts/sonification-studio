@@ -3,6 +3,18 @@
         <h2>Chart settings</h2>
         <div class="controls-container">
             <SEControl
+                control-id="chart-type"
+                label="Type"
+                helptext="The type of chart to draw"
+            >
+                <SEDropdown
+                    id="chart-type"
+                    v-model="chartType"
+                    :options="chartTypes"
+                />
+            </SEControl>
+
+            <SEControl
                 control-id="chart-title"
                 label="Title"
                 helptext="The chart title text"
@@ -65,14 +77,50 @@
 import SEControl from '../basic/SEControl.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SETextbox from '../basic/SETextbox.vue';
+import SEDropdown from '../basic/SEDropdown.vue';
 
 export default {
     components: {
         SEControl,
         SECheckbox,
-        SETextbox
+        SETextbox,
+        SEDropdown
+    },
+    data: function () {
+        return {
+            chartTypes: [{
+                name: 'Line',
+                value: 'line'
+            }, {
+                name: 'Smoothed line',
+                value: 'spline',
+                selected: true
+            }, {
+                name: 'Area',
+                value: 'area'
+            }, {
+                name: 'Smoothed area',
+                value: 'areaspline'
+            }, {
+                name: 'Column',
+                value: 'column'
+            }, {
+                name: 'Bar',
+                value: 'bar'
+            }, {
+                name: 'Pie',
+                value: 'pie'
+            }, {
+                name: 'Scatter',
+                value: 'scatter'
+            }]
+        };
     },
     computed: {
+        chartType: {
+            get() { return (this as any).$store.state.chartParametersStore.type; },
+            set(val) { return this.$store.commit('chartParametersStore/setType', val); }
+        },
         chartLegendEnabled: {
             get() { return (this as any).$store.state.chartParametersStore.legendEnabled; },
             set(val) { return this.$store.commit('chartParametersStore/setLegendEnabled', val); }
