@@ -38,7 +38,7 @@
 import TextDescription from './TextDescription.vue';
 import Preview from './Preview.vue';
 import Data from './Data.vue';
-import MappingControls from './MappingControls.vue';
+import MappingControls from './mappings/MappingControls.vue';
 import { mapState } from 'vuex';
 
 export default {

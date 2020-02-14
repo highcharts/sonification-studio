@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Mappings: Column B</h2>
+        <h2>Mappings: Column - TODO</h2>
         <div class="accordion-container">
             <SEAccordionItem
                 v-for="item in accordionItems"
@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import SEAccordionItem from './basic/SEAccordionItem.vue';
+import SEAccordionItem from '../basic/SEAccordionItem.vue';
 import MappingsColumnScales from './MappingsColumnScales.vue';
 import MappingsColumnPan from './MappingsColumnPan.vue';
 import MappingsColumnPitch from './MappingsColumnPitch.vue';
@@ -53,7 +53,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    @import "../sidebar";
+    @import "../../sidebar";
 
     h2 {
         margin: 20px 5px;

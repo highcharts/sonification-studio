@@ -40,10 +40,10 @@
 </template>
 
 <script lang="ts">
-import SEControl from './basic/SEControl.vue';
-import SESlider from './basic/SESlider.vue';
-import SECheckbox from './basic/SECheckbox.vue';
-import SERadioGroup from './basic/SERadioGroup.vue';
+import SEControl from '../basic/SEControl.vue';
+import SESlider from '../basic/SESlider.vue';
+import SECheckbox from '../basic/SECheckbox.vue';
+import SERadioGroup from '../basic/SERadioGroup.vue';
 
 export default {
     components: {

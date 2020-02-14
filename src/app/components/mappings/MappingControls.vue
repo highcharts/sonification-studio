@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import SETabSwitch from './basic/SETabSwitch.vue';
+import SETabSwitch from '../basic/SETabSwitch.vue';
 import MappingsColumn from './MappingsColumn.vue';
 import MappingsGlobal from './MappingsGlobal.vue';
 
@@ -28,11 +28,11 @@ export default {
         return {
             toggleMappingOptions: [{
                 name: 'Global settings',
-                controls: 'MappingsGlobal'
+                controls: 'MappingsGlobal',
+                selected: true
             }, {
                 name: 'Column settings',
-                controls: 'MappingsColumn',
-                selected: true
+                controls: 'MappingsColumn'
             }],
             activeView: ''
         };
@@ -46,7 +46,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    @import "../colors";
+    @import "../../colors";
 
     section {
         background-color: @main-content-bg-color;
