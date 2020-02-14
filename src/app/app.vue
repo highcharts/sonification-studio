@@ -18,9 +18,11 @@ import Highcharts from 'highcharts';
 import hcDataInit from 'highcharts/modules/data';
 import hcNoDataInit from 'highcharts/modules/no-data-to-display';
 import hcSonificationInit from 'highcharts/modules/sonification';
+import hcAccessibilityInit from 'highcharts/modules/accessibility';
 hcDataInit(Highcharts);
 hcNoDataInit(Highcharts);
 hcSonificationInit(Highcharts);
+hcAccessibilityInit(Highcharts);
 window.Highcharts = Highcharts; // Expose on window for debugging
 Vue.use(HighchartsVue);
 

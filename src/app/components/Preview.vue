@@ -3,12 +3,10 @@
         <div
             class="chart-container"
             role="image"
-            aria-label="Chart graphic"
         >
             <highcharts
                 ref="chart"
                 class="chart"
-                aria-hidden="true"
                 :options="chartOptions"
             />
         </div>

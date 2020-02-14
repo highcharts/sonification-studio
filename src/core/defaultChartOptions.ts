@@ -1,9 +1,16 @@
-import { GenericObject } from './utils/objects';
-
 export const defaultChartOptions = {
     chart: {
         animation: {
             duration: 600
+        }
+    },
+    accessibility: {
+        screenReaderRegion: {
+            beforeChartFormat: '<h5>{chartTitle}</h5>' +
+                '<div>{chartSubtitle}</div>' +
+                '<div>{chartLongdesc}</div>' +
+                '<div>{xAxisDescription}</div>' +
+                '<div>{yAxisDescription}</div>'
         }
     },
     sonification: {
