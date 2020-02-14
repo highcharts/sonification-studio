@@ -6,7 +6,6 @@ export const defaultChartOptions = {
     },
     sonification: {
         enabled: true,
-        duration: 1500,
         afterSeriesWait: 1000,
         order: 'sequential',
         pointPlayTime: 'x',
@@ -20,11 +19,6 @@ export const defaultChartOptions = {
                 duration: 400,
                 frequency: 'y',
                 volume: 1
-            },
-            // Start at G4 note, end at G6
-            instrumentOptions: {
-                minFrequency: 392,
-                maxFrequency: 1319
             }
         }]
     },

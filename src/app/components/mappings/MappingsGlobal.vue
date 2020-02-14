@@ -12,6 +12,30 @@
                     v-model.number="speed"
                 />
             </SEControl>
+            <SEControl
+                control-id="global-minfreq"
+                label="Min frequency"
+                helptext="The lowest note to play"
+            >
+                <SESlider
+                    id="global-minfreq"
+                    v-model.number="minfreq"
+                    :min="100"
+                    :max="4000"
+                />
+            </SEControl>
+            <SEControl
+                control-id="global-maxfreq"
+                label="Max frequency"
+                helptext="The highest note to play"
+            >
+                <SESlider
+                    id="global-maxfreq"
+                    v-model.number="maxfreq"
+                    :min="100"
+                    :max="4000"
+                />
+            </SEControl>
         </div>
     </div>
 </template>
@@ -29,6 +53,14 @@ export default {
         speed: {
             get() { return (this as any).$store.state.sonifyParametersStore.speed; },
             set(speed) { return this.$store.commit('sonifyParametersStore/setSpeed', speed); }
+        },
+        minfreq: {
+            get() { return (this as any).$store.state.sonifyParametersStore.minimumFrequency; },
+            set(minfreq) { return this.$store.commit('sonifyParametersStore/setMinimumFrequency', minfreq); }
+        },
+        maxfreq: {
+            get() { return (this as any).$store.state.sonifyParametersStore.maximumFrequency; },
+            set(maxfreq) { return this.$store.commit('sonifyParametersStore/setMaximumFrequency', maxfreq); }
         }
     }
 };
@@ -39,5 +71,9 @@ export default {
 
     h2 {
         margin: 20px 5px;
+    }
+
+    .controls-container {
+        padding: 5px 10px;
     }
 </style>

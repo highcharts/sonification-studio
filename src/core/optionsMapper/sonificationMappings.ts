@@ -23,4 +23,28 @@ export class SonificationMappings {
             }
         };
     }
+
+    public static minimumFrequency(value: number): GenericObject {
+        return {
+            sonification: {
+                instruments: [{
+                    instrumentOptions: {
+                        minFrequency: value
+                    }
+                }]
+            }
+        };
+    }
+
+    public static maximumFrequency(value: number): GenericObject {
+        return {
+            sonification: {
+                instruments: [{
+                    instrumentOptions: {
+                        maxFrequency: value
+                    }
+                }]
+            }
+        };
+    }
 }
