@@ -9,7 +9,7 @@
             >
                 <SESlider
                     id="global-speed"
-                    v-model.number="volume"
+                    v-model.number="speed"
                 />
             </SEControl>
         </div>
@@ -26,7 +26,7 @@ export default {
         SESlider
     },
     computed: {
-        volume: {
+        speed: {
             get() { return (this as any).$store.state.sonifyParametersStore.speed; },
             set(speed) { return this.$store.commit('sonifyParametersStore/setSpeed', speed); }
         }
