@@ -29,10 +29,17 @@ export default {
         margin-top: 4px;
         box-sizing: border-box;
         width: 100%;
-        font-size: 1.05em;
+        font-size: 1.04em;
         border: 1px solid @setextbox-border-color;
         border-radius: 4px;
         background-color: @setextbox-bg;
         padding: 6px 9px;
+        color: @setextbox-color;
+
+        &:focus {
+            border: 1px solid @setextbox-focus-border-color;
+            box-shadow: 0 0 5px @setextbox-shadow;
+            outline: none;
+        }
     }
 </style>
