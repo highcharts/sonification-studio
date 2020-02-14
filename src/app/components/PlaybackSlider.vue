@@ -5,6 +5,7 @@
             label="Playback"
             :value="playbackProgress"
             dark
+            disabled
         />
     </div>
 </template>
@@ -22,4 +23,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+    input {
+        cursor: default !important;
+    }
 </style>

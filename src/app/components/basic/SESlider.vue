@@ -9,6 +9,7 @@
         - [value]: Number - Current slider value (one-way binding only).
         - [step]: Number - Step for slider values.
         - [dark]: Boolean - Alternate styling for dark backgrounds.
+        - [disalbed]: Boolean - Do not allow user input.
 
     Events:
         - input: Re-emits the input event for use with v-model.
@@ -26,11 +27,12 @@
             <input
                 :id="id || null"
                 type="range"
+                :disabled="disabled"
                 :min="min"
                 :max="max"
                 :value="value"
                 :step="step"
-                :class="{ dark: dark }"
+                :class="{ dark, disabled }"
                 @input="$emit('input', $event.target.value)"
             >
         </div>
@@ -43,6 +45,7 @@ export default {
         id: { type: String, required: true },
         label: { type: String, default: '' },
         dark: { type: Boolean, default: false },
+        disabled: { type: Boolean, default: false },
         min: { type: Number, default: 0 },
         max: { type: Number, default: 100 },
         value: { type: Number, default: 50 },
@@ -67,7 +70,6 @@ export default {
     .track(@color, @border) {
         width: 100%;
         height: 4px;
-        cursor: pointer;
         border-radius: 5px;
         border: @border;
         background: @color;
@@ -79,7 +81,6 @@ export default {
         width: 16px;
         border-radius: 50%;
         background: @color;
-        cursor: pointer;
     }
 
     .inputStyles(@inputColor, @border) {
@@ -135,11 +136,16 @@ export default {
         background: transparent;
         margin: 8px 0;
         width: 100%;
+        cursor: pointer;
 
         .inputStyles(@seslider-color, 1px solid @seslider-border-color);
 
         &.dark {
             .inputStyles(@seslider-dark-color, none);
+        }
+
+        &.disabled {
+            cursor: default;
         }
     }
 
