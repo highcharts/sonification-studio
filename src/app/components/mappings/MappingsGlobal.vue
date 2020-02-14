@@ -12,51 +12,57 @@
                     v-model.number="speed"
                 />
             </SEControl>
-            <SEControl
-                control-id="global-minfreq"
-                label="Min frequency"
-                helptext="The lowest note to play"
-            >
-                <SESlider
-                    id="global-minfreq"
-                    v-model.number="minfreq"
-                    :min="100"
-                    :max="4000"
-                />
-            </SEControl>
-            <SEControl
-                control-id="global-maxfreq"
-                label="Max frequency"
-                helptext="The highest note to play"
-            >
-                <SESlider
-                    id="global-maxfreq"
-                    v-model.number="maxfreq"
-                    :min="100"
-                    :max="4000"
-                />
-            </SEControl>
-            <SEControl
-                control-id="global-panning"
-                label="Enable panning"
-                helptext="Pan the sound to left and right based on x value"
-                horizontal
-            >
-                <SECheckbox
-                    id="global-panning"
-                    v-model="panenabled"
-                />
-            </SEControl>
-            <SEControl
-                control-id="global-panwidth"
-                label="Pan width"
-                helptext="How wide to pan the sound when panning is enabled"
-            >
-                <SESlider
-                    id="global-panwidth"
-                    v-model.number="panwidth"
-                />
-            </SEControl>
+
+            <div class="controls-group">
+                <SEControl
+                    control-id="global-minfreq"
+                    label="Min frequency"
+                    helptext="The lowest note to play"
+                >
+                    <SESlider
+                        id="global-minfreq"
+                        v-model.number="minfreq"
+                        :min="100"
+                        :max="4000"
+                    />
+                </SEControl>
+                <SEControl
+                    control-id="global-maxfreq"
+                    label="Max frequency"
+                    helptext="The highest note to play"
+                >
+                    <SESlider
+                        id="global-maxfreq"
+                        v-model.number="maxfreq"
+                        :min="100"
+                        :max="4000"
+                    />
+                </SEControl>
+            </div>
+
+            <div class="controls-group">
+                <SEControl
+                    control-id="global-panning"
+                    label="Enable panning"
+                    helptext="Pan the sound to left and right based on x value"
+                    horizontal
+                >
+                    <SECheckbox
+                        id="global-panning"
+                        v-model="panenabled"
+                    />
+                </SEControl>
+                <SEControl
+                    control-id="global-panwidth"
+                    label="Pan width"
+                    helptext="How wide to pan the sound when panning is enabled"
+                >
+                    <SESlider
+                        id="global-panwidth"
+                        v-model.number="panwidth"
+                    />
+                </SEControl>
+            </div>
         </div>
     </div>
 </template>
@@ -110,5 +116,9 @@ export default {
 
     .se-control {
         margin: 10px 0;
+    }
+
+    .controls-group {
+        margin-top: 20px;
     }
 </style>
