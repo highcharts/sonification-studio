@@ -17,9 +17,12 @@ export class SonificationMappings {
     }
 
     public static speed(value: number): GenericObject {
+        const maxDuration = 10000;
+        const minDuration = 200;
+        const slope = 6;
         return {
             sonification: {
-                duration: 3000 - value * 25
+                duration: (maxDuration - minDuration) / Math.max(1, value / slope) + minDuration
             }
         };
     }
