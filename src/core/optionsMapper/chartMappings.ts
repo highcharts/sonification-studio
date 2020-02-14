@@ -9,4 +9,8 @@ export class ChartMappings {
     public static legendEnabled(value: boolean): GenericObject {
         return { legend: { enabled: value } };
     }
+
+    public static title(value: string): GenericObject {
+        return { title: { text: value } };
+    }
 }

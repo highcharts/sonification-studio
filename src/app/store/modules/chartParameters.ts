@@ -4,7 +4,8 @@ export const chartParametersStore = {
 
     state: {
         type: 'spline',
-        legendEnabled: false
+        legendEnabled: false,
+        title: 'Test chart'
     },
 
     mutations: {
@@ -14,6 +15,10 @@ export const chartParametersStore = {
 
         setLegendEnabled(state: any, enabled: boolean) {
             state.legendEnabled = enabled;
+        },
+
+        setTitle(state: any, title: string) {
+            state.title = title;
         }
     }
 };
