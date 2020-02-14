@@ -30,9 +30,18 @@ export class ChartBridge {
     /**
      * Init the class with a chart and Vuex store instance.
      */
-    public init(chart: GenericObject) {
+    public init(chart: GenericObject): void {
         this.chart = chart;
         this.updateChartOptions();
+    }
+
+
+    /**
+     * Force chart to update sizing. Sometimes needed when the chart
+     * container switches from being invisible to visible.
+     */
+    public reflowChart(): void {
+        setTimeout(() => this.chart?.reflow(), 10);
     }
 
 

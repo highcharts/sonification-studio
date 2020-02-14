@@ -49,6 +49,8 @@ export default {
                 selectedTabId: tabId,
                 contentId: controlsId
             });
+
+            (this as any).$chartBridge.reflowChart();
         }
     }
 };
