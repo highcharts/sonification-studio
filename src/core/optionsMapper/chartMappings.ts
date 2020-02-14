@@ -21,4 +21,9 @@ export class ChartMappings {
     public static xAxisTitle(value: string): GenericObject {
         return { xAxis: { title: { text: value || null } } };
     }
+
+    public static yAxisTitle(value: string): GenericObject {
+        return { yAxis: { title: { text: value || null } } };
+    }
+
 }

@@ -7,7 +7,8 @@ export const chartParametersStore = {
         legendEnabled: false,
         title: 'Test chart',
         subtitle: '',
-        xAxisTitle: ''
+        xAxisTitle: '',
+        yAxisTitle: 'Values'
     },
 
     mutations: {
@@ -29,6 +30,10 @@ export const chartParametersStore = {
 
         setXAxisTitle(state: any, title: string) {
             state.xAxisTitle = title;
+        },
+
+        setYAxisTitle(state: any, title: string) {
+            state.yAxisTitle = title;
         }
     }
 };

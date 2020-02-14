@@ -36,6 +36,17 @@
             </SEControl>
 
             <SEControl
+                control-id="chart-yaxis-title"
+                label="Y-Axis title"
+                helptext="Title for the chart's Y axis"
+            >
+                <SETextbox
+                    id="chart-yaxis-title"
+                    v-model="yAxisTitle"
+                />
+            </SEControl>
+
+            <SEControl
                 control-id="chart-legend-enabled"
                 label="Enable legend"
                 helptext="Show a legend with an overview of data series"
@@ -77,6 +88,10 @@ export default {
         xAxisTitle: {
             get() { return (this as any).$store.state.chartParametersStore.xAxisTitle; },
             set(val) { return this.$store.commit('chartParametersStore/setXAxisTitle', val); }
+        },
+        yAxisTitle: {
+            get() { return (this as any).$store.state.chartParametersStore.yAxisTitle; },
+            set(val) { return this.$store.commit('chartParametersStore/setYAxisTitle', val); }
         }
     }
 };
