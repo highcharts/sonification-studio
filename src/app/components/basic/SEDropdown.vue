@@ -5,12 +5,16 @@
         - options: Array<{ name, value, [selected] }> - Options in the dropdown.
         - [label]: String - Aria label for the dropdown.
         - [labelledby]: String - Aria labelledby for the dropdown.
+
+    Events:
+        - input: Re-emits the change event for use with v-model.
 -->
 <template>
     <div class="se-dropdown sedropdown-container">
         <select
             :aria-label="label"
             :aria-labelledby="labelledby"
+            @change="$emit('input', $event.target.value)"
         >
             <option
                 v-for="opt in options"
