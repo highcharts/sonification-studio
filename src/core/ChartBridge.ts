@@ -8,7 +8,7 @@ import { Store } from 'vuex';
  */
 export class ChartBridge {
 
-    private static updateChartIntervalMs = 500;
+    private static updateChartIntervalMs = 300;
     private static updateProgressIntervalMs = 15;
     private chart: GenericObject|null = null;
     private chartOptions: GenericObject = {};
