@@ -3,8 +3,9 @@ export const sonifyParametersStore = {
     namespaced: true,
 
     state: {
-        speed: 50,
         volume: 50,
+        speed: 50,
+        playMarkerEnabled: false,
         minFrequency: 392, // G4
         maxFrequency: 1319, // G6
         panEnabled: false,
@@ -12,12 +13,16 @@ export const sonifyParametersStore = {
     },
 
     mutations: {
+        setVolume(state: any, volume: number) {
+            state.volume = volume;
+        },
+
         setSpeed(state: any, speed: number) {
             state.speed = speed;
         },
 
-        setVolume(state: any, volume: number) {
-            state.volume = volume;
+        setPlayMarkerEnabled(state: any, enabled: boolean) {
+            state.playMarkerEnabled = enabled;
         },
 
         setMinFrequency(state: any, minfreq: number) {

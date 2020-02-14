@@ -1,3 +1,5 @@
+import { GenericObject } from './utils/objects';
+
 export const defaultChartOptions = {
     chart: {
         animation: {

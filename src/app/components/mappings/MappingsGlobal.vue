@@ -2,16 +2,29 @@
     <div>
         <h2>Mappings: Global</h2>
         <div class="controls-container">
-            <SEControl
-                control-id="global-speed"
-                label="Speed"
-                helptext="Set the playing speed"
-            >
-                <SESlider
-                    id="global-speed"
-                    v-model.number="speed"
-                />
-            </SEControl>
+            <div class="controls-group">
+                <SEControl
+                    control-id="global-speed"
+                    label="Speed"
+                    helptext="Set the playing speed"
+                >
+                    <SESlider
+                        id="global-speed"
+                        v-model.number="speed"
+                    />
+                </SEControl>
+                <SEControl
+                    control-id="global-playmarker"
+                    label="Enable chart play marker"
+                    helptext="Show the current play position on the chart"
+                    horizontal
+                >
+                    <SECheckbox
+                        id="global-playmarker"
+                        v-model="playMarkerEnabled"
+                    />
+                </SEControl>
+            </div>
 
             <div class="controls-group">
                 <SEControl
@@ -83,6 +96,10 @@ export default {
             get() { return (this as any).$store.state.sonifyParametersStore.speed; },
             set(val) { return this.$store.commit('sonifyParametersStore/setSpeed', val); }
         },
+        playMarkerEnabled: {
+            get() { return (this as any).$store.state.sonifyParametersStore.playMarkerEnabled; },
+            set(val) { return this.$store.commit('sonifyParametersStore/setPlayMarkerEnabled', val); }
+        },
         minfreq: {
             get() { return (this as any).$store.state.sonifyParametersStore.minFrequency; },
             set(val) { return this.$store.commit('sonifyParametersStore/setMinFrequency', val); }
@@ -111,7 +128,7 @@ export default {
     }
 
     .controls-container {
-        padding: 5px 10px;
+        padding: 0 10px;
     }
 
     .se-control {
@@ -119,6 +136,6 @@ export default {
     }
 
     .controls-group {
-        margin-top: 20px;
+        margin: 20px 0;
     }
 </style>

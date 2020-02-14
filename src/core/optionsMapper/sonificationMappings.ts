@@ -24,6 +24,31 @@ export class SonificationMappings {
         };
     }
 
+    public static playMarkerEnabled(value: boolean): GenericObject {
+        const highlightPoint = (e: any, point: GenericObject) => {
+            const chart = point.series.chart;
+            const hasVisibleSeries = chart.series.some(
+                (series: GenericObject): boolean => series.visible
+            );
+
+            if (!point.isNull && hasVisibleSeries) {
+                point.onMouseOver();
+            } else {
+                if (chart.tooltip) {
+                    chart.tooltip.hide(0);
+                }
+            }
+        };
+
+        return {
+            sonification: {
+                seriesOptions: {
+                    onPointStart: value ? highlightPoint : null
+                }
+            }
+        };
+    }
+
     public static minFrequency(value: number): GenericObject {
         return {
             sonification: {
