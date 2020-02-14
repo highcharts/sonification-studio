@@ -16,4 +16,11 @@ export class SonificationMappings {
         };
     }
 
+    public static speed(value: number): GenericObject {
+        return {
+            sonification: {
+                duration: 3000 - value * 25
+            }
+        };
+    }
 }
