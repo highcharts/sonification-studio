@@ -27,7 +27,10 @@ framework. Eslint is used for linting, with plugins for Typescript and Vue.
 
 ### Publish
 
-To build and publish to GitHub pages, set the app version in `package.json`, run `npm run publish`, commit, and push. The contents of the `docs` directory is served on the GitHub pages site. The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
+To build and publish to GitHub pages, set the app version in `package.json`, run `npm run publish`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version.
+
+The contents of the `docs` directory is served on the GitHub pages site. The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
+
 
 ### Tests
 
