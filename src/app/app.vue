@@ -15,10 +15,12 @@ import Vue from 'vue';
 
 import HighchartsVue from 'highcharts-vue';
 import Highcharts from 'highcharts';
+import hcMoreInit from 'highcharts/highcharts-more';
 import hcDataInit from 'highcharts/modules/data';
 import hcNoDataInit from 'highcharts/modules/no-data-to-display';
 import hcSonificationInit from 'highcharts/modules/sonification';
 import hcAccessibilityInit from 'highcharts/modules/accessibility';
+hcMoreInit(Highcharts);
 hcDataInit(Highcharts);
 hcNoDataInit(Highcharts);
 hcSonificationInit(Highcharts);

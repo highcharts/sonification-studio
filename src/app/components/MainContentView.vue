@@ -13,13 +13,11 @@
                 class="sidebar"
             />
 
-            <section
+            <MappingsChart
                 v-show="selectedHeaderTabContent === 'chartContent'"
                 id="chartContent"
                 class="sidebar"
-            >
-                Chart controls
-            </section>
+            />
 
             <Preview
                 v-show="selectedHeaderTabContent !== 'dataContent'"
@@ -39,6 +37,7 @@ import TextDescription from './TextDescription.vue';
 import Preview from './Preview.vue';
 import Data from './Data.vue';
 import MappingControls from './mappings/MappingControls.vue';
+import MappingsChart from './mappings/MappingsChart.vue';
 import { mapState } from 'vuex';
 
 export default {
@@ -46,7 +45,8 @@ export default {
         TextDescription,
         Preview,
         Data,
-        MappingControls
+        MappingControls,
+        MappingsChart
     },
     computed: mapState('viewStore', ['selectedHeaderTabContent'])
 };

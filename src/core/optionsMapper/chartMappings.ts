@@ -6,4 +6,7 @@ export class ChartMappings {
         return { chart: { type: value } };
     }
 
+    public static legendEnabled(value: boolean): GenericObject {
+        return { legend: { enabled: value } };
+    }
 }
