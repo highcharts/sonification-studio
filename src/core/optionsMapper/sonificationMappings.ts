@@ -47,4 +47,16 @@ export class SonificationMappings {
             }
         };
     }
+
+    public static panning(value: boolean): GenericObject {
+        return {
+            sonification: {
+                instruments: [{
+                    instrumentMapping: {
+                        pan: value ? 'x' : 0
+                    }
+                }]
+            }
+        };
+    }
 }

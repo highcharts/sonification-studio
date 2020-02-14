@@ -36,6 +36,17 @@
                     :max="4000"
                 />
             </SEControl>
+            <SEControl
+                control-id="global-panning"
+                label="Enable panning"
+                helptext="Pan the sound to left and right based on x value"
+                horizontal
+            >
+                <SECheckbox
+                    id="global-panning"
+                    v-model="panning"
+                />
+            </SEControl>
         </div>
     </div>
 </template>
@@ -43,11 +54,13 @@
 <script lang="ts">
 import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
+import SECheckbox from '../basic/SECheckbox.vue';
 
 export default {
     components: {
         SEControl,
-        SESlider
+        SESlider,
+        SECheckbox
     },
     computed: {
         speed: {
@@ -61,6 +74,10 @@ export default {
         maxfreq: {
             get() { return (this as any).$store.state.sonifyParametersStore.maximumFrequency; },
             set(maxfreq) { return this.$store.commit('sonifyParametersStore/setMaximumFrequency', maxfreq); }
+        },
+        panning: {
+            get() { return (this as any).$store.state.sonifyParametersStore.panning; },
+            set(panning) { return this.$store.commit('sonifyParametersStore/setPanning', panning); }
         }
     }
 };
@@ -75,5 +92,9 @@ export default {
 
     .controls-container {
         padding: 5px 10px;
+    }
+
+    .se-control {
+        margin: 10px 0;
     }
 </style>

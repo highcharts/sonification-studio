@@ -6,7 +6,8 @@ export const sonifyParametersStore = {
         speed: 50,
         volume: 50,
         minimumFrequency: 392, // G4
-        maximumFrequency: 1319 // G6
+        maximumFrequency: 1319, // G6
+        panning: false
     },
 
     mutations: {
@@ -24,6 +25,10 @@ export const sonifyParametersStore = {
 
         setMaximumFrequency(state: any, maxfreq: number) {
             state.maximumFrequency = maxfreq;
+        },
+
+        setPanning(state: any, pan: boolean) {
+            state.panning = pan;
         }
     }
 };
