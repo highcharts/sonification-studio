@@ -1,4 +1,9 @@
 
+function removeRedundantNumberPrecision(str: string): string {
+    return str.replace(/\.0+(\D)/g, '$1');
+}
+
+
 function getNumericalColumn(columnData: Array<string>) {
     const numerical: Array<number> = [];
     let lastValueIx = 0;
@@ -50,12 +55,12 @@ function describeNumericalColumn(columnData: Array<number>): string {
     const avgDescription =
         `The average is ${valToPrecision(avgVal)}`;
 
-    return [
+    return removeRedundantNumberPrecision([
         numRowsDescription,
         firstLastDescription,
         minMaxDescription,
         avgDescription
-    ].join('. ') + '.';
+    ].join('. ') + '.');
 }
 
 
