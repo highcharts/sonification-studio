@@ -12,6 +12,7 @@
 <template>
     <div class="se-dropdown sedropdown-container">
         <select
+            ref="SEDropdown_select"
             :aria-label="label"
             :aria-labelledby="labelledby"
             @change="$emit('input', $event.target.value)"
@@ -40,12 +41,17 @@ export default {
     props: {
         options: { type: Array, required: true },
         label: { type: String, default: '' },
-        labelledby: { type: String, default: '' },
+        labelledby: { type: String, default: '' }
     },
     data: function () {
         return {
             arrowIcon
         };
+    },
+    updated: function () {
+        const sel = this.$refs.SEDropdown_select as HTMLSelectElement;
+        const newVal = sel.value;
+        this.$emit('input', newVal);
     },
     beforeMount: function () {
         if (!this.options.length) {
