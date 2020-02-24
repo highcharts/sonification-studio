@@ -47,6 +47,12 @@ export const dataStore = {
             }
 
             return Object.keys(res).sort();
+        },
+
+        column: (state: GenericObject): (key: string) => Array<unknown> => {
+            return (key: string) => {
+                return state.tableRowData.map((row: GenericObject) => row[key]);
+            };
         }
     },
 

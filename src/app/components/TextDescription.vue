@@ -3,12 +3,14 @@
         <h2>Text Description</h2>
         <div id="textdesc-controls">
             <SEDropdown
+                v-model="selectedColumn"
                 :options="dropdownList"
                 label="Choose column to describe"
             />
             <SEButton
                 dark
                 wide
+                @click="describeColumn"
             >
                 Text Description
             </SEButton>
@@ -19,7 +21,10 @@
                 Speak
             </SEButton>
         </div>
-        <textarea />
+        <textarea
+            :value="textDescription"
+            disabled
+        />
     </section>
 </template>
 
@@ -27,24 +32,33 @@
 import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import { GenericObject } from '../../core/utils/objects';
+import { describeColumn } from '../../core/textDescription';
 
 export default {
     components: {
         SEButton, SEDropdown
     },
+    data: function () {
+        return {
+            selectedColumn: null,
+            textDescription: ''
+        };
+    },
     computed: {
         dropdownList: function () {
             const colsWithData: Array<number> = this.$store.getters['dataStore/tableColumnNamesWithData'];
-            const dropdownOptions = colsWithData.map((colName, ix): GenericObject => ({
+            const dropdownOptions = colsWithData.map((colName): GenericObject => ({
                 name: 'Column ' + colName,
-                value: ix
+                value: colName
             }));
 
-            if (dropdownOptions.length) {
-                dropdownOptions[0].selected = true;
-            }
-
             return dropdownOptions;
+        }
+    },
+    methods: {
+        describeColumn: function () {
+            const columnData = this.$store.getters['dataStore/column'](this.selectedColumn);
+            this.textDescription = describeColumn(columnData);
         }
     }
 };
