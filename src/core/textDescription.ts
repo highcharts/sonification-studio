@@ -37,8 +37,25 @@ function describeStringColumn(columnData: Array<string>): string {
 function describeNumericalColumn(columnData: Array<number>): string {
     const rowsWithData = columnData.filter((cell): boolean => cell !== null);
     const numRows = rowsWithData.length;
+    const valToPrecision = (x: number): string => x.toPrecision(4);
+    const minVal = Math.min(...rowsWithData);
+    const maxVal = Math.max(...rowsWithData);
+    const avgVal = rowsWithData.reduce((a, b) => a + b, 0) / numRows;
+    const numRowsDescription =
+        `Column contains numerical data with ${numRows} ${numRows === 1 ? 'row' : 'rows'}`;
+    const firstLastDescription =
+        `The first value is ${rowsWithData[0]} and the last value is ${rowsWithData[numRows - 1]}`;
+    const minMaxDescription =
+        `Minimum: ${valToPrecision(minVal)}, maximum: ${valToPrecision(maxVal)}`;
+    const avgDescription =
+        `The average is ${valToPrecision(avgVal)}`;
 
-    return `Column contains numerical data with ${numRows} ${numRows === 1 ? 'row' : 'rows'}`;
+    return [
+        numRowsDescription,
+        firstLastDescription,
+        minMaxDescription,
+        avgDescription
+    ].join('. ') + '.';
 }
 
 
