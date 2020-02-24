@@ -17,6 +17,7 @@
             <SEButton
                 dark
                 wide
+                @click="speakTextDescription"
             >
                 Speak
             </SEButton>
@@ -33,6 +34,7 @@ import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import { GenericObject } from '../../core/utils/objects';
 import { describeColumn } from '../../core/textDescription';
+import { speakText } from '../../core/tts';
 
 export default {
     components: {
@@ -56,9 +58,16 @@ export default {
         }
     },
     methods: {
-        describeColumn: function () {
+        describeColumn() {
             const columnData = this.$store.getters['dataStore/column'](this.selectedColumn);
             this.textDescription = describeColumn(columnData);
+        },
+
+        speakTextDescription() {
+            const text = this.textDescription.trim();
+            if (text) {
+                speakText(text);
+            }
         }
     }
 };
