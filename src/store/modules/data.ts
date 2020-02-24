@@ -13,6 +13,7 @@
 
 import Vue from 'vue';
 import { parseCSV } from '../../core/utils/csvParser';
+import { GenericObject } from '../../core/utils/objects';
 
 interface UpdateCellDataProps {
     rowIndex: number;
@@ -26,6 +27,27 @@ export const dataStore = {
     state: {
         tableCSV: '',
         tableRowData: [] // Source data for table
+    },
+
+    getters: {
+        tableColumnNamesWithData: (state: GenericObject): Array<string> => {
+            const rows = state.tableRowData;
+            const res: GenericObject = {};
+            for (const row of rows) {
+                const columns = Object.entries(row);
+                for (const [col, val] of columns) {
+                    if (
+                        typeof val !== 'undefined' &&
+                        val !== null &&
+                        (val + '').trim() !== ''
+                    ) {
+                        res[col] = col;
+                    }
+                }
+            }
+
+            return Object.keys(res).sort();
+        }
     },
 
     mutations: {

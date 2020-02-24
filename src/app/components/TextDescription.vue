@@ -26,25 +26,26 @@
 <script lang="ts">
 import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
+import { GenericObject } from '../../core/utils/objects';
 
 export default {
     components: {
         SEButton, SEDropdown
     },
-    data: function () {
-        return {
-            dropdownList: [{
-                name: 'Column A',
-                value: 1
-            }, {
-                name: 'Column B',
-                value: 2,
-                selected: true
-            }, {
-                name: 'Column C',
-                value: 3
-            }]
-        };
+    computed: {
+        dropdownList: function () {
+            const colsWithData: Array<number> = this.$store.getters['dataStore/tableColumnNamesWithData'];
+            const dropdownOptions = colsWithData.map((colName, ix): GenericObject => ({
+                name: 'Column ' + colName,
+                value: ix
+            }));
+
+            if (dropdownOptions.length) {
+                dropdownOptions[0].selected = true;
+            }
+
+            return dropdownOptions;
+        }
     }
 };
 </script>
