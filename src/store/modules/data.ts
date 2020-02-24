@@ -51,7 +51,8 @@ export const dataStore = {
 
         column: (state: GenericObject): (key: string) => Array<unknown> => {
             return (key: string) => {
-                return state.tableRowData.map((row: GenericObject) => row[key]);
+                return state.tableRowData
+                    .map((row: GenericObject) => row[key] ?? null);
             };
         }
     },
