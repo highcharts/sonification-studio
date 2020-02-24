@@ -130,7 +130,9 @@ export default {
                 gridApi.forEachNode((node: RowNode) => rows.push(hasRowData(node)));
 
                 const lastRowWithDataIndex = rows.lastIndexOf(true);
-                gridApi.ensureIndexVisible(lastRowWithDataIndex, 'top');
+                if (lastRowWithDataIndex > -1) {
+                    gridApi.ensureIndexVisible(lastRowWithDataIndex, 'top');
+                }
             }
         },
 
