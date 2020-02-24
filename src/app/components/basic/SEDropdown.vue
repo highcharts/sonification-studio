@@ -46,6 +46,23 @@ export default {
         return {
             arrowIcon
         };
+    },
+    beforeMount: function () {
+        if (!this.options.length) {
+            return;
+        }
+
+        const hasSelected = this.options.reduce(
+            (hasSel: boolean, option: unknown): boolean => hasSel || (option as any).selected,
+            false
+        );
+
+        // If no option is selected, we select the first one
+        if (!hasSelected) {
+            const firstOption = (this.options as any)[0];
+            firstOption.selected = true;
+            this.$emit('input', firstOption.value);
+        }
     }
 };
 </script>
