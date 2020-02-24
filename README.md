@@ -42,5 +42,4 @@ Tests are ran automatically before each commit.
 
 ### Source files
 
-Source files are found under `/src`, with `/src/app` containing all front end components, and
-`/src/core` containing the program logic and utilities.
+Source files are found under `/src`, with `/src/app` containing all front end components, `/src/core` containing the program logic and utilities, and `/src/store` containing the Vuex data store modules with default parameters.

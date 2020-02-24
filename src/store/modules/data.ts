@@ -12,7 +12,7 @@
  */
 
 import Vue from 'vue';
-import { parseCSV } from '../../../core/utils/csvParser';
+import { parseCSV } from '../../core/utils/csvParser';
 
 interface UpdateCellDataProps {
     rowIndex: number;

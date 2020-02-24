@@ -31,7 +31,7 @@ Vue.use(HighchartsVue);
 import Header from './components/Header.vue';
 import MainContentView from './components/MainContentView.vue';
 import Footer from './components/Footer.vue';
-import { store } from './store/store';
+import { store } from '../store/store';
 import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
 
 import { ChartBridge } from '../core/ChartBridge';
