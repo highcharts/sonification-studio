@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Mappings: Column - TODO</h2>
+        <h2>Audio settings: Column - TODO</h2>
         <div class="accordion-container">
             <SEAccordionItem
                 v-for="item in accordionItems"

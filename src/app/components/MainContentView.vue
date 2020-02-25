@@ -13,7 +13,7 @@
                 class="sidebar"
             />
 
-            <GlobalChartMappings
+            <ChartMappingControls
                 v-show="selectedHeaderTabContent === 'chartContent'"
                 id="chartContent"
                 class="sidebar"
@@ -37,7 +37,7 @@ import TextDescription from './TextDescription.vue';
 import Preview from './Preview.vue';
 import Data from './Data.vue';
 import AudioMappingControls from './mappings/AudioMappingControls.vue';
-import GlobalChartMappings from './mappings/GlobalChartMappings.vue';
+import ChartMappingControls from './mappings/ChartMappingControls.vue';
 import { mapState } from 'vuex';
 
 export default {
@@ -46,7 +46,7 @@ export default {
         Preview,
         Data,
         AudioMappingControls,
-        GlobalChartMappings
+        ChartMappingControls
     },
     computed: mapState('viewStore', ['selectedHeaderTabContent'])
 };

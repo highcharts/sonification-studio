@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Mappings: Global</h2>
+        <h2>Audio settings: Global</h2>
         <div class="controls-container">
             <div class="controls-group">
                 <SEControl

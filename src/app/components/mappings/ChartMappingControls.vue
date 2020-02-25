@@ -1,5 +1,5 @@
 <template>
-    <section aria-label="Audio settings">
+    <section aria-label="Chart settings">
         <SETabSwitch
             :options="toggleMappingOptions"
             class="toggleView"
@@ -15,24 +15,24 @@
 
 <script lang="ts">
 import SETabSwitch from '../basic/SETabSwitch.vue';
-import AudioMappingsColumn from './AudioMappingsColumn.vue';
-import AudioMappingsGlobal from './AudioMappingsGlobal.vue';
+import ChartMappingsColumn from './ChartMappingsGlobal.vue';
+import ChartMappingsGlobal from './ChartMappingsGlobal.vue';
 
 export default {
     components: {
         SETabSwitch,
-        AudioMappingsColumn,
-        AudioMappingsGlobal
+        ChartMappingsColumn,
+        ChartMappingsGlobal
     },
     data: function () {
         return {
             toggleMappingOptions: [{
                 name: 'Global settings',
-                controls: 'AudioMappingsGlobal',
+                controls: 'ChartMappingsGlobal',
                 selected: true
             }, {
                 name: 'Column settings',
-                controls: 'AudioMappingsColumn'
+                controls: 'ChartMappingsColumn'
             }],
             activeView: ''
         };

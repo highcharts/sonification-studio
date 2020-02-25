@@ -1,5 +1,5 @@
 <template>
-    <section aria-label="Chart settings">
+    <div>
         <h2>Chart settings</h2>
         <div class="controls-container">
             <SEControl
@@ -70,7 +70,7 @@
                 />
             </SEControl>
         </div>
-    </section>
+    </div>
 </template>
 
 <script lang="ts">
@@ -147,14 +147,6 @@ export default {
 
 <style lang="less" scoped>
     @import "../../sidebar";
-    @import "../../colors";
-
-    section {
-        background-color: @main-content-bg-color;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-    }
 
     h2 {
         margin: 20px 5px;
