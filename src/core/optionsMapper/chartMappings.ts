@@ -26,4 +26,7 @@ export class ChartMappings {
         return { yAxis: { title: { text: value || null } } };
     }
 
+    public static seriesLabelsEnabled(value: boolean): GenericObject {
+        return { plotOptions: { series: { label: { enabled: value } } } };
+    }
 }

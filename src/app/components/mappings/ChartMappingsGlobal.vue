@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Chart settings</h2>
+        <h2>Chart settings: Global</h2>
         <div class="controls-container">
             <SEControl
                 control-id="chart-type"
@@ -67,6 +67,18 @@
                 <SECheckbox
                     id="chart-legend-enabled"
                     v-model="chartLegendEnabled"
+                />
+            </SEControl>
+
+            <SEControl
+                control-id="chart-series-labels-enabled"
+                label="Show data series labels"
+                helptext="Show a label on the chart for each data series"
+                horizontal
+            >
+                <SECheckbox
+                    id="chart-series-labels-enabled"
+                    v-model="seriesLabelsEnabled"
                 />
             </SEControl>
         </div>
@@ -140,6 +152,10 @@ export default {
         yAxisTitle: {
             get() { return (this as any).$store.state.chartParametersStore.yAxisTitle; },
             set(val) { return this.$store.commit('chartParametersStore/setYAxisTitle', val); }
+        },
+        seriesLabelsEnabled: {
+            get() { return (this as any).$store.state.chartParametersStore.seriesLabelsEnabled; },
+            set(val) { return this.$store.commit('chartParametersStore/setSeriesLabelsEnabled', val); }
         }
     }
 };
