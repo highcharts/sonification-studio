@@ -7,13 +7,13 @@
                 class="fullscreen"
             />
 
-            <MappingControls
+            <AudioMappingControls
                 v-show="selectedHeaderTabContent === 'mappingsContent'"
                 id="mappingsContent"
                 class="sidebar"
             />
 
-            <MappingsChart
+            <GlobalChartMappings
                 v-show="selectedHeaderTabContent === 'chartContent'"
                 id="chartContent"
                 class="sidebar"
@@ -36,8 +36,8 @@
 import TextDescription from './TextDescription.vue';
 import Preview from './Preview.vue';
 import Data from './Data.vue';
-import MappingControls from './mappings/MappingControls.vue';
-import MappingsChart from './mappings/MappingsChart.vue';
+import AudioMappingControls from './mappings/AudioMappingControls.vue';
+import GlobalChartMappings from './mappings/GlobalChartMappings.vue';
 import { mapState } from 'vuex';
 
 export default {
@@ -45,8 +45,8 @@ export default {
         TextDescription,
         Preview,
         Data,
-        MappingControls,
-        MappingsChart
+        AudioMappingControls,
+        GlobalChartMappings
     },
     computed: mapState('viewStore', ['selectedHeaderTabContent'])
 };

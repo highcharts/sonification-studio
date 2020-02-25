@@ -18,34 +18,34 @@
 
 <script lang="ts">
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
-import MappingsColumnScales from './MappingsColumnScales.vue';
-import MappingsColumnPan from './MappingsColumnPan.vue';
-import MappingsColumnPitch from './MappingsColumnPitch.vue';
-import MappingsColumnVolume from './MappingsColumnVolume.vue';
+import AudioMappingsColumnScales from './AudioMappingsColumnScales.vue';
+import AudioMappingsColumnPan from './AudioMappingsColumnPan.vue';
+import AudioMappingsColumnPitch from './AudioMappingsColumnPitch.vue';
+import AudioMappingsColumnVolume from './AudioMappingsColumnVolume.vue';
 
 export default {
     components: {
         SEAccordionItem,
-        MappingsColumnScales,
-        MappingsColumnPan,
-        MappingsColumnPitch,
-        MappingsColumnVolume
+        AudioMappingsColumnScales,
+        AudioMappingsColumnPan,
+        AudioMappingsColumnPitch,
+        AudioMappingsColumnVolume
     },
     data: function () {
         return {
             accordionItems: [{
                 heading: 'Sound scales',
-                component: 'MappingsColumnScales'
+                component: 'AudioMappingsColumnScales'
             }, {
                 heading: 'Pitch',
-                component: 'MappingsColumnPitch'
+                component: 'AudioMappingsColumnPitch'
             }, {
                 heading: 'Pan (left to right)',
-                component: 'MappingsColumnPan',
+                component: 'AudioMappingsColumnPan',
                 selected: true
             }, {
                 heading: 'Volume',
-                component: 'MappingsColumnVolume'
+                component: 'AudioMappingsColumnVolume'
             }]
         };
     }

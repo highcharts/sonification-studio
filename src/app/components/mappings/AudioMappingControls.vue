@@ -15,24 +15,24 @@
 
 <script lang="ts">
 import SETabSwitch from '../basic/SETabSwitch.vue';
-import MappingsColumn from './MappingsColumn.vue';
-import MappingsGlobal from './MappingsGlobal.vue';
+import AudioMappingsColumn from './AudioMappingsColumn.vue';
+import AudioMappingsGlobal from './AudioMappingsGlobal.vue';
 
 export default {
     components: {
         SETabSwitch,
-        MappingsColumn,
-        MappingsGlobal
+        AudioMappingsColumn,
+        AudioMappingsGlobal
     },
     data: function () {
         return {
             toggleMappingOptions: [{
                 name: 'Global settings',
-                controls: 'MappingsGlobal',
+                controls: 'AudioMappingsGlobal',
                 selected: true
             }, {
                 name: 'Column settings',
-                controls: 'MappingsColumn'
+                controls: 'AudioMappingsColumn'
             }],
             activeView: ''
         };
