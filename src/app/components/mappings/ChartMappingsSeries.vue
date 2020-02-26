@@ -41,8 +41,9 @@
                 control-id="series-color"
                 label="Color"
                 helptext="The color of the data series in the chart"
+                horizontal-reverse
             >
-                <SETextbox
+                <SEColorPicker
                     id="series-color"
                     v-model="seriesColor"
                 />
@@ -80,6 +81,7 @@ import SEControl from '../basic/SEControl.vue';
 import SETextbox from '../basic/SETextbox.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
+import SEColorPicker from '../basic/SEColorPicker.vue';
 import { GenericObject } from '../../../core/utils/objects';
 import { mapState } from 'vuex';
 
@@ -108,7 +110,8 @@ export default {
         SEControl,
         SETextbox,
         SEDropdown,
-        SECheckbox
+        SECheckbox,
+        SEColorPicker
     },
     data: function () {
         return {
@@ -180,7 +183,7 @@ export default {
         },
         seriesName: makeSeriesParamSetterAndGetter('seriesName'),
         seriesType: makeSeriesParamSetterAndGetter('seriesType'),
-        seriesColor: makeSeriesParamSetterAndGetter('seriesColor'),
+        seriesColor: makeSeriesParamSetterAndGetter('seriesColor', '#ffffff'),
         dashStyle: makeSeriesParamSetterAndGetter('dashStyle'),
         dataLabelsEnabled: makeSeriesParamSetterAndGetter('dataLabelsEnabled')
     }
