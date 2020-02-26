@@ -1,3 +1,7 @@
+/*
+    Data store for data that is specific to the app view components, but
+    used across multiple components.
+*/
 
 interface SelectHeaderTabPayload {
     selectedTabId: string;

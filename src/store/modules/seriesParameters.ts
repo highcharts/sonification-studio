@@ -1,3 +1,21 @@
+/*
+    Data store for series options.
+
+    These are options specific to a certain data series.
+
+    Due to the dynamic nature of these options, they are structured
+    under a common hashmap-type object as follows:
+
+    seriesParameters: {
+        seriesId: {
+            seriesName: '',
+            seriesColor: ''
+            // ...
+        },
+        otherSeriesId: { ... }
+    }
+ */
+
 import Vue from 'vue';
 
 interface SeriesParameterOptions {
