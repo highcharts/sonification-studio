@@ -7,12 +7,14 @@
 
     Events:
         - input: Re-emits the input event for use with v-model.
+        - change: Re-emits
 -->
 <template>
     <input
         :id="id"
         :value="value"
         @input="$emit('input', $event.target.value)"
+        @change="$emit('change', $event)"
     >
 </template>
 
