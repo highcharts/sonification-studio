@@ -135,9 +135,6 @@ export default {
                 name: 'Column',
                 value: 'column'
             }, {
-                name: 'Bar',
-                value: 'bar'
-            }, {
                 name: 'Pie',
                 value: 'pie'
             }, {
