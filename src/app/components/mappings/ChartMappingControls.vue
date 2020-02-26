@@ -15,24 +15,24 @@
 
 <script lang="ts">
 import SETabSwitch from '../basic/SETabSwitch.vue';
-import ChartMappingsColumn from './ChartMappingsGlobal.vue';
+import ChartMappingsSeries from './ChartMappingsSeries.vue';
 import ChartMappingsGlobal from './ChartMappingsGlobal.vue';
 
 export default {
     components: {
         SETabSwitch,
-        ChartMappingsColumn,
+        ChartMappingsSeries,
         ChartMappingsGlobal
     },
     data: function () {
         return {
             toggleMappingOptions: [{
-                name: 'Global settings',
+                name: 'Chart settings',
                 controls: 'ChartMappingsGlobal',
                 selected: true
             }, {
-                name: 'Column settings',
-                controls: 'ChartMappingsColumn'
+                name: 'Data series settings',
+                controls: 'ChartMappingsSeries'
             }],
             activeView: ''
         };

@@ -8,10 +8,9 @@ export const viewStore = {
     namespaced: true,
 
     state: {
-        // Keep track of number of chart option updates, and create a
-        // reactive dependency to trigger the preview to update when
-        // the ChartBridge updates.
-        chartOptionsUpdateCounter: 0,
+        // Reactive dependencies, see ChartBridge.reactiveGet()
+        reactToParameterUpdates: 0,
+        reactToDataUpdates: 0,
 
         selectedHeaderTabContent: 'dataContent',
         selectedHeaderTabId: 'Data',
@@ -19,10 +18,6 @@ export const viewStore = {
     },
 
     mutations: {
-        incrementChartOptionsUpdateCounter(state: any) {
-            state.chartOptionsUpdateCounter++;
-        },
-
         selectHeaderTab(state: any, payload: SelectHeaderTabPayload) {
             state.selectedHeaderTabId = payload.selectedTabId;
             state.selectedHeaderTabContent = payload.contentId;
@@ -30,6 +25,14 @@ export const viewStore = {
 
         setPlaybackProgress(state: any, progressPct: number) {
             state.playbackProgress = progressPct;
+        },
+
+        triggerParameterReactivity(state: any) {
+            state.reactToParameterUpdates++;
+        },
+
+        triggerDataReactivity(state: any) {
+            state.reactToDataUpdates++;
         }
     }
 };

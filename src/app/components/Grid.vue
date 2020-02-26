@@ -157,6 +157,7 @@ export default {
                     shouldRowBeSkipped: (params: ShouldRowBeSkippedParams): boolean => {
                         return !hasRowData(params.node);
                     },
+                    skipHeader: true,
                     columnSeparator: ';',
                     // Replace ; in the cells with space for the CSV to avoid accidental delimitors.
                     processCellCallback: (params: any): string => {

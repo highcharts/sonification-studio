@@ -46,6 +46,7 @@ export const defaultChartOptions = {
     },
     data: {
         csv: '',
-        itemDelimiter: ';'
+        itemDelimiter: ';',
+        firstRowAsNames: false
     }
 };

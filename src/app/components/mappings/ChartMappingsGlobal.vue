@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Chart settings: Global</h2>
+        <h2>Chart settings</h2>
         <div class="controls-container">
             <SEControl
                 control-id="chart-type"
@@ -73,7 +73,7 @@
             <SEControl
                 control-id="chart-series-labels-enabled"
                 label="Show data series labels"
-                helptext="Show a label on the chart for each data series"
+                helptext="Show a label on the chart for each data series. Labels may be hidden if no good position is found automatically"
                 horizontal
             >
                 <SECheckbox

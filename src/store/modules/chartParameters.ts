@@ -1,3 +1,9 @@
+interface SeriesParameterOptions {
+    seriesId: string;
+    parameterName: string;
+    parameterValue: any;
+}
+
 
 export const chartParametersStore = {
     namespaced: true,
@@ -9,7 +15,8 @@ export const chartParametersStore = {
         subtitle: '',
         xAxisTitle: '',
         yAxisTitle: 'Values',
-        seriesLabelsEnabled: false
+        seriesLabelsEnabled: false,
+        seriesParameters: {}
     },
 
     mutations: {
@@ -39,6 +46,13 @@ export const chartParametersStore = {
 
         setSeriesLabelsEnabled(state: any, enabled: boolean) {
             state.seriesLabelsEnabled = enabled;
+        },
+
+        setSeriesParameter(state: any, options: SeriesParameterOptions) {
+            const seriesParams = state.seriesParameters;
+            const id = options.seriesId;
+            seriesParams[id] = seriesParams[id] || {};
+            seriesParams[id][options.parameterName] = options.parameterValue;
         }
     }
 };

@@ -29,4 +29,9 @@ export class ChartMappings {
     public static seriesLabelsEnabled(value: boolean): GenericObject {
         return { plotOptions: { series: { label: { enabled: value } } } };
     }
+
+    public static seriesParameters(value: GenericObject): GenericObject {
+        console.log('Series params:', value);
+        return {};
+    }
 }

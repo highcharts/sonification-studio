@@ -8,15 +8,22 @@ import { Store } from 'vuex';
  */
 export class ChartBridge {
 
-    private static updateChartIntervalMs = 300;
+    // How often to trigger updates for parameter changes
+    private static parameterReactivityIntervalMs = 300;
+    // How often to trigger updates for data changes
+    private static dataReactivityIntervalMs = 2000;
+    // Playback progress bar update interval
     private static updateProgressIntervalMs = 15;
+
     private chart: GenericObject|null = null;
     private chartOptions: GenericObject = {};
     private chartParametersStore: GenericObject;
     private sonifyParametersStore: GenericObject;
     private commitToStore: (id: string, payload?: any) => void;
-    private updateChartTimeout: number|null = null;
+    private reactivityTimeouts: GenericObject = {};
     private updateProgressInterval: number|null = null;
+    private _seReactivityCounter: number|null = null;
+
 
     constructor(store: Store<any>) {
         this.chartParametersStore = store.state.chartParametersStore;
@@ -33,6 +40,10 @@ export class ChartBridge {
     public init(chart: GenericObject): void {
         this.chart = chart;
         this.updateChartOptions();
+
+        // Once we have a chart, we need to trigger reactivity again to force updates
+        this.commitToStore('viewStore/triggerParameterReactivity');
+        this.commitToStore('viewStore/triggerDataReactivity');
     }
 
 
@@ -46,17 +57,54 @@ export class ChartBridge {
 
 
     /**
-     * The chart bridge always holds the computed chart options from
-     * the parameter stores.
+     * The purpose of this function is to create a dependency on a
+     * reactive property (reactivityCounter) that can be changed elsewhere
+     * in the code, and force updates of props that depend on chartBridge
+     * functions.
+     *
+     * This is particularly useful for non-POD structures that contain
+     * functions, as they can not be stored in a Vuex store. For example,
+     * for components that depend on chart data series objects.
+     *
+     * Two reactivity counters are provided in the view store,
+     * reactToDataUpdates, and reactToParameterUpdates. These are
+     * incremented by the ChartBridge class when relevant updates are made.
+     *
+     * Example:
+     *
+     * Add a computed property "test" that is computed as follows:
+     *      test: () => this.$chartBridge.reactiveGet(
+     *              'getCurrentChartOptions', this.reactToParameterUpdates);
+     *
+     * Whenever "this.reactToParameterUpdates" is updated (e.g. incremented),
+     * the value of "test" will update as well, and fetch its result from
+     * "getCurrentChartOptions".
      */
-    public getCurrentChartOptions(updateCounter: number) {
-        // The purpose of the update counter is to provoke Vue reactivity,
-        // so that the preview will update when we update the counter in
-        // the viewStore. It also serves as a debugging tool, to identify
-        // the number of updates happening to the chart, and identify them
-        // sequentially.
-        this.chartOptions._seUpdateCounter = updateCounter;
+    public reactiveGet(func: keyof ChartBridge, reactivityCounter: number): any {
+        this._seReactivityCounter = reactivityCounter;
+
+        const res = (this as any)[func]();
+
+        if (typeof res === 'object' && res) {
+            res._seReactivityCounter = this._seReactivityCounter;
+        }
+
+        return res;
+    }
+
+
+    public getCurrentChartOptions() {
         return this.chartOptions;
+    }
+
+
+    public getDataSeries(): Array<GenericObject> {
+        return this.chart?.series || [];
+    }
+
+
+    public getSeriesId(series: GenericObject): string {
+        return series.id || `se-hc-series-id-${series.chart.index}-${series.index}`;
     }
 
 
@@ -112,36 +160,58 @@ export class ChartBridge {
     }
 
 
-    private updateChartOptions() {
-        this.chartOptions = getChartOptionsFromParameters(
-            this.sonifyParametersStore,
-            this.chartParametersStore
-        );
-        this.commitToStore('viewStore/incrementChartOptionsUpdateCounter');
-    }
-
-
     private onStoreMutation(mutation: GenericObject) {
-        if (this.shouldUpdateOnMutation(mutation)) {
-            this.queueChartOptionsUpdate();
+        if (this.isParameterMutation(mutation)) {
+            this.queueReactivityUpdate(
+                'viewStore/triggerParameterReactivity',
+                ChartBridge.parameterReactivityIntervalMs,
+                'paramReactivityTimeout',
+                () => this.updateChartOptions()
+            );
+        } else if (this.isDataMutation(mutation)) {
+            this.queueReactivityUpdate(
+                'viewStore/triggerDataReactivity',
+                ChartBridge.dataReactivityIntervalMs,
+                'dataReactivityTimeout'
+            );
         }
     }
 
 
-    private shouldUpdateOnMutation(mutation: GenericObject): boolean {
+    private isParameterMutation(mutation: GenericObject): boolean {
         return mutation.type.startsWith('chartParameters') ||
             mutation.type.startsWith('sonifyParameters');
     }
 
 
-    // Limit number of chart updates to one every X milliseconds
-    private queueChartOptionsUpdate() {
-        if (!this.updateChartTimeout) {
-            this.updateChartTimeout = setTimeout(() => {
-                this.updateChartOptions();
-                this.updateChartTimeout = null;
-            }, ChartBridge.updateChartIntervalMs);
+    private isDataMutation(mutation: GenericObject): boolean {
+        return mutation.type.startsWith('dataStore');
+    }
+
+
+    // Trigger a reactivity update, but only once every X milliseconds.
+    private queueReactivityUpdate(
+        mutation: string, interval: number, timeoutId: string, beforeTrigger?: Function
+    ) {
+        const timeouts = this.reactivityTimeouts;
+        if (!timeouts[timeoutId]) {
+            timeouts[timeoutId] = setTimeout(() => {
+                delete timeouts[timeoutId];
+                if (beforeTrigger) {
+                    beforeTrigger();
+                }
+                this.commitToStore(mutation);
+            }, interval);
         }
+    }
+
+
+    // Chart options are cached for performance, only updated on reactivity trigger
+    private updateChartOptions() {
+        this.chartOptions = getChartOptionsFromParameters(
+            this.sonifyParametersStore,
+            this.chartParametersStore
+        );
     }
 
 

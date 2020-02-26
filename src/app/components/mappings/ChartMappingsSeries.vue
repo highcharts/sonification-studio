@@ -1,0 +1,169 @@
+<template>
+    <div>
+        <h2>Data series settings</h2>
+        <div class="controls-container">
+            <SEControl
+                control-id="series-selector"
+                label="Series"
+                helptext="The data series to apply settings to"
+            >
+                <SEDropdown
+                    id="series-selector"
+                    v-model="selectedSeries"
+                    :options="dataSeries"
+                />
+            </SEControl>
+
+            <SEControl
+                control-id="series-type"
+                label="Type"
+                helptext="Override the chart type for this specific data series"
+            >
+                <SEDropdown
+                    id="series-type"
+                    v-model="seriesType"
+                    :options="seriesTypes"
+                />
+            </SEControl>
+
+            <SEControl
+                control-id="series-name"
+                label="Name"
+                helptext="The data series name in the chart"
+            >
+                <SETextbox
+                    id="series-name"
+                    v-model="seriesName"
+                />
+            </SEControl>
+
+            <SEControl
+                control-id="series-color"
+                label="Color"
+                helptext="The color of the data series in the chart"
+            >
+                <SETextbox
+                    id="series-color"
+                    v-model="seriesColor"
+                />
+            </SEControl>
+
+            <SEControl
+                control-id="dash-style"
+                label="Dash style"
+                helptext="The data series dash style for lines and borders"
+            >
+                <SEDropdown
+                    id="dash-style"
+                    v-model="dashStyle"
+                    :options="dashStyles"
+                />
+            </SEControl>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import SEControl from '../basic/SEControl.vue';
+import SETextbox from '../basic/SETextbox.vue';
+import SEDropdown from '../basic/SEDropdown.vue';
+import { GenericObject } from '../../../core/utils/objects';
+import { mapState } from 'vuex';
+
+export default {
+    components: {
+        SEControl,
+        SETextbox,
+        SEDropdown
+    },
+    data: function () {
+        return {
+            selectedSeries: '',
+            seriesType: '',
+            seriesTypes: [{
+                name: 'Default',
+                value: null
+            }, {
+                name: 'Line',
+                value: 'line'
+            }, {
+                name: 'Smoothed line',
+                value: 'spline'
+            }, {
+                name: 'Area',
+                value: 'area'
+            }, {
+                name: 'Smoothed area',
+                value: 'areaspline'
+            }, {
+                name: 'Column',
+                value: 'column'
+            }, {
+                name: 'Bar',
+                value: 'bar'
+            }, {
+                name: 'Pie',
+                value: 'pie'
+            }, {
+                name: 'Scatter',
+                value: 'scatter'
+            }],
+            seriesColor: '',
+            dashStyle: '',
+            dashStyles: [{
+                name: 'Solid',
+                value: 'none'
+            }]
+        };
+    },
+    computed: {
+        ...mapState({
+            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates,
+        }),
+        dataSeries: function () {
+            const chartBridge = (this as any).$chartBridge;
+            const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
+
+            return series.map((s: GenericObject) => ({
+                name: s.name,
+                value: chartBridge.getSeriesId(s)
+            }));
+        },
+        seriesName: {
+            get() { return (this as any).getSeriesParam('seriesName'); },
+            set(val) { return (this as any).setSeriesParam('seriesName', val); }
+        }
+    },
+    methods: {
+        getSeriesParam(paramName: string) {
+            const allSeriesParams = (this as any).$store.state.chartParametersStore.seriesParameters;
+            const seriesParams = allSeriesParams[(this as any).selectedSeries];
+            return (seriesParams && seriesParams[paramName]) ?? null;
+        },
+
+        setSeriesParam(parameterName: string, parameterValue: any) {
+            this.$store.commit('chartParametersStore/setSeriesParameter', {
+                seriesId: (this as any).selectedSeries,
+                parameterName,
+                parameterValue
+            });
+        }
+    }
+};
+</script>
+
+<style lang="less" scoped>
+    @import "../../sidebar";
+
+    h2 {
+        margin: 20px 5px;
+    }
+
+    .controls-container {
+        padding: 0 10px;
+    }
+
+    .se-control {
+        margin: 10px 0 20px;
+    }
+</style>

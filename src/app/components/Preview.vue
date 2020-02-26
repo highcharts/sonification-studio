@@ -22,20 +22,20 @@ export default {
     computed: {
         ...mapState({
             tableCSV: (state: any) => state.dataStore.tableCSV,
-            chartOptionsUpdateCounter: (state: any) => state.viewStore.chartOptionsUpdateCounter,
+            reactToParameterUpdates: (state: any) => state.viewStore.reactToParameterUpdates,
         }),
 
         parameterOptions() {
-            return (this as any)?.$chartBridge?.getCurrentChartOptions(
-                this.chartOptionsUpdateCounter
-            ) || {};
+            const chartBridge = (this as any)?.$chartBridge;
+            return chartBridge
+                ?.reactiveGet('getCurrentChartOptions', this.reactToParameterUpdates) ||
+                {};
         },
 
         chartOptions() {
-            const emptyCSV = 'x;y\n';
             const newOptions = Object.assign({
                 data: {
-                    csv: this.tableCSV || emptyCSV
+                    csv: this.tableCSV || ''
                 }
             }, this.parameterOptions);
 
