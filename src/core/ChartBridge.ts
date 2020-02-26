@@ -1,5 +1,6 @@
 import { GenericObject } from './utils/objects';
-import { getChartOptionsFromParameters } from './optionsMapper/optionsMapper';
+import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
+import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
 import { Store } from 'vuex';
 
 /**
@@ -100,13 +101,19 @@ export class ChartBridge {
     }
 
 
-    public getDataSeries(): Array<GenericObject> {
-        return this.chart?.series || [];
+    public buildSeriesOptions(seriesIds: string[]): GenericObject[]|null {
+        if (this.chart) {
+            return getSeriesOptionsFromParameters(
+                this.seriesParametersStore.seriesParameters,
+                seriesIds
+            );
+        }
+        return null;
     }
 
 
-    public getSeriesId(series: GenericObject): string {
-        return series.id || `se-hc-series-id-${series.chart.index}-${series.index}`;
+    public getDataSeries(): Array<GenericObject> {
+        return this.chart?.series || [];
     }
 
 
@@ -213,8 +220,7 @@ export class ChartBridge {
     private updateChartOptions() {
         this.chartOptions = getChartOptionsFromParameters(
             this.sonifyParametersStore,
-            this.chartParametersStore,
-            this.seriesParametersStore
+            this.chartParametersStore
         );
     }
 

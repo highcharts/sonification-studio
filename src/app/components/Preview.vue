@@ -15,7 +15,8 @@
 
 <script lang="ts">
 import { mapState } from 'vuex';
-import { deepMerge } from '../../core/utils/objects';
+import { deepMerge, GenericObject } from '../../core/utils/objects';
+import { getSeriesId } from '../../core/utils/chartUtils';
 import { defaultChartOptions } from '../../core/defaultChartOptions';
 
 export default {
@@ -33,9 +34,31 @@ export default {
         },
 
         chartOptions() {
+            // Need to update the data first to know which (new) series to build options for.
+            // Only once the CSV has been parsed can we build the series options.
             const newOptions = Object.assign({
                 data: {
-                    csv: this.tableCSV || 'null'
+                    csv: this.tableCSV || 'null',
+
+                    complete: (parseResult: GenericObject) => {
+                        const chart = (this.$refs.chart as any).chart;
+                        const chartBridge = (this as any).$chartBridge;
+
+                        if (chart && chartBridge) {
+                            // Get ids of series parsed
+                            const seriesIds = (parseResult.series || []).map((s: GenericObject, ix: number) => {
+                                s.chart = { index: chart.index };
+                                s.index = ix;
+                                return getSeriesId(s);
+                            });
+
+                            // Extend parsed results with series options
+                            const seriesOptions = chartBridge.buildSeriesOptions(seriesIds);
+                            if (seriesOptions) {
+                                parseResult.series = deepMerge(parseResult.series, seriesOptions);
+                            }
+                        }
+                    }
                 }
             }, this.parameterOptions);
 

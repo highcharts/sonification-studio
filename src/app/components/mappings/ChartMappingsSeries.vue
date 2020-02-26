@@ -83,6 +83,7 @@ import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
 import { GenericObject } from '../../../core/utils/objects';
+import { getSeriesId } from '../../../core/utils/chartUtils';
 import { mapState } from 'vuex';
 
 function makeSeriesParamSetterAndGetter(param: string, defaultValue: any = null) {
@@ -178,7 +179,7 @@ export default {
 
             return series.map((s: GenericObject) => ({
                 name: s.name,
-                value: chartBridge.getSeriesId(s)
+                value: getSeriesId(s)
             }));
         },
         seriesName: makeSeriesParamSetterAndGetter('seriesName'),

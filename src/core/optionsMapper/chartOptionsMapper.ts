@@ -6,7 +6,7 @@ import { SonificationMappings } from './sonificationMappings';
 /**
  * Map parameters to chart options
  */
-class OptionsMapper {
+class ChartOptionsMapper {
     private options: GenericObject = {};
 
     public build(): GenericObject {
@@ -27,10 +27,9 @@ class OptionsMapper {
 
 export function getChartOptionsFromParameters(
     sonifyParameters: GenericObject,
-    chartParameters: GenericObject,
-    seriesParameters: GenericObject
+    chartParameters: GenericObject
 ): GenericObject {
-    const optionsMapper = new OptionsMapper();
+    const optionsMapper = new ChartOptionsMapper();
 
     Object.keys(sonifyParameters).forEach((param: string) =>
         optionsMapper.addSonifyParameter(param, sonifyParameters[param])
@@ -38,8 +37,6 @@ export function getChartOptionsFromParameters(
     Object.keys(chartParameters).forEach((param: string) =>
         optionsMapper.addChartParameter(param, chartParameters[param])
     );
-
-    console.log(seriesParameters);
 
     return optionsMapper.build();
 }
