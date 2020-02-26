@@ -110,15 +110,18 @@ export default {
             const gridOptions: GridOptions = grid?.gridOptions;
             const gridApi = gridOptions?.api;
             const columnApi = gridOptions?.columnApi;
+            const tableRows = this.$store.state.dataStore.tableRowData;
 
-            if (gridApi && columnApi) {
+            if (gridApi && columnApi && tableRows.length) {
                 const focusedCell = gridApi.getFocusedCell();
                 const rowToFocus = (focusedCell?.rowIndex ?? -1) + 1;
                 const columnToFocus = focusedCell?.column || columnApi.getAllGridColumns()[0];
 
-                gridApi.ensureIndexVisible(rowToFocus);
-                gridApi.ensureColumnVisible(columnToFocus);
-                gridApi.setFocusedCell(rowToFocus, columnToFocus);
+                if (tableRows.length > rowToFocus) {
+                    gridApi.ensureIndexVisible(rowToFocus);
+                    gridApi.ensureColumnVisible(columnToFocus);
+                    gridApi.setFocusedCell(rowToFocus, columnToFocus);
+                }
             }
         },
 
