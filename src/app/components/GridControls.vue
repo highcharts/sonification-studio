@@ -88,7 +88,7 @@ export default {
                 { name: 'C', value: 'C' },
                 { name: 'D', value: 'D' }
             ],
-            rowsToAdd: 1
+            rowsToAdd: 10
         };
     },
     methods: {
