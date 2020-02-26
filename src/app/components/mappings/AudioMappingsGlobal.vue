@@ -34,7 +34,7 @@
                 >
                     <SESlider
                         id="global-minfreq"
-                        v-model.number="minfreq"
+                        v-model.number="minFreq"
                         :min="100"
                         :max="4000"
                     />
@@ -46,7 +46,7 @@
                 >
                     <SESlider
                         id="global-maxfreq"
-                        v-model.number="maxfreq"
+                        v-model.number="maxFreq"
                         :min="100"
                         :max="4000"
                     />
@@ -62,7 +62,7 @@
                 >
                     <SECheckbox
                         id="global-panning"
-                        v-model="panenabled"
+                        v-model="panEnabled"
                     />
                 </SEControl>
                 <SEControl
@@ -72,7 +72,7 @@
                 >
                     <SESlider
                         id="global-panwidth"
-                        v-model.number="panwidth"
+                        v-model.number="panWidth"
                     />
                 </SEControl>
             </div>
@@ -100,19 +100,19 @@ export default {
             get() { return (this as any).$store.state.sonifyParametersStore.playMarkerEnabled; },
             set(val) { return this.$store.commit('sonifyParametersStore/setPlayMarkerEnabled', val); }
         },
-        minfreq: {
+        minFreq: {
             get() { return (this as any).$store.state.sonifyParametersStore.minFrequency; },
             set(val) { return this.$store.commit('sonifyParametersStore/setMinFrequency', val); }
         },
-        maxfreq: {
+        maxFreq: {
             get() { return (this as any).$store.state.sonifyParametersStore.maxFrequency; },
             set(val) { return this.$store.commit('sonifyParametersStore/setMaxFrequency', val); }
         },
-        panenabled: {
+        panEnabled: {
             get() { return (this as any).$store.state.sonifyParametersStore.panEnabled; },
             set(val) { return this.$store.commit('sonifyParametersStore/setPanEnabled', val); }
         },
-        panwidth: {
+        panWidth: {
             get() { return (this as any).$store.state.sonifyParametersStore.panWidth; },
             set(val) { return this.$store.commit('sonifyParametersStore/setPanWidth', val); }
         }
