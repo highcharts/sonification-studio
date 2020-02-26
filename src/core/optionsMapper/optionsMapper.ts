@@ -27,7 +27,8 @@ class OptionsMapper {
 
 export function getChartOptionsFromParameters(
     sonifyParameters: GenericObject,
-    chartParameters: GenericObject
+    chartParameters: GenericObject,
+    seriesParameters: GenericObject
 ): GenericObject {
     const optionsMapper = new OptionsMapper();
 
@@ -37,6 +38,8 @@ export function getChartOptionsFromParameters(
     Object.keys(chartParameters).forEach((param: string) =>
         optionsMapper.addChartParameter(param, chartParameters[param])
     );
+
+    console.log(seriesParameters);
 
     return optionsMapper.build();
 }

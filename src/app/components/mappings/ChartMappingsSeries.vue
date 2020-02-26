@@ -88,14 +88,14 @@ import { mapState } from 'vuex';
 function makeSeriesParamSetterAndGetter(param: string, defaultValue: any = null) {
     return {
         get() {
-            const allParams = (this as any).$store.state.chartParametersStore.seriesParameters;
+            const allParams = (this as any).$store.state.seriesParametersStore.seriesParameters;
             const seriesParams = allParams[(this as any).selectedSeries];
             return (seriesParams && seriesParams[param]) ?? defaultValue;
         },
         set(val: any) {
             const selectedSeries = (this as any).selectedSeries;
             if (selectedSeries) {
-                (this as any).$store.commit('chartParametersStore/setSeriesParameter', {
+                (this as any).$store.commit('seriesParametersStore/setSeriesParameter', {
                     seriesId: selectedSeries,
                     parameterName: param,
                     parameterValue: val

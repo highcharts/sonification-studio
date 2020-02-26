@@ -30,8 +30,4 @@ export class ChartMappings {
         return { plotOptions: { series: { label: { enabled: value } } } };
     }
 
-    public static seriesParameters(value: GenericObject): GenericObject {
-        console.log('Series params:', JSON.stringify(value, null, '\t'));
-        return {};
-    }
 }
