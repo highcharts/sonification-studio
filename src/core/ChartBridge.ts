@@ -98,12 +98,17 @@ export class ChartBridge {
     }
 
 
+    /**
+     * Builds the final options passed to the chart for rendering, based on
+     * mapping parameters and CSV data.
+     */
     public buildChartOptions(csv?: string) {
         // chartOptions contains the current state of the chart mapping parameters
         const chartSettings = this.chartOptions;
 
         // Need to update the chart data first to know which (new) series to build options for.
-        // Only once the CSV has been parsed can we build the series options.
+        // Only once the CSV has been parsed can we build the series options. This is why
+        // series options are built separately.
         const newOptions = Object.assign({
             data: {
                 csv: csv || 'null',
@@ -130,17 +135,6 @@ export class ChartBridge {
         }, chartSettings);
 
         return deepMerge(defaultChartOptions, newOptions);
-    }
-
-
-    public buildSeriesOptions(seriesIds: string[]): GenericObject[]|null {
-        if (this.chart) {
-            return getSeriesOptionsFromParameters(
-                this.seriesParametersStore.seriesParameters,
-                seriesIds
-            );
-        }
-        return null;
     }
 
 
@@ -254,6 +248,17 @@ export class ChartBridge {
             this.sonifyParametersStore,
             this.chartParametersStore
         );
+    }
+
+
+    private buildSeriesOptions(seriesIds: string[]): GenericObject[]|null {
+        if (this.chart) {
+            return getSeriesOptionsFromParameters(
+                this.seriesParametersStore.seriesParameters,
+                seriesIds
+            );
+        }
+        return null;
     }
 
 
