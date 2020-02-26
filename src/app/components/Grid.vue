@@ -47,6 +47,31 @@ function hasRowData(rowNode: RowNode) {
 }
 
 
+function stringCompare(a: string, b: string): number {
+    return b.localeCompare(a);
+}
+
+
+function numCompare(a: number, b: number): number {
+    return b - a;
+}
+
+
+function columnSortComparator(a?: string, b?: string): number {
+    if (typeof a === 'undefined' || typeof b === 'undefined') {
+        return 0;
+    }
+
+    if (isNaN(a as any) || isNaN(b as any)) {
+        return stringCompare(a, b);
+    }
+
+    const numA = parseFloat(a);
+    const numB = parseFloat(b);
+    return numCompare(numA, numB);
+}
+
+
 export default {
     components: {
         AgGridVue
@@ -60,6 +85,13 @@ export default {
                 onCellValueChanged: (e: CellValueChangedEvent) => (this as any).onCellValueChanged(e),
                 onFirstDataRendered: () => (this as any).updateCSVInDataStore(),
                 onComponentStateChanged: () => (this as any).updateCSVInDataStore(),
+                postSort: () => (this as any).updateCSVInDataStore(),
+                defaultColDef: {
+                    sortable: true,
+                    comparator: columnSortComparator,
+                    filter: true,
+                    editable: true
+                },
 
                 // A11y concerns:
                 suppressMenuHide: true, // Always show column menu
@@ -78,11 +110,13 @@ export default {
     methods: {
         // Ensure source data for the grid is always up to date with current values.
         onCellValueChanged(e: CellValueChangedEvent): void {
-            if (e.oldValue !== e.newValue) {
+            const oldVal = e.oldValue || '';
+            const newVal = e.newValue || '';
+            if (oldVal !== newVal) {
                 this.$store.commit('dataStore/updateCellValue', {
                     rowIndex: e.rowIndex,
                     columnName: e.colDef.field,
-                    value: e.value
+                    value: e.value || null
                 });
             }
         },
@@ -95,9 +129,6 @@ export default {
                 res.push({
                     headerName: codeToChar(i),
                     field: codeToChar(i),
-                    sortable: true,
-                    filter: true,
-                    editable: true,
                     cellStyle: { textAlign: 'center' }
                 });
             }
