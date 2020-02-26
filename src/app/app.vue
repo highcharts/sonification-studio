@@ -59,7 +59,7 @@ export default {
         height: 100%;
         width: 100%;
         min-width: 850px;
-        min-height: 800px;
+        min-height: 850px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
