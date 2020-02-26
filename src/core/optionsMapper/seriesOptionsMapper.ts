@@ -1,10 +1,16 @@
-import { GenericObject } from '../utils/objects';
+import { SeriesMappings } from './seriesMappings';
+import { GenericObject, deepMerge } from '../utils/objects';
 
 
 function toSeriesOptionsObject(seriesParameters: GenericObject): GenericObject {
-    return {
-        color: seriesParameters.seriesColor || null
-    };
+    let res = {};
+
+    for (const [param, val] of Object.entries(seriesParameters)) {
+        const options = (SeriesMappings as any)[param](val);
+        res = deepMerge(res, options);
+    }
+
+    return res;
 }
 
 
