@@ -116,7 +116,6 @@ export default {
     },
     data: function () {
         return {
-            selectedSeries: '',
             seriesTypes: [{
                 name: 'Default',
                 value: null
@@ -171,8 +170,12 @@ export default {
     },
     computed: {
         ...mapState({
-            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates,
+            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates
         }),
+        selectedSeries: {
+            get() { return (this as any).$store.state.viewStore.selectedDataSeries; },
+            set(val) { return this.$store.commit('viewStore/setSelectedDataSeries', val); }
+        },
         dataSeries: function () {
             const chartBridge = (this as any).$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];

@@ -14,7 +14,8 @@ export const viewStore = {
 
         selectedHeaderTabContent: 'dataContent',
         selectedHeaderTabId: 'Data',
-        playbackProgress: 0
+        playbackProgress: 0,
+        selectedDataSeries: ''
     },
 
     mutations: {
@@ -25,6 +26,10 @@ export const viewStore = {
 
         setPlaybackProgress(state: any, progressPct: number) {
             state.playbackProgress = progressPct;
+        },
+
+        setSelectedDataSeries(state: any, seriesId: string) {
+            state.selectedDataSeries = seriesId;
         },
 
         triggerParameterReactivity(state: any) {
