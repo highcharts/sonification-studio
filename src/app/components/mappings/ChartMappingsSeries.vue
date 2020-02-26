@@ -190,6 +190,14 @@ export default {
         seriesColor: makeSeriesParamSetterAndGetter('seriesColor', '#ffffff'),
         dashStyle: makeSeriesParamSetterAndGetter('dashStyle'),
         dataLabelsEnabled: makeSeriesParamSetterAndGetter('dataLabelsEnabled')
+    },
+    watch: {
+        seriesType(type: unknown) {
+            if (!type) {
+                // Force update if clearing series type by resetting to default
+                this.$store.commit('viewStore/triggerParameterReactivity');
+            }
+        }
     }
 };
 </script>
