@@ -4,7 +4,7 @@
 
     Props:
         - id: String - Input element id.
-        - [checked]: Boolean - Whether or not the checkbox is checked.
+        - [value]: Boolean - Whether or not the checkbox is checked.
 
     Events:
         - input: Re-emits the change event for use with v-model.
@@ -13,7 +13,7 @@
     <input
         :id="id"
         type="checkbox"
-        :checked="checked"
+        :checked="value"
         @input="$emit('input', $event.target.checked)"
     >
 </template>
@@ -22,7 +22,7 @@
 export default {
     props: {
         id: { type: String, required: true },
-        checked: { type: Boolean, required: false, default: false }
+        value: { type: Boolean, default: false }
     }
 };
 </script>
