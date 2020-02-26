@@ -25,7 +25,7 @@
         </label>
         <div class="se-slider-inner">
             <input
-                :id="id || null"
+                :id="id"
                 type="range"
                 :disabled="disabled"
                 :min="min"

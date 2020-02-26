@@ -2,6 +2,7 @@
     A reusable dropdown list. Provide options through props.
 
     Props:
+        - id: String - Element id.
         - options: Array<{ name, value }> - Options in the dropdown.
         - [value]: String - Value of the option to select.
         - [label]: String - Aria label for the dropdown.
@@ -13,6 +14,7 @@
 <template>
     <div class="se-dropdown sedropdown-container">
         <select
+            :id="id"
             ref="SEDropdown_select"
             :value="value"
             :aria-label="label"
@@ -40,10 +42,11 @@ import arrowIcon from '../../assets/arrow-down.svg';
 
 export default {
     props: {
+        id: { type: String, required: true },
         options: { type: Array, required: true },
         value: { type: String, default: '' },
-        label: { type: String, default: '' },
-        labelledby: { type: String, default: '' }
+        label: { type: String, default: null },
+        labelledby: { type: String, default: null }
     },
     data: function () {
         return {

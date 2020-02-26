@@ -36,6 +36,7 @@
                     Fill column
                 </p>
                 <SEDropdown
+                    id="data-fillcolumn-drop"
                     labelledby="data-labelDrop"
                     :options="fillDropdownList"
                 />

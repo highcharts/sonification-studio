@@ -3,6 +3,7 @@
         <h2>Text Description</h2>
         <div id="textdesc-controls">
             <SEDropdown
+                id="textdesc-dropdown"
                 v-model="selectedColumn"
                 :options="dropdownList"
                 label="Choose column to describe"
