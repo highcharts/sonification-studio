@@ -7,12 +7,13 @@
         - controlId: String - Id of the input control.
         - [helptext]: String - Show help icon with text popup.
         - [horizontal]: Boolean - Show label to the right of control, rather than above.
+        - [horizontalReverse]: Boolean - Show label to the left of control, rather than above.
         - [expandContent]: Boolean - Expand the control content to fill empty space.
 -->
 <template>
     <div
         class="se-control"
-        :class="{ horizontal: horizontal, 'expand-content': expandContent }"
+        :class="{ horizontal: horizontal, 'horizontal-reverse': horizontalReverse, 'expand-content': expandContent }"
     >
         <div class="se-control-label-container">
             <label
@@ -56,6 +57,7 @@ export default {
         controlId: { type: String, required: true },
         helptext: { type: String, default: '' },
         horizontal: { type: Boolean, default: false },
+        horizontalReverse: { type: Boolean, default: false },
         expandContent: { type: Boolean, default: false }
     },
     data: function () {
@@ -87,6 +89,18 @@ export default {
             align-items: center;
             .se-control-label {
                 margin-left: 6px;
+            }
+        }
+        &.horizontal-reverse {
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            .se-control-label-container {
+                margin-right: 8px;
+            }
+        }
+        &.horizontal, &.horizontal-reverse {
+            .se-control-label {
                 cursor: pointer;
             }
             .se-control-content {
