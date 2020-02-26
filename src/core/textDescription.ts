@@ -5,7 +5,7 @@ function removeRedundantNumberPrecision(str: string): string {
 
 
 function getNumericalColumn(columnData: Array<string>) {
-    const numerical: Array<number> = [];
+    const numerical: Array<number|null> = [];
     let lastValueIx = 0;
 
     for (const cell of columnData) {
@@ -39,8 +39,8 @@ function describeStringColumn(columnData: Array<string>): string {
 }
 
 
-function describeNumericalColumn(columnData: Array<number>): string {
-    const rowsWithData = columnData.filter((cell): boolean => cell !== null);
+function describeNumericalColumn(columnData: Array<number|null>): string {
+    const rowsWithData = columnData.filter((cell): boolean => cell !== null) as number[];
     const numRows = rowsWithData.length;
     const valToPrecision = (x: number): string => x.toPrecision(4);
     const minVal = Math.min(...rowsWithData);
