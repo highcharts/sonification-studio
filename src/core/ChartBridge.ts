@@ -125,7 +125,7 @@ export class ChartBridge {
 
     public playChart(onEnd?: (e: any) => void) {
         const chart = this.chart;
-        if (!chart || this.isPlaying()) {
+        if (!chart || !chart.series?.length || this.isPlaying()) {
             return;
         }
 
