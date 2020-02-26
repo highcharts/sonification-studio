@@ -35,7 +35,7 @@ export default {
         chartOptions() {
             const newOptions = Object.assign({
                 data: {
-                    csv: this.tableCSV || ''
+                    csv: this.tableCSV || 'null'
                 }
             }, this.parameterOptions);
 

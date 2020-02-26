@@ -2,7 +2,8 @@
     A reusable dropdown list. Provide options through props.
 
     Props:
-        - options: Array<{ name, value, [selected] }> - Options in the dropdown.
+        - options: Array<{ name, value }> - Options in the dropdown.
+        - [value]: String - Value of the option to select.
         - [label]: String - Aria label for the dropdown.
         - [labelledby]: String - Aria labelledby for the dropdown.
 
@@ -13,6 +14,7 @@
     <div class="se-dropdown sedropdown-container">
         <select
             ref="SEDropdown_select"
+            :value="value"
             :aria-label="label"
             :aria-labelledby="labelledby"
             @change="$emit('input', $event.target.value)"
@@ -21,7 +23,6 @@
                 v-for="opt in options"
                 :key="opt.name"
                 :value="opt.value"
-                :selected="opt.selected"
             >
                 {{ opt.name }}
             </option>
@@ -40,6 +41,7 @@ import arrowIcon from '../../assets/arrow-down.svg';
 export default {
     props: {
         options: { type: Array, required: true },
+        value: { type: String, default: '' },
         label: { type: String, default: '' },
         labelledby: { type: String, default: '' }
     },
@@ -58,15 +60,9 @@ export default {
             return;
         }
 
-        const hasSelected = this.options.reduce(
-            (hasSel: boolean, option: unknown): boolean => hasSel || (option as any).selected,
-            false
-        );
-
         // If no option is selected, we select the first one
-        if (!hasSelected) {
+        if (!this.value) {
             const firstOption = (this.options as any)[0];
-            firstOption.selected = true;
             this.$emit('input', firstOption.value);
         }
     }

@@ -11,7 +11,7 @@ export class ChartBridge {
     // How often to trigger updates for parameter changes
     private static parameterReactivityIntervalMs = 300;
     // How often to trigger updates for data changes
-    private static dataReactivityIntervalMs = 2000;
+    private static dataReactivityIntervalMs = 1000;
     // Playback progress bar update interval
     private static updateProgressIntervalMs = 15;
 

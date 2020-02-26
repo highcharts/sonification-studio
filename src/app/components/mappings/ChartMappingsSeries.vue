@@ -59,6 +59,18 @@
                     :options="dashStyles"
                 />
             </SEControl>
+
+            <SEControl
+                control-id="series-datalabels-enabled"
+                label="Show data point labels"
+                helptext="Show a label on the chart for each data point in this series. Labels may be hidden if no good position is found automatically"
+                horizontal
+            >
+                <SECheckbox
+                    id="series-datalabels-enabled"
+                    v-model="dataLabelsEnabled"
+                />
+            </SEControl>
         </div>
     </div>
 </template>
@@ -67,19 +79,40 @@
 import SEControl from '../basic/SEControl.vue';
 import SETextbox from '../basic/SETextbox.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
+import SECheckbox from '../basic/SECheckbox.vue';
 import { GenericObject } from '../../../core/utils/objects';
 import { mapState } from 'vuex';
+
+function makeSeriesParamSetterAndGetter(param: string, defaultValue: any = null) {
+    return {
+        get() {
+            const allParams = (this as any).$store.state.chartParametersStore.seriesParameters;
+            const seriesParams = allParams[(this as any).selectedSeries];
+            return (seriesParams && seriesParams[param]) ?? defaultValue;
+        },
+        set(val: any) {
+            const selectedSeries = (this as any).selectedSeries;
+            if (selectedSeries) {
+                (this as any).$store.commit('chartParametersStore/setSeriesParameter', {
+                    seriesId: selectedSeries,
+                    parameterName: param,
+                    parameterValue: val
+                });
+            }
+        }
+    };
+}
 
 export default {
     components: {
         SEControl,
         SETextbox,
-        SEDropdown
+        SEDropdown,
+        SECheckbox
     },
     data: function () {
         return {
             selectedSeries: '',
-            seriesType: '',
             seriesTypes: [{
                 name: 'Default',
                 value: null
@@ -108,11 +141,27 @@ export default {
                 name: 'Scatter',
                 value: 'scatter'
             }],
-            seriesColor: '',
-            dashStyle: '',
             dashStyles: [{
                 name: 'Solid',
-                value: 'none'
+                value: null
+            }, {
+                name: 'Dash',
+                value: 'Dash'
+            }, {
+                name: 'Dot',
+                value: 'Dot'
+            }, {
+                name: 'Short dash',
+                value: 'ShortDash'
+            }, {
+                name: 'Short dot',
+                value: 'ShortDot'
+            }, {
+                name: 'Long dash',
+                value: 'LongDash'
+            }, {
+                name: 'Dash dot',
+                value: 'DashDot'
             }]
         };
     },
@@ -129,25 +178,11 @@ export default {
                 value: chartBridge.getSeriesId(s)
             }));
         },
-        seriesName: {
-            get() { return (this as any).getSeriesParam('seriesName'); },
-            set(val) { return (this as any).setSeriesParam('seriesName', val); }
-        }
-    },
-    methods: {
-        getSeriesParam(paramName: string) {
-            const allSeriesParams = (this as any).$store.state.chartParametersStore.seriesParameters;
-            const seriesParams = allSeriesParams[(this as any).selectedSeries];
-            return (seriesParams && seriesParams[paramName]) ?? null;
-        },
-
-        setSeriesParam(parameterName: string, parameterValue: any) {
-            this.$store.commit('chartParametersStore/setSeriesParameter', {
-                seriesId: (this as any).selectedSeries,
-                parameterName,
-                parameterValue
-            });
-        }
+        seriesName: makeSeriesParamSetterAndGetter('seriesName'),
+        seriesType: makeSeriesParamSetterAndGetter('seriesType'),
+        seriesColor: makeSeriesParamSetterAndGetter('seriesColor'),
+        dashStyle: makeSeriesParamSetterAndGetter('dashStyle'),
+        dataLabelsEnabled: makeSeriesParamSetterAndGetter('dataLabelsEnabled')
     }
 };
 </script>

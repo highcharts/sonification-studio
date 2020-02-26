@@ -105,8 +105,7 @@ export default {
                 value: 'line'
             }, {
                 name: 'Smoothed line',
-                value: 'spline',
-                selected: true
+                value: 'spline'
             }, {
                 name: 'Area',
                 value: 'area'

@@ -31,7 +31,7 @@ export class ChartMappings {
     }
 
     public static seriesParameters(value: GenericObject): GenericObject {
-        console.log('Series params:', value);
+        console.log('Series params:', JSON.stringify(value, null, '\t'));
         return {};
     }
 }

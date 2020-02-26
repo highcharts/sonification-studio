@@ -82,7 +82,7 @@ export default {
     data: function () {
         return {
             fillDropdownList: [
-                { name: 'A', value: 'A', selected: true },
+                { name: 'A', value: 'A' },
                 { name: 'B', value: 'B' },
                 { name: 'C', value: 'C' },
                 { name: 'D', value: 'D' }

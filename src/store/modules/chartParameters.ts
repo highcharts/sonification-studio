@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 interface SeriesParameterOptions {
     seriesId: string;
     parameterName: string;
@@ -51,8 +53,10 @@ export const chartParametersStore = {
         setSeriesParameter(state: any, options: SeriesParameterOptions) {
             const seriesParams = state.seriesParameters;
             const id = options.seriesId;
-            seriesParams[id] = seriesParams[id] || {};
-            seriesParams[id][options.parameterName] = options.parameterValue;
+            if (!seriesParams[id]) {
+                Vue.set(seriesParams, id, {});
+            }
+            Vue.set(seriesParams[id], options.parameterName, options.parameterValue);
         }
     }
 };

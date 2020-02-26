@@ -3,6 +3,7 @@
 
     Props:
         - id: String - Input element id.
+        - [value]: String - Value to display.
 
     Events:
         - input: Re-emits the input event for use with v-model.
@@ -10,6 +11,7 @@
 <template>
     <input
         :id="id"
+        :value="value"
         @input="$emit('input', $event.target.value)"
     >
 </template>
@@ -17,7 +19,8 @@
 <script lang="ts">
 export default {
     props: {
-        id: { type: String, required: true }
+        id: { type: String, required: true },
+        value: { type: String, default: '' }
     }
 };
 </script>
