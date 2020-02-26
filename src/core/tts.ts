@@ -20,3 +20,7 @@ export function speakText(text: string): void {
 
     speechSynthesis.speak(utterance);
 }
+
+export function cancelSpeech(): void {
+    speechSynthesis.cancel();
+}

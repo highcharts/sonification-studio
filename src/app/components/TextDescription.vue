@@ -19,6 +19,7 @@
                 dark
                 wide
                 @click="speakTextDescription"
+                @keydown.esc="cancel"
             >
                 Speak
             </SEButton>
@@ -35,7 +36,7 @@ import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import { GenericObject } from '../../core/utils/objects';
 import { describeColumn } from '../../core/textDescription';
-import { speakText } from '../../core/tts';
+import { speakText, cancelSpeech } from '../../core/tts';
 
 export default {
     components: {
@@ -69,7 +70,9 @@ export default {
             if (text) {
                 speakText(text);
             }
-        }
+        },
+
+        cancel: cancelSpeech
     }
 };
 </script>

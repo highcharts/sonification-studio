@@ -9,6 +9,7 @@
     <button
         :class="{ dark: dark, wide: wide }"
         @click="$emit('click')"
+        @keydown="$emit('keydown', $event)"
     >
         <slot />
     </button>
