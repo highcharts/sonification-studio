@@ -1,4 +1,6 @@
-import { GenericObject } from './utils/objects';
+import { GenericObject, deepMerge } from './utils/objects';
+import { getSeriesId } from './utils/chartUtils';
+import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
 import { Store } from 'vuex';
@@ -83,10 +85,10 @@ export class ChartBridge {
      * the value of "test" will update as well, and fetch its result from
      * "getCurrentChartOptions".
      */
-    public reactiveGet(func: keyof ChartBridge, reactivityCounter: number): any {
+    public reactiveGet(func: keyof ChartBridge, reactivityCounter: number, payload?: any): any {
         this._seReactivityCounter = reactivityCounter;
 
-        const res = (this as any)[func]();
+        const res = (this as any)[func](payload);
 
         if (typeof res === 'object' && res) {
             res._seReactivityCounter = this._seReactivityCounter;
@@ -96,8 +98,38 @@ export class ChartBridge {
     }
 
 
-    public getCurrentChartOptions() {
-        return this.chartOptions;
+    public buildChartOptions(csv?: string) {
+        // chartOptions contains the current state of the chart mapping parameters
+        const chartSettings = this.chartOptions;
+
+        // Need to update the chart data first to know which (new) series to build options for.
+        // Only once the CSV has been parsed can we build the series options.
+        const newOptions = Object.assign({
+            data: {
+                csv: csv || 'null',
+
+                complete: (parseResult: GenericObject) => {
+                    const chart = this.chart;
+
+                    if (chart) {
+                        // Get ids of series parsed
+                        const seriesIds = (parseResult.series || []).map((s: GenericObject, ix: number) => {
+                            s.chart = { index: chart.index };
+                            s.index = ix;
+                            return getSeriesId(s);
+                        });
+
+                        // Extend parsed results with series options
+                        const seriesOptions = this.buildSeriesOptions(seriesIds);
+                        if (seriesOptions) {
+                            parseResult.series = deepMerge(parseResult.series, seriesOptions);
+                        }
+                    }
+                }
+            }
+        }, chartSettings);
+
+        return deepMerge(defaultChartOptions, newOptions);
     }
 
 
