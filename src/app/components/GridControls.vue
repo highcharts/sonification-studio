@@ -47,14 +47,14 @@
                     id="data-labelEquation"
                     class="control-label"
                 >
-                    Using equation
+                    Fill equation
                 </p>
                 <input
                     type="text"
                     aria-labelledby="data-labelEquation"
                 >
             </div>
-            <SEButton>Go</SEButton>
+            <SEButton>Fill</SEButton>
         </div>
 
         <div class="grid-controls-group">
