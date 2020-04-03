@@ -32,17 +32,21 @@
                 @keyup.esc="helptextActive = false"
             >
                 ?
-
-                <div class="helptext-popup-container">
-                    <div
-                        v-show="helptextActive"
-                        class="helptext-popup"
-                    >
-                        <p>{{ helptext }}</p>
-                        <div class="helptext-arrow" />
-                    </div>
-                </div>
             </button>
+
+            <div
+                v-show="helptextActive"
+                class="helptext-popup-container"
+                @click="helptextActive = !helptextActive"
+                @keyup.esc="helptextActive = false"
+            >
+                <div
+                    class="helptext-popup"
+                >
+                    <p>{{ helptext }}</p>
+                    <div class="helptext-arrow" />
+                </div>
+            </div>
         </div>
         <div class="se-control-content">
             <slot />
@@ -161,12 +165,12 @@ export default {
         position: absolute;
         box-shadow: 0 1px 10px @secontrol-helptext-shadow;
         width: 200px;
-        right: -92px;
+        right: -90px;
         bottom: 0;
         font-size: 12px;
         font-weight: normal;
         text-align: left;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         z-index: 99;
         padding: 10px;
         box-sizing: border-box;
