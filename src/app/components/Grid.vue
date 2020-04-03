@@ -210,10 +210,12 @@ export default {
     $header-background-color: #9BA3B4;
     $header-foreground-color: #fff;
     $header-cell-hover-background-color: #a3adc2;
-    $odd-row-background-color: rgb(239, 239, 248);
+    $odd-row-background-color: #fff;
+    $border-color: #d5d3d3;
+    $row-border-color: #d5d3d3;
+    $cell-horizontal-border: solid 0.5px #e3e0e0;
     $hover-color: hsl(218, 42%, 96%);
     $background-color: #fff;
-    $border-color: #f0f0f0;
     $font-family: 'Roboto';
     $font-size: 14px;
     $secondary-font-size: 17px;
