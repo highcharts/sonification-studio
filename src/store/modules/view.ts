@@ -19,7 +19,8 @@ export const viewStore = {
         selectedHeaderTabContent: 'dataContent',
         selectedHeaderTabId: 'Data',
         playbackProgress: 0,
-        selectedDataSeries: ''
+        selectedDataSeriesChartMapping: '',
+        selectedDataSeriesAudioMapping: ''
     },
 
     mutations: {
@@ -32,8 +33,12 @@ export const viewStore = {
             state.playbackProgress = progressPct;
         },
 
-        setSelectedDataSeries(state: any, seriesId: string) {
-            state.selectedDataSeries = seriesId;
+        setSelectedDataSeriesChartMapping(state: any, seriesId: string) {
+            state.selectedDataSeriesChartMapping = seriesId;
+        },
+
+        setSelectedDataSeriesAudioMapping(state: any, seriesId: string) {
+            state.selectedDataSeriesAudioMapping = seriesId;
         },
 
         triggerParameterReactivity(state: any) {

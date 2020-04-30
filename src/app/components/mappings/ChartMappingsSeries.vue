@@ -170,8 +170,8 @@ export default {
             reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates
         }),
         selectedSeries: {
-            get() { return (this as any).$store.state.viewStore.selectedDataSeries; },
-            set(val) { return this.$store.commit('viewStore/setSelectedDataSeries', val); }
+            get() { return (this as any).$store.state.viewStore.selectedDataSeriesChartMapping; },
+            set(val) { return this.$store.commit('viewStore/setSelectedDataSeriesChartMapping', val); }
         },
         dataSeries: function () {
             const chartBridge = (this as any).$chartBridge;

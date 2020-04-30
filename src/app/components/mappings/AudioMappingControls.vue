@@ -15,13 +15,13 @@
 
 <script lang="ts">
 import SETabSwitch from '../basic/SETabSwitch.vue';
-import AudioMappingsColumn from './AudioMappingsColumn.vue';
+import AudioMappingsSeries from './AudioMappingsSeries.vue';
 import AudioMappingsGlobal from './AudioMappingsGlobal.vue';
 
 export default {
     components: {
         SETabSwitch,
-        AudioMappingsColumn,
+        AudioMappingsSeries,
         AudioMappingsGlobal
     },
     data: function () {
@@ -31,8 +31,8 @@ export default {
                 controls: 'AudioMappingsGlobal',
                 selected: true
             }, {
-                name: 'Column settings',
-                controls: 'AudioMappingsColumn'
+                name: 'Data series settings',
+                controls: 'AudioMappingsSeries'
             }],
             activeView: ''
         };
