@@ -22,7 +22,7 @@ export class ChartBridge {
     private chartOptions: GenericObject = {};
     private chartParametersStore: GenericObject;
     private seriesParametersStore: GenericObject;
-    private sonifyParametersStore: GenericObject;
+    private globalSonifyParametersStore: GenericObject;
     private commitToStore: (id: string, payload?: any) => void;
     private reactivityTimeouts: GenericObject = {};
     private updateProgressInterval: number|null = null;
@@ -32,7 +32,7 @@ export class ChartBridge {
     constructor(store: Store<any>) {
         this.chartParametersStore = store.state.chartParametersStore;
         this.seriesParametersStore = store.state.seriesParametersStore;
-        this.sonifyParametersStore = store.state.sonifyParametersStore;
+        this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
         this.commitToStore = (id: string, payload?: any) => store.commit(id, payload);
 
         store.subscribe(this.onStoreMutation.bind(this));
@@ -216,7 +216,7 @@ export class ChartBridge {
     private isParameterMutation(mutation: GenericObject): boolean {
         return mutation.type.startsWith('chartParameters') ||
             mutation.type.startsWith('seriesParameters') ||
-            mutation.type.startsWith('sonifyParameters');
+            mutation.type.startsWith('globalSonifyParameters');
     }
 
 
@@ -245,7 +245,7 @@ export class ChartBridge {
     // Chart options are cached for performance, only updated on reactivity trigger
     private updateChartOptions() {
         this.chartOptions = getChartOptionsFromParameters(
-            this.sonifyParametersStore,
+            this.globalSonifyParametersStore,
             this.chartParametersStore
         );
     }

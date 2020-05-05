@@ -18,8 +18,8 @@ export default {
     },
     computed: {
         volume: {
-            get() { return this.$store.state.sonifyParametersStore.volume; },
-            set(vol) { return this.$store.commit('sonifyParametersStore/setVolume', vol); }
+            get() { return (this as any).$store.state.globalSonifyParametersStore.volume; },
+            set(vol) { return this.$store.commit('globalSonifyParametersStore/setVolume', vol); }
         }
     }
 };

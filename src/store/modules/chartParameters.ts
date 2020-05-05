@@ -1,3 +1,6 @@
+/*
+    Data store for global chart parameters.
+ */
 
 export const chartParametersStore = {
     namespaced: true,

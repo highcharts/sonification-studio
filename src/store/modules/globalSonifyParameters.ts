@@ -1,5 +1,9 @@
+/*
+    Data store for global sonification parameters.
+    Kept separate from global chart parameters in order to keep things tidy.
+ */
 
-export const sonifyParametersStore = {
+export const globalSonifyParametersStore = {
     namespaced: true,
 
     state: {

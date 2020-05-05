@@ -5,7 +5,7 @@ import { dataStore } from './modules/data';
 import { viewStore } from './modules/view';
 import { chartParametersStore } from './modules/chartParameters';
 import { seriesParametersStore } from './modules/seriesParameters';
-import { sonifyParametersStore } from './modules/sonifyParameters';
+import { globalSonifyParametersStore } from './modules/globalSonifyParameters';
 
 Vue.use(Vuex);
 
@@ -14,7 +14,7 @@ export const store = new Vuex.Store({
         chartParametersStore,
         seriesParametersStore,
         dataStore,
-        sonifyParametersStore,
+        globalSonifyParametersStore,
         viewStore
     }
 });

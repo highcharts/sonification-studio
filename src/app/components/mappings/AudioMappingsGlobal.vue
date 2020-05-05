@@ -93,28 +93,28 @@ export default {
     },
     computed: {
         speed: {
-            get() { return (this as any).$store.state.sonifyParametersStore.speed; },
-            set(val) { return this.$store.commit('sonifyParametersStore/setSpeed', val); }
+            get() { return (this as any).$store.state.globalSonifyParametersStore.speed; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setSpeed', val); }
         },
         playMarkerEnabled: {
-            get() { return (this as any).$store.state.sonifyParametersStore.playMarkerEnabled; },
-            set(val) { return this.$store.commit('sonifyParametersStore/setPlayMarkerEnabled', val); }
+            get() { return (this as any).$store.state.globalSonifyParametersStore.playMarkerEnabled; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setPlayMarkerEnabled', val); }
         },
         minFreq: {
-            get() { return (this as any).$store.state.sonifyParametersStore.minFrequency; },
-            set(val) { return this.$store.commit('sonifyParametersStore/setMinFrequency', val); }
+            get() { return (this as any).$store.state.globalSonifyParametersStore.minFrequency; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setMinFrequency', val); }
         },
         maxFreq: {
-            get() { return (this as any).$store.state.sonifyParametersStore.maxFrequency; },
-            set(val) { return this.$store.commit('sonifyParametersStore/setMaxFrequency', val); }
+            get() { return (this as any).$store.state.globalSonifyParametersStore.maxFrequency; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setMaxFrequency', val); }
         },
         panEnabled: {
-            get() { return (this as any).$store.state.sonifyParametersStore.panEnabled; },
-            set(val) { return this.$store.commit('sonifyParametersStore/setPanEnabled', val); }
+            get() { return (this as any).$store.state.globalSonifyParametersStore.panEnabled; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setPanEnabled', val); }
         },
         panWidth: {
-            get() { return (this as any).$store.state.sonifyParametersStore.panWidth; },
-            set(val) { return this.$store.commit('sonifyParametersStore/setPanWidth', val); }
+            get() { return (this as any).$store.state.globalSonifyParametersStore.panWidth; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setPanWidth', val); }
         }
     }
 };
