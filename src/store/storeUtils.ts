@@ -3,7 +3,19 @@
  */
 
 
-/*
+/**
+ * Make mapping of a component's computed property to the currently selected
+ * series for audio mapping controls.
+ */
+export function makeSelectedAudioMappingSeriesPropertyMapping() {
+    return {
+        get() { return (this as any).$store.state.viewStore.selectedDataSeriesAudioMapping; },
+        set(val: any) { return (this as any).$store.commit('viewStore/setSelectedDataSeriesAudioMapping', val); }
+    };
+}
+
+
+/**
  * Return setter and getter functions for a computed property mapped to a
  * series param in seriesParametersStore. Assumes that the component has a
  * "this.selectedSeries" property that contains a string with the currently

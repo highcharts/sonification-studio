@@ -38,6 +38,7 @@ import AudioMappingsSeriesPan from './AudioMappingsSeriesPan.vue';
 import AudioMappingsSeriesPitch from './AudioMappingsSeriesPitch.vue';
 import AudioMappingsSeriesVolume from './AudioMappingsSeriesVolume.vue';
 import { GenericObject } from '../../../core/utils/objects';
+import { makeSelectedAudioMappingSeriesPropertyMapping } from '../../../store/storeUtils';
 import { getSeriesId } from '../../../core/utils/chartUtils';
 import { mapState } from 'vuex';
 
@@ -73,10 +74,7 @@ export default {
         ...mapState({
             reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates
         }),
-        selectedSeries: {
-            get() { return (this as any).$store.state.viewStore.selectedDataSeriesAudioMapping; },
-            set(val) { return (this as any).$store.commit('viewStore/setSelectedDataSeriesAudioMapping', val); }
-        },
+        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
         dataSeries: function () {
             const chartBridge = (this as any).$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];

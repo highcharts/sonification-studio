@@ -6,7 +6,10 @@
             helptext="Helptext for checkbox goes here"
             horizontal
         >
-            <SECheckbox id="mcp-enable-pan-mapping" />
+            <SECheckbox
+                id="mcp-enable-pan-mapping"
+                v-model="panEnabled"
+            />
         </SEControl>
 
         <SEControl
@@ -39,11 +42,17 @@
     </div>
 </template>
 
+
 <script lang="ts">
 import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SERadioGroup from '../basic/SERadioGroup.vue';
+import {
+    makeSeriesParamPropertyMapping,
+    makeSelectedAudioMappingSeriesPropertyMapping
+} from '../../../store/storeUtils';
+
 
 export default {
     components: {
@@ -60,9 +69,14 @@ export default {
                 value: 'neg', label: 'Negative'
             }]
         };
+    },
+    computed: {
+        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
+        panEnabled: makeSeriesParamPropertyMapping('panEnabled', false)
     }
 };
 </script>
+
 
 <style lang="less" scoped>
     .se-control {
