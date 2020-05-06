@@ -1,6 +1,7 @@
 /*
     Data store for global sonification parameters.
-    Kept separate from global chart parameters in order to keep things tidy.
+    Kept separate from global chart parameters in order to keep things tidy,
+    and avoid having to re-render chart when updates are made to these parameters.
  */
 
 export const globalSonifyParametersStore = {

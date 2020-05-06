@@ -75,7 +75,7 @@ export default {
         }),
         selectedSeries: {
             get() { return (this as any).$store.state.viewStore.selectedDataSeriesAudioMapping; },
-            set(val) { return this.$store.commit('viewStore/setSelectedDataSeriesAudioMapping', val); }
+            set(val) { return (this as any).$store.commit('viewStore/setSelectedDataSeriesAudioMapping', val); }
         },
         dataSeries: function () {
             const chartBridge = (this as any).$chartBridge;

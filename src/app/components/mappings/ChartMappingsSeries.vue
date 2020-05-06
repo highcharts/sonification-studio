@@ -84,27 +84,8 @@ import SECheckbox from '../basic/SECheckbox.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
 import { GenericObject } from '../../../core/utils/objects';
 import { getSeriesId } from '../../../core/utils/chartUtils';
+import { makeSeriesParamPropertyMapping } from '../../../store/storeUtils';
 import { mapState } from 'vuex';
-
-function makeSeriesParamSetterAndGetter(param: string, defaultValue: any = null) {
-    return {
-        get() {
-            const allParams = (this as any).$store.state.seriesParametersStore.seriesParameters;
-            const seriesParams = allParams[(this as any).selectedSeries];
-            return (seriesParams && seriesParams[param]) ?? defaultValue;
-        },
-        set(val: any) {
-            const selectedSeries = (this as any).selectedSeries;
-            if (selectedSeries) {
-                (this as any).$store.commit('seriesParametersStore/setSeriesParameter', {
-                    seriesId: selectedSeries,
-                    parameterName: param,
-                    parameterValue: val
-                });
-            }
-        }
-    };
-}
 
 export default {
     components: {
@@ -182,11 +163,11 @@ export default {
                 value: getSeriesId(s)
             }));
         },
-        seriesName: makeSeriesParamSetterAndGetter('seriesName'),
-        seriesType: makeSeriesParamSetterAndGetter('seriesType'),
-        seriesColor: makeSeriesParamSetterAndGetter('seriesColor', '#ffffff'),
-        dashStyle: makeSeriesParamSetterAndGetter('dashStyle'),
-        dataLabelsEnabled: makeSeriesParamSetterAndGetter('dataLabelsEnabled')
+        seriesName: makeSeriesParamPropertyMapping('seriesName'),
+        seriesType: makeSeriesParamPropertyMapping('seriesType'),
+        seriesColor: makeSeriesParamPropertyMapping('seriesColor', '#ffffff'),
+        dashStyle: makeSeriesParamPropertyMapping('dashStyle'),
+        dataLabelsEnabled: makeSeriesParamPropertyMapping('dataLabelsEnabled')
     },
     watch: {
         seriesType(type: unknown) {

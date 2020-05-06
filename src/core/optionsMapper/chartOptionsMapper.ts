@@ -1,6 +1,6 @@
 import { GenericObject, deepMerge } from '../utils/objects';
 import { ChartMappings } from './chartMappings';
-import { SonificationMappings } from './sonificationMappings';
+import { GlobalSonificationMappings } from './globalSonificationMappings';
 
 
 /**
@@ -14,7 +14,7 @@ class ChartOptionsMapper {
     }
 
     public addSonifyParameter(param: string, value: unknown) {
-        const newOptions = (SonificationMappings as any)[param](value, this.options);
+        const newOptions = (GlobalSonificationMappings as any)[param](value, this.options);
         this.options = deepMerge(this.options, newOptions);
     }
 

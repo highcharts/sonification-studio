@@ -1,3 +1,8 @@
+/*
+    Series options mappings for chart.
+    Sonification related mappings are separated out into its own class.
+*/
+
 import { GenericObject } from '../utils/objects';
 
 export class SeriesMappings {
@@ -10,7 +15,7 @@ export class SeriesMappings {
         return { color: value };
     }
 
-    public static seriesType(value: boolean): GenericObject {
+    public static seriesType(value: string): GenericObject {
         return { type: value };
     }
 
@@ -18,7 +23,7 @@ export class SeriesMappings {
         return { dashStyle: value };
     }
 
-    public static dataLabelsEnabled(value: string): GenericObject {
+    public static dataLabelsEnabled(value: boolean): GenericObject {
         return { dataLabels: { enabled: value } };
     }
 

@@ -1,4 +1,5 @@
 import { SeriesMappings } from './seriesMappings';
+import { SeriesSonificationMappings } from './seriesSonificationMappings';
 import { GenericObject, deepMerge } from '../utils/objects';
 
 
@@ -6,7 +7,8 @@ function toSeriesOptionsObject(seriesParameters: GenericObject): GenericObject {
     let res = {};
 
     for (const [param, val] of Object.entries(seriesParameters)) {
-        const options = (SeriesMappings as any)[param](val);
+        const mapper = (SeriesMappings as any)[param] || (SeriesSonificationMappings as any)[param];
+        const options = mapper(val);
         res = deepMerge(res, options);
     }
 

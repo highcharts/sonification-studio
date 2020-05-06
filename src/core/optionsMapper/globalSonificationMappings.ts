@@ -1,6 +1,6 @@
 import { GenericObject } from '../utils/objects';
 
-export class SonificationMappings {
+export class GlobalSonificationMappings {
 
     public static volume(value: number): GenericObject {
         // TODO: Introduce a master volume.
