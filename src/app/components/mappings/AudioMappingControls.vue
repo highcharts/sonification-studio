@@ -1,15 +1,17 @@
 <template>
     <section aria-label="Audio settings">
-        <SETabSwitch
-            :options="toggleMappingOptions"
-            class="toggleView"
-            @click="toggleMappingActivated"
-        />
-        <div
-            :is="activeView"
-            :id="activeView"
-            class="activeView"
-        />
+        <div id="scroll-container">
+            <SETabSwitch
+                :options="toggleMappingOptions"
+                class="toggleView"
+                @click="toggleMappingActivated"
+            />
+            <div
+                :is="activeView"
+                :id="activeView"
+                class="activeView"
+            />
+        </div>
     </section>
 </template>
 
@@ -53,6 +55,10 @@ export default {
         padding: 10px;
         display: flex;
         flex-direction: column;
+    }
+
+    #scroll-container {
+        overflow-y: scroll;
     }
 
     .activeView {

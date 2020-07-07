@@ -1,6 +1,6 @@
 <template>
     <div>
-        Scales content here
+        Duration content here
     </div>
 </template>
 

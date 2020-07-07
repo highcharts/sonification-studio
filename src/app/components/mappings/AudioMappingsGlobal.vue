@@ -26,6 +26,7 @@
                 </SEControl>
             </div>
 
+            <h3>Default settings</h3>
             <div class="controls-group">
                 <SEControl
                     control-id="global-minfreq"
@@ -125,6 +126,10 @@ export default {
 
     h2 {
         margin: 20px 5px;
+    }
+
+    h3 {
+        margin: 30px 0 0;
     }
 
     .controls-container {

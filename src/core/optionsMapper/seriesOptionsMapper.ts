@@ -3,6 +3,9 @@ import { SeriesSonificationMappings } from './seriesSonificationMappings';
 import { GenericObject, deepMerge } from '../utils/objects';
 
 
+/*
+ * Map parameters to options object using series mappings and series sonification mappings.
+ */
 function toSeriesOptionsObject(seriesParameters: GenericObject): GenericObject {
     let res = {};
 
@@ -16,6 +19,9 @@ function toSeriesOptionsObject(seriesParameters: GenericObject): GenericObject {
 }
 
 
+/*
+ * Series options are not split into sonification/display options
+ */
 export function getSeriesOptionsFromParameters(
     seriesParameters: GenericObject,
     seriesIds: string[]

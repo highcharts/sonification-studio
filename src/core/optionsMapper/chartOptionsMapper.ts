@@ -18,7 +18,7 @@ class ChartOptionsMapper {
         this.options = deepMerge(this.options, newOptions);
     }
 
-    public addChartParameter(param: string, value: any) {
+    public addChartParameter(param: string, value: unknown) {
         const newOptions = (ChartMappings as any)[param](value, this.options);
         this.options = deepMerge(this.options, newOptions);
     }

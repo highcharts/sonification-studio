@@ -58,8 +58,7 @@ export default {
         padding: 10px;
         height: 100%;
         width: 100%;
-        min-width: 850px;
-        min-height: 850px;
+        max-height: 100%;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -67,6 +66,7 @@ export default {
 
     #mainContentView {
         flex: 1;
+        overflow-y: scroll;
         margin-top: 5px;
     }
 </style>

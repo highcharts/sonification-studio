@@ -3,15 +3,9 @@ import { GenericObject } from '../utils/objects';
 export class GlobalSonificationMappings {
 
     public static volume(value: number): GenericObject {
-        // TODO: Introduce a master volume.
-        // Having to set this per instrument is just silly
         return {
             sonification: {
-                instruments: [{
-                    instrumentMapping: {
-                        volume: value / 100
-                    }
-                }]
+                masterVolume: value / 100
             }
         };
     }
@@ -45,7 +39,7 @@ export class GlobalSonificationMappings {
 
         return {
             sonification: {
-                seriesOptions: {
+                events: {
                     onPointStart: value ? highlightPoint : null
                 }
             }
@@ -55,11 +49,9 @@ export class GlobalSonificationMappings {
     public static minFrequency(value: number): GenericObject {
         return {
             sonification: {
-                instruments: [{
-                    instrumentOptions: {
-                        minFrequency: value
-                    }
-                }]
+                defaultInstrumentOptions: {
+                    minFrequency: value
+                }
             }
         };
     }
@@ -67,11 +59,9 @@ export class GlobalSonificationMappings {
     public static maxFrequency(value: number): GenericObject {
         return {
             sonification: {
-                instruments: [{
-                    instrumentOptions: {
-                        maxFrequency: value
-                    }
-                }]
+                defaultInstrumentOptions: {
+                    maxFrequency: value
+                }
             }
         };
     }
@@ -79,11 +69,11 @@ export class GlobalSonificationMappings {
     public static panEnabled(value: boolean): GenericObject {
         return {
             sonification: {
-                instruments: [{
-                    instrumentMapping: {
+                defaultInstrumentOptions: {
+                    mapping: {
                         pan: value ? 'x' : 0
                     }
-                }]
+                }
             }
         };
     }
@@ -91,12 +81,10 @@ export class GlobalSonificationMappings {
     public static panWidth(value: number): GenericObject {
         return {
             sonification: {
-                instruments: [{
-                    instrumentOptions: {
-                        minPan: 0 - value / 100,
-                        maxPan: 0 + value / 100
-                    }
-                }]
+                defaultInstrumentOptions: {
+                    minPan: 0 - value / 100,
+                    maxPan: 0 + value / 100
+                }
             }
         };
     }

@@ -17,19 +17,19 @@ export const defaultChartOptions = {
         enabled: true,
         afterSeriesWait: 1000,
         order: 'sequential',
-        pointPlayTime: 'x',
         // Reset on end
         onEnd: function (e: any) {
             e.path.timeline.resetCursor();
         },
-        instruments: [{
+        defaultInstrumentOptions: {
             instrument: 'sineMusical',
-            instrumentMapping: {
+            mapping: {
                 duration: 400,
                 frequency: 'y',
-                volume: 1
+                volume: 1,
+                pointPlayTime: 'x'
             }
-        }]
+        }
     },
     title: {
         text: 'Test chart',

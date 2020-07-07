@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Audio settings</h2>
+        <h2>Audio settings: Data series</h2>
         <div class="series-selector-container">
             <SEControl
                 control-id="series-selector"
@@ -33,7 +33,7 @@
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
-import AudioMappingsSeriesScales from './AudioMappingsSeriesScales.vue';
+import AudioMappingsSeriesDuration from './AudioMappingsSeriesDuration.vue';
 import AudioMappingsSeriesPan from './AudioMappingsSeriesPan.vue';
 import AudioMappingsSeriesPitch from './AudioMappingsSeriesPitch.vue';
 import AudioMappingsSeriesVolume from './AudioMappingsSeriesVolume.vue';
@@ -47,7 +47,7 @@ export default {
         SEControl,
         SEDropdown,
         SEAccordionItem,
-        AudioMappingsSeriesScales,
+        AudioMappingsSeriesDuration,
         AudioMappingsSeriesPan,
         AudioMappingsSeriesPitch,
         AudioMappingsSeriesVolume
@@ -55,18 +55,18 @@ export default {
     data: function () {
         return {
             accordionItems: [{
-                heading: 'Sound scales',
-                component: 'AudioMappingsSeriesScales'
-            }, {
                 heading: 'Pitch',
                 component: 'AudioMappingsSeriesPitch'
             }, {
-                heading: 'Pan (left to right)',
+                heading: 'Pan',
                 component: 'AudioMappingsSeriesPan',
                 selected: true
             }, {
                 heading: 'Volume',
                 component: 'AudioMappingsSeriesVolume'
+            }, {
+                heading: 'Duration',
+                component: 'AudioMappingsSeriesDuration'
             }]
         };
     },
@@ -103,6 +103,7 @@ export default {
 
     .accordion-container {
         width: 100%;
+        box-sizing: border-box;
         border: 1px solid @accordion-container-border;
         border-radius: 8px;
     }
