@@ -33,7 +33,7 @@
             v-show="panType === 'mapped'"
             control-id="mcp-min-pan"
             label="Minimum pan value"
-            helptext="Set a minimum pan value. If direction is from left to right, -1 refers to left. Otherwise it refers to right."
+            helptext="Set a minimum pan value, from left to right."
         >
             <SESlider
                 id="mcp-min-pan"
@@ -48,7 +48,7 @@
             v-show="panType === 'mapped'"
             control-id="mcp-max-pan"
             label="Maximum pan value"
-            helptext="Set a maximum pan value. If direction is from left to right, -1 refers to left. Otherwise it refers to right."
+            helptext="Set a maximum pan value, from left to right"
         >
             <SESlider
                 id="mcp-max-pan"
@@ -76,12 +76,12 @@
 
         <SEControl
             v-show="panType === 'mapped'"
-            control-id="mcp-polarity"
+            control-id="mcp-pan-polarity"
             label="Direction"
-            helptext="Set the polarity of the pan mapping - whether the audio pans from left to right, or right to left."
+            helptext="Set the polarity of the pan mapping - whether the audio pans from left to right, or right to left, as values get higher."
         >
             <SERadioGroup
-                id="mcp-polarity"
+                id="mcp-pan-polarity"
                 v-model="panDirection"
                 :options="mcpPolarityOptions"
             />
@@ -130,7 +130,7 @@ export default {
         };
     },
     computed: {
-        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
+        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         panType: makeSeriesParamPropertyMapping('panType', 'default'),
         panMappingProp: makeSeriesParamPropertyMapping('panMappingProp', 'x'),
         minPan: makeSeriesParamPropertyMapping('minPan', 0),
