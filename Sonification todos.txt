@@ -11,18 +11,10 @@ ____________________________________________________________________________
 - onEnd functions should receive a referene to the chart and the timeline
     (see usages of onEnd).
 
-- Introduce a master volume. Should this be its own node (see next point)?
-    (see sonification mappings for use case).
-
 - Find a way to alter the master volume while playing.
 
 - Introduce a chart.sonification.isPaused function or flag.
     (see play button functionality).
-
-- Make Highcharts merge sonification array options with same deepMerge
-    functionality as in this app. This would stop us from having to
-    duplicate the default options here. See chart.update event in
-    sonification.ts.
 
 - Investigate why the duration time is so inaccurate.
 
@@ -30,5 +22,4 @@ ____________________________________________________________________________
     been made? Not doing this would avoid a console warning.
 
 - See if we can avoid audio lagging.
-
 
