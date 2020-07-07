@@ -4,6 +4,8 @@
             control-id="mcp-pan-type"
             label="Enable pan"
             helptext="Enable pan for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the panning follows the values of a data property."
+            :horizontal-reverse="true"
+            :expand-content="true"
         >
             <SEDropdown
                 id="mcp-pan-type"
@@ -62,6 +64,8 @@
             control-id="mcp-mapping-prop"
             label="Mapping property"
             helptext="Data property to map panning to."
+            :horizontal-reverse="true"
+            :expand-content="true"
         >
             <SEDropdown
                 id="mcp-mapping-prop"
@@ -142,7 +146,5 @@ export default {
 
 
 <style lang="less" scoped>
-    .se-control {
-        margin: 10px 0;
-    }
+    @import "../../accordionOptions";
 </style>
