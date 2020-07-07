@@ -4,6 +4,7 @@
     Props:
         - options: Array<{ label, value, selected? }> - The radio options.
         - [id]: String - Id to put on the group.
+        - [value]: String - Value of the selected radio button.
 -->
 <template>
     <div
@@ -23,7 +24,8 @@
                 type="radio"
                 :name="groupId"
                 :value="btn.value"
-                :checked="btn.selected"
+                :checked="value === btn.value || btn.selected"
+                @input="$emit('input', $event.target.value)"
             >
         </div>
     </div>
@@ -47,7 +49,8 @@ function getUniqueId(val: string): string {
 export default {
     props: {
         options: { type: Array, required: true },
-        id: { type: String, default: '' }
+        id: { type: String, default: '' },
+        value: { type: String, default: '' }
     },
 
     computed: {

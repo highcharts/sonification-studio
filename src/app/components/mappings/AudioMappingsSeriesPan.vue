@@ -78,6 +78,7 @@
         >
             <SERadioGroup
                 id="mcp-polarity"
+                v-model="panDirection"
                 :options="mcpPolarityOptions"
             />
         </SEControl>
@@ -108,11 +109,10 @@ export default {
     data: function () {
         return {
             mcpPolarityOptions: [{
-                value: 'pos', label: 'Left to right', selected: true
+                value: 'positive', label: 'Left to right'
             }, {
-                value: 'neg', label: 'Right to left'
+                value: 'negative', label: 'Right to left'
             }],
-            panType: 'default',
             panTypes: [{
                 name: 'Default',
                 value: 'default'
@@ -122,16 +122,17 @@ export default {
             }, {
                 name: 'Mapped',
                 value: 'mapped'
-            }],
-            panMappingProp: 'x',
-            minPan: 0,
-            maxPan: 0,
-            panValue: 0
+            }]
         };
     },
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
-        panEnabled: makeSeriesParamPropertyMapping('panEnabled', false),
+        panType: makeSeriesParamPropertyMapping('panType', 'default'),
+        panMappingProp: makeSeriesParamPropertyMapping('panMappingProp', 'x'),
+        minPan: makeSeriesParamPropertyMapping('minPan', 0),
+        maxPan: makeSeriesParamPropertyMapping('maxPan', 0),
+        panValue: makeSeriesParamPropertyMapping('panValue', 0),
+        panDirection: makeSeriesParamPropertyMapping('panDirection', 'positive'),
         mappingProps: function () {
             return getMappingDataProps();
         }
