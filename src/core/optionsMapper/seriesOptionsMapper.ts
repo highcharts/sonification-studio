@@ -11,7 +11,7 @@ function toSeriesOptionsObject(seriesParameters: GenericObject): GenericObject {
 
     for (const [param, val] of Object.entries(seriesParameters)) {
         const mapper = (SeriesMappings as any)[param] || (SeriesSonificationMappings as any)[param];
-        const options = mapper(val);
+        const options = mapper ? mapper(val) : {};
         res = deepMerge(res, options);
     }
 
