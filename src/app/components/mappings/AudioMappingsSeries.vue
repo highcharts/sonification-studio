@@ -19,7 +19,8 @@
                 v-for="item in accordionItems"
                 :key="item.component"
                 :heading="item.heading"
-                :selected="item.selected"
+                :selected="!!expandedAccordionItems[item.heading]"
+                @click="onAccordionItemClick"
             >
                 <keep-alive>
                     <component :is="item.component" />
@@ -59,8 +60,7 @@ export default {
                 component: 'AudioMappingsSeriesPitch'
             }, {
                 heading: 'Pan',
-                component: 'AudioMappingsSeriesPan',
-                selected: true
+                component: 'AudioMappingsSeriesPan'
             }, {
                 heading: 'Volume',
                 component: 'AudioMappingsSeriesVolume'
@@ -72,7 +72,8 @@ export default {
     },
     computed: {
         ...mapState({
-            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates
+            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates,
+            expandedAccordionItems: (state: any) => state.viewStore.expandedSeriesAudioAccordionItems
         }),
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
         dataSeries: function () {
@@ -83,6 +84,14 @@ export default {
                 name: s.name,
                 value: getSeriesId(s)
             }));
+        }
+    },
+    methods: {
+        onAccordionItemClick: function (e: Event, item: GenericObject, isSelected: boolean) {
+            this.$store.commit('viewStore/setExpandedSeriesAudioAccordionItem', {
+                itemName: item.heading,
+                expanded: isSelected
+            });
         }
     }
 };

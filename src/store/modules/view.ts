@@ -3,9 +3,16 @@
     used across multiple components.
 */
 
+import Vue from 'vue';
+
 interface SelectHeaderTabPayload {
     selectedTabId: string;
     contentId: string;
+}
+
+interface ExpandedAccordionItemPayload {
+    itemName: string;
+    expanded: boolean;
 }
 
 export const viewStore = {
@@ -20,7 +27,10 @@ export const viewStore = {
         selectedHeaderTabId: 'Data',
         playbackProgress: 0,
         selectedDataSeriesChartMapping: '',
-        selectedDataSeriesAudioMapping: ''
+        selectedDataSeriesAudioMapping: '',
+        expandedSeriesAudioAccordionItems: {
+            Pitch: true
+        }
     },
 
     mutations: {
@@ -39,6 +49,10 @@ export const viewStore = {
 
         setSelectedDataSeriesAudioMapping(state: any, seriesId: string) {
             state.selectedDataSeriesAudioMapping = seriesId;
+        },
+
+        setExpandedSeriesAudioAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
+            Vue.set(state.expandedSeriesAudioAccordionItems, payload.itemName, payload.expanded);
         },
 
         triggerParameterReactivity(state: any) {

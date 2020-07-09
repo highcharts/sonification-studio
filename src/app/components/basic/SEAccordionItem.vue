@@ -11,7 +11,7 @@
         <button
             :class="{ selected: isSelected }"
             :aria-expanded="isSelected ? 'true' : 'false'"
-            @click="isSelected = !isSelected"
+            @click="onclick"
         >
             <h3>{{ heading }}</h3>
             <div
@@ -56,6 +56,10 @@ export default {
         },
         endFold(el: HTMLElement) {
             el.style.height = '';
+        },
+        onclick(e: Event) {
+            this.isSelected = !this.isSelected;
+            this.$emit('click', e, this, this.isSelected);
         }
     }
 };
