@@ -29,7 +29,7 @@ export const viewStore = {
         selectedDataSeriesChartMapping: '',
         selectedDataSeriesAudioMapping: '',
         expandedSeriesAudioAccordionItems: {
-            Pitch: true
+            Instrument: true
         }
     },
 

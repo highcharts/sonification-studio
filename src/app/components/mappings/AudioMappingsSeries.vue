@@ -34,6 +34,7 @@
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
+import AudioMappingsSeriesInstrument from './AudioMappingsSeriesInstrument.vue';
 import AudioMappingsSeriesDuration from './AudioMappingsSeriesDuration.vue';
 import AudioMappingsSeriesPan from './AudioMappingsSeriesPan.vue';
 import AudioMappingsSeriesPitch from './AudioMappingsSeriesPitch.vue';
@@ -48,6 +49,7 @@ export default {
         SEControl,
         SEDropdown,
         SEAccordionItem,
+        AudioMappingsSeriesInstrument,
         AudioMappingsSeriesDuration,
         AudioMappingsSeriesPan,
         AudioMappingsSeriesPitch,
@@ -56,6 +58,9 @@ export default {
     data: function () {
         return {
             accordionItems: [{
+                heading: 'Instrument',
+                component: 'AudioMappingsSeriesInstrument'
+            }, {
                 heading: 'Pitch',
                 component: 'AudioMappingsSeriesPitch'
             }, {
