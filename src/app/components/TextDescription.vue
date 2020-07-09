@@ -20,6 +20,7 @@
                 wide
                 @click="speakTextDescription"
                 @keydown.esc="cancel"
+                @keydown.control="cancel"
             >
                 Speak
             </SEButton>
