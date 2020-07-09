@@ -59,6 +59,9 @@ export default {
 
     #scroll-container {
         overflow-y: scroll;
+        /* Hack for not cutting off helptexts in the x-dimension, even if they overflow */
+        padding-left: 100px;
+        margin-left: -100px;
     }
 
     .activeView {
