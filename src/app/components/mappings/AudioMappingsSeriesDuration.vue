@@ -132,7 +132,7 @@ export default {
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         durationType: makeSeriesParamPropertyMapping('durationType', 'default'),
-        durationMappingProp: makeSeriesParamPropertyMapping('durationMappingProp', 'x'),
+        durationMappingProp: makeSeriesParamPropertyMapping('durationMappingProp', 'y'),
         minDuration: makeSeriesParamPropertyMapping('minDuration', 200),
         maxDuration: makeSeriesParamPropertyMapping('maxDuration', 2000),
         durationValue: makeSeriesParamPropertyMapping('durationValue', 400),

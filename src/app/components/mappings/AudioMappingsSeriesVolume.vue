@@ -132,7 +132,7 @@ export default {
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         volumeType: makeSeriesParamPropertyMapping('volumeType', 'default'),
-        volumeMappingProp: makeSeriesParamPropertyMapping('volumeMappingProp', 'x'),
+        volumeMappingProp: makeSeriesParamPropertyMapping('volumeMappingProp', 'y'),
         minVolume: makeSeriesParamPropertyMapping('minVolume', 0),
         maxVolume: makeSeriesParamPropertyMapping('maxVolume', 1),
         volumeValue: makeSeriesParamPropertyMapping('volumeValue', 0.7),

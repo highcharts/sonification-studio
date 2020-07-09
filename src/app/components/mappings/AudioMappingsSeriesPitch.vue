@@ -147,7 +147,7 @@ export default {
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         pitchType: makeSeriesParamPropertyMapping('pitchType', 'default'),
-        pitchMappingProp: makeSeriesParamPropertyMapping('pitchMappingProp', 'x'),
+        pitchMappingProp: makeSeriesParamPropertyMapping('pitchMappingProp', 'y'),
         pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', true),
         minFreq: makeSeriesParamPropertyMapping('minFreq', 330),
         maxFreq: makeSeriesParamPropertyMapping('maxFreq', 3300),
