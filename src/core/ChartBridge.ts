@@ -145,7 +145,7 @@ export class ChartBridge {
 
     public isPaused(): boolean {
         const timeline = this.chart?.sonification.timeline;
-        return timeline && !timeline.atStart();
+        return timeline && timeline.paths.length && !timeline.atStart();
     }
 
 
@@ -168,6 +168,11 @@ export class ChartBridge {
             });
         } else {
             chart.resumeSonify();
+        }
+
+        // If we have no series, just stop
+        if (!chart.sonification.timeline.paths.length) {
+            this.stopChart();
         }
     }
 
@@ -287,7 +292,7 @@ export class ChartBridge {
         const sonification = this.chart?.sonification;
         const timeline = sonification?.timeline;
 
-        if (!timeline || timeline.atStart()) {
+        if (!timeline || !timeline.paths.length || timeline.atStart()) {
             return 0;
         }
 
