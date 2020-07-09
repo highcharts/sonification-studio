@@ -2,7 +2,7 @@
     <div>
         <SEControl
             control-id="mcv-volume-type"
-            label="Enable volume"
+            label="Note volume"
             helptext="Enable volume control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the volume follows the values of a data property."
             :horizontal-reverse="true"
             :expand-content="true"

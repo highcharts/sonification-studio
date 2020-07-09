@@ -2,7 +2,7 @@
     <div>
         <SEControl
             control-id="mcd-duration-type"
-            label="Enable duration"
+            label="Note duration"
             helptext="Enable duration control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the note duration follows the values of a data property."
             :horizontal-reverse="true"
             :expand-content="true"
