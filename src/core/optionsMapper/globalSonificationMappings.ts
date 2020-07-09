@@ -46,6 +46,14 @@ export class GlobalSonificationMappings {
         };
     }
 
+    public static order(value: string): GenericObject {
+        return {
+            sonification: {
+                order: value
+            }
+        };
+    }
+
     public static minFrequency(value: number): GenericObject {
         return {
             sonification: {

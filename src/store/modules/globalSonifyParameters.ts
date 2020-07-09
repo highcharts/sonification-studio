@@ -11,6 +11,7 @@ export const globalSonifyParametersStore = {
         volume: 50,
         speed: 50,
         playMarkerEnabled: false,
+        order: 'sequential',
         minFrequency: 392, // G4
         maxFrequency: 1319, // G6
         panEnabled: false,
@@ -28,6 +29,10 @@ export const globalSonifyParametersStore = {
 
         setPlayMarkerEnabled(state: any, enabled: boolean) {
             state.playMarkerEnabled = enabled;
+        },
+
+        setOrder(state: any, order: string) {
+            state.order = order;
         },
 
         setMinFrequency(state: any, minfreq: number) {
