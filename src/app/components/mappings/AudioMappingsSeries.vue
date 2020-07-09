@@ -106,7 +106,7 @@ export default {
     @import "../../sidebar";
 
     h2 {
-        margin: 15px 5px;
+        margin: 20px 5px;
     }
 
     .series-selector-container {
