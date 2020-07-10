@@ -26,7 +26,7 @@ export default {
         AudioMappingsSeries,
         AudioMappingsGlobal
     },
-    data: function () {
+    data() {
         return {
             toggleMappingOptions: [{
                 name: 'Global settings',

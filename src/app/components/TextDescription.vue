@@ -43,14 +43,14 @@ export default {
     components: {
         SEButton, SEDropdown
     },
-    data: function () {
+    data() {
         return {
             selectedColumn: null,
             textDescription: ''
         };
     },
     computed: {
-        dropdownList: function () {
+        dropdownList() {
             const colsWithData: Array<number> = this.$store.getters['dataStore/tableColumnNamesWithData'];
             const dropdownOptions = colsWithData.map((colName): GenericObject => ({
                 name: 'Column ' + colName,

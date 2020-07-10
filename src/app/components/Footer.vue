@@ -19,7 +19,7 @@
 import highchartsIcon from '../assets/highcharts-logo.svg';
 
 export default {
-    data: function () {
+    data() {
         return { highchartsIcon };
     },
     computed: {

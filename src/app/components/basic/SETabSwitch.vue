@@ -39,12 +39,12 @@ export default {
     props: {
         options: { type: Array, required: true }
     },
-    data: function () {
+    data() {
         return {
             selectedButton: ''
         };
     },
-    created: function (): void {
+    created(): void {
         const defs = this.options as Array<SETabDefinition>;
         const defWithSelection = defs.find(def => def.selected) || defs[0];
         this.selectedButton = defWithSelection.name;

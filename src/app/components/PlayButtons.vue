@@ -48,7 +48,7 @@ export default {
     components: {
         PlayButton
     },
-    data: function () {
+    data() {
         return {
             playIcon, stopIcon, pauseIcon, holdIcon, loopIcon
         };

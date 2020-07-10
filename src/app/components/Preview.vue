@@ -31,7 +31,7 @@ export default {
         }
     },
 
-    mounted: function () {
+    mounted() {
         // Init ChartBridge with reference to chart
         const chart = (this.$refs.chart as any).chart;
         (this as any).$chartBridge.init(chart);

@@ -28,7 +28,7 @@ export default {
     components: {
         HeaderTab
     },
-    data: function () {
+    data() {
         return {
             headerTabs: [{
                 name: 'Data',

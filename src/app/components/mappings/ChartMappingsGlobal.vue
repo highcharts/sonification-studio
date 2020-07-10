@@ -98,7 +98,7 @@ export default {
         SETextbox,
         SEDropdown
     },
-    data: function () {
+    data() {
         return {
             chartTypes: [{
                 name: 'Line',

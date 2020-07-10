@@ -48,17 +48,17 @@ export default {
         label: { type: String, default: null },
         labelledby: { type: String, default: null }
     },
-    data: function () {
+    data() {
         return {
             arrowIcon
         };
     },
-    updated: function () {
+    updated() {
         const sel = this.$refs.SEDropdown_select as HTMLSelectElement;
         const newVal = sel.value;
         this.$emit('input', newVal);
     },
-    beforeMount: function () {
+    beforeMount() {
         if (!this.options.length) {
             return;
         }

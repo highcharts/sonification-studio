@@ -55,7 +55,7 @@ export default {
         AudioMappingsSeriesPitch,
         AudioMappingsSeriesVolume
     },
-    data: function () {
+    data() {
         return {
             accordionItems: [{
                 heading: 'Instrument',
@@ -81,7 +81,7 @@ export default {
             expandedAccordionItems: (state: any) => state.viewStore.expandedSeriesAudioAccordionItems
         }),
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
-        dataSeries: function () {
+        dataSeries() {
             const chartBridge = (this as any).$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
 

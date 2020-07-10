@@ -110,7 +110,7 @@ export default {
         SEDropdown,
         SERadioGroup
     },
-    data: function () {
+    data() {
         return {
             mcvPolarityOptions: [{
                 value: 'positive', label: 'Positive'
@@ -137,7 +137,7 @@ export default {
         maxVolume: makeSeriesParamPropertyMapping('maxVolume', 1),
         volumeValue: makeSeriesParamPropertyMapping('volumeValue', 0.7),
         volumePolarity: makeSeriesParamPropertyMapping('volumePolarity', 'positive'),
-        mappingProps: function () {
+        mappingProps() {
             return getMappingDataProps();
         }
     }

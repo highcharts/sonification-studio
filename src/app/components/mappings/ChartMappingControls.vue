@@ -24,7 +24,7 @@ export default {
         ChartMappingsSeries,
         ChartMappingsGlobal
     },
-    data: function () {
+    data() {
         return {
             toggleMappingOptions: [{
                 name: 'Chart settings',

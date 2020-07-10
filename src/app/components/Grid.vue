@@ -104,7 +104,7 @@ export default {
         };
     },
     computed: mapState('dataStore', ['tableRowData']),
-    beforeMount: function (): void {
+    beforeMount(): void {
         this.columnDefs = this.makeColumns();
     },
     methods: {

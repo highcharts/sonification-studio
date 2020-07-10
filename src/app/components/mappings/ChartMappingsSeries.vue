@@ -95,7 +95,7 @@ export default {
         SECheckbox,
         SEColorPicker
     },
-    data: function () {
+    data() {
         return {
             seriesTypes: [{
                 name: 'Default',
@@ -154,7 +154,7 @@ export default {
             get() { return (this as any).$store.state.viewStore.selectedDataSeriesChartMapping; },
             set(val) { return this.$store.commit('viewStore/setSelectedDataSeriesChartMapping', val); }
         },
-        dataSeries: function () {
+        dataSeries() {
             const chartBridge = (this as any).$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
 

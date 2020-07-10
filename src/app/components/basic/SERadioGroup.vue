@@ -54,7 +54,7 @@ export default {
     },
 
     computed: {
-        radioButtons: function () {
+        radioButtons() {
             const options = this.options as Array<SERadioButtonDefinition>;
             return options.map((button: SERadioButtonDefinition) => {
                 return Object.assign({
@@ -63,7 +63,7 @@ export default {
             });
         },
 
-        groupId: function () {
+        groupId() {
             return getUniqueId('group');
         }
     }

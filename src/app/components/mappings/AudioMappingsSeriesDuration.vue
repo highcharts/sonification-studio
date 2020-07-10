@@ -110,7 +110,7 @@ export default {
         SEDropdown,
         SERadioGroup
     },
-    data: function () {
+    data() {
         return {
             mcdPolarityOptions: [{
                 value: 'positive', label: 'Positive'
@@ -137,7 +137,7 @@ export default {
         maxDuration: makeSeriesParamPropertyMapping('maxDuration', 2000),
         durationValue: makeSeriesParamPropertyMapping('durationValue', 400),
         durationPolarity: makeSeriesParamPropertyMapping('durationPolarity', 'positive'),
-        mappingProps: function () {
+        mappingProps() {
             return getMappingDataProps();
         }
     }

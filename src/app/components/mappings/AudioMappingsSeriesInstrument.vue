@@ -66,7 +66,7 @@ export default {
         SEButton,
         SEDropdown
     },
-    data: function () {
+    data() {
         return {
             instruments: [{
                 name: 'Sine wave',
@@ -86,7 +86,7 @@ export default {
         instrument: makeSeriesParamPropertyMapping('instrument', null, 'instrument'),
         pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', null, 'instrument')
     },
-    mounted: function () {
+    mounted() {
         this.pitchRoundingEnabled = true;
         this.instrument = 'sine';
     },

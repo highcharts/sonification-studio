@@ -17,7 +17,7 @@ export default {
     components: {
         Grid, GridControls
     },
-    beforeMount: function () {
+    beforeMount() {
         this.$store.commit('dataStore/setTableRowData', this.makePlaceholderData());
     },
     methods: {

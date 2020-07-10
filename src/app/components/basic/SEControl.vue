@@ -64,12 +64,12 @@ export default {
         horizontalReverse: { type: Boolean, default: false },
         expandContent: { type: Boolean, default: false }
     },
-    data: function () {
+    data() {
         return {
             helptextActive: false
         };
     },
-    mounted: function () {
+    mounted() {
         document.addEventListener('click', (e: MouseEvent) => {
             if (!this.$el.contains(e.target as any)) {
                 this.helptextActive = false;

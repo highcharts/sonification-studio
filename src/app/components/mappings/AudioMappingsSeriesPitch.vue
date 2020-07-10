@@ -110,7 +110,7 @@ export default {
         SEDropdown,
         SERadioGroup
     },
-    data: function () {
+    data() {
         return {
             mcpPolarityOptions: [{
                 value: 'positive', label: 'Positive'
@@ -137,11 +137,11 @@ export default {
         maxFreq: makeSeriesParamPropertyMapping('maxFreq', null, 'pitchOptions'),
         pitchValue: makeSeriesParamPropertyMapping('pitchValue', null, 'pitchOptions'),
         pitchPolarity: makeSeriesParamPropertyMapping('pitchPolarity', null, 'pitchOptions'),
-        mappingProps: function () {
+        mappingProps() {
             return getMappingDataProps();
         }
     },
-    mounted: function () {
+    mounted() {
         // These options are needed always in the store so that we can calculate pitch options
         // regardless of which options are changed by the user. By default, only options that
         // are changed by the user are added to the store.

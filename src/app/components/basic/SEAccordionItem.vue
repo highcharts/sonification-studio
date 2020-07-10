@@ -42,12 +42,12 @@ export default {
         heading: { type: String, required: true },
         selected: { type: Boolean, default: false }
     },
-    data: function () {
+    data() {
         return {
             isSelected: false
         };
     },
-    created: function () {
+    created() {
         this.isSelected = this.selected;
     },
     methods: {

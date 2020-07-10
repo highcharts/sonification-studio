@@ -105,7 +105,7 @@ export default {
         SECheckbox,
         SERadioGroup
     },
-    data: function () {
+    data() {
         return {
             orderOptions: [{
                 label: 'Sequential',

@@ -110,7 +110,7 @@ export default {
         SEDropdown,
         SERadioGroup
     },
-    data: function () {
+    data() {
         return {
             mcpPolarityOptions: [{
                 value: 'positive', label: 'Left to right'
@@ -137,7 +137,7 @@ export default {
         maxPan: makeSeriesParamPropertyMapping('maxPan', 0),
         panValue: makeSeriesParamPropertyMapping('panValue', 0),
         panDirection: makeSeriesParamPropertyMapping('panDirection', 'positive'),
-        mappingProps: function () {
+        mappingProps() {
             return getMappingDataProps();
         }
     }

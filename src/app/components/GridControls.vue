@@ -80,7 +80,7 @@ export default {
     components: {
         SEButton, SEFileUploadButton, SEDropdown
     },
-    data: function () {
+    data() {
         return {
             fillDropdownList: [
                 { name: 'A', value: 'A' },
