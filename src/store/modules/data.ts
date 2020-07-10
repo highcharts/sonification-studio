@@ -91,7 +91,14 @@ export const dataStore = {
             const hasSemicolon = csv.indexOf(';') > -1;
             const delim = hasTab ? '\t' : hasSemicolon ? ';' : ',';
             const arr = parseCSV(csv, delim);
-            const firstRow = arr.shift() || []; // Remove first row
+            const firstRowHasNames = !(arr[0]).some(cell => !isNaN(+cell));
+
+            let firstRow: string[];
+            if (firstRowHasNames) {
+                firstRow = arr.shift() || []; // Remove first row
+            } else {
+                firstRow = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0, arr[0].length).split('');
+            }
 
             const objectifiedArr = arr.map((row: string[]) => {
                 const rowObject: any = {};
