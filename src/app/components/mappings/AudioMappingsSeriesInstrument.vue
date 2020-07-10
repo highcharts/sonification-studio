@@ -78,6 +78,9 @@ export default {
                 name: 'Triangle wave',
                 value: 'triangle'
             }, {
+                name: 'Sawtooth wave',
+                value: 'sawtooth'
+            }, {
                 name: 'Square wave',
                 value: 'square'
             }]
