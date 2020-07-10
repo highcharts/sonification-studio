@@ -23,8 +23,8 @@
             <SESlider
                 id="mcp-pitch-value"
                 v-model.number="pitchValue"
-                :min="100"
-                :max="8000"
+                :min="60"
+                :max="4200"
                 :step="1"
             />
         </SEControl>
@@ -39,7 +39,7 @@
                 id="mcp-min-freq"
                 v-model.number="minFreq"
                 :min="20"
-                :max="20000"
+                :max="4200"
                 :step="1"
             />
         </SEControl>
@@ -54,7 +54,7 @@
                 id="mcp-max-freq"
                 v-model.number="maxFreq"
                 :min="20"
-                :max="20000"
+                :max="4200"
                 :step="1"
             />
         </SEControl>
@@ -146,16 +146,27 @@ export default {
     },
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
-        pitchType: makeSeriesParamPropertyMapping('pitchType', 'default'),
-        pitchMappingProp: makeSeriesParamPropertyMapping('pitchMappingProp', 'y'),
-        pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', true),
-        minFreq: makeSeriesParamPropertyMapping('minFreq', 330),
-        maxFreq: makeSeriesParamPropertyMapping('maxFreq', 3300),
-        pitchValue: makeSeriesParamPropertyMapping('pitchValue', 440),
-        pitchPolarity: makeSeriesParamPropertyMapping('pitchPolarity', 'positive'),
+        pitchType: makeSeriesParamPropertyMapping('pitchType', 'default', 'pitchOptions'),
+        pitchMappingProp: makeSeriesParamPropertyMapping('pitchMappingProp', null, 'pitchOptions'),
+        pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', null, 'pitchOptions'),
+        minFreq: makeSeriesParamPropertyMapping('minFreq', null, 'pitchOptions'),
+        maxFreq: makeSeriesParamPropertyMapping('maxFreq', null, 'pitchOptions'),
+        pitchValue: makeSeriesParamPropertyMapping('pitchValue', null, 'pitchOptions'),
+        pitchPolarity: makeSeriesParamPropertyMapping('pitchPolarity', null, 'pitchOptions'),
         mappingProps: function () {
             return getMappingDataProps();
         }
+    },
+    mounted: function () {
+        // These options are needed always in the store so that we can calculate pitch options
+        // regardless of which options are changed by the user. By default, only options that
+        // are changed by the user are added to the store.
+        this.pitchMappingProp = 'y';
+        this.pitchRoundingEnabled = true;
+        this.minFreq = 330;
+        this.maxFreq = 3300;
+        this.pitchValue = 440;
+        this.pitchPolarity = 'positive';
     }
 };
 </script>
