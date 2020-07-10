@@ -102,6 +102,9 @@ import {
 import {
     getMappingDataProps
 } from '../../../core/utils/chartUtils';
+import {
+    nullFallback
+} from '../../../core/utils/objects';
 
 export default {
     components: {
@@ -143,11 +146,11 @@ export default {
     },
     mounted() {
         // Init so that these are always in store, see Pitch mapping component.
-        this.panMappingProp = 'x';
-        this.minPan = -1;
-        this.maxPan = 1;
-        this.panValue = 0;
-        this.panPolarity = 'positive';
+        this.panMappingProp = nullFallback(this.panMappingProp, 'x');
+        this.minPan = nullFallback(this.minPan, -1);
+        this.maxPan = nullFallback(this.maxPan, 1);
+        this.panValue = nullFallback(this.panValue, 0);
+        this.panPolarity = nullFallback(this.panPolarity, 'positive');
     }
 };
 </script>
