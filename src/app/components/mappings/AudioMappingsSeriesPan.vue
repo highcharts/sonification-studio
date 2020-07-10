@@ -82,7 +82,7 @@
         >
             <SERadioGroup
                 id="mcp-pan-polarity"
-                v-model="panDirection"
+                v-model="panPolarity"
                 :options="mcpPolarityOptions"
             />
         </SEControl>
@@ -131,15 +131,23 @@ export default {
     },
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
-        panType: makeSeriesParamPropertyMapping('panType', 'default'),
-        panMappingProp: makeSeriesParamPropertyMapping('panMappingProp', 'x'),
-        minPan: makeSeriesParamPropertyMapping('minPan', 0),
-        maxPan: makeSeriesParamPropertyMapping('maxPan', 0),
-        panValue: makeSeriesParamPropertyMapping('panValue', 0),
-        panDirection: makeSeriesParamPropertyMapping('panDirection', 'positive'),
+        panType: makeSeriesParamPropertyMapping('panType', 'default', 'panOptions'),
+        panMappingProp: makeSeriesParamPropertyMapping('panMappingProp', null, 'panOptions'),
+        minPan: makeSeriesParamPropertyMapping('minPan', null, 'panOptions'),
+        maxPan: makeSeriesParamPropertyMapping('maxPan', null, 'panOptions'),
+        panValue: makeSeriesParamPropertyMapping('panValue', null, 'panOptions'),
+        panPolarity: makeSeriesParamPropertyMapping('panPolarity', null, 'panOptions'),
         mappingProps() {
             return getMappingDataProps();
         }
+    },
+    mounted() {
+        // Init so that these are always in store, see Pitch mapping component.
+        this.panMappingProp = 'x';
+        this.minPan = -1;
+        this.maxPan = 1;
+        this.panValue = 0;
+        this.panPolarity = 'positive';
     }
 };
 </script>
