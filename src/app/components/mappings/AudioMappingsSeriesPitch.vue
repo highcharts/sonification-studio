@@ -102,6 +102,9 @@ import {
 import {
     getMappingDataProps
 } from '../../../core/utils/chartUtils';
+import {
+    nullFallback
+} from '../../../core/utils/objects';
 
 export default {
     components: {
@@ -141,15 +144,16 @@ export default {
             return getMappingDataProps();
         }
     },
-    mounted() {
+    beforeMount() {
         // These options are needed always in the store so that we can calculate pitch options
         // regardless of which options are changed by the user. By default, only options that
-        // are changed by the user are added to the store.
-        this.pitchMappingProp = 'y';
-        this.minFreq = 330;
-        this.maxFreq = 3300;
-        this.pitchValue = 440;
-        this.pitchPolarity = 'positive';
+        // are changed by the user are added to the store. Note that we only set the defaults
+        // if the data is not already present in the store.
+        this.pitchMappingProp = nullFallback(this.pitchMappingProp, 'y');
+        this.minFreq = nullFallback(this.minFreq, 330);
+        this.maxFreq = nullFallback(this.maxFreq, 3300);
+        this.pitchValue = nullFallback(this.pitchValue, 440);
+        this.pitchPolarity = nullFallback(this.pitchPolarity, 'positive');
     }
 };
 </script>
