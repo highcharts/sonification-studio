@@ -144,7 +144,7 @@ export default {
             return getMappingDataProps();
         }
     },
-    mounted() {
+    beforeMount() {
         // Init so that these are always in store, see Pitch mapping component.
         this.panMappingProp = nullFallback(this.panMappingProp, 'x');
         this.minPan = nullFallback(this.minPan, -1);
