@@ -11,7 +11,7 @@ export const globalSonifyParametersStore = {
         volume: 50,
         speed: 50,
         playMarkerEnabled: false,
-        order: 'sequential',
+        order: 'simultaneous',
         minFrequency: 392, // G4
         maxFrequency: 1319, // G6
         panEnabled: false,

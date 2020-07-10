@@ -15,8 +15,8 @@ export const defaultChartOptions = {
     },
     sonification: {
         enabled: true,
-        afterSeriesWait: 1000,
-        order: 'sequential',
+        afterSeriesWait: 700,
+        order: 'simultaneous',
         // Reset on end
         onEnd: function (e: any) {
             e.path.timeline.resetCursor();
