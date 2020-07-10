@@ -14,6 +14,24 @@
         },
         otherSeriesId: { ... }
     }
+
+    By specifying a parent option, it is possible to nest options under a common name.
+    This means all of the options will be treated as one, and converted with
+    the same mapping function. Example:
+
+    seriesParameters: {
+        seriesId: {
+            myOptionThatHasMultipleInputs: {
+                data1: '',
+                data2: true,
+                data3: 0
+            }
+            // ...
+        }
+    }
+
+    In the above case, we will look for a 'myOptionThatHasMultipleInputs' function to
+    do the conversion (see seriesOptionsMapper).
  */
 
 import Vue from 'vue';
@@ -22,6 +40,7 @@ interface SeriesParameterOptions {
     seriesId: string;
     parameterName: string;
     parameterValue: any;
+    nestedUnderParent?: string;
 }
 
 
@@ -39,7 +58,15 @@ export const seriesParametersStore = {
             if (!seriesParams[id]) {
                 Vue.set(seriesParams, id, {});
             }
-            Vue.set(seriesParams[id], options.parameterName, options.parameterValue);
+
+            const seriesOptions = seriesParams[id];
+            const parent = options.nestedUnderParent;
+            if (parent && !seriesOptions[parent]) {
+                Vue.set(seriesOptions, parent, {});
+            }
+
+            const obj = parent ? seriesOptions[parent] : seriesOptions;
+            Vue.set(obj, options.parameterName, options.parameterValue);
         }
     }
 };

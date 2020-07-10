@@ -23,14 +23,16 @@ export function makeSelectedAudioMappingSeriesPropertyMapping() {
  */
 export function makeSeriesParamPropertyMapping(
     param: string,
-    defaultValue: any = null
+    defaultValue: any = null,
+    nestedUnderParent?: string
 ) {
     return {
         get() {
             const component = this as any;
             const allParams = component.$store.state.seriesParametersStore.seriesParameters;
-            const seriesParams = allParams[component.selectedSeries];
-            return (seriesParams && seriesParams[param]) ?? defaultValue;
+            const seriesParams = allParams[component.selectedSeries] || {};
+            const parent = nestedUnderParent ? seriesParams[nestedUnderParent] : seriesParams;
+            return (parent && parent[param]) ?? defaultValue;
         },
         set(val: any) {
             const component = this as any;
@@ -39,6 +41,7 @@ export function makeSeriesParamPropertyMapping(
                 component.$store.commit('seriesParametersStore/setSeriesParameter', {
                     seriesId: selectedSeries,
                     parameterName: param,
+                    nestedUnderParent: nestedUnderParent,
                     parameterValue: val
                 });
             }
