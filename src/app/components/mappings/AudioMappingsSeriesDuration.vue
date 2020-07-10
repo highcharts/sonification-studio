@@ -3,7 +3,7 @@
         <SEControl
             control-id="mcd-duration-type"
             label="Note duration"
-            helptext="Enable duration control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the note duration follows the values of a data property."
+            helptext="Enable duration control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the note duration follows the values of a data property. Be aware that notes may be cut short depending on the overall playback speed setting."
             :horizontal-reverse="true"
             :expand-content="true"
         >
@@ -18,7 +18,7 @@
             v-show="durationType === 'fixed'"
             control-id="mcd-duration-value"
             label="Duration value"
-            helptext="Set a fixed note duration for this data series, from short to long notes."
+            helptext="Set a fixed note duration for this data series, from short to long notes. Notes may be cut short depending on the overall playback speed setting."
         >
             <SESlider
                 id="mcd-duration-value"
@@ -63,7 +63,7 @@
             v-show="durationType === 'mapped'"
             control-id="mcd-mapping-prop"
             label="Mapping property"
-            helptext="Data property to map note duration to. Note duration will follow the values of this data property."
+            helptext="Data property to map note duration to. Note duration will follow the values of this data property. Notes may be cut short depending on the overall playback speed setting."
             :horizontal-reverse="true"
             :expand-content="true"
         >
