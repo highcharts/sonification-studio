@@ -47,8 +47,8 @@
                     <SESlider
                         id="global-minfreq"
                         v-model.number="minFreq"
-                        :min="100"
-                        :max="4000"
+                        :min="60"
+                        :max="4200"
                     />
                 </SEControl>
                 <SEControl
@@ -59,8 +59,8 @@
                     <SESlider
                         id="global-maxfreq"
                         v-model.number="maxFreq"
-                        :min="100"
-                        :max="4000"
+                        :min="60"
+                        :max="4200"
                     />
                 </SEControl>
             </div>
