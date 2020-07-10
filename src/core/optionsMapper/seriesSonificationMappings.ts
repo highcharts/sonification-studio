@@ -62,6 +62,20 @@ export class SeriesSonificationMappings {
         );
     }
 
+    public static durationOptions(options: GenericObject): GenericObject {
+        return SeriesSonificationMappings.getMappedOptions(
+            'duration',
+            options.durationType,
+            options.durationPolarity,
+            options.durationMappingProp,
+            options.durationValue,
+            {
+                minDuration: options.minDuration,
+                maxDuration: options.maxDuration
+            }
+        );
+    }
+
     /**
      * Since the handling of the mappings for the different properties is very similar,
      * we use this utility to do the generic conversion. Basically we use `null` values

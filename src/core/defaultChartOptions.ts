@@ -23,6 +23,8 @@ export const defaultChartOptions = {
         },
         defaultInstrumentOptions: {
             instrument: 'sineMusical',
+            minDuration: 40,
+            maxDuration: 3000,
             mapping: {
                 duration: 400,
                 frequency: 'y',

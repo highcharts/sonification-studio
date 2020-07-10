@@ -23,7 +23,7 @@
             <SESlider
                 id="mcd-duration-value"
                 v-model.number="durationValue"
-                :min="50"
+                :min="40"
                 :max="3000"
                 :step="10"
             />
@@ -38,7 +38,7 @@
             <SESlider
                 id="mcd-min-duration"
                 v-model.number="minDuration"
-                :min="50"
+                :min="40"
                 :max="3000"
                 :step="10"
             />
@@ -53,7 +53,7 @@
             <SESlider
                 id="mcd-max-duration"
                 v-model.number="maxDuration"
-                :min="50"
+                :min="40"
                 :max="3000"
                 :step="10"
             />
@@ -102,6 +102,9 @@ import {
 import {
     getMappingDataProps
 } from '../../../core/utils/chartUtils';
+import {
+    nullFallback
+} from '../../../core/utils/objects';
 
 export default {
     components: {
@@ -131,15 +134,23 @@ export default {
     },
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
-        durationType: makeSeriesParamPropertyMapping('durationType', 'default'),
-        durationMappingProp: makeSeriesParamPropertyMapping('durationMappingProp', 'y'),
-        minDuration: makeSeriesParamPropertyMapping('minDuration', 200),
-        maxDuration: makeSeriesParamPropertyMapping('maxDuration', 2000),
-        durationValue: makeSeriesParamPropertyMapping('durationValue', 400),
-        durationPolarity: makeSeriesParamPropertyMapping('durationPolarity', 'positive'),
+        durationType: makeSeriesParamPropertyMapping('durationType', 'default', 'durationOptions'),
+        durationMappingProp: makeSeriesParamPropertyMapping('durationMappingProp', null, 'durationOptions'),
+        minDuration: makeSeriesParamPropertyMapping('minDuration', null, 'durationOptions'),
+        maxDuration: makeSeriesParamPropertyMapping('maxDuration', null, 'durationOptions'),
+        durationValue: makeSeriesParamPropertyMapping('durationValue', null, 'durationOptions'),
+        durationPolarity: makeSeriesParamPropertyMapping('durationPolarity', null, 'durationOptions'),
         mappingProps() {
             return getMappingDataProps();
         }
+    },
+    beforeMount() {
+        // Init so that these are always in store, see Pitch mapping component.
+        this.durationMappingProp = nullFallback(this.durationMappingProp, 'y');
+        this.minDuration = nullFallback(this.minDuration, 200);
+        this.maxDuration = nullFallback(this.maxDuration, 2000);
+        this.durationValue = nullFallback(this.durationValue, 400);
+        this.durationPolarity = nullFallback(this.durationPolarity, 'positive');
     }
 };
 </script>
