@@ -169,11 +169,6 @@ export class ChartBridge {
         } else {
             chart.resumeSonify();
         }
-
-        // If we have no series, just stop
-        if (!chart.sonification.timeline.paths.length) {
-            this.stopChart();
-        }
     }
 
 
