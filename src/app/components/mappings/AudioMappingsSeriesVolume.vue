@@ -24,7 +24,7 @@
                 id="mcv-volume-value"
                 v-model.number="volumeValue"
                 :min="0"
-                :max="1"
+                :max="1.2"
                 :step="0.05"
             />
         </SEControl>
@@ -39,7 +39,7 @@
                 id="mcv-min-volume"
                 v-model.number="minVolume"
                 :min="0"
-                :max="1"
+                :max="1.2"
                 :step="0.05"
             />
         </SEControl>
@@ -54,7 +54,7 @@
                 id="mcv-max-volume"
                 v-model.number="maxVolume"
                 :min="0"
-                :max="1"
+                :max="1.2"
                 :step="0.05"
             />
         </SEControl>
@@ -158,7 +158,7 @@ export default {
             this.volumeMappingProp = nullFallback(this.volumeMappingProp, 'y');
             this.minVolume = nullFallback(this.minVolume, 0);
             this.maxVolume = nullFallback(this.maxVolume, 1);
-            this.volumeValue = nullFallback(this.volumeValue, 0.7);
+            this.volumeValue = nullFallback(this.volumeValue, 1);
             this.volumePolarity = nullFallback(this.volumePolarity, 'positive');
         }
     }
