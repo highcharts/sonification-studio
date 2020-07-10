@@ -102,6 +102,9 @@ import {
 import {
     getMappingDataProps
 } from '../../../core/utils/chartUtils';
+import {
+    nullFallback
+} from '../../../core/utils/objects';
 
 export default {
     components: {
@@ -131,15 +134,23 @@ export default {
     },
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
-        volumeType: makeSeriesParamPropertyMapping('volumeType', 'default'),
-        volumeMappingProp: makeSeriesParamPropertyMapping('volumeMappingProp', 'y'),
-        minVolume: makeSeriesParamPropertyMapping('minVolume', 0),
-        maxVolume: makeSeriesParamPropertyMapping('maxVolume', 1),
-        volumeValue: makeSeriesParamPropertyMapping('volumeValue', 0.7),
-        volumePolarity: makeSeriesParamPropertyMapping('volumePolarity', 'positive'),
+        volumeType: makeSeriesParamPropertyMapping('volumeType', 'default', 'volumeOptions'),
+        volumeMappingProp: makeSeriesParamPropertyMapping('volumeMappingProp', null, 'volumeOptions'),
+        minVolume: makeSeriesParamPropertyMapping('minVolume', null, 'volumeOptions'),
+        maxVolume: makeSeriesParamPropertyMapping('maxVolume', null, 'volumeOptions'),
+        volumeValue: makeSeriesParamPropertyMapping('volumeValue', null, 'volumeOptions'),
+        volumePolarity: makeSeriesParamPropertyMapping('volumePolarity', null, 'volumeOptions'),
         mappingProps() {
             return getMappingDataProps();
         }
+    },
+    beforeMount() {
+        // Init so that these are always in store, see Pitch mapping component.
+        this.volumeMappingProp = nullFallback(this.volumeMappingProp, 'y');
+        this.minVolume = nullFallback(this.minVolume, 0);
+        this.maxVolume = nullFallback(this.maxVolume, 1);
+        this.volumeValue = nullFallback(this.volumeValue, 0.7);
+        this.volumePolarity = nullFallback(this.volumePolarity, 'positive');
     }
 };
 </script>

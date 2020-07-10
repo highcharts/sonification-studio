@@ -48,6 +48,20 @@ export class SeriesSonificationMappings {
         );
     }
 
+    public static volumeOptions(options: GenericObject): GenericObject {
+        return SeriesSonificationMappings.getMappedOptions(
+            'volume',
+            options.volumeType,
+            options.volumePolarity,
+            options.volumeMappingProp,
+            options.volumeValue,
+            {
+                minVolume: options.minVolume,
+                maxVolume: options.maxVolume
+            }
+        );
+    }
+
     /**
      * Since the handling of the mappings for the different properties is very similar,
      * we use this utility to do the generic conversion. Basically we use `null` values
