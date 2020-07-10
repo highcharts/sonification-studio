@@ -21,39 +21,63 @@ export class SeriesSonificationMappings {
     }
 
     public static pitchOptions(options: GenericObject): GenericObject {
-        const type = options.pitchType;
-        const mapped = type === 'mapped';
-        const fixed = type === 'fixed';
-        const mappedPitch = (options.pitchPolarity === 'negative' ? '-' : '') + options.pitchMappingProp;
-
-        return {
-            sonification: {
-                instruments: [{
-                    minFrequency: mapped ? options.minFreq : null,
-                    maxFrequency: mapped ? options.maxFreq : null,
-                    mapping: {
-                        frequency: mapped ? mappedPitch : fixed ? options.pitchValue : null
-                    }
-                }]
+        return SeriesSonificationMappings.getMappedOptions(
+            'frequency',
+            options.pitchType,
+            options.pitchPolarity,
+            options.pitchMappingProp,
+            options.pitchValue,
+            {
+                minFrequency: options.minFreq,
+                maxFrequency: options.maxFreq
             }
-        };
+        );
     }
 
     public static panOptions(options: GenericObject): GenericObject {
-        const type = options.panType;
+        return SeriesSonificationMappings.getMappedOptions(
+            'pan',
+            options.panType,
+            options.panPolarity,
+            options.panMappingProp,
+            options.panValue,
+            {
+                minPan: options.minPan,
+                maxPan: options.maxPan
+            }
+        );
+    }
+
+    /**
+     * Since the handling of the mappings for the different properties is very similar,
+     * we use this utility to do the generic conversion. Basically we use `null` values
+     * if the default is to be used.
+     */
+    private static getMappedOptions(
+        mappingKey: string,
+        type: string,
+        polarity: string,
+        mappedProp: string,
+        fixedValue: any,
+        additionalOptions: GenericObject
+    ): GenericObject {
         const mapped = type === 'mapped';
         const fixed = type === 'fixed';
-        const mappedPan = (options.panPolarity === 'negative' ? '-' : '') + options.panMappingProp;
+        const mappedValue = (polarity === 'negative' ? '-' : '') + mappedProp;
+        // We only add the additional options if type is 'mapping'
+        const additionalOptsMapped = Object.keys(additionalOptions)
+            .reduce((res: GenericObject, key): GenericObject => {
+                res[key] = mapped ? additionalOptions[key] : null;
+                return res;
+            }, {});
 
         return {
             sonification: {
-                instruments: [{
-                    minPan: mapped ? options.minPan : null,
-                    maxPan: mapped ? options.maxPan : null,
+                instruments: [Object.assign({
                     mapping: {
-                        pan: mapped ? mappedPan : fixed ? options.panValue : null
+                        [mappingKey]: mapped ? mappedValue : fixed ? fixedValue : null
                     }
-                }]
+                }, additionalOptsMapped)]
             }
         };
     }
