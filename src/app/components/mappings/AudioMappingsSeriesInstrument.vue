@@ -99,7 +99,7 @@ export default {
     },
     methods: {
         onSampleClick() {
-            console.log('TBD');
+            (this as any).$chartBridge.playAudioSample(this.instrument);
         },
         populateProps() {
             this.pitchRoundingEnabled = nullFallback(this.pitchRoundingEnabled, true);

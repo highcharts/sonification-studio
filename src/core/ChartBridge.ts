@@ -1,3 +1,4 @@
+import Highcharts from 'highcharts';
 import { GenericObject, deepMerge } from './utils/objects';
 import { getSeriesId } from './utils/chartUtils';
 import { defaultChartOptions } from './defaultChartOptions';
@@ -27,8 +28,12 @@ export class ChartBridge {
     private reactivityTimeouts: GenericObject = {};
     private updateProgressInterval: number|null = null;
     private _seReactivityCounter: number|null = null;
+    private audioSampleTimeline: GenericObject = null;
 
 
+    /**
+     * Construct the class with a Vuex store instance
+     */
     constructor(store: Store<any>) {
         this.chartParametersStore = store.state.chartParametersStore;
         this.seriesParametersStore = store.state.seriesParametersStore;
@@ -40,7 +45,7 @@ export class ChartBridge {
 
 
     /**
-     * Init the class with a chart and Vuex store instance.
+     * Init the class with a chart
      */
     public init(chart: GenericObject): void {
         this.chart = chart;
@@ -187,6 +192,50 @@ export class ChartBridge {
 
     public loopChart() {
         this.playChart(this.loopChart.bind(this));
+    }
+
+
+    public playAudioSample(instrument: string) {
+        const sonificationLib = (Highcharts as any).sonification;
+        const getEarconForFreq = (freq: number) =>
+            (new sonificationLib.Earcon({
+                instruments: [{
+                    instrument: instrument,
+                    playOptions: {
+                        frequency: freq,
+                        volume: 1,
+                        duration: 150
+                    }
+                }]
+            }));
+
+        const makeTimelineEvent = (frequency: number, time: number) => (
+            new sonificationLib.TimelineEvent({
+                eventObject: getEarconForFreq(frequency),
+                time: time
+            }));
+
+        const timelinePath = new sonificationLib.TimelinePath({
+            events: [
+                makeTimelineEvent(523, 0),
+                makeTimelineEvent(784, 160),
+                makeTimelineEvent(1047, 320),
+                makeTimelineEvent(1568, 480)
+            ]
+        });
+
+        let timeline = this.audioSampleTimeline;
+        if (timeline) {
+            timeline.pause();
+        }
+        this.audioSampleTimeline = timeline = new sonificationLib.Timeline({
+            paths: [timelinePath],
+            onEnd() {
+                timeline.pause();
+                timeline.resetCursor();
+            }
+        });
+        timeline.play();
     }
 
 
