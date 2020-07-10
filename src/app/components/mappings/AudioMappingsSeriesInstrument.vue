@@ -58,6 +58,9 @@ import {
     makeSeriesParamPropertyMapping,
     makeSelectedAudioMappingSeriesPropertyMapping
 } from '../../../store/storeUtils';
+import {
+    nullFallback
+} from '../../../core/utils/objects';
 
 export default {
     components: {
@@ -86,13 +89,21 @@ export default {
         instrument: makeSeriesParamPropertyMapping('instrument', null, 'instrument'),
         pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', null, 'instrument')
     },
-    mounted() {
-        this.pitchRoundingEnabled = true;
-        this.instrument = 'sine';
+    watch: {
+        selectedSeries() {
+            this.populateProps();
+        }
+    },
+    beforeMount() {
+        this.populateProps();
     },
     methods: {
         onSampleClick() {
             console.log('TBD');
+        },
+        populateProps() {
+            this.pitchRoundingEnabled = nullFallback(this.pitchRoundingEnabled, true);
+            this.instrument = nullFallback(this.instrument, 'sine');
         }
     }
 };

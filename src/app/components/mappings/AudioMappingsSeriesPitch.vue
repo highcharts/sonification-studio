@@ -144,16 +144,26 @@ export default {
             return getMappingDataProps();
         }
     },
+    watch: {
+        selectedSeries() {
+            this.populateProps();
+        }
+    },
     beforeMount() {
-        // These options are needed always in the store so that we can calculate pitch options
-        // regardless of which options are changed by the user. By default, only options that
-        // are changed by the user are added to the store. Note that we only set the defaults
-        // if the data is not already present in the store.
-        this.pitchMappingProp = nullFallback(this.pitchMappingProp, 'y');
-        this.minFreq = nullFallback(this.minFreq, 330);
-        this.maxFreq = nullFallback(this.maxFreq, 3300);
-        this.pitchValue = nullFallback(this.pitchValue, 440);
-        this.pitchPolarity = nullFallback(this.pitchPolarity, 'positive');
+        this.populateProps();
+    },
+    methods: {
+        populateProps() {
+            // These options are needed always in the store so that we can calculate pitch options
+            // regardless of which options are changed by the user. By default, only options that
+            // are changed by the user are added to the store. Note that we only set the defaults
+            // if the data is not already present in the store.
+            this.pitchMappingProp = nullFallback(this.pitchMappingProp, 'y');
+            this.minFreq = nullFallback(this.minFreq, 330);
+            this.maxFreq = nullFallback(this.maxFreq, 3300);
+            this.pitchValue = nullFallback(this.pitchValue, 440);
+            this.pitchPolarity = nullFallback(this.pitchPolarity, 'positive');
+        }
     }
 };
 </script>

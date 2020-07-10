@@ -144,13 +144,23 @@ export default {
             return getMappingDataProps();
         }
     },
+    watch: {
+        selectedSeries() {
+            this.populateProps();
+        }
+    },
     beforeMount() {
-        // Init so that these are always in store, see Pitch mapping component.
-        this.volumeMappingProp = nullFallback(this.volumeMappingProp, 'y');
-        this.minVolume = nullFallback(this.minVolume, 0);
-        this.maxVolume = nullFallback(this.maxVolume, 1);
-        this.volumeValue = nullFallback(this.volumeValue, 0.7);
-        this.volumePolarity = nullFallback(this.volumePolarity, 'positive');
+        this.populateProps();
+    },
+    methods: {
+        populateProps() {
+            // Init so that these are always in store, see Pitch mapping component.
+            this.volumeMappingProp = nullFallback(this.volumeMappingProp, 'y');
+            this.minVolume = nullFallback(this.minVolume, 0);
+            this.maxVolume = nullFallback(this.maxVolume, 1);
+            this.volumeValue = nullFallback(this.volumeValue, 0.7);
+            this.volumePolarity = nullFallback(this.volumePolarity, 'positive');
+        }
     }
 };
 </script>

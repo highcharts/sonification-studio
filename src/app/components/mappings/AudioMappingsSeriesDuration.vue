@@ -144,13 +144,23 @@ export default {
             return getMappingDataProps();
         }
     },
+    watch: {
+        selectedSeries() {
+            this.populateProps();
+        }
+    },
     beforeMount() {
-        // Init so that these are always in store, see Pitch mapping component.
-        this.durationMappingProp = nullFallback(this.durationMappingProp, 'y');
-        this.minDuration = nullFallback(this.minDuration, 200);
-        this.maxDuration = nullFallback(this.maxDuration, 2000);
-        this.durationValue = nullFallback(this.durationValue, 400);
-        this.durationPolarity = nullFallback(this.durationPolarity, 'positive');
+        this.populateProps();
+    },
+    methods: {
+        populateProps() {
+            // Init so that these are always in store, see Pitch mapping component.
+            this.durationMappingProp = nullFallback(this.durationMappingProp, 'y');
+            this.minDuration = nullFallback(this.minDuration, 200);
+            this.maxDuration = nullFallback(this.maxDuration, 2000);
+            this.durationValue = nullFallback(this.durationValue, 400);
+            this.durationPolarity = nullFallback(this.durationPolarity, 'positive');
+        }
     }
 };
 </script>

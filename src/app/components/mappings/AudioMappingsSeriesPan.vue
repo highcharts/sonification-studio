@@ -144,13 +144,23 @@ export default {
             return getMappingDataProps();
         }
     },
+    watch: {
+        selectedSeries() {
+            this.populateProps();
+        }
+    },
     beforeMount() {
-        // Init so that these are always in store, see Pitch mapping component.
-        this.panMappingProp = nullFallback(this.panMappingProp, 'x');
-        this.minPan = nullFallback(this.minPan, -1);
-        this.maxPan = nullFallback(this.maxPan, 1);
-        this.panValue = nullFallback(this.panValue, 0);
-        this.panPolarity = nullFallback(this.panPolarity, 'positive');
+        this.populateProps();
+    },
+    methods: {
+        populateProps() {
+            // Init so that these are always in store, see Pitch mapping component.
+            this.panMappingProp = nullFallback(this.panMappingProp, 'x');
+            this.minPan = nullFallback(this.minPan, -1);
+            this.maxPan = nullFallback(this.maxPan, 1);
+            this.panValue = nullFallback(this.panValue, 0);
+            this.panPolarity = nullFallback(this.panPolarity, 'positive');
+        }
     }
 };
 </script>
