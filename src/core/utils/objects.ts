@@ -1,9 +1,14 @@
 export type GenericObject = { [key: string]: any };
 
+
 export function isObject(x: unknown): boolean {
     return (x && typeof x === 'object' && !Array.isArray(x));
 }
 
+
+export function nullFallback<T1, T2>(a: T1, b: T2): T1|T2 {
+    return a === null ? b : a;
+}
 
 /**
  * Deep merge two objects. Objects are merged together per prop. Arrays
