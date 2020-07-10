@@ -27,11 +27,23 @@
         </SEControl>
 
         <SEButton
-            id="sample-btn"
+            id="mci-sample-btn"
             @click="onSampleClick"
         >
             Play audio sample
         </SEButton>
+
+        <SEControl
+            control-id="mci-rounding"
+            label="Musical notes only"
+            helptext="Round all pitches to nearest musical note."
+            horizontal
+        >
+            <SECheckbox
+                id="mci-rounding"
+                v-model="pitchRoundingEnabled"
+            />
+        </SEControl>
     </div>
 </template>
 
@@ -71,7 +83,12 @@ export default {
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         sonificationEnabled: makeSeriesParamPropertyMapping('sonificationEnabled', true),
-        instrument: makeSeriesParamPropertyMapping('instrument', 'sine')
+        instrument: makeSeriesParamPropertyMapping('instrument', null, 'instrument'),
+        pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', null, 'instrument')
+    },
+    mounted: function () {
+        this.pitchRoundingEnabled = true;
+        this.instrument = 'sine';
     },
     methods: {
         onSampleClick() {
@@ -85,7 +102,7 @@ export default {
 <style lang="less" scoped>
     @import "../../accordionOptions";
 
-    #sample-btn {
+    #mci-sample-btn {
         margin: 12px 0 5px;
     }
 </style>

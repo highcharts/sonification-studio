@@ -76,19 +76,6 @@
 
         <SEControl
             v-show="pitchType === 'mapped'"
-            control-id="mcp-rounding"
-            label="Pitch rounding"
-            helptext="Round pitch to nearest musical note."
-            horizontal
-        >
-            <SECheckbox
-                id="mcp-rounding"
-                v-model="pitchRoundingEnabled"
-            />
-        </SEControl>
-
-        <SEControl
-            v-show="pitchType === 'mapped'"
             control-id="mcp-polarity"
             label="Polarity"
             helptext="Set the polarity of the pitch mapping - whether the audio goes up or down in pitch with higher values."
@@ -107,7 +94,6 @@
 import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
-import SECheckbox from '../basic/SECheckbox.vue';
 import SERadioGroup from '../basic/SERadioGroup.vue';
 import {
     makeSeriesParamPropertyMapping,
@@ -122,7 +108,6 @@ export default {
         SEControl,
         SESlider,
         SEDropdown,
-        SECheckbox,
         SERadioGroup
     },
     data: function () {
@@ -148,7 +133,6 @@ export default {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         pitchType: makeSeriesParamPropertyMapping('pitchType', 'default', 'pitchOptions'),
         pitchMappingProp: makeSeriesParamPropertyMapping('pitchMappingProp', null, 'pitchOptions'),
-        pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', null, 'pitchOptions'),
         minFreq: makeSeriesParamPropertyMapping('minFreq', null, 'pitchOptions'),
         maxFreq: makeSeriesParamPropertyMapping('maxFreq', null, 'pitchOptions'),
         pitchValue: makeSeriesParamPropertyMapping('pitchValue', null, 'pitchOptions'),
@@ -162,7 +146,6 @@ export default {
         // regardless of which options are changed by the user. By default, only options that
         // are changed by the user are added to the store.
         this.pitchMappingProp = 'y';
-        this.pitchRoundingEnabled = true;
         this.minFreq = 330;
         this.maxFreq = 3300;
         this.pitchValue = 440;

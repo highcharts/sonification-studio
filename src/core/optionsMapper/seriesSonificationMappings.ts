@@ -29,11 +29,11 @@ export class SeriesSonificationMappings {
         };
     }
 
-    public static instrument(value: string): GenericObject {
+    public static instrument(options: GenericObject): GenericObject {
         return {
             sonification: {
                 instruments: [{
-                    instrument: value
+                    instrument: options.instrument + (options.pitchRoundingEnabled ? 'Musical' : '')
                 }]
             }
         };
