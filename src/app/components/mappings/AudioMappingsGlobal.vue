@@ -108,11 +108,11 @@ export default {
     data() {
         return {
             orderOptions: [{
-                label: 'Sequential',
-                value: 'sequential'
-            }, {
                 label: 'Simultaneous',
                 value: 'simultaneous'
+            }, {
+                label: 'Sequential',
+                value: 'sequential'
             }]
         };
     },
