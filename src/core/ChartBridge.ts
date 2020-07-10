@@ -28,7 +28,7 @@ export class ChartBridge {
     private reactivityTimeouts: GenericObject = {};
     private updateProgressInterval: number|null = null;
     private _seReactivityCounter: number|null = null;
-    private audioSampleTimeline: GenericObject = null;
+    private audioSampleTimeline: GenericObject|null = null;
 
 
     /**
@@ -228,13 +228,15 @@ export class ChartBridge {
         if (timeline) {
             timeline.pause();
         }
-        this.audioSampleTimeline = timeline = new sonificationLib.Timeline({
+        timeline = this.audioSampleTimeline = new sonificationLib.Timeline({
             paths: [timelinePath],
             onEnd() {
-                timeline.pause();
-                timeline.resetCursor();
+                if (timeline) {
+                    timeline.pause();
+                    timeline.resetCursor();
+                }
             }
-        });
+        }) as GenericObject;
         timeline.play();
     }
 
