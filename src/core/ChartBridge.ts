@@ -24,6 +24,7 @@ export class ChartBridge {
     private chartParametersStore: GenericObject;
     private seriesParametersStore: GenericObject;
     private globalSonifyParametersStore: GenericObject;
+    private getStoreParam: (storeId: string, param: string) => any;
     private commitToStore: (id: string, payload?: any) => void;
     private reactivityTimeouts: GenericObject = {};
     private updateProgressInterval: number|null = null;
@@ -39,6 +40,7 @@ export class ChartBridge {
         this.seriesParametersStore = store.state.seriesParametersStore;
         this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
         this.commitToStore = (id: string, payload?: any) => store.commit(id, payload);
+        this.getStoreParam = (storeId: string, param: string): any => store.state[storeId][param];
 
         store.subscribe(this.onStoreMutation.bind(this));
     }
@@ -196,6 +198,7 @@ export class ChartBridge {
 
 
     public playAudioSample(instrument: string) {
+        const globalVolume = this.getStoreParam('globalSonifyParametersStore', 'volume');
         const sonificationLib = (Highcharts as any).sonification;
         const getEarconForFreq = (freq: number) =>
             (new sonificationLib.Earcon({
@@ -203,7 +206,7 @@ export class ChartBridge {
                     instrument: instrument,
                     playOptions: {
                         frequency: freq,
-                        volume: 1,
+                        volume: 1 * globalVolume / 100,
                         duration: 150
                     }
                 }]
