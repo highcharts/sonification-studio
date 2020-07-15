@@ -59,7 +59,7 @@
   "dependencies": {
     "ag-grid-community": "^22.1.1",
     "ag-grid-vue": "^22.1.1",
-    "highcharts": "file:./vendor/highcharts-v8.1.2-mod2",
+    "highcharts": "file:./vendor/highcharts-v8.1.2-mod3",
     "highcharts-vue": "^1.3.5",
     "vue": "^2.6.11",
     "vue-hot-reload-api": "^2.3.4",
