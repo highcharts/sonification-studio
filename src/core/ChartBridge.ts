@@ -193,7 +193,11 @@ export class ChartBridge {
 
 
     public loopChart() {
-        this.playChart(this.loopChart.bind(this));
+        this.playChart((e: GenericObject) => {
+            if (!e.cancelled) {
+                this.loopChart();
+            }
+        });
     }
 
 
