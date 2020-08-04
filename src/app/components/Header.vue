@@ -4,20 +4,17 @@
             <HeaderNav class="section-nav" />
             <HeaderExport class="section-export" />
         </div>
-        <PlayControls />
     </header>
 </template>
 
 <script lang="ts">
 import HeaderNav from './HeaderNav.vue';
 import HeaderExport from './HeaderExport.vue';
-import PlayControls from './PlayControls.vue';
 
 export default {
     components: {
         HeaderNav,
-        HeaderExport,
-        PlayControls
+        HeaderExport
     }
 };
 </script>
