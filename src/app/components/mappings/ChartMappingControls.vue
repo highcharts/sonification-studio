@@ -1,5 +1,5 @@
 <template>
-    <section aria-label="Chart settings">
+    <div>
         <SETabSwitch
             :options="toggleMappingOptions"
             class="toggleView"
@@ -10,7 +10,7 @@
             :id="activeView"
             class="activeView"
         />
-    </section>
+    </div>
 </template>
 
 <script lang="ts">
@@ -27,7 +27,7 @@ export default {
     data() {
         return {
             toggleMappingOptions: [{
-                name: 'Chart settings',
+                name: 'Global settings',
                 controls: 'ChartMappingsGlobal',
                 selected: true
             }, {
@@ -46,15 +46,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    @import "../../colors";
-
-    section {
-        background-color: @main-content-bg-color;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-    }
-
     .activeView {
         width: 100%;
     }

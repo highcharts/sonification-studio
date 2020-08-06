@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Data series settings</h2>
+        <h2>Visual settings: Data series</h2>
         <div class="controls-container">
             <SEControl
                 control-id="series-selector"

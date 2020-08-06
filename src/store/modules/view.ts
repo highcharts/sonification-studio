@@ -25,6 +25,7 @@ export const viewStore = {
 
         selectedHeaderTabContent: 'dataContent',
         selectedHeaderTabId: 'Data',
+        selectedSidebarTabId: 'Visual',
         playbackProgress: 0,
         selectedDataSeriesChartMapping: '',
         selectedDataSeriesAudioMapping: '',
@@ -37,6 +38,10 @@ export const viewStore = {
         selectHeaderTab(state: any, payload: SelectHeaderTabPayload) {
             state.selectedHeaderTabId = payload.selectedTabId;
             state.selectedHeaderTabContent = payload.contentId;
+        },
+
+        selectSidebarTab(state: any, selectedTab: string) {
+            state.selectedSidebarTabId = selectedTab;
         },
 
         setPlaybackProgress(state: any, progressPct: number) {

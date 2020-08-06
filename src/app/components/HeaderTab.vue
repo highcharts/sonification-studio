@@ -1,17 +1,30 @@
 <template>
     <button
         class="header-tab"
-        :class="{ selected: selected }"
+        :class="{ selected: selected, small: small }"
         @click="$emit('click')"
     >
-        <slot />
+        <span
+            v-if="!!icon"
+        >
+            <img
+                alt=""
+                class="header-tab-btn-icon"
+                :src="icon"
+            >
+        </span>
+        <span class="header-tab-btn-text">
+            <slot />
+        </span>
     </button>
 </template>
 
 <script lang="ts">
 export default {
     props: {
-        selected: { type: Boolean, default: false }
+        selected: { type: Boolean, default: false },
+        small: { type: Boolean, default: false },
+        icon: { type: String, default: '' }
     }
 };
 </script>
@@ -26,12 +39,15 @@ export default {
         font: inherit;
         font-size: 18px;
         cursor: pointer;
-        text-decoration: underline;
         display: block;
         height: 100%;
         width: 100%;
         padding: 2px;
         box-sizing: border-box;
+    }
+
+    .header-tab-btn-text {
+        text-decoration: underline;
     }
 
     button::-moz-focus-inner {
@@ -41,7 +57,29 @@ export default {
     .selected {
         background-color: @header-tab-btn-selected-bg;
         color: @header-tab-btn-selected-color;
-        text-decoration: none;
         font-weight: bold;
+        .header-tab-btn-text {
+            text-decoration: none;
+        }
+        .header-tab-btn-icon {
+            filter: invert();
+        }
+    }
+
+    .header-tab-btn-icon {
+        width: 18px;
+        height: 18px;
+        vertical-align: middle;
+        margin-right: 4px;
+        filter: contrast(30%) sepia() hue-rotate(200deg) saturate(200%) brightness(70%);
+    }
+
+    .small {
+        font-size: 15px;
+        .header-tab-btn-icon {
+            width: 16px;
+            height: 16px;
+            padding-bottom: 2px;
+        }
     }
 </style>

@@ -34,11 +34,8 @@ export default {
                 name: 'Data',
                 controls: 'dataContent',
             }, {
-                name: 'Audio',
-                controls: 'mappingsContent',
-            }, {
                 name: 'Chart',
-                controls: 'chartContent',
+                controls: 'mainContentView',
             }]
         };
     },
@@ -73,7 +70,6 @@ export default {
         border-radius: 0px 4px 4px 0px;
     }
     .header-tab {
-        display: block;
         flex: 1;
         margin-right: 1px;
     }

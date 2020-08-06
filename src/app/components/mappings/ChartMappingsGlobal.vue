@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>Chart settings</h2>
+        <h2>Visual settings: Global</h2>
         <div class="controls-container">
             <SEControl
                 control-id="chart-type"

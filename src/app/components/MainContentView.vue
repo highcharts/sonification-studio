@@ -7,15 +7,9 @@
                 class="fullscreen"
             />
 
-            <AudioMappingControls
-                v-show="selectedHeaderTabContent === 'mappingsContent'"
-                id="mappingsContent"
-                class="sidebar"
-            />
-
-            <ChartMappingControls
-                v-show="selectedHeaderTabContent === 'chartContent'"
-                id="chartContent"
+            <Sidebar
+                v-show="selectedHeaderTabContent !== 'dataContent'"
+                id="sidebar"
                 class="sidebar"
             />
 
@@ -42,8 +36,7 @@ import TextDescription from './TextDescription.vue';
 import PlayControls from './PlayControls.vue';
 import Preview from './Preview.vue';
 import Data from './Data.vue';
-import AudioMappingControls from './mappings/AudioMappingControls.vue';
-import ChartMappingControls from './mappings/ChartMappingControls.vue';
+import Sidebar from './Sidebar.vue';
 import { mapState } from 'vuex';
 
 export default {
@@ -52,8 +45,7 @@ export default {
         PlayControls,
         Preview,
         Data,
-        AudioMappingControls,
-        ChartMappingControls
+        Sidebar
     },
     computed: mapState('viewStore', ['selectedHeaderTabContent'])
 };
@@ -78,8 +70,13 @@ export default {
 
     .sidebar {
         grid-column-start: 1;
-        grid-row-start: 1;
+        grid-row-start: 2;
         grid-row-end: 4;
+    }
+
+    .play-controls {
+        grid-column-start: 1;
+        grid-column-end: 3;
     }
 
     .preview {
