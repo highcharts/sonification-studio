@@ -47,7 +47,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Fill equation"
-                    helptext="Fill a column with an equation. 'i' refers to the row number. Example: 2 + 5 * i. Refer to values in other columns by the column name. Example: 2*B+A."
+                    helptext="Fill a column with an equation. 'i' refers to the row number. Example: 2 + 5 * i. Refer to values in other columns by the column name. Example: 2 * B + A."
                     helptext-below
                 >
                     <SETextbox
@@ -84,6 +84,8 @@ import SEDropdown from './basic/SEDropdown.vue';
 import SETextbox from './basic/SETextbox.vue';
 import SEControl from './basic/SEControl.vue';
 
+type ColumnDropdownItem = { name: string; value: string };
+
 export default {
     components: {
         SEButton, SEFileUploadButton, SEDropdown, SEControl, SETextbox
@@ -91,15 +93,16 @@ export default {
     data() {
         return {
             fillDropdownList: [
-                { name: 'A', value: 'A' },
-                { name: 'B', value: 'B' },
-                { name: 'C', value: 'C' },
-                { name: 'D', value: 'D' }
+                { name: 'A', value: 'A' }
             ],
             rowsToAdd: 10,
             fillEquation: '',
             fillEquationColumn: ''
         };
+    },
+    beforeMount() {
+        this.fillDropdownList = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+            .map((x): ColumnDropdownItem => ({ name: x, value: x }));
     },
     methods: {
         onClearDataClick() {
