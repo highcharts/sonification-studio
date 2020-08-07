@@ -7,12 +7,6 @@
                 class="fullscreen"
             />
 
-            <Sidebar
-                v-show="selectedHeaderTabContent !== 'dataContent'"
-                id="sidebar"
-                class="sidebar"
-            />
-
             <PlayControls
                 v-show="selectedHeaderTabContent !== 'dataContent'"
                 class="play-controls"
@@ -21,6 +15,12 @@
             <Preview
                 v-show="selectedHeaderTabContent !== 'dataContent'"
                 class="preview"
+            />
+
+            <Sidebar
+                v-show="selectedHeaderTabContent !== 'dataContent'"
+                id="sidebar"
+                class="sidebar"
             />
 
             <TextDescription
@@ -57,7 +57,7 @@ export default {
         width: 100%;
         height: 100%;
         grid-template-rows: auto 1.8fr 1fr;
-        grid-template-columns: 350px 1fr;
+        grid-template-columns: 1fr 350px;
         grid-gap: 5px;
     }
 
@@ -69,26 +69,26 @@ export default {
     }
 
     .sidebar {
-        grid-column-start: 1;
-        grid-row-start: 2;
+        grid-column-start: 2;
+        grid-row-start: 1;
         grid-row-end: 4;
     }
 
     .play-controls {
         grid-column-start: 1;
-        grid-column-end: 3;
+        grid-column-end: 2;
     }
 
     .preview {
-        grid-column-start: 2;
-        grid-column-end: 3;
+        grid-column-start: 1;
+        grid-column-end: 2;
         grid-row-start: 2;
         grid-row-end: 3;
     }
 
     .description {
-        grid-column-start: 2;
-        grid-column-end: 3;
+        grid-column-start: 1;
+        grid-column-end: 2;
         grid-row-start: 3;
     }
 </style>

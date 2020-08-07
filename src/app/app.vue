@@ -66,7 +66,7 @@ export default {
 
     #mainContentView {
         flex: 1;
-        margin-top: 5px;
+        margin-top: 4px;
         overflow-y: scroll;
         /* Hack for not cutting off helptexts in the x-dimension, even if they overflow */
         padding-left: 100px;

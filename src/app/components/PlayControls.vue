@@ -31,6 +31,7 @@ export default {
         align-items: center;
         padding: 5px;
         box-sizing: border-box;
+        border-radius: 4px 4px 0 0;
     }
 
     .playControlItem {

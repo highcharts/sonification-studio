@@ -74,6 +74,8 @@ export default {
 <style lang="less" scoped>
     @import "../colors";
 
+    @tablist-height: 50px;
+
     section {
         display: flex;
         flex-direction: column;
@@ -82,7 +84,7 @@ export default {
     #sidebar-content {
         padding: 10px;
         flex: 1;
-        max-height: calc(100% - 30px); /* Sidebar height minus tablist */
+        max-height: calc(100% - @tablist-height);
         box-sizing: border-box;
         background-color: @main-content-bg-color;
     }
@@ -96,7 +98,7 @@ export default {
     }
 
     .sidebar-tablist {
-        height: 30px;
+        height: @tablist-height;
         box-sizing: border-box;
         display: flex;
         padding: 0 0 3px;
