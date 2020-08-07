@@ -43,18 +43,23 @@
             </div>
 
             <div class="grid-control-item expand">
-                <p
-                    id="data-labelEquation"
-                    class="control-label"
+                <SEControl
+                    v-slot="slotProps"
+                    label="Fill equation"
+                    helptext="Fill a column with an equation. 'i' refers to the row number. Example: 2 + 5 * i."
+                    helptext-below
                 >
-                    Fill equation
-                </p>
-                <input
-                    type="text"
-                    aria-labelledby="data-labelEquation"
-                >
+                    <SETextbox
+                        :id="slotProps.controlId"
+                        v-model="fillEquation"
+                    />
+                </SEControl>
             </div>
-            <SEButton>Fill</SEButton>
+            <SEButton
+                @click="fillColumn()"
+            >
+                Fill
+            </SEButton>
         </div>
 
         <div class="grid-controls-group">
@@ -75,10 +80,12 @@
 import SEButton from './basic/SEButton.vue';
 import SEFileUploadButton from './basic/SEFileUploadButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
+import SETextbox from './basic/SETextbox.vue';
+import SEControl from './basic/SEControl.vue';
 
 export default {
     components: {
-        SEButton, SEFileUploadButton, SEDropdown
+        SEButton, SEFileUploadButton, SEDropdown, SEControl, SETextbox
     },
     data() {
         return {
@@ -88,7 +95,8 @@ export default {
                 { name: 'C', value: 'C' },
                 { name: 'D', value: 'D' }
             ],
-            rowsToAdd: 10
+            rowsToAdd: 10,
+            fillEquation: ''
         };
     },
     methods: {
@@ -121,6 +129,11 @@ export default {
             if (fileContents) {
                 this.$store.dispatch('dataStore/loadFromCSV', fileContents);
             }
+        },
+
+        fillColumn() {
+            const equation = this.fillEquation;
+            console.log(equation);
         }
     }
 };
@@ -155,7 +168,7 @@ export default {
         align-self: center;
     }
 
-    input[type="number"], input[type="text"] {
+    input[type="number"], /deep/ .se-control-content input {
         display: block;
         font-family: inherit;
         font-size: 13px;
@@ -190,7 +203,7 @@ export default {
         margin: 0 40px;
     }
 
-    .control-label {
+    .control-label, /deep/ .se-control-label {
         font-size: 13px;
     }
 </style>
