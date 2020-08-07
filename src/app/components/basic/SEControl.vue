@@ -19,6 +19,7 @@
     Props:
         - label: String - The label text to show.
         - [helptext]: String - Show help icon with text popup.
+        - [helptextBelow]: Boolean - Show helptext popup below instead of above.
         - [horizontal]: Boolean - Show label to the right of control, rather than above.
         - [horizontalReverse]: Boolean - Show label to the left of control, rather than above.
         - [expandContent]: Boolean - Expand the control content to fill empty space.
@@ -56,9 +57,13 @@
             >
                 <div
                     class="helptext-popup"
+                    :class="{ below: helptextBelow }"
                 >
                     <p>{{ helptext }}</p>
-                    <div class="helptext-arrow" />
+                    <div
+                        class="helptext-arrow"
+                        :class="{ below: helptextBelow }"
+                    />
                 </div>
             </div>
         </div>
@@ -79,6 +84,7 @@ export default {
         label: { type: String, required: true },
         helptext: { type: String, default: '' },
         horizontal: { type: Boolean, default: false },
+        helptextBelow: { type: Boolean, default: false },
         horizontalReverse: { type: Boolean, default: false },
         expandContent: { type: Boolean, default: false }
     },
@@ -190,11 +196,17 @@ export default {
         box-shadow: 0 1px 10px @secontrol-helptext-shadow;
         width: 200px;
         right: -90px;
-        bottom: 0;
+        &:not(.below) {
+            bottom: 0;
+            margin-bottom: 20px;
+        }
+        &.below {
+            top: 0;
+            margin-top: 20px;
+        }
         font-size: 12px;
         font-weight: normal;
         text-align: left;
-        margin-bottom: 20px;
         z-index: 99;
         padding: 10px;
         box-sizing: border-box;
@@ -206,7 +218,12 @@ export default {
             height: $width;
             position: absolute;
             left: calc(50% - 8px);
-            bottom: -4px;
+            &:not(.below) {
+                bottom: -4px;
+            }
+            &.below {
+                top: -4px;
+            }
             transform: rotate(45deg);
             z-index: 98;
         }
