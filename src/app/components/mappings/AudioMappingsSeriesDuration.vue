@@ -1,14 +1,14 @@
 <template>
     <div>
         <SEControl
-            control-id="mcd-duration-type"
+            v-slot="slotProps"
             label="Note duration"
             helptext="Enable duration control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the note duration follows the values of a data property. Be aware that notes may be cut short depending on the overall playback speed setting."
             :horizontal-reverse="true"
             :expand-content="true"
         >
             <SEDropdown
-                id="mcd-duration-type"
+                :id="slotProps.controlId"
                 v-model="durationType"
                 :options="durationTypes"
             />
@@ -16,13 +16,14 @@
 
         <SEControl
             v-show="durationType === 'fixed'"
-            control-id="mcd-duration-value"
+            v-slot="slotProps"
             label="Duration value"
             helptext="Set a fixed note duration for this data series, from short to long notes. Notes may be cut short depending on the overall playback speed setting."
         >
             <SESlider
-                id="mcd-duration-value"
+                :id="slotProps.controlId"
                 v-model.number="durationValue"
+                :labelledby="slotProps.labelId"
                 :min="40"
                 :max="3000"
                 :step="10"
@@ -31,13 +32,14 @@
 
         <SEControl
             v-show="durationType === 'mapped'"
-            control-id="mcd-min-duration"
+            v-slot="slotProps"
             label="Minimum duration"
             helptext="Set a minimum duration, from short to long."
         >
             <SESlider
-                id="mcd-min-duration"
+                :id="slotProps.controlId"
                 v-model.number="minDuration"
+                :labelledby="slotProps.labelId"
                 :min="40"
                 :max="3000"
                 :step="10"
@@ -46,13 +48,14 @@
 
         <SEControl
             v-show="durationType === 'mapped'"
-            control-id="mcd-max-duration"
+            v-slot="slotProps"
             label="Maximum duration"
             helptext="Set a maximum duration, from short to long."
         >
             <SESlider
-                id="mcd-max-duration"
+                :id="slotProps.controlId"
                 v-model.number="maxDuration"
+                :labelledby="slotProps.labelId"
                 :min="40"
                 :max="3000"
                 :step="10"
@@ -61,14 +64,14 @@
 
         <SEControl
             v-show="durationType === 'mapped'"
-            control-id="mcd-mapping-prop"
+            v-slot="slotProps"
             label="Mapping property"
             helptext="Data property to map note duration to. Note duration will follow the values of this data property. Notes may be cut short depending on the overall playback speed setting."
             :horizontal-reverse="true"
             :expand-content="true"
         >
             <SEDropdown
-                id="mcd-mapping-prop"
+                :id="slotProps.controlId"
                 v-model="durationMappingProp"
                 :options="mappingProps"
             />
@@ -76,12 +79,12 @@
 
         <SEControl
             v-show="durationType === 'mapped'"
-            control-id="mcd-duration-polarity"
+            v-slot="slotProps"
             label="Polarity"
             helptext="Set the polarity of the duration mapping - whether the notes gets shorter or longer as values get higher."
         >
             <SERadioGroup
-                id="mcd-duration-polarity"
+                :id="slotProps.controlId"
                 v-model="durationPolarity"
                 :options="mcdPolarityOptions"
             />

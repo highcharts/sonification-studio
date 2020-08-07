@@ -1,14 +1,14 @@
 <template>
     <div>
         <SEControl
-            control-id="mcv-volume-type"
+            v-slot="slotProps"
             label="Note volume"
             helptext="Enable volume control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the volume follows the values of a data property."
             :horizontal-reverse="true"
             :expand-content="true"
         >
             <SEDropdown
-                id="mcv-volume-type"
+                :id="slotProps.controlId"
                 v-model="volumeType"
                 :options="volumeTypes"
             />
@@ -16,59 +16,62 @@
 
         <SEControl
             v-show="volumeType === 'fixed'"
-            control-id="mcv-volume-value"
+            v-slot="slotProps"
             label="Volume value"
             helptext="Set a fixed volume for this data series, from quiet to loud volume."
         >
             <SESlider
-                id="mcv-volume-value"
+                :id="slotProps.controlId"
                 v-model.number="volumeValue"
+                :labelledby="slotProps.labelId"
                 :min="0"
-                :max="1.2"
-                :step="0.05"
+                :max="120"
+                :step="1"
             />
         </SEControl>
 
         <SEControl
             v-show="volumeType === 'mapped'"
-            control-id="mcv-min-volume"
+            v-slot="slotProps"
             label="Minimum volume"
             helptext="Set a minimum volume, from quiet to loud."
         >
             <SESlider
-                id="mcv-min-volume"
+                :id="slotProps.controlId"
                 v-model.number="minVolume"
+                :labelledby="slotProps.labelId"
                 :min="0"
-                :max="1.2"
-                :step="0.05"
+                :max="120"
+                :step="1"
             />
         </SEControl>
 
         <SEControl
             v-show="volumeType === 'mapped'"
-            control-id="mcv-max-volume"
+            v-slot="slotProps"
             label="Maximum volume"
             helptext="Set a maximum volume, from quiet to loud."
         >
             <SESlider
-                id="mcv-max-volume"
+                :id="slotProps.controlId"
                 v-model.number="maxVolume"
+                :labelledby="slotProps.labelId"
                 :min="0"
-                :max="1.2"
-                :step="0.05"
+                :max="120"
+                :step="1"
             />
         </SEControl>
 
         <SEControl
             v-show="volumeType === 'mapped'"
-            control-id="mcv-mapping-prop"
+            v-slot="slotProps"
             label="Mapping property"
             helptext="Data property to map volume to. Volume will follow the values of this data property."
             :horizontal-reverse="true"
             :expand-content="true"
         >
             <SEDropdown
-                id="mcv-mapping-prop"
+                :id="slotProps.controlId"
                 v-model="volumeMappingProp"
                 :options="mappingProps"
             />
@@ -76,12 +79,12 @@
 
         <SEControl
             v-show="volumeType === 'mapped'"
-            control-id="mcv-volume-polarity"
+            v-slot="slotProps"
             label="Polarity"
             helptext="Set the polarity of the volume mapping - whether the audio gets louder or quieter as values get higher."
         >
             <SERadioGroup
-                id="mcv-volume-polarity"
+                :id="slotProps.controlId"
                 v-model="volumePolarity"
                 :options="mcvPolarityOptions"
             />
@@ -157,8 +160,8 @@ export default {
             // Init so that these are always in store, see Pitch mapping component.
             this.volumeMappingProp = nullFallback(this.volumeMappingProp, 'y');
             this.minVolume = nullFallback(this.minVolume, 0);
-            this.maxVolume = nullFallback(this.maxVolume, 1);
-            this.volumeValue = nullFallback(this.volumeValue, 1);
+            this.maxVolume = nullFallback(this.maxVolume, 100);
+            this.volumeValue = nullFallback(this.volumeValue, 100);
             this.volumePolarity = nullFallback(this.volumePolarity, 'positive');
         }
     }

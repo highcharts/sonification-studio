@@ -1,14 +1,14 @@
 <template>
     <div>
         <SEControl
-            control-id="mcp-pan-type"
+            v-slot="slotProps"
             label="Note panning"
             helptext="Enable pan for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the panning follows the values of a data property."
             :horizontal-reverse="true"
             :expand-content="true"
         >
             <SEDropdown
-                id="mcp-pan-type"
+                :id="slotProps.controlId"
                 v-model="panType"
                 :options="panTypes"
             />
@@ -16,59 +16,62 @@
 
         <SEControl
             v-show="panType === 'fixed'"
-            control-id="mcp-pan-value"
+            v-slot="slotProps"
             label="Pan value"
             helptext="Set a specific pan value for this data series, from left to right."
         >
             <SESlider
-                id="mcp-pan-value"
+                :id="slotProps.controlId"
                 v-model.number="panValue"
-                :min="-1"
-                :max="1"
-                :step="0.05"
+                :labelledby="slotProps.labelId"
+                :min="0"
+                :max="100"
+                :step="1"
             />
         </SEControl>
 
         <SEControl
             v-show="panType === 'mapped'"
-            control-id="mcp-min-pan"
+            v-slot="slotProps"
             label="Minimum pan value"
             helptext="Set a minimum pan value, from left to right."
         >
             <SESlider
-                id="mcp-min-pan"
+                :id="slotProps.controlId"
                 v-model.number="minPan"
-                :min="-1"
-                :max="1"
-                :step="0.05"
+                :labelledby="slotProps.labelId"
+                :min="0"
+                :max="100"
+                :step="1"
             />
         </SEControl>
 
         <SEControl
             v-show="panType === 'mapped'"
-            control-id="mcp-max-pan"
+            v-slot="slotProps"
             label="Maximum pan value"
             helptext="Set a maximum pan value, from left to right"
         >
             <SESlider
-                id="mcp-max-pan"
+                :id="slotProps.controlId"
                 v-model.number="maxPan"
-                :min="-1"
-                :max="1"
-                :step="0.05"
+                :labelledby="slotProps.labelId"
+                :min="0"
+                :max="100"
+                :step="1"
             />
         </SEControl>
 
         <SEControl
             v-show="panType === 'mapped'"
-            control-id="mcp-mapping-prop"
+            v-slot="slotProps"
             label="Mapping property"
             helptext="Data property to map panning to."
             :horizontal-reverse="true"
             :expand-content="true"
         >
             <SEDropdown
-                id="mcp-mapping-prop"
+                :id="slotProps.controlId"
                 v-model="panMappingProp"
                 :options="mappingProps"
             />
@@ -76,12 +79,12 @@
 
         <SEControl
             v-show="panType === 'mapped'"
-            control-id="mcp-pan-polarity"
+            v-slot="slotProps"
             label="Direction"
             helptext="Set the polarity of the pan mapping - whether the audio pans from left to right, or right to left, as values get higher."
         >
             <SERadioGroup
-                id="mcp-pan-polarity"
+                :id="slotProps.controlId"
                 v-model="panPolarity"
                 :options="mcpPolarityOptions"
             />
@@ -156,9 +159,9 @@ export default {
         populateProps() {
             // Init so that these are always in store, see Pitch mapping component.
             this.panMappingProp = nullFallback(this.panMappingProp, 'x');
-            this.minPan = nullFallback(this.minPan, -1);
-            this.maxPan = nullFallback(this.maxPan, 1);
-            this.panValue = nullFallback(this.panValue, 0);
+            this.minPan = nullFallback(this.minPan, 0);
+            this.maxPan = nullFallback(this.maxPan, 100);
+            this.panValue = nullFallback(this.panValue, 50);
             this.panPolarity = nullFallback(this.panPolarity, 'positive');
         }
     }

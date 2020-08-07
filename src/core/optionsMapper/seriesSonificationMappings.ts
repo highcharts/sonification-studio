@@ -35,29 +35,35 @@ export class SeriesSonificationMappings {
     }
 
     public static panOptions(options: GenericObject): GenericObject {
+        // UI goes from 0-100, mapping is from -1 to +1
+        const panValueTranslate = (x: number): number => (x - 50) / 50;
+
         return SeriesSonificationMappings.getMappedOptions(
             'pan',
             options.panType,
             options.panPolarity,
             options.panMappingProp,
-            options.panValue,
+            panValueTranslate(options.panValue),
             {
-                minPan: options.minPan,
-                maxPan: options.maxPan
+                minPan: panValueTranslate(options.minPan),
+                maxPan: panValueTranslate(options.maxPan)
             }
         );
     }
 
     public static volumeOptions(options: GenericObject): GenericObject {
+        // UI goes from 0-120, mapping is from 0 to 1.2
+        const volumeValueTranslate = (x: number): number => x / 100;
+
         return SeriesSonificationMappings.getMappedOptions(
             'volume',
             options.volumeType,
             options.volumePolarity,
             options.volumeMappingProp,
-            options.volumeValue,
+            volumeValueTranslate(options.volumeValue),
             {
-                minVolume: options.minVolume,
-                maxVolume: options.maxVolume
+                minVolume: volumeValueTranslate(options.minVolume),
+                maxVolume: volumeValueTranslate(options.maxVolume)
             }
         );
     }

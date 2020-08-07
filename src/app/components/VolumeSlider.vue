@@ -3,6 +3,7 @@
         <SESlider
             id="slider-volume"
             v-model.number="volume"
+            :show-value="false"
             label="Volume"
             dark
         />

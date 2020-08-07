@@ -4,12 +4,14 @@
     Props:
         - id: String - Id for the slider. Automatically set on the input control.
         - [label]: String - Label text to add to the slider.
+        - [labelledby]: String - ID of external label.
         - [min]: Number - Min value for slider.
         - [max]: Number - Max value for slider.
         - [value]: Number - Current slider value (one-way binding only).
         - [step]: Number - Step for slider values.
         - [dark]: Boolean - Alternate styling for dark backgrounds.
-        - [disalbed]: Boolean - Do not allow user input.
+        - [disabled]: Boolean - Do not allow user input.
+        - [showValue]: Boolean - Display value of slider in an input box.
 
     Events:
         - input: Re-emits the input event for use with v-model.
@@ -18,12 +20,28 @@
     <div class="se-slider">
         <label
             v-if="label"
+            :id="uuid"
             :for="id"
             :class="{ dark: dark }"
         >
             {{ label }}
         </label>
         <div class="se-slider-inner">
+            <input
+                v-if="showValue"
+                type="number"
+                class="se-slider-value-label"
+                :aria-labelledby="label && uuid || labelledby"
+                :disabled="disabled"
+                :min="min"
+                :max="max"
+                :value="value"
+                :step="step"
+                :class="{ dark: dark }"
+                :style="'width:' + (Math.round(max).toString().length * 14) + 'px'"
+                @click="$event.target.select()"
+                @input="$emit('input', $event.target.value || 0)"
+            >
             <input
                 :id="id"
                 type="range"
@@ -33,23 +51,33 @@
                 :value="value"
                 :step="step"
                 :class="{ dark, disabled }"
-                @input="$emit('input', $event.target.value)"
+                @input="$emit('input', $event.target.value || 0)"
             >
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { getUUID } from '../../../core/utils/objects';
+
 export default {
     props: {
         id: { type: String, required: true },
         label: { type: String, default: '' },
+        labelledby: { type: String, default: '' },
         dark: { type: Boolean, default: false },
         disabled: { type: Boolean, default: false },
+        showValue: { type: Boolean, default: true },
         min: { type: Number, default: 0 },
         max: { type: Number, default: 100 },
         value: { type: Number, default: 50 },
         step: { type: Number, default: 1 }
+    },
+    data() {
+        return { uuid: '' };
+    },
+    beforeMount() {
+        this.uuid = getUUID('se-slider');
     }
 };
 </script>
@@ -61,6 +89,30 @@ export default {
         display: flex;
         flex-direction: column;
         color: @seslider-color;
+    }
+
+    .se-slider-inner {
+        display: flex;
+    }
+
+    .se-slider-value-label {
+        color: @seslider-value-text-color;
+        border: 1px solid @seslider-value-border-color;
+        border-radius: 4px;
+        text-align: center;
+        &.dark {
+            color: white;
+        }
+        margin-right: 8px;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
     }
 
     .dark {
@@ -131,7 +183,7 @@ export default {
         }
     }
 
-    input {
+    input[type=range] {
         -webkit-appearance: none;
         background: transparent;
         margin: 8px 0;

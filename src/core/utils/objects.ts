@@ -1,6 +1,14 @@
 export type GenericObject = { [key: string]: any };
 
 
+let uuidIx = 0;
+export function getUUID(prefix = ''): string {
+    uuidIx++;
+    const randomStr = (Math.random() * 100000 | 0).toString(16);
+    return prefix + '-' + randomStr + '-' + uuidIx;
+}
+
+
 export function isObject(x: unknown): boolean {
     return (x && typeof x === 'object' && !Array.isArray(x));
 }
@@ -9,6 +17,7 @@ export function isObject(x: unknown): boolean {
 export function nullFallback<T1, T2>(a: T1, b: T2): T1|T2 {
     return a === null ? b : a;
 }
+
 
 /**
  * Deep merge two objects. Objects are merged together per prop. Arrays

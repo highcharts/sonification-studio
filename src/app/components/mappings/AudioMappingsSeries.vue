@@ -3,12 +3,12 @@
         <h2>Audio settings: Data series</h2>
         <div class="series-selector-container">
             <SEControl
-                control-id="series-selector"
+                v-slot="slotProps"
                 label="Series"
                 helptext="The data series to apply settings to"
             >
                 <SEDropdown
-                    id="series-selector"
+                    :id="slotProps.controlId"
                     v-model="selectedSeries"
                     :options="dataSeries"
                 />

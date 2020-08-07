@@ -3,81 +3,81 @@
         <h2>Visual settings: Global</h2>
         <div class="controls-container">
             <SEControl
-                control-id="chart-type"
+                v-slot="slotProps"
                 label="Type"
                 helptext="The type of chart to draw"
             >
                 <SEDropdown
-                    id="chart-type"
+                    :id="slotProps.controlId"
                     v-model="chartType"
                     :options="chartTypes"
                 />
             </SEControl>
 
             <SEControl
-                control-id="chart-title"
+                v-slot="slotProps"
                 label="Title"
                 helptext="The chart title text"
             >
                 <SETextbox
-                    id="chart-title"
+                    :id="slotProps.controlId"
                     v-model="chartTitle"
                 />
             </SEControl>
 
             <SEControl
-                control-id="chart-subtitle"
+                v-slot="slotProps"
                 label="Subtitle"
                 helptext="The chart subtitle text"
             >
                 <SETextbox
-                    id="chart-subtitle"
+                    :id="slotProps.controlId"
                     v-model="chartSubtitle"
                 />
             </SEControl>
 
             <SEControl
-                control-id="chart-xaxis-title"
+                v-slot="slotProps"
                 label="X-Axis title"
                 helptext="Title text for the chart's X axis"
             >
                 <SETextbox
-                    id="chart-xaxis-title"
+                    :id="slotProps.controlId"
                     v-model="xAxisTitle"
                 />
             </SEControl>
 
             <SEControl
-                control-id="chart-yaxis-title"
+                v-slot="slotProps"
                 label="Y-Axis title"
                 helptext="Title text for the chart's Y axis"
             >
                 <SETextbox
-                    id="chart-yaxis-title"
+                    :id="slotProps.controlId"
                     v-model="yAxisTitle"
                 />
             </SEControl>
 
             <SEControl
-                control-id="chart-legend-enabled"
+                v-slot="slotProps"
                 label="Enable legend"
                 helptext="Show a legend with an overview of data series"
                 horizontal
             >
                 <SECheckbox
-                    id="chart-legend-enabled"
+                    :id="slotProps.controlId"
                     v-model="chartLegendEnabled"
                 />
             </SEControl>
 
             <SEControl
-                control-id="chart-series-labels-enabled"
+                v-slot="slotProps"
                 label="Show data series labels"
                 helptext="Show a label on the chart for each data series. Labels may be hidden if no good position is found automatically"
                 horizontal
             >
                 <SECheckbox
-                    id="chart-series-labels-enabled"
+                    :id="slotProps.controlId"
                     v-model="seriesLabelsEnabled"
                 />
             </SEControl>

@@ -1,26 +1,26 @@
 <template>
     <div>
         <SEControl
-            control-id="mci-sonification-enabled"
+            v-slot="slotProps"
             label="Audio enabled"
             helptext="Enable audio playback for this data series."
             horizontal
         >
             <SECheckbox
-                id="mci-sonification-enabled"
+                :id="slotProps.controlId"
                 v-model="sonificationEnabled"
             />
         </SEControl>
 
         <SEControl
-            control-id="mci-instrument"
+            v-slot="slotProps"
             label="Instrument"
             helptext="The type of instrument to use for playing this data series. Click the 'Play audio sample' button below to hear a sample of this instrument."
             :horizontal-reverse="true"
             :expand-content="true"
         >
             <SEDropdown
-                id="mci-instrument"
+                :id="slotProps.controlId"
                 v-model="instrument"
                 :options="instruments"
             />
@@ -34,13 +34,13 @@
         </SEButton>
 
         <SEControl
-            control-id="mci-rounding"
+            v-slot="slotProps"
             label="Musical notes only"
             helptext="Round all pitches to nearest musical note."
             horizontal
         >
             <SECheckbox
-                id="mci-rounding"
+                :id="slotProps.controlId"
                 v-model="pitchRoundingEnabled"
             />
         </SEControl>

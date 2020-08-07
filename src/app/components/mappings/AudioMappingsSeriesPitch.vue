@@ -1,14 +1,14 @@
 <template>
     <div>
         <SEControl
-            control-id="mcp-pitch-type"
+            v-slot="slotProps"
             label="Note pitch"
             helptext="Enable pitch/frequency control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the pitch follows the values of a data property."
             horizontal-reverse
             expand-content
         >
             <SEDropdown
-                id="mcp-pitch-type"
+                :id="slotProps.controlId"
                 v-model="pitchType"
                 :options="pitchTypes"
             />
@@ -16,13 +16,14 @@
 
         <SEControl
             v-show="pitchType === 'fixed'"
-            control-id="mcp-pitch-value"
+            v-slot="slotProps"
             label="Pitch value"
             helptext="Set a specific pitch/frequency value to play for this data series."
         >
             <SESlider
-                id="mcp-pitch-value"
+                :id="slotProps.controlId"
                 v-model.number="pitchValue"
+                :labelledby="slotProps.labelId"
                 :min="60"
                 :max="4200"
                 :step="1"
@@ -31,13 +32,14 @@
 
         <SEControl
             v-show="pitchType === 'mapped'"
-            control-id="mcp-min-freq"
+            v-slot="slotProps"
             label="Minimum frequency"
             helptext="Set a minimum pitch/frequency."
         >
             <SESlider
-                id="mcp-min-freq"
+                :id="slotProps.controlId"
                 v-model.number="minFreq"
+                :labelledby="slotProps.labelId"
                 :min="20"
                 :max="4200"
                 :step="1"
@@ -46,13 +48,14 @@
 
         <SEControl
             v-show="pitchType === 'mapped'"
-            control-id="mcp-max-freq"
+            v-slot="slotProps"
             label="Maximum frequency"
             helptext="Set a maximum pitch/frequency."
         >
             <SESlider
-                id="mcp-max-freq"
+                :id="slotProps.controlId"
                 v-model.number="maxFreq"
+                :labelledby="slotProps.labelId"
                 :min="20"
                 :max="4200"
                 :step="1"
@@ -61,14 +64,14 @@
 
         <SEControl
             v-show="pitchType === 'mapped'"
-            control-id="mcp-mapping-prop"
+            v-slot="slotProps"
             label="Mapping property"
             helptext="Data property to map pitch/frequency to."
             horizontal-reverse
             expand-content
         >
             <SEDropdown
-                id="mcp-mapping-prop"
+                :id="slotProps.controlId"
                 v-model="pitchMappingProp"
                 :options="mappingProps"
             />
@@ -76,12 +79,12 @@
 
         <SEControl
             v-show="pitchType === 'mapped'"
-            control-id="mcp-polarity"
+            v-slot="slotProps"
             label="Polarity"
             helptext="Set the polarity of the pitch mapping - whether the audio goes up or down in pitch with higher values."
         >
             <SERadioGroup
-                id="mcp-polarity"
+                :id="slotProps.controlId"
                 v-model="pitchPolarity"
                 :options="mcpPolarityOptions"
             />

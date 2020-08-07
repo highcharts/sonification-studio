@@ -3,72 +3,72 @@
         <h2>Visual settings: Data series</h2>
         <div class="controls-container">
             <SEControl
-                control-id="series-selector"
+                v-slot="slotProps"
                 label="Series"
                 helptext="The data series to apply settings to"
             >
                 <SEDropdown
-                    id="series-selector"
+                    :id="slotProps.controlId"
                     v-model="selectedSeries"
                     :options="dataSeries"
                 />
             </SEControl>
 
             <SEControl
-                control-id="series-type"
+                v-slot="slotProps"
                 label="Type"
                 helptext="Override the chart type for this specific data series"
             >
                 <SEDropdown
-                    id="series-type"
+                    :id="slotProps.controlId"
                     v-model="seriesType"
                     :options="seriesTypes"
                 />
             </SEControl>
 
             <SEControl
-                control-id="series-name"
+                v-slot="slotProps"
                 label="Name"
                 helptext="The data series name in the chart"
             >
                 <SETextbox
-                    id="series-name"
+                    :id="slotProps.controlId"
                     v-model="seriesName"
                 />
             </SEControl>
 
             <SEControl
-                control-id="series-color"
+                v-slot="slotProps"
                 label="Color"
                 helptext="The color of the data series in the chart"
                 horizontal-reverse
             >
                 <SEColorPicker
-                    id="series-color"
+                    :id="slotProps.controlId"
                     v-model="seriesColor"
                 />
             </SEControl>
 
             <SEControl
-                control-id="dash-style"
+                v-slot="slotProps"
                 label="Dash style"
                 helptext="The data series dash style for lines and borders"
             >
                 <SEDropdown
-                    id="dash-style"
+                    :id="slotProps.controlId"
                     v-model="dashStyle"
                     :options="dashStyles"
                 />
             </SEControl>
 
             <SEControl
-                control-id="series-datalabels-enabled"
+                v-slot="slotProps"
                 label="Show data point labels"
                 helptext="Show a label on the chart for each data point in this series. Labels may be hidden if no good position is found automatically"
                 horizontal
             >
                 <SECheckbox
-                    id="series-datalabels-enabled"
+                    :id="slotProps.controlId"
                     v-model="dataLabelsEnabled"
                 />
             </SEControl>

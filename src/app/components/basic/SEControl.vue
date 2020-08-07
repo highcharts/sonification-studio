@@ -2,9 +2,22 @@
     A reusable control with a label and a helptext.
     The input control is placed within the default slot.
 
+    Use slot props to access the ID of the control and the added label. Example:
+        <SEControl
+            v-slot="slotProps"
+            label="My label text"
+            helptext="Some help text."
+        >
+            <SESlider
+                :id="slotProps.controlId"
+                :labelledby="slotProps.labelId"
+            />
+        </SEControl>
+
+    controlId is added to the <label>'s "for" attribute, and labelId is the id of the <label>.
+
     Props:
         - label: String - The label text to show.
-        - controlId: String - Id of the input control.
         - [helptext]: String - Show help icon with text popup.
         - [horizontal]: Boolean - Show label to the right of control, rather than above.
         - [horizontalReverse]: Boolean - Show label to the left of control, rather than above.
@@ -17,7 +30,8 @@
     >
         <div class="se-control-label-container">
             <label
-                :for="controlId"
+                :id="labelUUID"
+                :for="controlUUID"
                 class="se-control-label"
             >
                 {{ label }}
@@ -49,16 +63,20 @@
             </div>
         </div>
         <div class="se-control-content">
-            <slot />
+            <slot
+                :labelId="labelUUID"
+                :controlId="controlUUID"
+            />
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { getUUID } from '../../../core/utils/objects';
+
 export default {
     props: {
         label: { type: String, required: true },
-        controlId: { type: String, required: true },
         helptext: { type: String, default: '' },
         horizontal: { type: Boolean, default: false },
         horizontalReverse: { type: Boolean, default: false },
@@ -66,8 +84,14 @@ export default {
     },
     data() {
         return {
-            helptextActive: false
+            helptextActive: false,
+            labelUUID: '',
+            controlUUID: ''
         };
+    },
+    beforeMount() {
+        this.labelUUID = getUUID('se-ctl-label');
+        this.controlUUID = getUUID('se-ctl-content');
     },
     mounted() {
         document.addEventListener('click', (e: MouseEvent) => {
@@ -126,7 +150,7 @@ export default {
     }
 
     .se-control-label {
-        margin: 3px;
+        margin: 4px 2px 4px 0;
     }
 
     .helpicon {

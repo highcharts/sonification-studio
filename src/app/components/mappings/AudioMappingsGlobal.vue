@@ -4,33 +4,34 @@
         <div class="controls-container">
             <div class="controls-group">
                 <SEControl
-                    control-id="global-speed"
+                    v-slot="slotProps"
                     label="Speed"
                     helptext="Set the playing speed."
                 >
                     <SESlider
-                        id="global-speed"
+                        :id="slotProps.controlId"
                         v-model.number="speed"
+                        :labelledby="slotProps.labelId"
                     />
                 </SEControl>
                 <SEControl
-                    control-id="global-playmarker"
+                    v-slot="slotProps"
                     label="Enable chart play marker"
                     helptext="Show the current play position on the chart."
                     horizontal
                 >
                     <SECheckbox
-                        id="global-playmarker"
+                        :id="slotProps.controlId"
                         v-model="playMarkerEnabled"
                     />
                 </SEControl>
                 <SEControl
-                    control-id="global-order"
+                    v-slot="slotProps"
                     label="Data series order"
                     helptext="Which order to play the data series in, either one after the other, or simultaneously."
                 >
                     <SERadioGroup
-                        id="global-order"
+                        :id="slotProps.controlId"
                         v-model="order"
                         :options="orderOptions"
                     />
@@ -40,25 +41,27 @@
             <h3>Default settings</h3>
             <div class="controls-group">
                 <SEControl
-                    control-id="global-minfreq"
+                    v-slot="slotProps"
                     label="Min frequency"
                     helptext="The lowest note to play."
                 >
                     <SESlider
-                        id="global-minfreq"
+                        :id="slotProps.controlId"
                         v-model.number="minFreq"
+                        :labelledby="slotProps.labelId"
                         :min="60"
                         :max="4200"
                     />
                 </SEControl>
                 <SEControl
-                    control-id="global-maxfreq"
+                    v-slot="slotProps"
                     label="Max frequency"
                     helptext="The highest note to play."
                 >
                     <SESlider
-                        id="global-maxfreq"
+                        :id="slotProps.controlId"
                         v-model.number="maxFreq"
+                        :labelledby="slotProps.labelId"
                         :min="60"
                         :max="4200"
                     />
@@ -67,24 +70,25 @@
 
             <div class="controls-group">
                 <SEControl
-                    control-id="global-panning"
+                    v-slot="slotProps"
                     label="Enable panning"
                     helptext="Pan the sound to left and right based on x value."
                     horizontal
                 >
                     <SECheckbox
-                        id="global-panning"
+                        :id="slotProps.controlId"
                         v-model="panEnabled"
                     />
                 </SEControl>
                 <SEControl
-                    control-id="global-panwidth"
+                    v-slot="slotProps"
                     label="Pan width"
                     helptext="How wide to pan the sound when panning is enabled."
                 >
                     <SESlider
-                        id="global-panwidth"
+                        :id="slotProps.controlId"
                         v-model.number="panWidth"
+                        :labelledby="slotProps.labelId"
                     />
                 </SEControl>
             </div>
