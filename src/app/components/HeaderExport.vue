@@ -1,20 +1,14 @@
 <template>
     <div
         role="group"
-        aria-label="Export project"
+        aria-label="Save project"
         class="export-container"
     >
         <SEButton
             dark
             @click="$emit('save')"
         >
-            Save
-        </SEButton>
-        <SEButton
-            dark
-            @click="$emit('publish')"
-        >
-            Publish
+            Save project
         </SEButton>
     </div>
 </template>
@@ -35,5 +29,9 @@ export default {
         display: flex;
         justify-content: flex-end;
         align-items: center;
+    }
+    .se-button {
+        margin-top: 4px;
+        margin-bottom: 6px;
     }
 </style>
