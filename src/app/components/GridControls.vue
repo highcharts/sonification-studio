@@ -37,6 +37,7 @@
                 </p>
                 <SEDropdown
                     id="data-fillcolumn-drop"
+                    v-model="fillEquationColumn"
                     labelledby="data-labelDrop"
                     :options="fillDropdownList"
                 />
@@ -46,7 +47,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Fill equation"
-                    helptext="Fill a column with an equation. 'i' refers to the row number. Example: 2 + 5 * i."
+                    helptext="Fill a column with an equation. 'i' refers to the row number. Example: 2 + 5 * i. Refer to values in other columns by the column name. Example: 2*B+A."
                     helptext-below
                 >
                     <SETextbox
@@ -96,7 +97,8 @@ export default {
                 { name: 'D', value: 'D' }
             ],
             rowsToAdd: 10,
-            fillEquation: ''
+            fillEquation: '',
+            fillEquationColumn: ''
         };
     },
     methods: {
@@ -132,8 +134,15 @@ export default {
         },
 
         fillColumn() {
-            const equation = this.fillEquation;
-            console.log(equation);
+            const equation = this.fillEquation?.trim();
+            const destinationColumn = this.fillEquationColumn;
+
+            if (equation) {
+                this.$store.commit('dataStore/fillColumn', {
+                    columnName: destinationColumn,
+                    equation
+                });
+            }
         }
     }
 };

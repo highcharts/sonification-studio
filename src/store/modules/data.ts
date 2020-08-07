@@ -14,12 +14,32 @@
 import Vue from 'vue';
 import { parseCSV } from '../../core/utils/csvParser';
 import { GenericObject } from '../../core/utils/objects';
+import { evaluate } from 'mathjs';
 
 interface UpdateCellDataProps {
     rowIndex: number;
     columnName: string;
     value: any;
 }
+
+interface FillColumnProps {
+    columnName: string;
+    equation: string;
+}
+
+function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnProps): string {
+    let res = '';
+    try {
+        res = '' + evaluate(fillData.equation, {
+            i: rowIx,
+            ...row
+        });
+    } catch (e) {
+        res = e.message;
+    }
+    return res;
+}
+
 
 export const dataStore = {
     namespaced: true,
@@ -64,6 +84,20 @@ export const dataStore = {
 
         setTableRowData(state: any, data: Array<unknown>) {
             Vue.set(state, 'tableRowData', data);
+        },
+
+        fillColumn(state: any, fillData: FillColumnProps) {
+            const rowData = state.tableRowData;
+            const col = fillData.columnName;
+            const newRows: Array<GenericObject> = [];
+
+            rowData.forEach((row: GenericObject, rowIx: number): void => {
+                const newRow = { ...row };
+                newRow[col] = getFillValue(newRow, rowIx, fillData);
+                newRows.push(newRow);
+            });
+
+            Vue.set(state, 'tableRowData', newRows);
         },
 
         updateCellValue(state: any, cellData: UpdateCellDataProps) {

@@ -31,7 +31,6 @@ To build and publish to GitHub pages, set the app version in `package.json`, run
 
 The contents of the `docs` directory is served on the GitHub pages site. The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
 
-
 ### Tests
 
 To run unit tests, run `npm test`.
@@ -43,3 +42,7 @@ Tests are ran automatically before each commit.
 ### Source files
 
 Source files are found under `/src`, with `/src/app` containing all front end components, `/src/core` containing the program logic and utilities, and `/src/store` containing the Vuex data store modules with default parameters.
+
+### Notable dependencies
+
+The project has a dependency on the open source Javacsript library [mathJS](https://mathjs.org). This library is used for the "Fill equation" functionality on the data page.
