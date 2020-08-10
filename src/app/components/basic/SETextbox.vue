@@ -15,6 +15,7 @@
         :value="value"
         @input="$emit('input', $event.target.value)"
         @change="$emit('change', $event)"
+        @keydown="$emit('keydown', $event)"
     >
 </template>
 

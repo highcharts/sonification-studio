@@ -53,6 +53,7 @@
                     <SETextbox
                         :id="slotProps.controlId"
                         v-model="fillEquation"
+                        @keydown.enter="fillColumn()"
                     />
                 </SEControl>
             </div>
