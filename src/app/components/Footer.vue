@@ -10,6 +10,12 @@
             Chart Sonification Studio
         </div>
         <div id="copyright">
+            <span
+                v-if="version"
+                id="version-number"
+            >
+                v{{ version }}
+            </span>
             © Copyright {{ year }} Highsoft AS - designed in collaboration with Georgia Institute of Technology
         </div>
     </footer>
@@ -17,10 +23,11 @@
 
 <script lang="ts">
 import highchartsIcon from '../assets/highcharts-logo.svg';
+import { version } from '../../../package.json';
 
 export default {
     data() {
-        return { highchartsIcon };
+        return { highchartsIcon, version };
     },
     computed: {
         year: () => new Date().getFullYear()
@@ -40,6 +47,10 @@ export default {
         font-size: 0.7em;
         margin-top: 8px;
         margin-bottom: 2px;
+    }
+
+    #version-number {
+        margin-right: 5px;
     }
 
     #title {
