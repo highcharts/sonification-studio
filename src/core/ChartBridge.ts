@@ -341,6 +341,36 @@ export class ChartBridge {
     }
 
 
+    // Utility function to get the current timestamp of the event playing on a timeline,
+    // plus the expected duration of all previous paths.
+    private getTimelineTotalCursorMs(timeline: GenericObject): number {
+        const curEvents: Array<GenericObject> = Object.values(timeline.getCursor());
+        const curEventTimestamp = curEvents.reduce((maxTime, event): number => {
+            return Math.max(maxTime, event.time);
+        }, 0);
+        const splat = (x: any): any[] => {
+            const str = Object.prototype.toString.call(x);
+            const isArray = str === '[object Array]' || str === '[object Array Iterator]';
+            return isArray ? x : [x];
+        };
+
+        let i = timeline.cursor;
+        let previousTime = 0;
+        if (i > 0) {
+            while (i--) {
+                const paths = splat(timeline.paths[i]) || [];
+                const maxPathDuration = paths.reduce((maxDuration, path) => {
+                    return Math.max(maxDuration, path.targetDuration || 0);
+                }, 0);
+
+                previousTime += maxPathDuration;
+            }
+        }
+
+        return previousTime + curEventTimestamp;
+    }
+
+
     private getCurrentPlayProgressPct(): number {
         const sonification = this.chart?.sonification;
         const timeline = sonification?.timeline;
@@ -349,11 +379,10 @@ export class ChartBridge {
             return 0;
         }
 
-        const cursor: GenericObject = timeline.getCursor();
-        const curTime = Object.values(cursor)[0].time;
+        const curTime = this.getTimelineTotalCursorMs(timeline);
         const totalDuration = sonification.duration;
-        const progressPercentage = Math.round(curTime / totalDuration * 100);
+        const interpolationOffset = 0; // TBD - interpolate between timestamps
 
-        return progressPercentage;
+        return Math.round((curTime + interpolationOffset) / totalDuration * 100);
     }
 }
