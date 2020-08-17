@@ -6,6 +6,13 @@ import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMappe
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
 import { Store } from 'vuex';
 
+interface UpdateProgressState {
+    intervalTimer: number|null;
+    prevTimestamp: number;
+    prevEventStartTime: number;
+}
+
+
 /**
  * Interface between chart-specific logic and the rest of the
  * app.
@@ -27,7 +34,7 @@ export class ChartBridge {
     private getStoreParam: (storeId: string, param: string) => any;
     private commitToStore: (id: string, payload?: any) => void;
     private reactivityTimeouts: GenericObject = {};
-    private updateProgressInterval: number|null = null;
+    private updateProgressState: UpdateProgressState;
     private _seReactivityCounter: number|null = null;
     private audioSampleTimeline: GenericObject|null = null;
 
@@ -36,6 +43,11 @@ export class ChartBridge {
      * Construct the class with a Vuex store instance
      */
     constructor(store: Store<any>) {
+        this.updateProgressState = {
+            intervalTimer: null,
+            prevTimestamp: 0,
+            prevEventStartTime: 0
+        };
         this.chartParametersStore = store.state.chartParametersStore;
         this.seriesParametersStore = store.state.seriesParametersStore;
         this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
@@ -321,16 +333,24 @@ export class ChartBridge {
 
 
     private startProgressUpdatePolling() {
+        const progressState = this.updateProgressState;
+
         this.stopProgressUpdatePolling();
-        this.updateProgressInterval = setInterval(
+
+        progressState.prevEventStartTime = Date.now();
+        progressState.prevTimestamp = 0;
+        progressState.intervalTimer = setInterval(
             this.updatePlayProgress.bind(this), ChartBridge.updateProgressIntervalMs
         );
     }
 
 
     private stopProgressUpdatePolling() {
-        if (this.updateProgressInterval) {
-            clearInterval(this.updateProgressInterval);
+        const progressState = this.updateProgressState;
+        progressState.prevEventStartTime = Date.now();
+        progressState.prevTimestamp = 0;
+        if (progressState.intervalTimer) {
+            clearInterval(progressState.intervalTimer);
         }
     }
 
@@ -341,13 +361,18 @@ export class ChartBridge {
     }
 
 
+    private getTimelineCurrentEventTime(timeline: GenericObject): number {
+        const curEvents: Array<GenericObject> = Object.values(timeline.getCursor());
+        return curEvents.reduce((maxTime, event): number => {
+            return Math.max(maxTime, event.time);
+        }, 0);
+    }
+
+
     // Utility function to get the current timestamp of the event playing on a timeline,
     // plus the expected duration of all previous paths.
     private getTimelineTotalCursorMs(timeline: GenericObject): number {
-        const curEvents: Array<GenericObject> = Object.values(timeline.getCursor());
-        const curEventTimestamp = curEvents.reduce((maxTime, event): number => {
-            return Math.max(maxTime, event.time);
-        }, 0);
+        const curEventTimestamp = this.getTimelineCurrentEventTime(timeline);
         const splat = (x: any): any[] => {
             const str = Object.prototype.toString.call(x);
             const isArray = str === '[object Array]' || str === '[object Array Iterator]';
@@ -371,17 +396,66 @@ export class ChartBridge {
     }
 
 
+    // Get next timeline event timestamp relative to current event, in milliseconds
+    private getNextTimelineTimestamp(timeline: GenericObject): number {
+        const curPaths = timeline.getCurrentPlayingPaths();
+        const curEventTime = this.getTimelineCurrentEventTime(timeline);
+
+        const pathTimes: number[] = curPaths.reduce((times: number[], path: GenericObject): number[] => {
+            return times.concat(path.events.map((ev: GenericObject): number => ev.time));
+        }, []);
+        const pathTimesLarger = pathTimes.filter(x => x > curEventTime);
+        if (pathTimesLarger.length) {
+            return Math.min(...pathTimesLarger) - curEventTime;
+        }
+
+        const targetDuration = curPaths.reduce((maxDuration: number, path: GenericObject) => {
+            return Math.max(maxDuration, path.targetDuration || 0);
+        }, 0);
+        return targetDuration - curEventTime;
+    }
+
+
+    // Utility to get interpolated progress between two event times based on actual time elapsed.
+    private getInterpolatedPlayProgress(
+        prevTime: number,
+        nextTime: number,
+        prevEventStartTime: number
+    ): number {
+        const now = Date.now();
+        const diff = now - prevEventStartTime;
+        const slowdownModifier = 0.9; // Compensate some for the time it takes for the browser to play things
+        const offset = diff * slowdownModifier;
+        return Math.min(offset, nextTime - prevTime);
+    }
+
+
     private getCurrentPlayProgressPct(): number {
         const sonification = this.chart?.sonification;
         const timeline = sonification?.timeline;
+        const progressState = this.updateProgressState;
+        const now = Date.now();
 
-        if (!timeline || !timeline.paths.length || timeline.atStart()) {
+        if (!timeline || !timeline.paths.length) {
             return 0;
         }
 
         const curTime = this.getTimelineTotalCursorMs(timeline);
+        const prevTime = progressState.prevTimestamp;
         const totalDuration = sonification.duration;
-        const interpolationOffset = 0; // TBD - interpolate between timestamps
+
+        let interpolationOffset = 0;
+        if (curTime === prevTime) {
+            const nextTimeRelative = this.getNextTimelineTimestamp(timeline);
+            const nextTime = nextTimeRelative ? nextTimeRelative + prevTime : totalDuration;
+            interpolationOffset = this.getInterpolatedPlayProgress(
+                prevTime, nextTime, progressState.prevEventStartTime
+            );
+        } else {
+            progressState.prevEventStartTime = now;
+        }
+
+        progressState.prevTimestamp = curTime;
 
         return Math.round((curTime + interpolationOffset) / totalDuration * 100);
     }
