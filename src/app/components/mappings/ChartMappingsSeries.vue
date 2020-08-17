@@ -16,6 +16,18 @@
 
             <SEControl
                 v-slot="slotProps"
+                label="Visible"
+                helptext="Make the data series visible on the chart or not. Visually hidden series do not play back in audio."
+                horizontal
+            >
+                <SECheckbox
+                    :id="slotProps.controlId"
+                    v-model="seriesVisible"
+                />
+            </SEControl>
+
+            <SEControl
+                v-slot="slotProps"
                 label="Type"
                 helptext="Override the chart type for this specific data series"
             >
@@ -167,7 +179,8 @@ export default {
         seriesType: makeSeriesParamPropertyMapping('seriesType'),
         seriesColor: makeSeriesParamPropertyMapping('seriesColor', '#ffffff'),
         dashStyle: makeSeriesParamPropertyMapping('dashStyle'),
-        dataLabelsEnabled: makeSeriesParamPropertyMapping('dataLabelsEnabled')
+        dataLabelsEnabled: makeSeriesParamPropertyMapping('dataLabelsEnabled'),
+        seriesVisible: makeSeriesParamPropertyMapping('seriesVisible', true)
     },
     watch: {
         seriesType(type: unknown) {

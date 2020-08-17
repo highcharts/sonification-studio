@@ -19,6 +19,10 @@ export class SeriesMappings {
         return { type: value };
     }
 
+    public static seriesVisible(value: boolean): GenericObject {
+        return { visible: value };
+    }
+
     public static dashStyle(value: string): GenericObject {
         return { dashStyle: value };
     }
