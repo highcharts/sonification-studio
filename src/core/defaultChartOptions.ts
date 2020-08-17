@@ -15,7 +15,7 @@ export const defaultChartOptions = {
     },
     sonification: {
         enabled: true,
-        afterSeriesWait: 700,
+        afterSeriesWait: 600,
         order: 'simultaneous',
         // Reset on end
         onEnd: function (e: any) {
