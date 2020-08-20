@@ -126,19 +126,20 @@ export const dataStore = {
             const delim = hasTab ? '\t' : hasSemicolon ? ';' : ',';
             const arr = parseCSV(csv, delim);
             const firstRowHasNames = !(arr[0]).some(cell => !isNaN(+cell));
+            const maxRowLen = arr.reduce((len: number, row): number => {
+                return Math.max(len, row.length);
+            }, 0);
+            const columnHeaders = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0, maxRowLen).split('');
 
-            let firstRow: string[];
             if (firstRowHasNames) {
-                firstRow = arr.shift() || []; // Remove first row
-            } else {
-                firstRow = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0, arr[0].length).split('');
+                arr.shift(); // Remove first row
             }
 
             const objectifiedArr = arr.map((row: string[]) => {
                 const rowObject: any = {};
                 row.forEach((cell: string, i: number) => {
                     if (cell) {
-                        const columnName = firstRow[i] || '_';
+                        const columnName = columnHeaders[i] || '_';
                         rowObject[columnName] = cell;
                     }
                 });
