@@ -10,14 +10,21 @@ export class GlobalSonificationMappings {
         };
     }
 
-    public static speed(value: number): GenericObject {
+    public static playbackOpts(value: { speed: number; order: string }, chart: GenericObject): GenericObject {
+        const speed = value.speed;
         const maxDuration = 10000;
         const minDuration = 200;
         const slope = 6;
+        const durationBase = (maxDuration - minDuration) / Math.max(1, speed / slope) + minDuration;
+        const numSeries = chart.series.length;
+        const order = value.order;
+        const durationModifier = order === 'sequential' ? numSeries : 1;
+        const afterSeriesWait = chart.options.sonification.afterSeriesWait;
+        const waitTime = (durationModifier - 1) * afterSeriesWait;
+        const duration = durationBase * durationModifier + waitTime;
+
         return {
-            sonification: {
-                duration: (maxDuration - minDuration) / Math.max(1, value / slope) + minDuration
-            }
+            sonification: { duration, order }
         };
     }
 
@@ -42,14 +49,6 @@ export class GlobalSonificationMappings {
                 events: {
                     onPointStart: value ? highlightPoint : null
                 }
-            }
-        };
-    }
-
-    public static order(value: string): GenericObject {
-        return {
-            sonification: {
-                order: value
             }
         };
     }

@@ -9,9 +9,13 @@ export const globalSonifyParametersStore = {
 
     state: {
         volume: 50,
-        speed: 50,
+        playbackOpts: {
+            // These are grouped because we have to update our interpretation of speed whenever order changes.
+            // This way they are mapped to options together.
+            speed: 50,
+            order: 'simultaneous'
+        },
         playMarkerEnabled: false,
-        order: 'simultaneous',
         minFrequency: 392, // G4
         maxFrequency: 1319, // G6
         panEnabled: false,
@@ -24,7 +28,7 @@ export const globalSonifyParametersStore = {
         },
 
         setSpeed(state: any, speed: number) {
-            state.speed = speed;
+            state.playbackOpts.speed = speed;
         },
 
         setPlayMarkerEnabled(state: any, enabled: boolean) {
@@ -32,7 +36,7 @@ export const globalSonifyParametersStore = {
         },
 
         setOrder(state: any, order: string) {
-            state.order = order;
+            state.playbackOpts.order = order;
         },
 
         setMinFrequency(state: any, minfreq: number) {
@@ -49,6 +53,8 @@ export const globalSonifyParametersStore = {
 
         setPanWidth(state: any, panWidth: number) {
             state.panWidth = panWidth;
-        }
+        },
+
+        triggerPlaybackOptsRecalculation() {} // eslint-disable-line
     }
 };

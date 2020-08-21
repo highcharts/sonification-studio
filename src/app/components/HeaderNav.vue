@@ -47,6 +47,8 @@ export default {
                 contentId: controlsId
             });
 
+            // Make sure we recalculate speed when data has changed
+            this.$store.commit('globalSonifyParametersStore/triggerPlaybackOptsRecalculation');
             (this as any).$chartBridge.reflowChart();
         }
     }

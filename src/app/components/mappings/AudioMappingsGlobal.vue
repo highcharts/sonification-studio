@@ -122,7 +122,7 @@ export default {
     },
     computed: {
         speed: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.speed; },
+            get() { return (this as any).$store.state.globalSonifyParametersStore.playbackOpts.speed; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setSpeed', val); }
         },
         playMarkerEnabled: {
@@ -130,7 +130,7 @@ export default {
             set(val) { return this.$store.commit('globalSonifyParametersStore/setPlayMarkerEnabled', val); }
         },
         order: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.order; },
+            get() { return (this as any).$store.state.globalSonifyParametersStore.playbackOpts.order; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setOrder', val); }
         },
         minFreq: {

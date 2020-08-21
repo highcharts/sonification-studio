@@ -340,7 +340,8 @@ export class ChartBridge {
     private updateChartOptions() {
         this.chartOptions = getChartOptionsFromParameters(
             this.globalSonifyParametersStore,
-            this.chartParametersStore
+            this.chartParametersStore,
+            this.chart || {}
         );
     }
 
