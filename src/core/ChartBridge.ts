@@ -124,6 +124,9 @@ export class ChartBridge {
     public buildChartOptions(csv?: string) {
         // chartOptions contains the current state of the chart mapping parameters
         const chartSettings = this.chartOptions;
+        // We hook into the legend item click event to link it with the series.visible option
+        const legendItemClickHook = this.getLegendItemHookOptions();
+        const defaultOptions = deepMerge(defaultChartOptions, legendItemClickHook);
 
         // Need to update the chart data first to know which (new) series to build options for.
         // Only once the CSV has been parsed can we build the series options. This is why
@@ -153,7 +156,7 @@ export class ChartBridge {
             }
         }, chartSettings);
 
-        return deepMerge(defaultChartOptions, newOptions);
+        return deepMerge(defaultOptions, newOptions);
     }
 
 
@@ -257,6 +260,27 @@ export class ChartBridge {
             }
         }) as GenericObject;
         timeline.play();
+    }
+
+
+    private getLegendItemHookOptions(): GenericObject {
+        const chartBridge = this;
+        return {
+            plotOptions: {
+                series: {
+                    events: {
+                        legendItemClick: function () {
+                            const series: GenericObject = this;
+                            chartBridge.commitToStore('seriesParametersStore/setSeriesParameter', {
+                                seriesId: getSeriesId(series),
+                                parameterName: 'seriesVisible',
+                                parameterValue: !series.visible
+                            });
+                        }
+                    }
+                }
+            }
+        };
     }
 
 
