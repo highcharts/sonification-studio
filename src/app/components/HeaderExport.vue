@@ -158,10 +158,10 @@ export default {
             console.log('PNG download to be implemented.');
         },
         dlCSV() {
-            downloadURI(this.$store.getters['dataStore/tableCSVDataURI']);
+            downloadURI(this.$store.getters['dataStore/tableCSVDataURI'], 'export.csv');
         },
         dlChartConfig() {
-            console.log('Highcharts config download to be implemented.');
+            (this as any).$chartBridge.downloadChartConfig();
         }
     }
 };

@@ -1,5 +1,6 @@
 import Highcharts from 'highcharts';
 import { GenericObject, deepMerge } from './utils/objects';
+import { downloadURI } from './utils/browserUtils';
 import { getSeriesId } from './utils/chartUtils';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
@@ -260,6 +261,27 @@ export class ChartBridge {
             }
         }) as GenericObject;
         timeline.play();
+    }
+
+
+    public downloadChartConfig(): void {
+        const options = this.getChartOptionsForExport();
+        const json = JSON.stringify(options, void 0, 2);
+        const blob = new Blob([json], {type: 'text/json'});
+        const uri = window.URL.createObjectURL(blob);
+        downloadURI(uri, 'export.json');
+    }
+
+
+    private getChartOptionsForExport(): GenericObject {
+        const userOptions = deepMerge(this.chart?.userOptions, {});
+        if (userOptions) {
+            delete userOptions.data;
+            delete userOptions._seReactivityCounter;
+            delete userOptions.plotOptions?.series?.events;
+            return userOptions;
+        }
+        return {};
     }
 
 

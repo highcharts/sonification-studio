@@ -112,7 +112,7 @@ export default {
         },
 
         onExportDataClick() {
-            downloadURI(this.$store.getters['dataStore/tableCSVDataURI']);
+            downloadURI(this.$store.getters['dataStore/tableCSVDataURI'], 'export.csv');
         },
 
         onAddRowsClick() {
