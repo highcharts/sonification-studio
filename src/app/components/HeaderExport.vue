@@ -28,7 +28,15 @@
                 class="export-popup"
             >
                 <div class="export-popup-content">
-                    <p>Popup content</p>
+                    <p>Download project as</p>
+                    <ul>
+                        <li><button>Video</button></li>
+                        <li><button>Sound</button></li>
+                        <li><button>SVG Image</button></li>
+                        <li><button>PNG Image</button></li>
+                        <li><button>CSV Data</button></li>
+                        <li><button>Highcharts JS Config</button></li>
+                    </ul>
                 </div>
             </div>
         </transition>
@@ -66,6 +74,7 @@ export default {
         justify-content: flex-end;
         align-items: center;
         position: relative;
+        z-index: 10;
     }
 
     .se-button {
@@ -91,7 +100,7 @@ export default {
 
     .popup-slide-enter-active, .popup-slide-leave-active {
         will-change: height;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
     }
 
     .export-popup {
@@ -107,6 +116,35 @@ export default {
     }
 
     .export-popup-content {
-        padding: 15px;
+        padding: 15px 25px;
+        p {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        li {
+            list-style-type: none;
+            padding: 0;
+            margin: 4px 0;
+        }
+        button {
+            width: 100%;
+            padding: 6px 15px;
+            font: inherit;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: block;
+            background-color: @sebutton-bg;
+            color: @sebutton-color;
+            border: 1px solid @sebutton-color;
+            &:hover {
+                background-color: @sebutton-hover-bg;
+                color: @sebutton-hover-color;
+            }
+            &:active {
+                background-color: darken(@sebutton-hover-bg, 5%);
+                color: darken(@sebutton-hover-color, 5%);
+            }
+        }
     }
 </style>
