@@ -144,7 +144,11 @@ export class ChartBridge {
                         const seriesIds = (parseResult.series || []).map((s: GenericObject, ix: number) => {
                             s.chart = { index: chart.index };
                             s.index = ix;
-                            return getSeriesId(s);
+                            const id = getSeriesId(s);
+
+                            delete s.chart;
+                            delete s.index;
+                            return id;
                         });
 
                         // Extend parsed results with series options
