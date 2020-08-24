@@ -30,12 +30,57 @@
                 <div class="export-popup-content">
                     <p>Download project as</p>
                     <ul>
-                        <li><button>Video</button></li>
-                        <li><button>Sound</button></li>
-                        <li><button>SVG Image</button></li>
-                        <li><button>PNG Image</button></li>
-                        <li><button>CSV Data</button></li>
-                        <li><button>Highcharts JS Config</button></li>
+                        <li>
+                            <button>
+                                <img
+                                    alt=""
+                                    :src="videoIcon"
+                                >
+                                Video
+                            </button>
+                        </li>
+                        <li>
+                            <button>
+                                <img
+                                    alt=""
+                                    :src="musicIcon"
+                                >
+                                Sound
+                            </button>
+                        </li>
+                        <li>
+                            <button>
+                                <img
+                                    alt=""
+                                    :src="pictureIcon"
+                                >
+                                SVG Image
+                            </button>
+                        </li><li>
+                            <button>
+                                <img
+                                    alt=""
+                                    :src="pictureIcon"
+                                >
+                                PNG Image
+                            </button>
+                        </li><li>
+                            <button>
+                                <img
+                                    alt=""
+                                    :src="csvIcon"
+                                >
+                                CSV Data
+                            </button>
+                        </li><li>
+                            <button>
+                                <img
+                                    alt=""
+                                    :src="jsIcon"
+                                >
+                                Highcharts JS Config
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -45,6 +90,11 @@
 
 <script lang="ts">
 import menuIcon from '../assets/bars-solid.svg';
+import jsIcon from '../assets/js-square-brands.svg';
+import pictureIcon from '../assets/image-regular.svg';
+import videoIcon from '../assets/film-solid.svg';
+import musicIcon from '../assets/music-solid.svg';
+import csvIcon from '../assets/file-csv-solid.svg';
 import SEButton from './basic/SEButton.vue';
 
 export default {
@@ -52,7 +102,15 @@ export default {
         SEButton
     },
     data() {
-        return { menuIcon, popupVisible: false };
+        return {
+            menuIcon,
+            jsIcon,
+            pictureIcon,
+            videoIcon,
+            musicIcon,
+            csvIcon,
+            popupVisible: true
+        };
     },
     methods: {
         startSlide(el: HTMLElement) {
@@ -130,7 +188,7 @@ export default {
             width: 100%;
             padding: 6px 15px;
             font: inherit;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             display: block;
@@ -144,6 +202,17 @@ export default {
             &:active {
                 background-color: darken(@sebutton-hover-bg, 5%);
                 color: darken(@sebutton-hover-color, 5%);
+            }
+            &:active, &:hover {
+                img {
+                    filter: invert();
+                }
+            }
+            img {
+                width: 14px;
+                height: 14px;
+                margin-right: 4px;
+                vertical-align: middle;
             }
         }
     }
