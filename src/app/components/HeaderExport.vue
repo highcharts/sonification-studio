@@ -107,6 +107,7 @@
 </template>
 
 <script lang="ts">
+import { downloadURI } from '../../core/utils/browserUtils';
 import menuIcon from '../assets/bars-solid.svg';
 import jsIcon from '../assets/js-square-brands.svg';
 import pictureIcon from '../assets/image-regular.svg';
@@ -157,7 +158,7 @@ export default {
             console.log('PNG download to be implemented.');
         },
         dlCSV() {
-            console.log('CSV download to be implemented.');
+            downloadURI(this.$store.getters['dataStore/tableCSVDataURI']);
         },
         dlChartConfig() {
             console.log('Highcharts config download to be implemented.');

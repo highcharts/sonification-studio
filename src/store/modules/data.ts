@@ -74,6 +74,10 @@ export const dataStore = {
                 return state.tableRowData
                     .map((row: GenericObject) => row[key] ?? null);
             };
+        },
+
+        tableCSVDataURI: (state: GenericObject): string => {
+            return state.tableCSV ? encodeURI(`data:text/csv;charset=utf-8,${state.tableCSV}`) : '';
         }
     },
 

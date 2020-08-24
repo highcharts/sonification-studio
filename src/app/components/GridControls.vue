@@ -79,6 +79,7 @@
 </template>
 
 <script lang="ts">
+import { downloadURI } from '../../core/utils/browserUtils';
 import SEButton from './basic/SEButton.vue';
 import SEFileUploadButton from './basic/SEFileUploadButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
@@ -111,14 +112,7 @@ export default {
         },
 
         onExportDataClick() {
-            const csv = this.$store.state.dataStore.tableCSV;
-            if (csv) {
-                const dataURI = encodeURI(`data:text/csv;charset=utf-8,${csv}`);
-                const link = document.createElement('a');
-                link.setAttribute('href', dataURI);
-                link.setAttribute('download', 'export.csv');
-                link.click();
-            }
+            downloadURI(this.$store.getters['dataStore/tableCSVDataURI']);
         },
 
         onAddRowsClick() {
