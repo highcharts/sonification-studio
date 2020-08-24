@@ -31,7 +31,10 @@
                     <p>Download project as</p>
                     <ul>
                         <li>
-                            <button>
+                            <button
+                                @click="dlVideo"
+                                @keydown.enter="dlVideo"
+                            >
                                 <img
                                     alt=""
                                     :src="videoIcon"
@@ -40,16 +43,22 @@
                             </button>
                         </li>
                         <li>
-                            <button>
+                            <button
+                                @click="dlAudio"
+                                @keydown.enter="dlAudio"
+                            >
                                 <img
                                     alt=""
                                     :src="musicIcon"
                                 >
-                                Sound
+                                Audio only
                             </button>
                         </li>
                         <li>
-                            <button>
+                            <button
+                                @click="dlSVG"
+                                @keydown.enter="dlSVG"
+                            >
                                 <img
                                     alt=""
                                     :src="pictureIcon"
@@ -57,7 +66,10 @@
                                 SVG Image
                             </button>
                         </li><li>
-                            <button>
+                            <button
+                                @click="dlPNG"
+                                @keydown.enter="dlPNG"
+                            >
                                 <img
                                     alt=""
                                     :src="pictureIcon"
@@ -65,7 +77,10 @@
                                 PNG Image
                             </button>
                         </li><li>
-                            <button>
+                            <button
+                                @click="dlCSV"
+                                @keydown.enter="dlCSV"
+                            >
                                 <img
                                     alt=""
                                     :src="csvIcon"
@@ -73,7 +88,10 @@
                                 CSV Data
                             </button>
                         </li><li>
-                            <button>
+                            <button
+                                @click="dlChartConfig"
+                                @keydown.enter="dlChartConfig"
+                            >
                                 <img
                                     alt=""
                                     :src="jsIcon"
@@ -109,8 +127,15 @@ export default {
             videoIcon,
             musicIcon,
             csvIcon,
-            popupVisible: true
+            popupVisible: false
         };
+    },
+    mounted() {
+        document.addEventListener('click', (e: MouseEvent) => {
+            if (!this.$el.contains(e.target as any)) {
+                this.popupVisible = false;
+            }
+        });
     },
     methods: {
         startSlide(el: HTMLElement) {
@@ -118,6 +143,24 @@ export default {
         },
         endSlide(el: HTMLElement) {
             el.style.height = '';
+        },
+        dlVideo() {
+            console.log('Video download to be implemented.');
+        },
+        dlAudio() {
+            console.log('Audio download to be implemented.');
+        },
+        dlSVG() {
+            console.log('SVG download to be implemented.');
+        },
+        dlPNG() {
+            console.log('PNG download to be implemented.');
+        },
+        dlCSV() {
+            console.log('CSV download to be implemented.');
+        },
+        dlChartConfig() {
+            console.log('Highcharts config download to be implemented.');
         }
     }
 };
