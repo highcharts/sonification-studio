@@ -158,7 +158,10 @@ export default {
             (this as any).$chartBridge.downloadPNG();
         },
         dlCSV() {
-            downloadURI(this.$store.getters['dataStore/tableCSVDataURI'], 'export.csv');
+            downloadURI(
+                this.$store.getters['dataStore/tableCSVDataURI'],
+                (this as any).$chartBridge.getChartTitleForExport() + '.csv'
+            );
         },
         dlChartConfig() {
             (this as any).$chartBridge.downloadChartConfig();

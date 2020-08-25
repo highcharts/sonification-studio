@@ -270,7 +270,9 @@ export class ChartBridge {
 
     public downloadPNG(): void {
         if (this.chart) {
-            this.chart.exportChart();
+            this.chart.exportChart({
+                filename: this.getChartTitleForExport()
+            });
         }
     }
 
@@ -278,9 +280,17 @@ export class ChartBridge {
     public downloadSVG(): void {
         if (this.chart) {
             this.chart.exportChart({
-                type: 'image/svg+xml'
+                type: 'image/svg+xml',
+                filename: this.getChartTitleForExport()
             });
         }
+    }
+
+
+    public getChartTitleForExport(): string {
+        const title: string = this.chart?.options.title.text;
+        const filteredTitle = title.split('').filter(c => /[\w- ]/.test(c)).join('');
+        return filteredTitle || 'export';
     }
 
 
@@ -289,7 +299,8 @@ export class ChartBridge {
         const json = JSON.stringify(options, void 0, 2);
         const blob = new Blob([json], {type: 'text/json'});
         const uri = window.URL.createObjectURL(blob);
-        downloadURI(uri, 'export.json');
+        const filename = this.getChartTitleForExport() + '.json';
+        downloadURI(uri, filename);
     }
 
 
