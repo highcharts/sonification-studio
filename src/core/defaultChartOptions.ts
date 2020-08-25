@@ -6,7 +6,15 @@ export const defaultChartOptions = {
     },
     exporting: {
         enabled: false,
-        sourceWidth: 900
+        sourceWidth: 900,
+        chartOptions: {
+            title: {
+                style: {
+                    fontFamily: 'Sans-Serif',
+                    fontSize: '22px'
+                }
+            },
+        }
     },
     accessibility: {
         screenReaderRegion: {
