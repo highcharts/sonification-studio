@@ -4,6 +4,10 @@ export const defaultChartOptions = {
             duration: 600
         }
     },
+    exporting: {
+        enabled: false,
+        sourceWidth: 900
+    },
     accessibility: {
         screenReaderRegion: {
             beforeChartFormat: '<h5>{chartTitle}</h5>' +

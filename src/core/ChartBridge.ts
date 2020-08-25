@@ -268,6 +268,13 @@ export class ChartBridge {
     }
 
 
+    public downloadPNG(): void {
+        if (this.chart) {
+            this.chart.exportChart();
+        }
+    }
+
+
     public downloadChartConfig(): void {
         const options = this.getChartOptionsForExport();
         const json = JSON.stringify(options, void 0, 2);

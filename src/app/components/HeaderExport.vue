@@ -155,7 +155,7 @@ export default {
             console.log('SVG download to be implemented.');
         },
         dlPNG() {
-            console.log('PNG download to be implemented.');
+            (this as any).$chartBridge.downloadPNG();
         },
         dlCSV() {
             downloadURI(this.$store.getters['dataStore/tableCSVDataURI'], 'export.csv');
