@@ -275,6 +275,15 @@ export class ChartBridge {
     }
 
 
+    public downloadSVG(): void {
+        if (this.chart) {
+            this.chart.exportChart({
+                type: 'image/svg+xml'
+            });
+        }
+    }
+
+
     public downloadChartConfig(): void {
         const options = this.getChartOptionsForExport();
         const json = JSON.stringify(options, void 0, 2);
