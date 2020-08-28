@@ -67,17 +67,6 @@
                         </li>
                         <li>
                             <button
-                                @click="dlSVG"
-                                @keydown.enter="dlSVG"
-                            >
-                                <img
-                                    alt=""
-                                    :src="pictureIcon"
-                                >
-                                SVG Image
-                            </button>
-                        </li><li>
-                            <button
                                 @click="dlPNG"
                                 @keydown.enter="dlPNG"
                             >
@@ -85,9 +74,22 @@
                                     alt=""
                                     :src="pictureIcon"
                                 >
-                                PNG Image
+                                Image
                             </button>
-                        </li><li>
+                        </li>
+                        <li>
+                            <button
+                                @click="dlSVG"
+                                @keydown.enter="dlSVG"
+                            >
+                                <img
+                                    alt=""
+                                    :src="pictureIcon"
+                                >
+                                Vector Image
+                            </button>
+                        </li>
+                        <li>
                             <button
                                 @click="dlCSV"
                                 @keydown.enter="dlCSV"
@@ -98,7 +100,8 @@
                                 >
                                 CSV Data
                             </button>
-                        </li><li>
+                        </li>
+                        <li>
                             <button
                                 @click="dlChartConfig"
                                 @keydown.enter="dlChartConfig"
@@ -275,7 +278,7 @@ export default {
         box-sizing: border-box;
         overflow: hidden;
         position: absolute;
-        top: 35px;
+        top: 36px;
         right: 5px;
         background-color: @export-dialog-bg;
         border: 1px solid @export-dialog-border;
