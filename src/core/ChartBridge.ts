@@ -43,7 +43,7 @@ export class ChartBridge {
     /**
      * Construct the class with a Vuex store instance
      */
-    constructor(store: Store<any>) {
+    constructor(store: Store<any>, private Highcharts: GenericObject) {
         this.updateProgressState = {
             intervalTimer: null,
             prevTimestamp: 0,
@@ -304,6 +304,37 @@ export class ChartBridge {
     }
 
 
+    public downloadAudio(): void {
+        if (!this.browserSupportsRecording()) {
+            throw new Error('Browser does not support media recording. Audio could not be downloaded.');
+        }
+        if (this.chart) {
+            const context: AudioContext = this.Highcharts.audioContext;
+            const destination = context.createMediaStreamDestination();
+            this.setAudioDestinationNode(destination);
+
+            const recorder = this.getMediaRecorder(destination.stream);
+            const data: any = [];
+            recorder.ondataavailable = (e: GenericObject) => {
+                data.push(e.data);
+            };
+            recorder.onstop = () => {
+                const blob = new Blob(data, { 'type' : recorder.mimeType });
+                const url = URL.createObjectURL(blob);
+                const filename = this.getChartTitleForExport() + '.'
+                    + this.getFileExtensionFromMimeType(recorder.mimeType);
+                downloadURI(url, filename);
+            };
+
+            recorder.start();
+            this.playChart(() => {
+                this.setAudioDestinationNode();
+                recorder.stop();
+            });
+        }
+    }
+
+
     private getChartOptionsForExport(): GenericObject {
         const userOptions = deepMerge(this.chart?.userOptions, {});
         if (userOptions) {
@@ -313,6 +344,52 @@ export class ChartBridge {
             return userOptions;
         }
         return {};
+    }
+
+
+    private getMediaRecorder(stream: MediaStream, audioOnly = true): GenericObject {
+        const Recorder = (window as any).MediaRecorder;
+        const preferredMimeTypes = audioOnly ? [
+            'audio/wav',
+            'audio/mpeg',
+            'audio/ogg',
+            'audio/x-aiff',
+            'audio/webm',
+        ] : [];
+        const mimeType = preferredMimeTypes.find((type) => Recorder.isTypeSupported(type));
+        if (!mimeType) {
+            throw new Error('Media recording not supported by browser');
+        }
+        return new Recorder(stream, {
+            mimeType
+        });
+    }
+
+
+    private getFileExtensionFromMimeType(mimeType: string): string {
+        const mapping: GenericObject = {
+            'audio/wav': 'wav',
+            'audio/mpeg': 'mp3',
+            'audio/ogg': 'ogg',
+            'audio/x-aiff': 'aiff',
+            'audio/webm': 'webm'
+        };
+        const extension = Object.keys(mapping).find((key) => mimeType.indexOf(key) > -1);
+        if (!extension) {
+            throw new Error('Unknown mime type ' + mimeType);
+        }
+        return mapping[extension];
+    }
+
+
+    private browserSupportsRecording(): boolean {
+        return !!(window as any).MediaRecorder;
+    }
+
+
+    private setAudioDestinationNode(node?: AudioNode) {
+        this.Highcharts.sonification.Instrument.prototype.destinationNode = node ||
+            this.Highcharts.audioContext.destination;
     }
 
 

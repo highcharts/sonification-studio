@@ -39,7 +39,7 @@ import { store } from '../store/store';
 import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
 
 import { ChartBridge } from '../core/ChartBridge';
-Vue.prototype.$chartBridge = new ChartBridge(store);
+Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
 
 export default {
     store,

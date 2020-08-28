@@ -149,7 +149,7 @@ export default {
             console.log('Video download to be implemented.');
         },
         dlAudio() {
-            console.log('Audio download to be implemented.');
+            (this as any).$chartBridge.downloadAudio();
         },
         dlSVG() {
             (this as any).$chartBridge.downloadSVG();
