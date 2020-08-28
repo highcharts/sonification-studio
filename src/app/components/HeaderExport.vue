@@ -16,6 +16,17 @@
             >
         </SEButton>
 
+        <transition name="fade-in">
+            <SEModalMessage v-show="rendering">
+                <img
+                    alt=""
+                    class="spinnerIcon"
+                    :src="spinnerIcon"
+                >
+                <span class="render-message">Rendering</span>
+            </SEModalMessage>
+        </transition>
+
         <transition
             name="popup-slide"
             @enter="startSlide"
@@ -114,11 +125,14 @@ import pictureIcon from '../assets/image-regular.svg';
 import videoIcon from '../assets/film-solid.svg';
 import musicIcon from '../assets/music-solid.svg';
 import csvIcon from '../assets/file-csv-solid.svg';
+import spinnerIcon from '../assets/spinner-solid.svg';
 import SEButton from './basic/SEButton.vue';
+import SEModalMessage from './basic/SEModalMessage.vue';
 
 export default {
     components: {
-        SEButton
+        SEButton,
+        SEModalMessage
     },
     data() {
         return {
@@ -128,7 +142,9 @@ export default {
             videoIcon,
             musicIcon,
             csvIcon,
-            popupVisible: false
+            spinnerIcon,
+            popupVisible: false,
+            rendering: false
         };
     },
     mounted() {
@@ -149,7 +165,15 @@ export default {
             console.log('Video download to be implemented.');
         },
         dlAudio() {
-            (this as any).$chartBridge.downloadAudio();
+            this.rendering = true;
+            try {
+                (this as any).$chartBridge.downloadAudio(() => {
+                    this.rendering = false;
+                });
+            } catch (e) {
+                this.rendering = false;
+                throw e;
+            }
         },
         dlSVG() {
             (this as any).$chartBridge.downloadSVG();
@@ -196,6 +220,45 @@ export default {
                 filter: none;
             }
         }
+    }
+
+    .render-message {
+        display: block;
+    }
+
+    .spinnerIcon {
+        width: 32px;
+        height: 32px;
+        display: block;
+        margin: 0 auto 10px;
+        animation-name: spin;
+        animation-duration: 2000ms;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+    }
+
+    @keyframes spin {
+        from {
+            filter: hue-rotate(0deg);
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+        50% {
+            opacity: 0.3
+        }
+        to {
+            filter: hue-rotate(360deg);
+            opacity: 1;
+            transform: rotate(360deg);
+        }
+    }
+
+    .fade-in-enter, .fade-in-leave-to {
+        opacity: 0;
+    }
+
+    .fade-in-enter-active, .fade-in-leave-active {
+        transition: all 0.25s ease;
     }
 
     .popup-slide-enter, .popup-slide-leave-to {

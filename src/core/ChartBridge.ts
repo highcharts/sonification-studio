@@ -304,7 +304,7 @@ export class ChartBridge {
     }
 
 
-    public downloadAudio(): void {
+    public downloadAudio(complete: () => void): void {
         if (!this.browserSupportsRecording()) {
             throw new Error('Browser does not support media recording. Audio could not be downloaded.');
         }
@@ -324,6 +324,11 @@ export class ChartBridge {
                 const filename = this.getChartTitleForExport() + '.'
                     + this.getFileExtensionFromMimeType(recorder.mimeType);
                 downloadURI(url, filename);
+                complete();
+            };
+            recorder.onerror = (e: { error: DOMException }) => {
+                complete();
+                throw e.error;
             };
 
             recorder.start();
