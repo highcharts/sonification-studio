@@ -313,30 +313,110 @@ export class ChartBridge {
             const destination = context.createMediaStreamDestination();
             this.setAudioDestinationNode(destination);
 
-            const recorder = this.getMediaRecorder(destination.stream);
-            const data: any = [];
-            recorder.ondataavailable = (e: GenericObject) => {
-                data.push(e.data);
-            };
-            recorder.onstop = () => {
-                const blob = new Blob(data, { 'type' : recorder.mimeType });
-                const url = URL.createObjectURL(blob);
-                const filename = this.getChartTitleForExport() + '.'
-                    + this.getFileExtensionFromMimeType(recorder.mimeType);
-                downloadURI(url, filename);
-                complete();
-            };
-            recorder.onerror = (e: { error: DOMException }) => {
+            const recorder = this.recordStream(destination.stream, true, complete, (e) => {
                 complete();
                 throw e.error;
-            };
+            });
 
-            recorder.start();
             this.playChart(() => {
                 this.setAudioDestinationNode();
                 recorder.stop();
             });
         }
+    }
+
+
+    public downloadVideo(framerate: number): Promise<void> {
+        if (!this.browserSupportsRecording()) {
+            throw new Error('Browser does not support media recording. Video could not be downloaded.');
+        }
+        const canvas = document.createElement('canvas');
+        const canvasStream = (canvas as any).captureStream(framerate);
+        if (!canvasStream) {
+            throw new Error('Canvas capture stream not supported.');
+        }
+        const videoTrack = canvasStream.getVideoTracks()[0];
+        if (!videoTrack) {
+            throw new Error('Could not get canvas video track.');
+        }
+
+        const audioContext: AudioContext = this.Highcharts.audioContext;
+        const audioDestination = audioContext.createMediaStreamDestination();
+        const exportStream = audioDestination.stream;
+        exportStream.addTrack(videoTrack);
+        this.setAudioDestinationNode(audioDestination);
+
+        return new Promise((resolve, reject) => {
+            const recorder = this.recordStream(exportStream, false, void 0, reject);
+            const chartPainter = setInterval(() => {
+                this.drawChartOnCanvas(canvas).catch((e) => {
+                    clearInterval(chartPainter);
+                    recorder.stop();
+                    this.setAudioDestinationNode();
+                    reject(e);
+                });
+            }, 1000 / framerate);
+
+            this.playChart(() => {
+                recorder.stop();
+                this.setAudioDestinationNode();
+                clearInterval(chartPainter);
+                resolve();
+            });
+        });
+    }
+
+
+    private recordStream(
+        stream: MediaStream,
+        audioOnly: boolean,
+        onEnd?: () => void,
+        onError?: (e: { error: DOMException }) => void
+    ): GenericObject {
+        const recorder = this.getMediaRecorder(stream, audioOnly);
+        const data: any = [];
+        recorder.ondataavailable = (e: GenericObject) => {
+            data.push(e.data);
+        };
+        recorder.onstop = () => {
+            const blob = new Blob(data, { 'type' : recorder.mimeType });
+            const url = URL.createObjectURL(blob);
+            const filename = this.getChartTitleForExport() + '.'
+                + this.getFileExtensionFromMimeType(recorder.mimeType);
+            downloadURI(url, filename);
+            onEnd?.();
+        };
+        recorder.onerror = onError;
+
+        recorder.start();
+        return recorder;
+    }
+
+
+    private drawChartOnCanvas(canvas: HTMLCanvasElement): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const svg = this.chart?.renderer.box.outerHTML;
+            const win = window;
+            const img = new win.Image();
+            const imgURL = (win.URL || win.webkitURL || win).createObjectURL(new win.Blob([svg], {
+                type: 'image/svg+xml;charset-utf-16'
+            }));
+            const ctx = canvas.getContext && canvas.getContext('2d');
+
+            img.onload = () => {
+                if (ctx) {
+                    canvas.height = img.height * 2;
+                    canvas.width = img.width * 2;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve();
+                } else {
+                    reject('Failed to obtain canvas drawing context.');
+                }
+            };
+
+            img.onerror = () => reject('Failed to load chart SVG into image object.');
+            img.src = imgURL;
+        });
     }
 
 
@@ -355,12 +435,15 @@ export class ChartBridge {
     private getMediaRecorder(stream: MediaStream, audioOnly = true): GenericObject {
         const Recorder = (window as any).MediaRecorder;
         const preferredMimeTypes = audioOnly ? [
-            'audio/wav',
             'audio/mpeg',
+            'audio/wav',
             'audio/ogg',
             'audio/x-aiff',
             'audio/webm',
-        ] : [];
+        ] : [
+            'video/mp4',
+            'video/webm'
+        ];
         const mimeType = preferredMimeTypes.find((type) => Recorder.isTypeSupported(type));
         if (!mimeType) {
             throw new Error('Media recording not supported by browser');
@@ -373,11 +456,13 @@ export class ChartBridge {
 
     private getFileExtensionFromMimeType(mimeType: string): string {
         const mapping: GenericObject = {
-            'audio/wav': 'wav',
             'audio/mpeg': 'mp3',
+            'audio/wav': 'wav',
             'audio/ogg': 'ogg',
             'audio/x-aiff': 'aiff',
-            'audio/webm': 'webm'
+            'audio/webm': 'webm',
+            'video/mp4': 'mp4',
+            'video/webm': 'webm'
         };
         const extension = Object.keys(mapping).find((key) => mimeType.indexOf(key) > -1);
         if (!extension) {

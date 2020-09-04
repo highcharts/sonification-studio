@@ -165,7 +165,13 @@ export default {
             el.style.height = '';
         },
         dlVideo() {
-            console.log('Video download to be implemented.');
+            this.rendering = true;
+            (this as any).$chartBridge.downloadVideo(24).then(() => {
+                this.rendering = false;
+            }).catch((e: unknown) => {
+                this.rendering = false;
+                throw e;
+            });
         },
         dlAudio() {
             this.rendering = true;
