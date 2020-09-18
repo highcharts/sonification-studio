@@ -53,5 +53,6 @@ export default {
     .toggleView {
         width: 100%;
         margin-bottom: 15px;
+        margin-top: 3px;
     }
 </style>
