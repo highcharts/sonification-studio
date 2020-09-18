@@ -21,6 +21,7 @@
             </span>
             <SEButton
                 class="add-btn"
+                aria-label="Add rows"
                 @click="onAddRowsClick"
             >
                 Add
@@ -58,6 +59,7 @@
                 </SEControl>
             </div>
             <SEButton
+                aria-label="Fill column"
                 @click="fillColumn()"
             >
                 Fill
