@@ -6,6 +6,7 @@
     >
         <SEButton
             dark
+            :aria-expanded="popupVisible"
             @click="popupVisible=!popupVisible"
         >
             Save project
