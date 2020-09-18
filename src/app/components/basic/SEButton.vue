@@ -4,11 +4,15 @@
     Props:
         - [dark]: Boolean - Alternate styling for a dark button.
         - [wide]: Boolean - Alternate styling for a wider button.
+        - [aria-expanded]: Boolean - Aria-expanded attribute for the button.
+        - [aria-label]: String - Aria-label attribute for the button.
 -->
 <template>
     <button
         class="se-button"
         :class="{ dark: dark, wide: wide }"
+        :aria-expanded="ariaExpanded ? 'true' : ariaExpanded === false ? 'false' : void 0"
+        :aria-label="ariaLabel"
         @click="$emit('click')"
         @keydown="$emit('keydown', $event)"
     >
@@ -20,7 +24,9 @@
 export default {
     props: {
         dark: { type: Boolean, default: false },
-        wide: { type: Boolean, default: false }
+        wide: { type: Boolean, default: false },
+        ariaExpanded: { type: Boolean, default: null },
+        ariaLabel: { type: String, default: null }
     }
 };
 </script>
