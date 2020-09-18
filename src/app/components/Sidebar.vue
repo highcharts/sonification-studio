@@ -8,7 +8,7 @@
             <HeaderTab
                 small
                 role="tab"
-                :aria-selected="selectedSidebarTabId === 'Visual'"
+                :aria-selected="selectedSidebarTabId === 'Visual' ? 'true' : 'false'"
                 :selected="selectedSidebarTabId === 'Visual'"
                 aria-controls="chartMappingControls"
                 :icon="visualIcon"
@@ -19,7 +19,7 @@
             <HeaderTab
                 small
                 role="tab"
-                :aria-selected="selectedSidebarTabId === 'Audio'"
+                :aria-selected="selectedSidebarTabId === 'Audio' ? 'true' : 'false'"
                 :selected="selectedSidebarTabId === 'Audio'"
                 aria-controls="audioMappingControls"
                 :icon="audioIcon"
