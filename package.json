@@ -1,6 +1,6 @@
 {
   "name": "sonification-explorer",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Edit and visualize data with charts and sound",
   "private": true,
   "scripts": {
