@@ -16,10 +16,13 @@
                 Text Description
             </SEButton>
         </div>
-        <textarea
-            :value="textDescription"
-            disabled
-        />
+        <p
+            id="textdesc-display"
+            ref="description"
+            tabindex="-1"
+        >
+            {{ textDescription }}
+        </p>
     </section>
 </template>
 
@@ -54,6 +57,11 @@ export default {
         describeColumn() {
             const columnData = this.$store.getters['dataStore/column'](this.selectedColumn);
             this.textDescription = describeColumn(columnData);
+
+            const description = this.$refs.description as HTMLElement;
+            if (description && description.focus) {
+                description.focus();
+            }
         }
     }
 };
@@ -87,9 +95,8 @@ export default {
         width: 160px;
     }
 
-    textarea {
+    #textdesc-display {
         flex: 1;
-        resize: none;
         margin-top: 10px;
         padding: 5px;
         border: 1px solid @text-description-border-color;
