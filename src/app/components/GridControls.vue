@@ -48,7 +48,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Fill equation"
-                    helptext="Fill a column with an equation. 'i' refers to the row number. Example: 2 + 5 * i. Refer to values in other columns by the column name. Example: 2 * B + A."
+                    helptext="Fill each row in a column with the results from an equation. Refer to values in other columns by the column name. Example: 2 * B + A. Note: 'i' refers to the row number. Example: 2 + 5 * i."
                     helptext-below
                 >
                     <SETextbox
