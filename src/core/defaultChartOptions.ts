@@ -2,7 +2,8 @@ export const defaultChartOptions = {
     chart: {
         animation: {
             duration: 600
-        }
+        },
+        zoomType: 'x'
     },
     exporting: {
         enabled: false,
@@ -55,8 +56,32 @@ export const defaultChartOptions = {
     },
     plotOptions: {
         series: {
-            animation: false
+            animation: false,
+            dataGrouping: {
+                enabled: true,
+                groupPixelWidth: 3
+            }
+        },
+        scatter: {
+            marker: {
+                enabled: true
+            }
         }
+    },
+    navigator: {
+        enabled: false
+    },
+    rangeSelector: {
+        enabled: false
+    },
+    scrollbar: {
+        enabled: false
+    },
+    yAxis: {
+        opposite: false
+    },
+    xAxis: {
+        type: 'linear'
     },
     data: {
         csv: '',

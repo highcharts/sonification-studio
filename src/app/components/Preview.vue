@@ -8,6 +8,7 @@
                 ref="chart"
                 class="chart"
                 :options="chartOptions"
+                :constructor-type="'stockChart'"
             />
         </div>
     </section>
