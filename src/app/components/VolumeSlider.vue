@@ -3,9 +3,11 @@
         <SESlider
             id="slider-volume"
             v-model.number="volume"
-            :show-value="false"
+            :show-value-input="false"
             label="Volume"
             dark
+            show-value-in-label
+            value-is-pct
         />
     </div>
 </template>

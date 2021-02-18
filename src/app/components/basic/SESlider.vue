@@ -11,7 +11,8 @@
         - [step]: Number - Step for slider values.
         - [dark]: Boolean - Alternate styling for dark backgrounds.
         - [disabled]: Boolean - Do not allow user input.
-        - [showValue]: Boolean - Display value of slider in an input box.
+        - [showValueInput]: Boolean - Display value of slider in an input box.
+        - [showPctInLabel]: Boolean - Display percentage value of slider after the label.
 
     Events:
         - input: Re-emits the input event for use with v-model.
@@ -25,10 +26,16 @@
             :class="{ dark: dark }"
         >
             {{ label }}
+            <span
+                v-if="showValueInLabel"
+                class="label-value"
+            >
+                {{ value + '' + (valueIsPct ? '%' : '') }}
+            </span>
         </label>
         <div class="se-slider-inner">
             <input
-                v-if="showValue"
+                v-if="showValueInput"
                 type="number"
                 class="se-slider-value-label"
                 :aria-labelledby="label && uuid || labelledby"
@@ -67,7 +74,9 @@ export default {
         labelledby: { type: String, default: '' },
         dark: { type: Boolean, default: false },
         disabled: { type: Boolean, default: false },
-        showValue: { type: Boolean, default: true },
+        showValueInput: { type: Boolean, default: true },
+        showValueInLabel: { type: Boolean, default: false },
+        valueIsPct: { type: Boolean, default: false },
         min: { type: Number, default: 0 },
         max: { type: Number, default: 100 },
         value: { type: Number, default: 50 },
@@ -203,5 +212,13 @@ export default {
 
     input[type=range]::-moz-focus-outer {
         border: 0;
+    }
+
+    .label-value {
+        font-size: 0.85em;
+        opacity: 0.9;
+        padding-left: 6px;
+        margin-left: 6px;
+        border-left: 1px solid white;
     }
 </style>

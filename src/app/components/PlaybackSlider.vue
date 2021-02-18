@@ -3,7 +3,7 @@
         <SESlider
             id="slider-playback"
             label="Playback"
-            :show-value="false"
+            :show-value-input="false"
             :value="playbackProgress"
             dark
             disabled
