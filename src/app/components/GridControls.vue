@@ -11,7 +11,7 @@
                 v-model.number="rowsToAdd"
                 type="number"
                 min="0"
-                aria-label="Add rows"
+                aria-label="Number of rows to add"
             >
             <span
                 aria-hidden="true"
@@ -21,7 +21,7 @@
             </span>
             <SEButton
                 class="add-btn"
-                aria-label="Add rows"
+                aria-label="Add empty rows to grid"
                 @click="onAddRowsClick"
             >
                 Add
