@@ -15,15 +15,6 @@
             >
                 Text Description
             </SEButton>
-            <SEButton
-                dark
-                wide
-                @click="speakTextDescription"
-                @keydown.esc="cancel"
-                @keydown.control="cancel"
-            >
-                Speak
-            </SEButton>
         </div>
         <textarea
             :value="textDescription"
@@ -37,7 +28,6 @@ import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import { GenericObject } from '../../core/utils/objects';
 import { describeColumn } from '../../core/textDescription';
-import { speakText, cancelSpeech } from '../../core/tts';
 
 export default {
     components: {
@@ -64,16 +54,7 @@ export default {
         describeColumn() {
             const columnData = this.$store.getters['dataStore/column'](this.selectedColumn);
             this.textDescription = describeColumn(columnData);
-        },
-
-        speakTextDescription() {
-            const text = this.textDescription.trim();
-            if (text) {
-                speakText(text);
-            }
-        },
-
-        cancel: cancelSpeech
+        }
     }
 };
 </script>
