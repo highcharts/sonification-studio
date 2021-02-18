@@ -73,9 +73,6 @@
             <SEFileUploadButton @load="onDataImport">
                 Import data
             </SEFileUploadButton>
-            <SEButton @click="onExportDataClick">
-                Export data
-            </SEButton>
         </div>
     </div>
 </template>
@@ -111,10 +108,6 @@ export default {
     methods: {
         onClearDataClick() {
             this.$store.commit('dataStore/setTableRowData', []);
-        },
-
-        onExportDataClick() {
-            downloadURI(this.$store.getters['dataStore/tableCSVDataURI'], 'export.csv');
         },
 
         onAddRowsClick() {
