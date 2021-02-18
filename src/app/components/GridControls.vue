@@ -78,7 +78,6 @@
 </template>
 
 <script lang="ts">
-import { downloadURI } from '../../core/utils/browserUtils';
 import SEButton from './basic/SEButton.vue';
 import SEFileUploadButton from './basic/SEFileUploadButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
