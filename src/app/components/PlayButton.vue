@@ -11,7 +11,9 @@
                 alt=""
                 :src="iconPath"
             >
-            <slot />
+            <span class="play-button-content">
+                <slot />
+            </span>
         </button>
     </div>
 </template>
@@ -28,7 +30,8 @@ export default {
     @import "../colors";
 
     button {
-        padding: 5px;
+        padding: 5px 0;
+        width: 38px;
         background: none;
         color: @play-controls-color;
         border: none;
@@ -37,6 +40,7 @@ export default {
         display: flex;
         flex-direction: column;
         justify-content: center;
+        align-items: center;
         &:hover {
             color: @play-btn-hover-color;
             img {

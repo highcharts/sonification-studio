@@ -1,22 +1,16 @@
 <template>
     <div class="play-buttons-container">
         <PlayButton
-            :icon-path="playIcon"
-            @click="$chartBridge.playChart()"
+            :icon-path="playPauseIcon"
+            @click="onPlayPauseClick"
         >
-            Play
+            {{ playing ? 'Pause' : 'Play' }}
         </PlayButton>
         <PlayButton
             :icon-path="stopIcon"
-            @click="$chartBridge.stopChart()"
+            @click="onStopClick"
         >
             Stop
-        </PlayButton>
-        <PlayButton
-            :icon-path="pauseIcon"
-            @click="$chartBridge.pauseChart()"
-        >
-            Pause
         </PlayButton>
         <PlayButton
             :icon-path="holdIcon"
@@ -29,7 +23,7 @@
         </PlayButton>
         <PlayButton
             :icon-path="loopIcon"
-            @click="$chartBridge.loopChart()"
+            @click="onLoopClick"
         >
             Loop
         </PlayButton>
@@ -50,8 +44,39 @@ export default {
     },
     data() {
         return {
-            playIcon, stopIcon, pauseIcon, holdIcon, loopIcon
+            playing: false,
+            looping: false,
+            playPauseIcon: playIcon,
+            stopIcon, pauseIcon, holdIcon, loopIcon
         };
+    },
+    methods: {
+        onPlayPauseClick() {
+            this.playPauseIcon = this.playing ? playIcon : pauseIcon;
+            if (this.playing) {
+                this.$chartBridge.pauseChart();
+            } else if (this.looping) {
+                this.$chartBridge.loopChart();
+            } else {
+                this.$chartBridge.playChart(this.resetPlayPauseBtn.bind(this));
+            }
+            this.playing = !this.playing;
+        },
+        onLoopClick() {
+            this.playing = true;
+            this.looping = true;
+            this.playPauseIcon = pauseIcon;
+            this.$chartBridge.loopChart();
+        },
+        resetPlayPauseBtn() {
+            this.playing = false;
+            this.playPauseIcon = playIcon;
+        },
+        onStopClick() {
+            this.looping = false;
+            this.resetPlayPauseBtn();
+            this.$chartBridge.stopChart();
+        }
     }
 };
 </script>
