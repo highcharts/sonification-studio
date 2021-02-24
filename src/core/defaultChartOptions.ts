@@ -18,13 +18,15 @@ export const defaultChartOptions = {
         }
     },
     accessibility: {
-        screenReaderRegion: {
-            beforeChartFormat: '<h5>{chartTitle}</h5>' +
+        screenReaderSection: {
+            beforeChartFormat: '<div>{chartTitle}</div>' +
+                '<div>{typeDescription}</div>' +
                 '<div>{chartSubtitle}</div>' +
                 '<div>{chartLongdesc}</div>' +
                 '<div>{xAxisDescription}</div>' +
                 '<div>{yAxisDescription}</div>'
-        }
+        },
+        landmarkVerbosity: 'one'
     },
     sonification: {
         enabled: true,
