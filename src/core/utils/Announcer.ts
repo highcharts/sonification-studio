@@ -1,7 +1,7 @@
 /*
  * Utility class for announcing messages to screen readers
  */
-export class Announcer {
+export default class Announcer {
     private container?: HTMLElement;
     private clearAnnouncementRegionTimer?: number;
 
@@ -29,6 +29,7 @@ export class Announcer {
         if (this.container) {
             this.container.innerHTML = message;
         }
+
         // Delete contents after a little while to avoid user finding the live
         // region in the DOM.
         if (this.clearAnnouncementRegionTimer) {
