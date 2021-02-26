@@ -10,7 +10,7 @@ export function getUUID(prefix = ''): string {
 
 
 export function isObject(x: unknown): boolean {
-    return (x && typeof x === 'object' && !Array.isArray(x));
+    return !!(x && typeof x === 'object' && !Array.isArray(x));
 }
 
 
