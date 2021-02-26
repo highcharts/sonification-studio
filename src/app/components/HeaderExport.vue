@@ -208,12 +208,12 @@ export default {
     @import "../colors";
 
     .export-container {
-        width: 100%;
         display: flex;
         justify-content: flex-end;
         align-items: center;
         position: relative;
         z-index: 10;
+        min-width: 140px;
     }
 
     .se-button {
@@ -282,6 +282,7 @@ export default {
     }
 
     .export-popup {
+        min-width: 200px;
         box-sizing: border-box;
         overflow: hidden;
         position: absolute;

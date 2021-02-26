@@ -17,12 +17,28 @@
                 {{ tab.name }}
             </HeaderTab>
         </div>
+        <div class="header-spacing" />
+        <a
+            class="header-back"
+            href="#"
+            @keydown.enter="goBack"
+            @keydown.space="goBack"
+            @click="goBack"
+        >
+            <img
+                class="back-icon"
+                alt=""
+                :src="backIcon"
+            >
+            Back
+        </a>
     </nav>
 </template>
 
 <script lang="ts">
 import HeaderTab from './HeaderTab.vue';
 import { mapState } from 'vuex';
+import backIcon from '../assets/angle-left-solid.svg';
 
 export default {
     components: {
@@ -30,6 +46,7 @@ export default {
     },
     data() {
         return {
+            backIcon,
             headerTabs: [{
                 name: 'Data',
                 controls: 'dataContent',
@@ -50,16 +67,28 @@ export default {
             // Make sure we recalculate speed when data has changed
             this.$store.commit('globalSonifyParametersStore/triggerPlaybackOptsRecalculation');
             (this as any).$chartBridge.reflowChart();
+        },
+
+        goBack(e: Event) {
+            this.$store.commit('viewStore/setAppActive', false);
+            e.preventDefault();
         }
     }
 };
 </script>
 
 <style lang="less" scoped>
+    @import "../colors";
+
     nav {
         width: 100%;
+        display: flex;
+        align-items: center;
     }
+
     .header-tablist {
+        flex: 1;
+        max-width: 600px;
         display: flex;
         height: 100%;
         padding-bottom: 1px;
@@ -74,5 +103,39 @@ export default {
     .header-tab {
         flex: 1;
         margin-right: 1px;
+    }
+
+    .header-spacing {
+        flex: 1;
+    }
+
+    .header-back {
+        margin-right: 7px;
+        padding: 3px 15px 3px 5px;
+        line-height: 24px;
+        vertical-align: middle;
+        text-decoration: none;
+        color: @dark-gray-5;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        img {
+            width: 24px;
+            height: 24px;
+            margin-top: -3px;
+            margin-right: -4px;
+            vertical-align: middle;
+        }
+        &:visited {
+            color: @dark-gray-5;
+        }
+        &:hover {
+            color: @dark-gray-6;
+            border: 1px solid @dark-gray-7;
+        }
+        &:active {
+            color: @dark-gray-5;
+            border: 1px solid @dark-gray-5;
+            background-color: rgba(0, 0, 0, 0.01);
+        }
     }
 </style>

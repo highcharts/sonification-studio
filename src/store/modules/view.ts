@@ -23,6 +23,7 @@ export const viewStore = {
         reactToParameterUpdates: 0,
         reactToDataUpdates: 0,
 
+        appActive: true,
         selectedHeaderTabContent: 'dataContent',
         selectedHeaderTabId: 'Data',
         selectedSidebarTabId: 'Visual',
@@ -35,6 +36,10 @@ export const viewStore = {
     },
 
     mutations: {
+        setAppActive(state: any, appActive: boolean) {
+            state.appActive = appActive;
+        },
+
         selectHeaderTab(state: any, payload: SelectHeaderTabPayload) {
             state.selectedHeaderTabId = payload.selectedTabId;
             state.selectedHeaderTabContent = payload.contentId;

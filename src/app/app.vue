@@ -4,10 +4,21 @@
 -->
 <template>
     <div class="app-container">
-        <Header />
-        <MainContentView id="mainContentView" />
-        <Footer />
-        <div ref="announce" />
+        <div
+            v-if="!appActive"
+            class="info-container"
+        >
+            Test content
+        </div>
+        <div
+            v-if="appActive"
+            class="editor-container"
+        >
+            <Header />
+            <MainContentView id="mainContentView" />
+            <Footer />
+            <div ref="announce" />
+        </div>
     </div>
 </template>
 
@@ -43,8 +54,9 @@ import Footer from './components/Footer.vue';
 import Announcer from '../core/utils/Announcer';
 import { store } from '../store/store';
 import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
-
+import { mapState } from 'vuex';
 import { ChartBridge } from '../core/ChartBridge';
+
 Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
 const announcer = Vue.prototype.$announcer = new Announcer();
 
@@ -55,6 +67,7 @@ export default {
         MainContentView,
         Footer
     },
+    computed: mapState('viewStore', ['appActive']),
     mounted() {
         removeFocusOutlineUnlessKeypress();
         announcer.init(this.$refs.announce as HTMLElement);
@@ -66,6 +79,12 @@ export default {
     @import "colors";
 
     .app-container {
+        height: 100%;
+        max-height: 100%;
+        width: 100%;
+    }
+
+    .editor-container {
         background-color: @app-bg-color;
         padding: 10px;
         height: 100%;
