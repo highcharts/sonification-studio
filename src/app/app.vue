@@ -7,6 +7,7 @@
         <Header />
         <MainContentView id="mainContentView" />
         <Footer />
+        <div ref="announce" />
     </div>
 </template>
 
@@ -39,11 +40,13 @@ Vue.use(HighchartsVue);
 import Header from './components/Header.vue';
 import MainContentView from './components/MainContentView.vue';
 import Footer from './components/Footer.vue';
+import Announcer from '../core/utils/Announcer';
 import { store } from '../store/store';
 import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
 
 import { ChartBridge } from '../core/ChartBridge';
 Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
+const announcer = Vue.prototype.$announcer = new Announcer();
 
 export default {
     store,
@@ -52,7 +55,10 @@ export default {
         MainContentView,
         Footer
     },
-    mounted: removeFocusOutlineUnlessKeypress
+    mounted() {
+        removeFocusOutlineUnlessKeypress();
+        announcer.init(this.$refs.announce as HTMLElement);
+    }
 };
 </script>
 

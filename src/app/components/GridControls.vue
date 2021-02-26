@@ -107,12 +107,14 @@ export default {
     methods: {
         onClearDataClick() {
             this.$store.commit('dataStore/setTableRowData', []);
+            this.$announcer.announce('Data grid cleared.');
         },
 
         onAddRowsClick() {
             const numRows = this.rowsToAdd;
             if (numRows) {
                 this.$store.commit('dataStore/addTableRows', numRows);
+                this.$announcer.announce('Rows added. Total number of rows: ' + this.$store.getters['dataStore/numRows']);
 
                 // Scroll after row adding has been processed.
                 setTimeout(() => this.$emit('triggerScrollLastGridRowWithData'), 0);
@@ -122,6 +124,7 @@ export default {
         onDataImport(fileContents: string) {
             if (fileContents) {
                 this.$store.dispatch('dataStore/loadFromCSV', fileContents);
+                this.$announcer.announce('Data loaded.');
             }
         },
 
@@ -134,6 +137,7 @@ export default {
                     columnName: destinationColumn,
                     equation
                 });
+                this.$announcer.announce('Column ' + destinationColumn + ' filled.');
             }
         }
     }

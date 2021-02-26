@@ -50,6 +50,10 @@ export const dataStore = {
     },
 
     getters: {
+        numRows: (state: GenericObject): number => {
+            return state.tableRowData.length;
+        },
+
         tableColumnNamesWithData: (state: GenericObject): Array<string> => {
             const rows = state.tableRowData;
             const res: GenericObject = {};
