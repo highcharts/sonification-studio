@@ -94,9 +94,9 @@ import SETextbox from '../basic/SETextbox.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
-import { GenericObject } from '../../../core/utils/objects';
-import { getSeriesId } from '../../../core/utils/chartUtils';
-import { makeSeriesParamPropertyMapping } from '../../../store/storeUtils';
+import { GenericObject } from '../../core/utils/objects';
+import { getSeriesId } from '../../core/utils/chartUtils';
+import { makeSeriesParamPropertyMapping } from '../../store/storeUtils';
 import { mapState } from 'vuex';
 
 export default {

@@ -223,8 +223,8 @@ export default {
     $secondary-font-family: 'Roboto';
     $secondary-foreground-color-opacity: 0.7;
 
-    @import "../../../node_modules/ag-grid-community/src/styles/ag-grid.scss";
-    @import "../../../node_modules/ag-grid-community/src/styles/ag-theme-balham/sass/ag-theme-balham.scss";
+    @import "../../../../node_modules/ag-grid-community/src/styles/ag-grid.scss";
+    @import "../../../../node_modules/ag-grid-community/src/styles/ag-theme-balham/sass/ag-theme-balham.scss";
 
     .ag-header-cell-label {
         justify-content: center;

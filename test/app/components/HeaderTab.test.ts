@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import HeaderTab from '../../../src/app/components/HeaderTab.vue';
+import HeaderTab from '../../../src/app/editor/components/HeaderTab.vue';
 
 describe('HeaderTab.vue', () => {
     test('Should contain button element', () => {

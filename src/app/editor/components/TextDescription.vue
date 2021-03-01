@@ -29,8 +29,8 @@
 <script lang="ts">
 import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
-import { GenericObject } from '../../core/utils/objects';
-import { describeColumn } from '../../core/textDescription';
+import { GenericObject } from '../core/utils/objects';
+import { describeColumn } from '../core/textDescription';
 
 export default {
     components: {

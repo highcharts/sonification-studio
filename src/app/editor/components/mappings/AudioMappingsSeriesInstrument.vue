@@ -57,10 +57,10 @@ import SEButton from '../basic/SEButton.vue';
 import {
     makeSeriesParamPropertyMapping,
     makeSelectedAudioMappingSeriesPropertyMapping
-} from '../../../store/storeUtils';
+} from '../../store/storeUtils';
 import {
     nullFallback
-} from '../../../core/utils/objects';
+} from '../../core/utils/objects';
 
 export default {
     components: {

@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import highchartsIcon from '../assets/highcharts-logo.svg';
-import { version } from '../../../package.json';
+import { version } from '../../../../package.json';
 
 export default {
     data() {

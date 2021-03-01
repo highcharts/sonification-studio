@@ -122,7 +122,7 @@
 </template>
 
 <script lang="ts">
-import { downloadURI } from '../../core/utils/browserUtils';
+import { downloadURI } from '../core/utils/browserUtils';
 import menuIcon from '../assets/bars-solid.svg';
 import jsIcon from '../assets/js-square-brands.svg';
 import pictureIcon from '../assets/image-regular.svg';

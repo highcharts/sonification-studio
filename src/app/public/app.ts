@@ -1,4 +1,25 @@
 import Vue from 'vue';
-import app from '../app.vue';
+import VueRouter from 'vue-router';
+import Editor from '../editor/Editor.vue';
+import Home from '../Home.vue';
+import App from '../App.vue';
 
-new Vue(app).$mount('#app');
+Vue.use(VueRouter);
+
+const routes = [{
+    path: '/',
+    component: Home
+}, {
+    path: '/app',
+    component: Editor
+}];
+
+const router = new VueRouter({
+    routes
+});
+
+new Vue({
+    el: '#app',
+    router,
+    render: h => h(App)
+});

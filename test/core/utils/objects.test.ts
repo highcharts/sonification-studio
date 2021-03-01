@@ -2,7 +2,7 @@ import {
     deepClone,
     deepFreeze,
     setNestedChildProp
-} from '../../../src/core/utils/objects';
+} from '../../../src/app/editor/core/utils/objects';
 
 describe('setNestedChildProp tests', () => {
     test('Setting single prop on empty object', () => {

@@ -70,7 +70,7 @@ export default {
         },
 
         goBack(e: Event) {
-            this.$store.commit('viewStore/setAppActive', false);
+            console.log('woo');
             e.preventDefault();
         }
     }

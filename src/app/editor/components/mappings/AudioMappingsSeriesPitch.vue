@@ -101,13 +101,13 @@ import SERadioGroup from '../basic/SERadioGroup.vue';
 import {
     makeSeriesParamPropertyMapping,
     makeSelectedAudioMappingSeriesPropertyMapping
-} from '../../../store/storeUtils';
+} from '../../store/storeUtils';
 import {
     getMappingDataProps
-} from '../../../core/utils/chartUtils';
+} from '../../core/utils/chartUtils';
 import {
     nullFallback
-} from '../../../core/utils/objects';
+} from '../../core/utils/objects';
 
 export default {
     components: {

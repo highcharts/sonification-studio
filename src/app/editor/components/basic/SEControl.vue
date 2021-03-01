@@ -77,7 +77,7 @@
 </template>
 
 <script lang="ts">
-import { getUUID } from '../../../core/utils/objects';
+import { getUUID } from '../../core/utils/objects';
 
 export default {
     props: {

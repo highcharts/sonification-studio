@@ -39,9 +39,9 @@ import AudioMappingsSeriesDuration from './AudioMappingsSeriesDuration.vue';
 import AudioMappingsSeriesPan from './AudioMappingsSeriesPan.vue';
 import AudioMappingsSeriesPitch from './AudioMappingsSeriesPitch.vue';
 import AudioMappingsSeriesVolume from './AudioMappingsSeriesVolume.vue';
-import { GenericObject } from '../../../core/utils/objects';
-import { makeSelectedAudioMappingSeriesPropertyMapping } from '../../../store/storeUtils';
-import { getSeriesId } from '../../../core/utils/chartUtils';
+import { GenericObject } from '../../core/utils/objects';
+import { makeSelectedAudioMappingSeriesPropertyMapping } from '../../store/storeUtils';
+import { getSeriesId } from '../../core/utils/chartUtils';
 import { mapState } from 'vuex';
 
 export default {
