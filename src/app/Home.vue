@@ -5,10 +5,9 @@
         </header>
         <main>
             <div>Main content</div>
-            <a
-                href="#"
-                @click="goToApp"
-            >Go to app</a>
+            <router-link to="/app">
+                Go to app
+            </router-link>
         </main>
         <footer>
             Footer content
@@ -17,13 +16,6 @@
 </template>
 
 <script lang="ts">
-export default {
-    methods: {
-        goToApp() {
-            console.log('woo');
-        }
-    }
-};
 </script>
 
 <style lang="less" scoped>

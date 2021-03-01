@@ -18,12 +18,9 @@
             </HeaderTab>
         </div>
         <div class="header-spacing" />
-        <a
+        <router-link
             class="header-back"
-            href="#"
-            @keydown.enter="goBack"
-            @keydown.space="goBack"
-            @click="goBack"
+            to="/"
         >
             <img
                 class="back-icon"
@@ -31,7 +28,7 @@
                 :src="backIcon"
             >
             Back
-        </a>
+        </router-link>
     </nav>
 </template>
 
@@ -67,11 +64,6 @@ export default {
             // Make sure we recalculate speed when data has changed
             this.$store.commit('globalSonifyParametersStore/triggerPlaybackOptsRecalculation');
             (this as any).$chartBridge.reflowChart();
-        },
-
-        goBack(e: Event) {
-            console.log('woo');
-            e.preventDefault();
         }
     }
 };
