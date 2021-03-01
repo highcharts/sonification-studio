@@ -19,15 +19,23 @@
         </div>
         <div class="header-spacing" />
         <router-link
+            v-slot="{ navigate }"
             class="header-back"
             to="/"
+            custom
         >
-            <img
-                class="back-icon"
-                alt=""
-                :src="backIcon"
+            <a
+                href="#"
+                @click="navigate"
+                @keydown.space="navigate"
             >
-            Back
+                <img
+                    class="back-icon"
+                    alt=""
+                    :src="backIcon"
+                >
+                Back
+            </a>
         </router-link>
     </nav>
 </template>
@@ -110,6 +118,7 @@ export default {
         color: @dark-gray-5;
         border: 1px solid transparent;
         border-radius: 5px;
+        cursor: pointer;
         img {
             width: 24px;
             height: 24px;
