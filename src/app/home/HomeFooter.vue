@@ -3,6 +3,10 @@
         <div class="footer-content">
             <div class="center">
                 <div class="apptitle">
+                    <img
+                        :src="hcIcon"
+                        alt=""
+                    >
                     Highcharts Sonification Studio
                 </div>
                 <div class="copyright">
@@ -95,10 +99,11 @@ import instIcon from './instagram-brands.svg';
 import lnIcon from './linkedin-in-brands.svg';
 import twIcon from './twitter-brands.svg';
 import ytIcon from './youtube-brands.svg';
+import hcIcon from './highcharts-icon.svg';
 
 export default {
     data() {
-        return { fbIcon, ghIcon, instIcon, lnIcon, twIcon, ytIcon };
+        return { hcIcon, fbIcon, ghIcon, instIcon, lnIcon, twIcon, ytIcon };
     },
     computed: {
         year: () => new Date().getFullYear()
@@ -135,6 +140,12 @@ export default {
         grid-row: 1;
         text-align: center;
         margin: 0 20px;
+        img {
+            width: 20px;
+            height: 20px;
+            margin-bottom: -3px;
+            margin-right: 2px;
+        }
     }
 
     .copyright {
@@ -217,6 +228,7 @@ export default {
         .center {
             grid-column: 1;
             grid-row: 1;
+            margin: 0 5px;
         }
         .footer-list-links {
             grid-column: 1;
