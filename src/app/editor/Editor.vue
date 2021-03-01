@@ -1,6 +1,5 @@
 <!--
-    Editor component is the root container for the app. It expands to the width and height of
-    the element it is placed within. See the "./public" directory for usage.
+    Editor component is the root container for the app. See the "./public" directory for usage.
 -->
 <template>
     <div class="editor-container">
@@ -66,9 +65,13 @@ export default {
     @import "colors";
 
     .editor-container {
-        height: 100%;
-        max-height: 100%;
         width: 100%;
+        min-width: 850px;
+        max-width: 2000px;
+        height: 100%;
+        min-height: 850px;
+        max-height: 100%;
+        margin: 0 auto;
         background-color: @app-bg-color;
         padding: 10px;
         box-sizing: border-box;

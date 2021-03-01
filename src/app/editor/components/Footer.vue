@@ -7,7 +7,7 @@
                     :src="highchartsIcon"
                 >
             </a>
-            Chart Sonification Studio
+            Highcharts Sonification Studio
         </div>
         <div id="copyright">
             <span
