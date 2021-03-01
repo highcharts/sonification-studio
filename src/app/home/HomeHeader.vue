@@ -1,15 +1,17 @@
 <template>
     <header>
         <div class="header-content">
-            <a
-                class="highcharts-logo"
-                href="https://www.highcharts.com"
-            >
-                <img
-                    alt="Highcharts.com logo"
-                    :src="highchartsLogo"
+            <div>
+                <a
+                    class="highcharts-logo"
+                    href="https://www.highcharts.com"
                 >
-            </a>
+                    <img
+                        alt="Highcharts.com logo"
+                        :src="highchartsLogo"
+                    >
+                </a>
+            </div>
             <div class="collab-region">
                 <div class="collab-text">
                     designed in collaboration with
@@ -54,6 +56,10 @@ export default {
             width: auto;
             height: 48px;
         }
+    }
+
+    .gt-logo, .highcharts-logo {
+        display: block;
     }
 
     .header-content {
