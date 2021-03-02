@@ -6,16 +6,14 @@ import App from '../App.vue';
 
 Vue.use(VueRouter);
 
-const routes = [{
-    path: '/',
-    component: Home
-}, {
-    path: '/app',
-    component: Editor
-}];
-
 const router = new VueRouter({
-    routes
+    routes: [{
+        path: '/',
+        component: Home
+    }, {
+        path: '/app',
+        component: Editor
+    }]
 });
 
 new Vue({
