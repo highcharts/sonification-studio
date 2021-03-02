@@ -1,12 +1,7 @@
 <template>
     <div class="info-container">
         <HomeHeader />
-        <main>
-            <div>Main content</div>
-            <router-link to="/app">
-                Go to app
-            </router-link>
-        </main>
+        <HomeMain />
         <div class="spacer" />
         <HomeFooter />
     </div>
@@ -15,10 +10,11 @@
 <script lang="ts">
 import HomeHeader from './HomeHeader.vue';
 import HomeFooter from './HomeFooter.vue';
+import HomeMain from './HomeMain.vue';
 
 export default {
     components: {
-        HomeHeader, HomeFooter
+        HomeHeader, HomeFooter, HomeMain
     }
 };
 </script>
@@ -26,7 +22,7 @@ export default {
 <style lang="less" scoped>
     .info-container {
         min-width: 320px;
-        font-family: "roboto",'Open Sans','Helvetica Neue',Arial,Helvetica,sans-serif;
+        font-family: 'Roboto', sans-serif;
         display: flex;
         flex-direction: column;
         min-height: 100%;

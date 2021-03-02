@@ -99,7 +99,7 @@ export default {
         }
     }
 
-    @media (max-width: 48em) {
+    @media (max-width: 47.99em) {
         header {
             height: 5.5rem;
             background-image: none;
