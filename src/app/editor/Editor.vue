@@ -57,6 +57,9 @@ export default {
     mounted() {
         removeFocusOutlineUnlessKeypress();
         announcer.init(this.$refs.announce as HTMLElement);
+        if (window) {
+            window.scrollTo(0, 0);
+        }
     }
 };
 </script>
