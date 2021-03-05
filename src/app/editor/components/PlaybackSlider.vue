@@ -7,6 +7,7 @@
             :value="playbackProgress"
             dark
             disabled
+            arrow-thumb
         />
     </div>
 </template>
