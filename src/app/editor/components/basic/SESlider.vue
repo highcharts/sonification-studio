@@ -13,6 +13,7 @@
         - [disabled]: Boolean - Do not allow user input.
         - [showValueInput]: Boolean - Display value of slider in an input box.
         - [showPctInLabel]: Boolean - Display percentage value of slider after the label.
+        - [arrowThumb]: Boolean - Make the thumb look like an arrow
 
     Events:
         - input: Re-emits the input event for use with v-model.
@@ -57,7 +58,7 @@
                 :max="max"
                 :value="value"
                 :step="step"
-                :class="{ dark, disabled }"
+                :class="{ dark, disabled, 'arrow-thumb': arrowThumb }"
                 @input="$emit('input', $event.target.value || 0)"
             >
         </div>
@@ -80,7 +81,8 @@ export default {
         min: { type: Number, default: 0 },
         max: { type: Number, default: 100 },
         value: { type: Number, default: 50 },
-        step: { type: Number, default: 1 }
+        step: { type: Number, default: 1 },
+        arrowThumb: { type: Boolean, default: false }
     },
     data() {
         return { uuid: '' };
@@ -142,6 +144,17 @@ export default {
         width: 16px;
         border-radius: 50%;
         background: @color;
+    }
+
+    .arrowThumb(@color) {
+        width: 0;
+        height: 0;
+        border-radius: 4px;
+        background-color: transparent;
+        color: transparent;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-left: 12px solid @color;
     }
 
     .inputStyles(@inputColor, @border) {
@@ -207,6 +220,18 @@ export default {
 
         &.disabled {
             cursor: default;
+        }
+
+        &.arrow-thumb {
+            &::-moz-range-thumb {
+                .arrowThumb(#fff);
+            }
+            &::-ms-thumb {
+                .arrowThumb(#fff);
+            }
+            &::-webkit-slider-thumb {
+                .arrowThumb(#fff);
+            }
         }
     }
 
