@@ -26,6 +26,7 @@ export default {
         display: flex;
         flex-direction: column;
         min-height: 100%;
+        background-color: #fff;
     }
 
     .spacer {
