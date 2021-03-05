@@ -10,7 +10,7 @@
     "dev": "npm run clean && npm run lint && parcel src/app/public/index.html --open",
     "build": "npm run clean && npm run lint && parcel build src/app/public/index.html --no-source-maps --public-url \"./\"",
     "copy-landing-page": "copyfiles -a -f \"./src/project_lander/*\" ./docs",
-    "copy-to-docs": "cross-var \"trash docs/$npm_package_version && copyfiles -f \"./dist/**/*\" ./src/app/public/.nojekyll ./docs/$npm_package_version\"",
+    "copy-to-docs": "cross-var \"trash docs/$npm_package_version && copyfiles -f \"./dist/**/*\" ./src/app/public/.nojekyll ./src/app/public/*.png ./src/app/public/favicon.ico ./src/app/public/manifest.webmanifest ./docs/$npm_package_version\"",
     "publish": " npm run build && npm run copy-to-docs && npm run copy-landing-page"
   },
   "husky": {
