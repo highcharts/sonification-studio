@@ -234,11 +234,11 @@ export default {
         margin-top: 0;
         max-width: 50rem;
         a {
-            color: #466967;
+            color: #0e4a72;
             font-weight: 700;
             text-decoration: none;
             &:hover {
-                color: #29484d;
+                color: #203f4b;
                 text-decoration: underline;
             }
         }
