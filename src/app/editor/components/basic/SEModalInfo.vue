@@ -12,6 +12,8 @@
         :aria-label="dialogTitle"
         aria-modal="true"
         @click="onclick"
+        @keydown.enter="$emit('close')"
+        @keydown.space="$emit('close')"
     >
         <div
             ref="innerContainer"
@@ -114,6 +116,8 @@ export default {
         box-sizing: border-box;
         vertical-align: middle;
         line-height: 24px;
+        font-family: Verdana, sans-serif;
+        font-size: 14px;
         display: flex;
         img {
             vertical-align: middle;
