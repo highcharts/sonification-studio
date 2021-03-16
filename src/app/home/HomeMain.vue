@@ -100,7 +100,11 @@
                     Feedback
                 </h2>
                 <p>
-                    We would love to hear about your experiences with the tool, as well as thoughts you might have on the direction we are taking. To get involved, please do not hesitate to <a href="https://www.highcharts.com/blog/contact/">contact us</a>.
+                    We would love to hear about your experiences with the tool, as well as thoughts you might have on the direction we are taking. To get involved, please do not hesitate to contact us.
+                </p>
+                <p>
+                    <span ref="deferContentA">&nbsp;</span>
+                    <a ref="deferContentB">&nbsp;</a><span ref="deferContentC">&nbsp;</span>
                 </p>
             </div>
         </div>
@@ -116,6 +120,23 @@ import feedbackIcon from './comments-regular.svg';
 export default {
     data() {
         return { appThumb, codeIcon, feedbackIcon, chartIcon };
+    },
+    mounted() {
+        // Add email after DOM loaded to prevent some spam
+        setTimeout(() => {
+            (this.$refs.deferContentA as any).innerHTML = 'You can send us an email directly at ';
+            const deferredB = (this.$refs.deferContentB as any);
+            const a = 'mail';
+            const b = 'to:accessibility';
+            const c = '@highsof';
+            const d = 't.com';
+            deferredB.setAttribute('href', [a, b, c, d].join(''));
+            const e = 'accessibility';
+            const f = '@highsof';
+            const g = 't.com';
+            deferredB.innerHTML = [e, f, g].join('');
+            (this.$refs.deferContentC as any).innerHTML = ', and we will get back to you.';
+        }, 800);
     }
 };
 </script>
