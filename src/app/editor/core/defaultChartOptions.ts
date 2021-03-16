@@ -11,7 +11,7 @@ export const defaultChartOptions = {
         chartOptions: {
             title: {
                 style: {
-                    fontFamily: 'Sans-Serif',
+                    fontFamily: 'Verdana, sans-serif',
                     fontSize: '22px'
                 }
             },
@@ -53,7 +53,7 @@ export const defaultChartOptions = {
         style: {
             color: '#25386F',
             fontSize: '24px',
-            fontFamily: 'Roboto'
+            fontFamily: 'Roboto, sans-serif'
         }
     },
     plotOptions: {
