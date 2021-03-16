@@ -106,6 +106,9 @@
                     <span ref="deferContentA">&nbsp;</span>
                     <a ref="deferContentB">&nbsp;</a><span ref="deferContentC">&nbsp;</span>
                 </p>
+                <p>
+                    You can also write a post in the <a href="https://www.highcharts.com/forum/viewtopic.php?f=9&t=46101">Highcharts Sonification Studio feedback thread</a> in our public support forum, which we monitor regularly. Note that you will have to register for a free user account in order to post messages in the forum.
+                </p>
             </div>
         </div>
     </main>
@@ -150,7 +153,7 @@ export default {
 
     .main-content {
         max-width: 80rem;
-        margin: 0 auto 60px;
+        margin: 0 auto 80px;
         width: 100%;
     }
 
