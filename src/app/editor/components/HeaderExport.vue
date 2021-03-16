@@ -1,9 +1,5 @@
 <template>
-    <div
-        role="group"
-        aria-label="Save project"
-        class="export-container"
-    >
+    <div class="export-container">
         <SEButton
             dark
             :aria-expanded="popupVisible"
@@ -154,6 +150,12 @@ export default {
     mounted() {
         document.addEventListener('click', (e: MouseEvent) => {
             if (!this.$el.contains(e.target as any)) {
+                this.popupVisible = false;
+            }
+        });
+        document.addEventListener('keydown', e => {
+            const keyCode = e.which || e.keyCode;
+            if (keyCode === 27 && this.popupVisible) { // esc
                 this.popupVisible = false;
             }
         });
