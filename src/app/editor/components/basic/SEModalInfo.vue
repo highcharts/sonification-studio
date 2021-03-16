@@ -88,7 +88,7 @@ export default {
         z-index: 999;
         justify-content: center;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: rgba(0, 0, 0, 0.35);
     }
 
     .spacer {
@@ -100,9 +100,8 @@ export default {
         max-width: 700px;
         max-height: 100vh;
         background-color: @white;
-        border: 1px solid @gray-5;
         border-radius: 4px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.45);
     }
 
     .popup-header {
