@@ -32,6 +32,7 @@ export const defaultChartOptions = {
         enabled: true,
         afterSeriesWait: 600,
         order: 'simultaneous',
+        masterVolume: 0.3,
         // Reset on end
         onEnd: function (e: any) {
             e.path.timeline.resetCursor();
