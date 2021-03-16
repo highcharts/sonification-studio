@@ -17,7 +17,9 @@
                 {{ tab.name }}
             </HeaderTab>
         </div>
+
         <div class="header-spacing" />
+
         <router-link
             v-slot="{ navigate }"
             class="header-back"
@@ -37,21 +39,44 @@
                 Back
             </a>
         </router-link>
+
+        <SEButton
+            ref="helpBtn"
+            class="help-btn"
+            dark
+            :aria-expanded="helpVisible"
+            @click="onHelpClick"
+        >
+            Help
+        </SEButton>
+
+        <SEModalInfo
+            v-show="helpVisible"
+            ref="helpDialog"
+            dialog-title="Help"
+            @close="hideHelpDialog"
+        >
+            <HelpContent />
+        </SEModalInfo>
     </nav>
 </template>
 
 <script lang="ts">
 import HeaderTab from './HeaderTab.vue';
+import HelpContent from './HelpContent.vue';
+import SEModalInfo from './basic/SEModalInfo.vue';
+import SEButton from './basic/SEButton.vue';
 import { mapState } from 'vuex';
 import backIcon from '../assets/angle-left-solid.svg';
 
 export default {
     components: {
-        HeaderTab
+        HeaderTab, HelpContent, SEModalInfo, SEButton
     },
     data() {
         return {
             backIcon,
+            helpVisible: false,
             headerTabs: [{
                 name: 'Data',
                 controls: 'dataContent',
@@ -62,8 +87,20 @@ export default {
         };
     },
     computed: mapState('viewStore', ['selectedHeaderTabId']),
+    mounted() {
+        document.addEventListener('keydown', e => {
+            const keyCode = e.which || e.keyCode;
+            if (keyCode === 27 && this.helpVisible) { // esc
+                this.hideHelpDialog();
+            }
+        });
+    },
     methods: {
-        tabClicked: function (tabId: string, controlsId: string): void {
+        hideHelpDialog() {
+            this.helpVisible = false;
+            setTimeout(() => (this.$refs['helpBtn'] as any).$el.focus(), 10);
+        },
+        tabClicked(tabId: string, controlsId: string): void {
             this.$store.commit('viewStore/selectHeaderTab', {
                 selectedTabId: tabId,
                 contentId: controlsId
@@ -72,6 +109,14 @@ export default {
             // Make sure we recalculate speed when data has changed
             this.$store.commit('globalSonifyParametersStore/triggerPlaybackOptsRecalculation');
             (this as any).$chartBridge.reflowChart();
+        },
+        onHelpClick() {
+            this.helpVisible = !this.helpVisible;
+            if (this.helpVisible) {
+                setTimeout(() => (this.$refs.helpDialog as any).$el.focus(), 10);
+            } else {
+                this.hideHelpDialog();
+            }
         }
     }
 };
@@ -139,4 +184,10 @@ export default {
             background-color: rgba(0, 0, 0, 0.01);
         }
     }
+
+    .help-btn {
+        margin-top: 4px;
+        margin-bottom: 6px;
+    }
+
 </style>
