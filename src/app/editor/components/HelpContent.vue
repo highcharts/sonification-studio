@@ -25,9 +25,15 @@
             The Audio settings will allow you to modify the sonification parameters for the chart. This includes the playback speed, the frequency ranges, the mapping of data parameters to various properties of the sounds, and more.
         </p>
 
-        <h1>Further assistance</h1>
+        <h1>Keyboard shortcuts</h1>
         <p>
-            Should you require further assistance, or encounter any issues using the tool, please do not hesitate to reach out to us. Contact information can be found on the home page of this project.
+            The following keyboard shortcuts can be used to control sonification playback when on the Chart tab:
+            <ul>
+                <li><span class="shortcut">Alt+P</span>: Play/pause sonification playback</li>
+                <li><span class="shortcut">Alt+S</span>: Stop sonification playback</li>
+                <li><span class="shortcut">Alt+L</span>: Loop sonification playback</li>
+            </ul>
+            On macOS, the Option-key corresponds to the Windows Alt-key.
         </p>
     </div>
 </template>
@@ -57,6 +63,17 @@ export default {};
 
     p:last-child {
         margin-bottom: 0;
+    }
+
+    ul {
+        margin: 10px 0;
+        list-style-type: square;
+        list-style-position: inside;
+        padding-left: 10px;
+    }
+
+    .shortcut {
+        font-family: 'Courier New', Courier, monospace;
     }
 
 </style>

@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts">
+import { mapState } from 'vuex';
 import playIcon from '../assets/play.svg';
 import stopIcon from '../assets/stop.svg';
 import pauseIcon from '../assets/pause.svg';
@@ -49,6 +50,25 @@ export default {
             playPauseIcon: playIcon,
             stopIcon, pauseIcon, holdIcon, loopIcon
         };
+    },
+    computed: mapState('viewStore', ['selectedHeaderTabId']),
+    mounted() {
+        document.addEventListener('keydown', (e) => {
+            const keyCode = e.which || e.keyCode;
+            const keyPosition = e.code;
+            if (e.altKey && this.selectedHeaderTabId === 'Chart') {
+                if (keyPosition === 'KeyP' || !keyPosition && keyCode === 80) {
+                    // alt+p
+                    this.onPlayPauseClick();
+                } else if (keyPosition === 'KeyL' || !keyPosition && keyCode === 76) {
+                    // alt+l
+                    this.onLoopClick();
+                } else if (keyPosition === 'KeyS' || !keyPosition && keyCode === 83) {
+                    // alt+s
+                    this.onStopClick();
+                }
+            }
+        });
     },
     methods: {
         onPlayPauseClick() {
