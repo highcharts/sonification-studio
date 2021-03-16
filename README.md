@@ -28,7 +28,9 @@ We are using ParcelJS for bundling files. Typescript is used for transpilation, 
 
 To build and publish to GitHub pages, ensure app version is correct in `package.json`, run `npm run publish`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
 
-The contents of the `docs` directory is served on the GitHub pages site. The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
+If publishing on other platforms than GitHub, remove the `.nojekyll` file, and ensure the home page is named correctly (`index.html` vs `home.html`).
+
+The contents of the `docs` directory is automatically served on the GitHub pages site. The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
 
 ### Tests
 
