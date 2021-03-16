@@ -8,7 +8,7 @@ export const globalSonifyParametersStore = {
     namespaced: true,
 
     state: {
-        volume: 50,
+        volume: 30,
         playbackOpts: {
             // These are grouped because we have to update our interpretation of speed whenever order changes.
             // This way they are mapped to options together.
