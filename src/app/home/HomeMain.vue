@@ -187,6 +187,9 @@ export default {
             justify-content: center;
             align-items: center;
             transition: all 0.2s;
+            a {
+                text-decoration: none;
+            }
         }
         .go-btn {
             transition: all 0.1s;
