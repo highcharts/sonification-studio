@@ -2,7 +2,7 @@
     <div>
         <h1>Basics</h1>
         <p>
-            This tool allows you to import or enter data, edit it, create visual and auditory visualizations, and export them together or separately.
+            This tool allows you to import or enter data, edit it, create charts and sonifications, and export them together or separately.
         </p>
         <p>
             In the <span class="emp">Data</span> tab, import or edit your data in the data grid. This will automatically create a visual chart, which can be sonified.
