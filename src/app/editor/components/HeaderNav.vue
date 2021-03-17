@@ -1,5 +1,24 @@
 <template>
     <nav>
+        <SEButton
+            ref="helpBtn"
+            class="help-btn"
+            dark
+            :aria-expanded="helpVisible"
+            @click="onHelpClick"
+        >
+            Help
+        </SEButton>
+
+        <SEModalInfo
+            v-show="helpVisible"
+            ref="helpDialog"
+            dialog-title="Help"
+            @close="hideHelpDialog"
+        >
+            <HelpContent />
+        </SEModalInfo>
+
         <div
             role="tablist"
             class="header-tablist"
@@ -39,25 +58,6 @@
                 Back
             </a>
         </router-link>
-
-        <SEButton
-            ref="helpBtn"
-            class="help-btn"
-            dark
-            :aria-expanded="helpVisible"
-            @click="onHelpClick"
-        >
-            Help
-        </SEButton>
-
-        <SEModalInfo
-            v-show="helpVisible"
-            ref="helpDialog"
-            dialog-title="Help"
-            @close="hideHelpDialog"
-        >
-            <HelpContent />
-        </SEModalInfo>
     </nav>
 </template>
 
@@ -155,8 +155,8 @@ export default {
     }
 
     .header-back {
-        margin-right: 7px;
-        padding: 3px 15px 3px 5px;
+        margin-right: 5px;
+        padding: 3px 13px 3px 3px;
         line-height: 24px;
         vertical-align: middle;
         text-decoration: none;
@@ -188,6 +188,7 @@ export default {
     .help-btn {
         margin-top: 4px;
         margin-bottom: 6px;
+        order: 4;
     }
 
 </style>
