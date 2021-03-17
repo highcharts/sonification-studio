@@ -26,7 +26,10 @@ export const defaultChartOptions = {
                 '<div>{xAxisDescription}</div>' +
                 '<div>{yAxisDescription}</div>'
         },
-        landmarkVerbosity: 'one'
+        landmarkVerbosity: 'one',
+        series: {
+            pointDescriptionEnabledThreshold: 50
+        }
     },
     sonification: {
         enabled: true,
