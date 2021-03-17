@@ -45,9 +45,10 @@
             <div class="popup-footer">
                 <SEButton
                     dark
+                    aria-label="Close dialog"
                     @click="$emit('close')"
                 >
-                    OK
+                    Close
                 </SEButton>
             </div>
         </div>
