@@ -17,23 +17,7 @@ export default {
     components: {
         Grid, GridControls
     },
-    beforeMount() {
-        this.$store.commit('dataStore/setTableRowData', this.makePlaceholderData());
-    },
     methods: {
-        makePlaceholderData(): Array<object> {
-            const res = [];
-
-            for (let i = 0; i < 175; ++i) {
-                res.push({
-                    A: '' + i,
-                    B: (Math.sin(i / 3) * i / 2).toFixed(3)
-                });
-            }
-
-            return res;
-        },
-
         onTriggerScrollLastGridRowWithData() {
             (this.$refs.grid as any).scrollToLastGridRowWithData();
         }

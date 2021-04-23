@@ -40,7 +40,7 @@ import Header from './components/Header.vue';
 import MainContentView from './components/MainContentView.vue';
 import Footer from './components/Footer.vue';
 import Announcer from './core/utils/Announcer';
-import { store } from './store/store';
+import { store, storageKey, storageRevision } from './store/store';
 import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
 import { ChartBridge } from './core/ChartBridge';
 
@@ -59,6 +59,39 @@ export default {
         announcer.init(this.$refs.announce as HTMLElement);
         if (window) {
             window.scrollTo(0, 0);
+        }
+        this.initStore();
+    },
+    methods: {
+        initStore() {
+            this.clearOldStorageRevisions();
+            const stateJSON = window.localStorage.getItem(storageKey + '-' + storageRevision);
+            if (stateJSON) {
+                const restoredState = JSON.parse(stateJSON);
+                store.replaceState(restoredState);
+            } else {
+                this.$store.commit('dataStore/setTableRowData', this.makePlaceholderData());
+            }
+        },
+
+        clearOldStorageRevisions() {
+            let i = storageRevision;
+            while (i--) {
+                window.localStorage.removeItem(storageKey + '-' + i);
+            }
+        },
+
+        makePlaceholderData(): Array<object> {
+            const res = [];
+
+            for (let i = 0; i < 175; ++i) {
+                res.push({
+                    A: '' + i,
+                    B: (Math.sin(i / 3) * i / 2).toFixed(3)
+                });
+            }
+
+            return res;
         }
     }
 };
