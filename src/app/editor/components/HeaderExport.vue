@@ -183,7 +183,7 @@ export default {
             el.style.height = '';
         },
         dlProject() {
-            const projectName = (this as any).$chartBridge.getChartTitleForExport() + ' Project';
+            const projectName = (this as any).$chartBridge.getChartTitleForExport();
             downloadProjectFile(projectName, this.$store);
         },
         dlVideo() {

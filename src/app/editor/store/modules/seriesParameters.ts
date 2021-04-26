@@ -32,7 +32,7 @@
 
     In the above case, we will look for a 'myOptionThatHasMultipleInputs' function to
     do the conversion (see seriesOptionsMapper).
- */
+*/
 
 import Vue from 'vue';
 import { GenericObject } from '../../core/utils/objects';
@@ -67,6 +67,9 @@ export const seriesParametersStore = {
                     }
                 }
             };
+
+            // Reset
+            Vue.set(state, 'seriesParameters', {});
 
             for (const [seriesId, options] of Object.entries(newState.seriesParameters)) {
                 setOption(state.seriesParameters, seriesId, options);

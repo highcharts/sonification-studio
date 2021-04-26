@@ -12,6 +12,7 @@ Vue.use(Vuex);
 
 // Bump this when making breaking changes to the store API. This will invalidate the
 // localStorage cache, and clear old revisions.
+// Note: Will not as of yet affect loading old project files.
 export const storageRevision = 1;
 
 // Key for localStorage cache

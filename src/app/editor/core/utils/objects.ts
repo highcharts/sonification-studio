@@ -14,6 +14,11 @@ export function isObject(x: unknown): boolean {
 }
 
 
+export function firstDefined(a: any, b: any): any {
+    return typeof a !== 'undefined' ? a : b;
+}
+
+
 export function nullFallback<T1, T2>(a: T1, b: T2): T1|T2 {
     return a === null ? b : a;
 }
