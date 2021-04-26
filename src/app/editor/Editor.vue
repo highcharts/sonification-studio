@@ -68,7 +68,7 @@ export default {
             const stateJSON = window.localStorage.getItem(storageKey + '-' + storageRevision);
             if (stateJSON) {
                 const restoredState = JSON.parse(stateJSON);
-                store.replaceState(restoredState);
+                store.dispatch('restoreState', restoredState);
             } else {
                 this.$store.commit('dataStore/setTableRowData', this.makePlaceholderData());
             }

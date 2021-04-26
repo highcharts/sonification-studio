@@ -6,6 +6,7 @@ import { viewStore } from './modules/view';
 import { chartParametersStore } from './modules/chartParameters';
 import { seriesParametersStore } from './modules/seriesParameters';
 import { globalSonifyParametersStore } from './modules/globalSonifyParameters';
+import { GenericObject } from '../core/utils/objects';
 
 Vue.use(Vuex);
 
@@ -40,5 +41,13 @@ export const store = new Vuex.Store({
                 }, 2000);
             }
         });
-    }]
+    }],
+    actions: {
+        restoreState(_, newState: GenericObject) {
+            this.commit('chartParametersStore/restoreStoreState', newState.chartParametersStore);
+            this.commit('globalSonifyParametersStore/restoreStoreState', newState.globalSonifyParametersStore);
+            this.commit('dataStore/restoreStoreState', newState.dataStore);
+            this.commit('seriesParametersStore/restoreStoreState', newState.seriesParametersStore);
+        }
+    }
 });

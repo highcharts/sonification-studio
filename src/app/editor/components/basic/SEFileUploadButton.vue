@@ -10,8 +10,8 @@
     <label
         tabindex="0"
         :class="{ dark: dark, wide: wide }"
-        @keydown.enter="triggerDialog()"
-        @keydown.space="triggerDialog()"
+        @keydown.enter="triggerDialog"
+        @keydown.space="triggerDialog"
     >
         <slot />
         <input
@@ -45,10 +45,11 @@ export default {
             }
         },
 
-        triggerDialog() {
+        triggerDialog(e: Event) {
             const fileInput: any = this.$refs.fileInput;
             if (fileInput) {
                 fileInput.click();
+                e.preventDefault();
             }
         }
     }
@@ -74,6 +75,7 @@ export default {
 
     label {
         margin: 5px;
+        box-sizing: border-box;
         padding: 6px 15px;
         background-color: @sebutton-bg;
         color: @sebutton-color;

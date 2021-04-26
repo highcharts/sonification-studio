@@ -2,6 +2,8 @@
     Data store for global chart parameters.
  */
 
+import { GenericObject } from '../../core/utils/objects';
+
 export const chartParametersStore = {
     namespaced: true,
 
@@ -16,6 +18,13 @@ export const chartParametersStore = {
     },
 
     mutations: {
+        // Add items here if they are to be restored from opening project files
+        // or localStorage session restore.
+        restoreStoreState(state: any, newState: GenericObject) {
+            ['type', 'legendEnabled', 'title', 'subtitle', 'xAxisTitle', 'yAxisTitle', 'seriesLabelsEnabled'].forEach(
+                x => state[x] = newState[x]);
+        },
+
         setType(state: any, type: string) {
             state.type = type;
         },

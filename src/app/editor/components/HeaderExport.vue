@@ -40,6 +40,18 @@
                     <ul>
                         <li>
                             <button
+                                @click="dlProject"
+                                @keydown.enter="dlProject"
+                            >
+                                <img
+                                    alt=""
+                                    :src="projectIcon"
+                                >
+                                Project file
+                            </button>
+                        </li>
+                        <li>
+                            <button
                                 @click="dlVideo"
                                 @keydown.enter="dlVideo"
                             >
@@ -119,9 +131,11 @@
 
 <script lang="ts">
 import { downloadURI } from '../core/utils/browserUtils';
+import { downloadProjectFile } from '../core/utils/projectFileHandling';
 import menuIcon from '../assets/bars-solid.svg';
 import jsIcon from '../assets/js-square-brands.svg';
 import pictureIcon from '../assets/image-regular.svg';
+import projectIcon from '../assets/file-export-solid.svg';
 import videoIcon from '../assets/film-solid.svg';
 import musicIcon from '../assets/music-solid.svg';
 import csvIcon from '../assets/file-csv-solid.svg';
@@ -139,6 +153,7 @@ export default {
             menuIcon,
             jsIcon,
             pictureIcon,
+            projectIcon,
             videoIcon,
             musicIcon,
             csvIcon,
@@ -166,6 +181,10 @@ export default {
         },
         endSlide(el: HTMLElement) {
             el.style.height = '';
+        },
+        dlProject() {
+            const projectName = (this as any).$chartBridge.getChartTitleForExport() + ' Project';
+            downloadProjectFile(projectName, this.$store);
         },
         dlVideo() {
             this.rendering = true;

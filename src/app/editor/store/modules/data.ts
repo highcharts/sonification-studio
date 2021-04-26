@@ -86,6 +86,13 @@ export const dataStore = {
     },
 
     mutations: {
+        // Add items here if they are to be restored from opening project files
+        // or localStorage session restore.
+        restoreStoreState(state: any, newState: GenericObject) {
+            state.tableCSV = newState.tableCSV;
+            Vue.set(state, 'tableRowData', newState.tableRowData);
+        },
+
         setTableCSV(state: any, csv: string) {
             state.tableCSV = csv;
         },

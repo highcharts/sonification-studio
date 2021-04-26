@@ -4,6 +4,8 @@
     and avoid having to re-render chart when updates are made to these parameters.
  */
 
+import { GenericObject } from '../../core/utils/objects';
+
 export const globalSonifyParametersStore = {
     namespaced: true,
 
@@ -23,6 +25,15 @@ export const globalSonifyParametersStore = {
     },
 
     mutations: {
+        // Add items here if they are to be restored from opening project files
+        // or localStorage session restore.
+        restoreStoreState(state: any, newState: GenericObject) {
+            ['volume', 'playMarkerEnabled', 'minFrequency', 'maxFrequency', 'panEnabled', 'panWidth'].forEach(
+                x => state[x] = newState[x]);
+            ['speed', 'order'].forEach(
+                x => state.playbackOpts[x] = newState.playbackOpts[x]);
+        },
+
         setVolume(state: any, volume: number) {
             state.volume = volume;
         },
@@ -55,6 +66,7 @@ export const globalSonifyParametersStore = {
             state.panWidth = panWidth;
         },
 
+        // Monitored by store-subscription, so only called for side effects
         triggerPlaybackOptsRecalculation() {} // eslint-disable-line
     }
 };

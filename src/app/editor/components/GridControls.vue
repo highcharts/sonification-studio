@@ -68,18 +68,14 @@
 
         <div class="grid-controls-group">
             <SEButton @click="onClearDataClick">
-                Clear data
+                Clear grid
             </SEButton>
-            <SEFileUploadButton @load="onDataImport">
-                Import data
-            </SEFileUploadButton>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import SEButton from './basic/SEButton.vue';
-import SEFileUploadButton from './basic/SEFileUploadButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import SETextbox from './basic/SETextbox.vue';
 import SEControl from './basic/SEControl.vue';
@@ -88,7 +84,7 @@ type ColumnDropdownItem = { name: string; value: string };
 
 export default {
     components: {
-        SEButton, SEFileUploadButton, SEDropdown, SEControl, SETextbox
+        SEButton, SEDropdown, SEControl, SETextbox
     },
     data() {
         return {
@@ -121,13 +117,6 @@ export default {
             }
         },
 
-        onDataImport(fileContents: string) {
-            if (fileContents) {
-                this.$store.dispatch('dataStore/loadFromCSV', fileContents);
-                this.$announcer.announce('Data loaded.');
-            }
-        },
-
         fillColumn() {
             const equation = this.fillEquation?.trim();
             const destinationColumn = this.fillEquationColumn;
@@ -148,7 +137,7 @@ export default {
     @import "../colors";
 
     .grid-controls {
-        margin: 0px 10px 10px;
+        margin: 0 0 10px;
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
