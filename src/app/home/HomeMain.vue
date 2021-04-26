@@ -68,28 +68,29 @@
                         Development
                     </h2>
                     <p>
-                        The tool is currently in Beta, and should be considered incomplete and in development. Functionality is subject to change without notice.
+                        The tool is currently in Beta, and should be considered incomplete and in development. Functionality is subject to change without notice. Project files from the current version are not guaranteed to work with future versions, although we will strive to keep backwards compatibility as we add features.
                     </p>
                     <div>
                         <h3 id="known-issues">
                             Known issues:
                         </h3>
                         <ul>
-                            <li>The data grid component has usability issues for screen reader users.</li>
+                            <li>The data grid component has usability issues, especially for screen reader users.</li>
                             <li>The playback bar can not be manipulated to navigate the sonification.</li>
-                            <li>The smoothing algorithm for large datasets can not yet be changed by the user.</li>
                         </ul>
                         <h3 id="planned-features">
                             Planned short-term features:
                         </h3>
                         <ul>
                             <li>Implement our own accessible data grid.</li>
-                            <li>Project save and restore functionality.</li>
-                            <li>Installable progressive webapp-version, perhaps a desktop application version.</li>
+                            <li>MIDI export.</li>
+                            <li>Selectable smoothing algorithm for large datasets.</li>
                             <li>More instruments and timbres.</li>
                             <li>More advanced sonification functionality, such as earcons.</li>
                             <li>More chart configuration functionality.</li>
+                            <li>Installable progressive webapp-version, perhaps a desktop application version.</li>
                         </ul>
+                        <p>If you have requests for features not listed here, please get in touch with us.</p>
                     </div>
                 </div>
                 <h2 id="feedback">
