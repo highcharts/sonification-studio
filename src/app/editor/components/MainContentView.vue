@@ -13,6 +13,7 @@
             />
 
             <Preview
+                v-if="showChartComponent"
                 v-show="selectedHeaderTabContent !== 'dataContent'"
                 class="preview"
             />
@@ -47,7 +48,7 @@ export default {
         Data,
         Sidebar
     },
-    computed: mapState('viewStore', ['selectedHeaderTabContent'])
+    computed: mapState('viewStore', ['selectedHeaderTabContent', 'showChartComponent'])
 };
 </script>
 

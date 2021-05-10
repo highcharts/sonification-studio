@@ -100,19 +100,35 @@ export default {
         },
         importProject(fileContents: string) {
             if (fileContents) {
-                try {
-                    restoreFromProjectFile(fileContents, this.$store);
-                    this.$announcer.announce('Project loaded.');
-                } catch (e) {
-                    this.$announcer.announce('Error loading project.');
-                    console.error('Error loading project:', e);
-                }
+                this.$store.commit('seriesParametersStore/clearState');
+                // Remove chart from DOM because chart.update does not remove series options
+                // - even with one-to-one parameter set.
+                this.$store.commit('viewStore/setLoadingChart', true);
+                setTimeout(() => {
+                    this.$store.commit('viewStore/setShowChartComponent', false);
+                    this.$nextTick(() => {
+                        // Recreate chart
+                        this.$store.commit('viewStore/setShowChartComponent', true);
+                        this.$nextTick(() => {
+                            try {
+                                // Then load the project state into the clean(er) slate
+                                restoreFromProjectFile(fileContents, this.$store);
+                                (this as any).$announcer.announce('Project loaded.');
+                            } catch (e) {
+                                (this as any).$announcer.announce('Error loading project.');
+                                console.error('Error loading project:', e);
+                            } finally {
+                                setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 1500);
+                            }
+                        });
+                    });
+                }, 100);
             }
         },
         importCSV(fileContents: string) {
             if (fileContents) {
                 this.$store.dispatch('dataStore/loadFromCSV', fileContents);
-                this.$announcer.announce('Data loaded.');
+                (this as any).$announcer.announce('Data loaded.');
             }
         }
     }

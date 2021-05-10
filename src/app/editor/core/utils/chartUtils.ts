@@ -7,7 +7,7 @@ import { GenericObject } from './objects';
 type DropdownItemDefinition = { name: string; value: string };
 
 export function getSeriesId(series: GenericObject): string {
-    return series.id || `se-hc-series-id-${series.chart.index}-${series.index}`;
+    return series.id || `se-hc-series-id-${series.index}`;
 }
 
 export function getMappingDataProps(): Array<DropdownItemDefinition> {

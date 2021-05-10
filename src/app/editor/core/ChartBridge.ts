@@ -142,11 +142,9 @@ export class ChartBridge {
                     if (chart) {
                         // Get ids of series parsed
                         const seriesIds = (parseResult.series || []).map((s: GenericObject, ix: number) => {
-                            s.chart = { index: chart.index };
                             s.index = ix;
                             const id = getSeriesId(s);
 
-                            delete s.chart;
                             delete s.index;
                             return id;
                         });
@@ -510,14 +508,15 @@ export class ChartBridge {
 
 
     private onStoreMutation(mutation: GenericObject) {
-        if (this.isParameterMutation(mutation)) {
+        const chartIsValid = this.chart && this.chart.options;
+        if (chartIsValid && this.isParameterMutation(mutation)) {
             this.queueReactivityUpdate(
                 'viewStore/triggerParameterReactivity',
                 ChartBridge.parameterReactivityIntervalMs,
                 'paramReactivityTimeout',
                 () => this.updateChartOptions()
             );
-        } else if (this.isDataMutation(mutation)) {
+        } else if (chartIsValid && this.isDataMutation(mutation)) {
             this.queueReactivityUpdate(
                 'viewStore/triggerDataReactivity',
                 ChartBridge.dataReactivityIntervalMs,
@@ -558,11 +557,15 @@ export class ChartBridge {
 
     // Chart options are cached for performance, only updated on reactivity trigger
     private updateChartOptions() {
-        this.chartOptions = getChartOptionsFromParameters(
-            this.globalSonifyParametersStore,
-            this.chartParametersStore,
-            this.chart || {}
-        );
+        // Chart invalid after project file load, component is hidden.
+        const chartIsValid = this.chart && this.chart.options;
+        if (chartIsValid) {
+            this.chartOptions = getChartOptionsFromParameters(
+                this.globalSonifyParametersStore,
+                this.chartParametersStore,
+                this.chart || {}
+            );
+        }
     }
 
 

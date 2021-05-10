@@ -76,6 +76,10 @@ export const seriesParametersStore = {
             }
         },
 
+        clearState(state: any) {
+            Vue.set(state, 'seriesParameters', {});
+        },
+
         setSeriesParameter(state: any, options: SeriesParameterOptions) {
             const seriesParams = state.seriesParameters;
             const id = options.seriesId;

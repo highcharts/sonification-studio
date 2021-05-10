@@ -23,6 +23,11 @@ export const viewStore = {
         reactToParameterUpdates: 0,
         reactToDataUpdates: 0,
 
+        // Also reactive-related, used to force recreating the entire chart
+        showChartComponent: true,
+
+        // Normal view state parameters
+        loadingChart: false,
         selectedHeaderTabContent: 'dataContent',
         selectedHeaderTabId: 'Data',
         selectedSidebarTabId: 'Visual',
@@ -54,6 +59,14 @@ export const viewStore = {
 
         setSelectedDataSeriesAudioMapping(state: any, seriesId: string) {
             state.selectedDataSeriesAudioMapping = seriesId;
+        },
+
+        setShowChartComponent(state: any, show: boolean) {
+            state.showChartComponent = show;
+        },
+
+        setLoadingChart(state: any, loading: boolean) {
+            state.loadingChart = loading;
         },
 
         setExpandedSeriesAudioAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
