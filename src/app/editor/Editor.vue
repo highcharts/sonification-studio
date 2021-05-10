@@ -66,7 +66,13 @@ export default {
         initStore() {
             this.clearOldStorageRevisions();
             const stateJSON = window.localStorage.getItem(storageKey + '-' + storageRevision);
-            if (stateJSON) {
+            const isDev = Vue.config.devtools;
+
+            if (isDev) {
+                console.log('Development mode: Skipped loading local storage app state.');
+            }
+
+            if (!isDev && stateJSON) {
                 const restoredState = JSON.parse(stateJSON);
                 store.dispatch('restoreState', restoredState);
             } else {
