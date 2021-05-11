@@ -102,8 +102,10 @@ export default {
     },
     methods: {
         onClearDataClick() {
-            this.$store.commit('dataStore/setTableRowData', []);
-            this.$announcer.announce('Data grid cleared.');
+            if (window.confirm('This will clear all data from the grid. Proceed?')) {
+                this.$store.commit('dataStore/setTableRowData', []);
+                this.$announcer.announce('Data grid cleared.');
+            }
         },
 
         onAddRowsClick() {
