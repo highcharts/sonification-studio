@@ -6,32 +6,37 @@
 
 import { GenericObject, firstDefined } from '../../core/utils/objects';
 
+const defaultState = () => ({
+    volume: 30,
+    playbackOpts: {
+        // These are grouped because we have to update our interpretation of speed whenever order changes.
+        // This way they are mapped to options together.
+        speed: 50,
+        order: 'simultaneous'
+    },
+    playMarkerEnabled: false,
+    minFrequency: 392, // G4
+    maxFrequency: 1319, // G6
+    panEnabled: false,
+    panWidth: 90
+});
+
 export const globalSonifyParametersStore = {
     namespaced: true,
 
-    state: {
-        volume: 30,
-        playbackOpts: {
-            // These are grouped because we have to update our interpretation of speed whenever order changes.
-            // This way they are mapped to options together.
-            speed: 50,
-            order: 'simultaneous'
-        },
-        playMarkerEnabled: false,
-        minFrequency: 392, // G4
-        maxFrequency: 1319, // G6
-        panEnabled: false,
-        panWidth: 90
-    },
+    state: defaultState(),
 
     mutations: {
+        // Apply state or restore to defaults if no state is provided.
         // Add items here if they are to be restored from opening project files
         // or localStorage session restore. Keep backwards compatibility in mind.
-        restoreStoreState(state: any, newState: GenericObject) {
+        restoreStoreState(state: any, newState?: GenericObject) {
+            const defaultOpts: GenericObject = defaultState();
             ['volume', 'playMarkerEnabled', 'minFrequency', 'maxFrequency', 'panEnabled', 'panWidth'].forEach(
-                x => state[x] = firstDefined(newState[x], state[x]));
+                x => state[x] = newState ? firstDefined(newState[x], state[x]) : defaultOpts[x]);
             ['speed', 'order'].forEach(
-                x => state.playbackOpts[x] = firstDefined(newState.playbackOpts[x], state.playbackOpts[x]));
+                x => state.playbackOpts[x] = newState ? firstDefined(newState.playbackOpts[x], state.playbackOpts[x]) :
+                    defaultOpts.playbackOpts[x]);
         },
 
         setVolume(state: any, volume: number) {

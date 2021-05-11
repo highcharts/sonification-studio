@@ -28,6 +28,18 @@
                     <p>Load data</p>
                     <ul>
                         <li>
+                            <button
+                                @click="newProject"
+                            >
+                                <img
+                                    alt=""
+                                    :src="projectIcon"
+                                    class="icon"
+                                >
+                                New project
+                            </button>
+                        </li>
+                        <li>
                             <SEFileUploadButton
                                 :file-types="'.hssp'"
                                 @load="importProject"
@@ -98,31 +110,47 @@ export default {
         endSlide(el: HTMLElement) {
             el.style.height = '';
         },
+        cleanSlateAndRecreateChart(afterRecreate: Function) {
+            this.$store.commit('seriesParametersStore/clearState');
+            // Remove chart from DOM because chart.update does not remove series options
+            // - even with one-to-one parameter set.
+            this.$store.commit('viewStore/setLoadingChart', true);
+            setTimeout(() => {
+                this.$store.commit('viewStore/setShowChartComponent', false);
+                this.$nextTick(() => {
+                    // Recreate chart
+                    this.$store.commit('viewStore/setShowChartComponent', true);
+                    this.$nextTick(() => {
+                        try {
+                            afterRecreate();
+                        } finally {
+                            setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 1200);
+                        }
+                    });
+                });
+            }, 100);
+        },
         importProject(fileContents: string) {
             if (fileContents) {
-                this.$store.commit('seriesParametersStore/clearState');
-                // Remove chart from DOM because chart.update does not remove series options
-                // - even with one-to-one parameter set.
-                this.$store.commit('viewStore/setLoadingChart', true);
-                setTimeout(() => {
-                    this.$store.commit('viewStore/setShowChartComponent', false);
-                    this.$nextTick(() => {
-                        // Recreate chart
-                        this.$store.commit('viewStore/setShowChartComponent', true);
-                        this.$nextTick(() => {
-                            try {
-                                // Then load the project state into the clean(er) slate
-                                restoreFromProjectFile(fileContents, this.$store);
-                                (this as any).$announcer.announce('Project loaded.');
-                            } catch (e) {
-                                (this as any).$announcer.announce('Error loading project.');
-                                console.error('Error loading project:', e);
-                            } finally {
-                                setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 1500);
-                            }
-                        });
-                    });
-                }, 100);
+                this.cleanSlateAndRecreateChart(() => {
+                    // After chart has been deleted and recreated, load in new options
+                    try {
+                        restoreFromProjectFile(fileContents, this.$store);
+                        (this as any).$announcer.announce('Project loaded.');
+                    } catch (e) {
+                        (this as any).$announcer.announce('Error loading project.');
+                        console.error('Error loading project:', e);
+                    }
+                });
+            }
+        },
+        newProject() {
+            if(window.confirm('This will clear all data and reset all settings. Proceed?')) {
+                this.cleanSlateAndRecreateChart(() => {
+                    // Restore state with no argument restores defaults.
+                    this.$store.dispatch('restoreState');
+                    (this as any).$announcer.announce('New project loaded.');
+                });
             }
         },
         importCSV(fileContents: string) {
@@ -208,7 +236,8 @@ export default {
             padding: 0;
             margin: 4px 0;
         }
-        label {
+        label, button {
+            border-radius: 0;
             width: 100%;
             padding: 6px 15px;
             font: inherit;

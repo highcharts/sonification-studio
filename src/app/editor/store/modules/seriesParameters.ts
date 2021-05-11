@@ -53,8 +53,9 @@ export const seriesParametersStore = {
     },
 
     mutations: {
-        // Restore state for project file loading or localStore session restore
-        restoreStoreState(state: any, newState: GenericObject) {
+        // Restore state for project file loading/localStorage session restore,
+        // or reapply defaults if no new state is provided.
+        restoreStoreState(state: any, newState?: GenericObject) {
             const setOption = (root: GenericObject, key: string, val: any) => {
                 if (typeof val !== 'object' || val === null) {
                     Vue.set(root, key, val);
@@ -71,8 +72,10 @@ export const seriesParametersStore = {
             // Reset
             Vue.set(state, 'seriesParameters', {});
 
-            for (const [seriesId, options] of Object.entries(newState.seriesParameters)) {
-                setOption(state.seriesParameters, seriesId, options);
+            if (newState) {
+                for (const [seriesId, options] of Object.entries(newState.seriesParameters)) {
+                    setOption(state.seriesParameters, seriesId, options);
+                }
             }
         },
 

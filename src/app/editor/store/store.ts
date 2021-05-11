@@ -44,11 +44,13 @@ export const store = new Vuex.Store({
         });
     }],
     actions: {
-        restoreState(_, newState: GenericObject) {
-            this.commit('chartParametersStore/restoreStoreState', newState.chartParametersStore);
-            this.commit('globalSonifyParametersStore/restoreStoreState', newState.globalSonifyParametersStore);
-            this.commit('dataStore/restoreStoreState', newState.dataStore);
-            this.commit('seriesParametersStore/restoreStoreState', newState.seriesParametersStore);
+        // Restore state of stores to match a new state, for loading project files or restoring localStorage sessions.
+        // If a new state is not provided, the state is restored to the default state.
+        restoreState(_, newState?: GenericObject) {
+            this.commit('chartParametersStore/restoreStoreState', newState?.chartParametersStore);
+            this.commit('globalSonifyParametersStore/restoreStoreState', newState?.globalSonifyParametersStore);
+            this.commit('dataStore/restoreStoreState', newState?.dataStore);
+            this.commit('seriesParametersStore/restoreStoreState', newState?.seriesParametersStore);
         }
     }
 });

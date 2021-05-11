@@ -4,25 +4,30 @@
 
 import { GenericObject, firstDefined } from '../../core/utils/objects';
 
+const defaultState = () => ({
+    type: 'spline',
+    legendEnabled: false,
+    title: 'Test chart',
+    subtitle: '',
+    xAxisTitle: '',
+    yAxisTitle: 'Values',
+    seriesLabelsEnabled: false
+});
+
 export const chartParametersStore = {
     namespaced: true,
 
-    state: {
-        type: 'spline',
-        legendEnabled: false,
-        title: 'Test chart',
-        subtitle: '',
-        xAxisTitle: '',
-        yAxisTitle: 'Values',
-        seriesLabelsEnabled: false
-    },
+    state: defaultState(),
 
     mutations: {
-        // Add items here if they are to be restored from opening project files
-        // or localStorage session restore. Keep backwards compatibility in mind.
-        restoreStoreState(state: any, newState: GenericObject) {
-            ['type', 'legendEnabled', 'title', 'subtitle', 'xAxisTitle', 'yAxisTitle', 'seriesLabelsEnabled'].forEach(
-                x => state[x] = firstDefined(newState[x], state[x]));
+        // Apply a new state or restore to default if no new state is supplied.
+        restoreStoreState(state: any, newState?: GenericObject) {
+            if (newState) {
+                Object.keys(defaultState()).forEach(
+                    key => state[key] = firstDefined(newState[key], state[key]));
+            } else {
+                Object.assign(state, defaultState());
+            }
         },
 
         setType(state: any, type: string) {

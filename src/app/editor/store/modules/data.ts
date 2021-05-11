@@ -40,6 +40,19 @@ function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnPro
     return res;
 }
 
+function getPlaceholderData() {
+    const res = [];
+
+    for (let i = 0; i < 175; ++i) {
+        res.push({
+            A: '' + i,
+            B: (Math.sin(i / 3) * i / 2).toFixed(3)
+        });
+    }
+
+    return res;
+}
+
 
 export const dataStore = {
     namespaced: true,
@@ -86,11 +99,9 @@ export const dataStore = {
     },
 
     mutations: {
-        // Add items here if they are to be restored from opening project files
-        // or localStorage session restore. Keep backwards compatibility in mind.
-        restoreStoreState(state: any, newState: GenericObject) {
-            state.tableCSV = newState.tableCSV;
-            Vue.set(state, 'tableRowData', newState.tableRowData);
+        // Apply a state or replace state with placeholder data.
+        restoreStoreState(state: any, newState?: GenericObject) {
+            Vue.set(state, 'tableRowData', newState ? newState.tableRowData : getPlaceholderData());
         },
 
         setTableCSV(state: any, csv: string) {
@@ -131,6 +142,10 @@ export const dataStore = {
             while (i--) {
                 state.tableRowData.push({});
             }
+        },
+
+        setToPlaceholderData(state: any) {
+            Vue.set(state, 'tableRowData', getPlaceholderData());
         }
     },
 

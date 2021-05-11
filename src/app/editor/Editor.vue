@@ -74,9 +74,9 @@ export default {
 
             if (!isDev && stateJSON) {
                 const restoredState = JSON.parse(stateJSON);
-                store.dispatch('restoreState', restoredState);
+                this.$store.dispatch('restoreState', restoredState);
             } else {
-                this.$store.commit('dataStore/setTableRowData', this.makePlaceholderData());
+                this.$store.commit('dataStore/setToPlaceholderData');
             }
         },
 
@@ -85,19 +85,6 @@ export default {
             while (i--) {
                 window.localStorage.removeItem(storageKey + '-' + i);
             }
-        },
-
-        makePlaceholderData(): Array<object> {
-            const res = [];
-
-            for (let i = 0; i < 175; ++i) {
-                res.push({
-                    A: '' + i,
-                    B: (Math.sin(i / 3) * i / 2).toFixed(3)
-                });
-            }
-
-            return res;
         }
     }
 };
