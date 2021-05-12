@@ -328,9 +328,13 @@ export class ChartBridge {
         if (!this.browserSupportsRecording()) {
             throw new Error('Browser does not support media recording. Video could not be downloaded.');
         }
+
         const canvas = document.createElement('canvas');
+        // eslint-disable-next-line
+        const unusedCtx = canvas.getContext('2d'); // Because of bug in firefox, must get context before capt.stream.
         const canvasStream = (canvas as any).captureStream(framerate);
         if (!canvasStream) {
+            console.log('Canvas context:', unusedCtx); // Use context so it is not optimized away.
             throw new Error('Canvas capture stream not supported.');
         }
         const videoTrack = canvasStream.getVideoTracks()[0];
@@ -397,7 +401,7 @@ export class ChartBridge {
             const win = window;
             const img = new win.Image();
             const imgURL = (win.URL || win.webkitURL || win).createObjectURL(new win.Blob([svg], {
-                type: 'image/svg+xml;charset-utf-16'
+                type: 'image/svg+xml'
             }));
             const ctx = canvas.getContext && canvas.getContext('2d');
 

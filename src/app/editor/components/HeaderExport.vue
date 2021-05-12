@@ -190,9 +190,10 @@ export default {
             this.rendering = true;
             (this as any).$chartBridge.downloadVideo(24).then(() => {
                 this.rendering = false;
-            }).catch((e: unknown) => {
+            }).catch((e: Error) => {
                 this.rendering = false;
-                throw e;
+                console.error('Render to video error:', e);
+                window.alert('Saving to video failed. Error: ' + e.message);
             });
         },
         dlAudio() {
