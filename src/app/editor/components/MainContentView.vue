@@ -1,31 +1,30 @@
 <template>
     <main>
-        <div id="mainGrid">
-            <Data
-                v-show="selectedHeaderTabContent === 'dataContent'"
-                id="dataContent"
-                class="fullscreen"
-            />
+        <Data
+            v-show="selectedHeaderTabContent === 'dataContent'"
+            id="dataContent"
+            role="tabpanel"
+        />
 
-            <PlayControls
-                v-show="selectedHeaderTabContent !== 'dataContent'"
-                class="play-controls"
-            />
+        <div
+            v-show="selectedHeaderTabContent !== 'dataContent'"
+            id="chartContent"
+            role="tabpanel"
+            aria-label="Chart and sonification"
+        >
+            <PlayControls class="play-controls" />
 
             <Preview
                 v-if="showChartComponent"
-                v-show="selectedHeaderTabContent !== 'dataContent'"
                 class="preview"
             />
 
             <Sidebar
-                v-show="selectedHeaderTabContent !== 'dataContent'"
                 id="sidebar"
                 class="sidebar"
             />
 
             <TextDescription
-                v-show="selectedHeaderTabContent !== 'dataContent'"
                 class="description"
             />
         </div>
@@ -58,7 +57,13 @@ export default {
         padding-right: 10px;
     }
 
-    #mainGrid {
+    #dataContent {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    #chartContent {
         box-sizing: border-box;
         display: grid;
         width: 100%;
@@ -66,13 +71,6 @@ export default {
         grid-template-rows: auto 1.8fr 1fr;
         grid-template-columns: 1fr 350px;
         grid-gap: 5px;
-    }
-
-    .fullscreen {
-        grid-column-start: 1;
-        grid-column-end: 3;
-        grid-row-start: 1;
-        grid-row-end: 4;
     }
 
     .sidebar {

@@ -1,6 +1,11 @@
 <template>
-    <div>
-        <h2>Visual settings: Data series</h2>
+    <div
+        role="tabpanel"
+        aria-labelledby="chartmappingseries-heading"
+    >
+        <h2 id="chartmappingseries-heading">
+            Visual settings: Data series
+        </h2>
         <div class="controls-container">
             <SEControl
                 v-slot="slotProps"

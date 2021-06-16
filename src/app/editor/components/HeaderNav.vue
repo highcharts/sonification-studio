@@ -19,8 +19,7 @@
             <HelpContent />
         </SEModalInfo>
 
-        <div
-            role="tablist"
+        <SETablist
             class="header-tablist"
             aria-label="Select design stage"
         >
@@ -35,7 +34,7 @@
             >
                 {{ tab.name }}
             </HeaderTab>
-        </div>
+        </SETablist>
 
         <div class="header-spacing" />
 
@@ -64,6 +63,7 @@
 <script lang="ts">
 import HeaderTab from './HeaderTab.vue';
 import HelpContent from './HelpContent.vue';
+import SETablist from './basic/SETablist.vue';
 import SEModalInfo from './basic/SEModalInfo.vue';
 import SEButton from './basic/SEButton.vue';
 import { mapState } from 'vuex';
@@ -71,7 +71,7 @@ import backIcon from '../assets/angle-left-solid.svg';
 
 export default {
     components: {
-        HeaderTab, HelpContent, SEModalInfo, SEButton
+        SETablist, HeaderTab, HelpContent, SEModalInfo, SEButton
     },
     data() {
         return {
@@ -82,7 +82,7 @@ export default {
                 controls: 'dataContent',
             }, {
                 name: 'Chart',
-                controls: 'mainContentView',
+                controls: 'chartContent',
             }]
         };
     },

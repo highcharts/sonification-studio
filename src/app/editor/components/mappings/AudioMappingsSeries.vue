@@ -1,6 +1,11 @@
 <template>
-    <div>
-        <h2>Audio settings: Data series</h2>
+    <div
+        role="tabpanel"
+        aria-labelledby="audiomappingsseries-heading"
+    >
+        <h2 id="audiomappingsseries-heading">
+            Audio settings: Data series
+        </h2>
         <div class="series-selector-container">
             <SEControl
                 v-slot="slotProps"

@@ -8,16 +8,19 @@
     Props:
         - options: Array<{ name, controls }> - Tab definitions. options[].controls
             is the ID to the tab content activated by the switch.
+        - arialabel: String - Label for the switch.
 -->
 <template>
-    <div
+    <SETablist
         class="se-tabswitch-container"
         role="tablist"
+        :aria-label="arialabel"
     >
         <button
             v-for="btn in options"
             :key="btn.name"
             role="tab"
+            tabindex="-1"
             :class="{ selected: selectedButton === btn.name }"
             :aria-selected="selectedButton === btn.name ? 'true' : 'false'"
             :aria-controls="btn.controls"
@@ -25,10 +28,12 @@
         >
             {{ btn.name }}
         </button>
-    </div>
+    </SETablist>
 </template>
 
 <script lang="ts">
+import SETablist from './SETablist.vue';
+
 export interface SETabDefinition {
     name: string;
     controls: string;
@@ -36,8 +41,12 @@ export interface SETabDefinition {
 }
 
 export default {
+    components: {
+        SETablist
+    },
     props: {
-        options: { type: Array, required: true }
+        options: { type: Array, required: true },
+        arialabel: { type: String, required: true }
     },
     data() {
         return {

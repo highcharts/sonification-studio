@@ -2,6 +2,7 @@
     <button
         class="header-tab"
         :class="{ selected: selected, small: small }"
+        tabindex="-1"
         @click="$emit('click')"
     >
         <span

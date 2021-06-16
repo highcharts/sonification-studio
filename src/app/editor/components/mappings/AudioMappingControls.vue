@@ -1,6 +1,7 @@
 <template>
     <div>
         <SETabSwitch
+            arialabel="Audio settings type"
             :options="toggleMappingOptions"
             class="toggleView"
             @click="toggleMappingActivated"

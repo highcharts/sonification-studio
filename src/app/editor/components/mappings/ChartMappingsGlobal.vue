@@ -1,6 +1,11 @@
 <template>
-    <div>
-        <h2>Visual settings: Global</h2>
+    <div
+        role="tabpanel"
+        aria-labelledby="chartmappingsglobal-heading"
+    >
+        <h2 id="chartmappingsglobal-heading">
+            Visual settings: Global
+        </h2>
         <div class="controls-container">
             <SEControl
                 v-slot="slotProps"

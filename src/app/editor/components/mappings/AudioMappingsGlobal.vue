@@ -1,6 +1,11 @@
 <template>
-    <div>
-        <h2>Audio settings: Global</h2>
+    <div
+        role="tabpanel"
+        aria-labelledby="audiomappingsglobal-heading"
+    >
+        <h2 id="audiomappingsglobal-heading">
+            Audio settings: Global
+        </h2>
         <div class="controls-container">
             <div class="controls-group">
                 <SEControl

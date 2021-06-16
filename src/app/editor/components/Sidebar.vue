@@ -1,11 +1,11 @@
 <template>
     <section aria-label="Settings for chart and audio">
-        <div
+        <SETablist
             class="sidebar-tablist"
-            role="tablist"
             aria-label="Settings category"
         >
             <HeaderTab
+                id="visualtab"
                 small
                 role="tab"
                 :aria-selected="selectedSidebarTabId === 'Visual' ? 'true' : 'false'"
@@ -17,6 +17,7 @@
                 Visual
             </HeaderTab>
             <HeaderTab
+                id="audiotab"
                 small
                 role="tab"
                 :aria-selected="selectedSidebarTabId === 'Audio' ? 'true' : 'false'"
@@ -27,16 +28,21 @@
             >
                 Audio
             </HeaderTab>
-        </div>
+        </SETablist>
+
         <div id="sidebar-content">
             <div id="scroll-container">
                 <ChartMappingControls
                     v-show="selectedSidebarTabId === 'Visual'"
                     id="chartMappingControls"
+                    role="tabpanel"
+                    aria-labelledby="visualtab"
                 />
                 <AudioMappingControls
                     v-show="selectedSidebarTabId === 'Audio'"
                     id="audioMappingControls"
+                    role="tabpanel"
+                    aria-labelledby="audiotab"
                 />
             </div>
         </div>
@@ -45,6 +51,7 @@
 
 <script lang="ts">
 import HeaderTab from './HeaderTab.vue';
+import SETablist from './basic/SETablist.vue';
 import AudioMappingControls from './mappings/AudioMappingControls.vue';
 import ChartMappingControls from './mappings/ChartMappingControls.vue';
 import visualIcon from '../assets/chart-line-solid.svg';
@@ -55,7 +62,8 @@ export default {
     components: {
         AudioMappingControls,
         ChartMappingControls,
-        HeaderTab
+        HeaderTab,
+        SETablist
     },
     data: function () {
         return {
