@@ -3,7 +3,7 @@
         <div class="main-content">
             <h1>Highcharts Sonification Studio</h1>
             <div class="section intro">
-                Highcharts has teamed up with the Sonification Lab at Georgia Institute of Technology to bring you a free tool for exploring sonification - using sound to visualize data.
+                Highcharts has teamed up with the Sonification Lab at Georgia Institute of Technology to bring you a free tool for exploring charts and sonification - using sound to visualize data.
             </div>
             <div class="section to-app">
                 <img
@@ -45,7 +45,7 @@
                         Background
                     </h2>
                     <p>
-                        The Sonification Lab at Georgia Institute of Technology has been a pioneer of sonification research for years, and were the original authors of a tool called the <a href="http://sonify.psych.gatech.edu/research/sonification_sandbox/">Sonification Sandbox</a>. This new Sonification Studio collaboration is an attempt at bringing together the learnings from Georgia Tech's Sonification Sandbox with Highcharts' modern web-based charting and sonification technology, resulting in a more flexible and robust tool for sonification exploration.
+                        The Sonification Lab at Georgia Institute of Technology has been a pioneer of sonification research for years, and were the original authors of a tool called the <a href="http://sonify.psych.gatech.edu/research/sonification_sandbox/">Sonification Sandbox</a>. This new Sonification Studio collaboration is an attempt at bringing together the learnings from Georgia Tech's Sonification Sandbox with Highcharts' modern web-based <a href="https://www.highcharts.com/docs/accessibility/sonification">charting and sonification technology</a>, resulting in a more flexible and robust tool for sonification exploration.
                     </p>
                 </div>
                 <div class="goals-pricing">
@@ -53,10 +53,10 @@
                         Goals and pricing
                     </h2>
                     <p>
-                        The goals of this tool is to provide a simple, intuitive, and accessible way for users to import their data, edit it, visualize it, sonify it, and export the results to a useful format. We want users to be able to use the tool without having to write code, and without prior sonification expertise.
+                        The goal of this tool is to provide a simple, intuitive, and accessible way for users to import their data, edit it, visualize it, sonify it, and export the results to a useful format. We want users to be able to use the tool without having to write code, and without prior sonification expertise.
                     </p>
                     <p>
-                        We will open source the tool to allow for extensions and forks from the community, once the code base has reached a minimum level of maturity. A Highcharts license is required for commercial use of the tool, but otherwise usage is completely free.
+                        The tool is open sourced under the MIT license to allow for extensions and forks from the community, and ensure the tool is available to all. A <a href="https://www.highcharts.com">Highcharts license</a> is required for commercial use of the tool, but otherwise usage is completely free.
                     </p>
                 </div>
                 <div class="development-section">
@@ -70,12 +70,15 @@
                     <p>
                         The tool is currently in Beta, and should be considered incomplete and in development. Functionality is subject to change without notice. Project files from the current version are not guaranteed to work with future versions, although we will strive to keep backwards compatibility as we add features.
                     </p>
+                    <p>
+                        Please visit the <a href="https://github.com/highcharts/sonification-explorer">GitHub repository</a> for the tool to make contributions, log issues, or fork the code to make your own version.
+                    </p>
                     <div>
                         <h3 id="known-issues">
                             Known issues:
                         </h3>
                         <ul>
-                            <li>The data grid component has usability issues, especially for screen reader users.</li>
+                            <li>The data grid component has multiple usability issues, especially for screen reader users. This grid is a 3rd party component and will be replaced.</li>
                             <li>The playback bar can not be manipulated to navigate the sonification.</li>
                         </ul>
                         <h3 id="planned-features">
@@ -106,6 +109,9 @@
                 <p>
                     <span ref="deferContentA">&nbsp;</span>
                     <a ref="deferContentB">&nbsp;</a><span ref="deferContentC">&nbsp;</span>
+                </p>
+                <p>
+                    Our public <a href="https://github.com/highcharts/sonification-explorer">GitHub repository</a> for the tool supports logging issues, as well as pull requests for contributions. It is also possible to fork the code and make your own customized version. Please note the licensing requirements for commercial use.
                 </p>
                 <p>
                     You can also write a post in the <a href="https://www.highcharts.com/forum/viewtopic.php?f=9&t=46101">Highcharts Sonification Studio feedback thread</a> in our public support forum, which we monitor regularly. Note that you will have to register for a free user account in order to post messages in the forum.
@@ -309,6 +315,13 @@ export default {
         h2 {
             color: #fff;
             margin-top: 0;
+        }
+        a {
+            color: #fff;
+            text-decoration: underline;
+            &:hover {
+                color: #cbe8f8;
+            }
         }
     }
 </style>

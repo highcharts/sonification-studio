@@ -1,10 +1,10 @@
 # Sonification Explorer
 
-Edit data and create charts that play sound. Developed by [Highcharts](https://www.highcharts.com). Designed in collaboration with [Georgia Institute of Technology](https://www.gatech.edu/).
+Edit data and create charts and sonifications. Developed by [Highcharts](https://www.highcharts.com). Designed in collaboration with [Georgia Institute of Technology](https://www.gatech.edu/).
 
 ## License
 
-This project is MIT licensed, but makes use of the proprietary Highcharts library. A [Highcharts license](https://highcharts.com) is required for commercial use.
+This project is MIT licensed, but makes use of the proprietary Highcharts library. A suitable [Highcharts license](https://highcharts.com) is required for all commercial use. This is important if you are making forks or installing the tool on your own servers.
 
 ## Develop
 
@@ -42,7 +42,7 @@ Tests are ran automatically before each commit.
 
 ### Source files
 
-Source files are found under `/src`, with `/src/app` containing all front end components, `/src/core` containing the program logic and utilities, and `/src/store` containing the Vuex data store modules with default parameters.
+Source files are found under `/src/app`, with `/src/app/editor` containing components for the editor itself, and `/src/app/home` containing components for the landing page. `/src/editor/core` contains the program logic and utilities, and `/src/editor/store` contains the Vuex data store modules with default parameters.
 
 ### Notable dependencies
 
