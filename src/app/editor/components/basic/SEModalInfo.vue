@@ -14,6 +14,7 @@
         @click="onclick"
         @keydown.enter="$emit('close')"
         @keydown.space="$emit('close')"
+        @keydown.tab="ontab"
     >
         <div
             ref="innerContainer"
@@ -29,6 +30,7 @@
                 </div>
                 <div class="spacer" />
                 <button
+                    ref="closeIcon"
                     aria-label="Close dialog"
                     class="header-close"
                     @click="$emit('close')"
@@ -44,6 +46,7 @@
             </div>
             <div class="popup-footer">
                 <SEButton
+                    ref="closeBtn"
                     dark
                     aria-label="Close dialog"
                     @click="$emit('close')"
@@ -71,6 +74,14 @@ export default {
             const innerContainer = this.$refs.innerContainer as Element;
             if (!innerContainer.contains(e.target as Element)) {
                 this.$emit('close');
+            }
+        },
+        ontab(e: KeyboardEvent) {
+            const atCloseIcon = e.target === this.$refs.closeIcon;
+            const atCloseBtn = e.target === (this.$refs.closeBtn as Vue).$el;
+            if (atCloseIcon && e.shiftKey || atCloseBtn && !e.shiftKey) {
+                e.stopPropagation();
+                e.preventDefault();
             }
         }
     }
