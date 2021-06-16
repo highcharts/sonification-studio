@@ -96,7 +96,6 @@ export default {
     .editor-container {
         width: 100%;
         min-width: 850px;
-        max-width: 2000px;
         height: 100%;
         min-height: 850px;
         max-height: 100%;
