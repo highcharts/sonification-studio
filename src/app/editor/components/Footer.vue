@@ -41,6 +41,9 @@ export default {
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 10px;
     }
 
     #copyright {

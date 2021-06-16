@@ -53,7 +53,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
+    main {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
     #mainGrid {
+        box-sizing: border-box;
         display: grid;
         width: 100%;
         height: 100%;

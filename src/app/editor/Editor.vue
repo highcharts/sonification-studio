@@ -101,7 +101,6 @@ export default {
         max-height: 100%;
         margin: 0 auto;
         background-color: @app-bg-color;
-        padding: 10px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -112,7 +111,7 @@ export default {
         margin-top: 4px;
         overflow-y: scroll;
         /* Hack for not cutting off helptexts in the x-dimension, even if they overflow */
-        padding-left: 100px;
+        padding-left: 110px;
         margin-left: -100px;
     }
 </style>
