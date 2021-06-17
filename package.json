@@ -1,5 +1,5 @@
 {
-  "name": "sonification-explorer",
+  "name": "highcharts-sonification-studio",
   "version": "0.0.17-beta",
   "description": "Edit and visualize data with charts and sound",
   "private": true,
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/highcharts/sonification-explorer.git"
+    "url": "git+https://github.com/highcharts/sonification-studio.git"
   },
   "keywords": [
     "sonification",
@@ -31,9 +31,9 @@
   "author": "Highsoft AS",
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/highcharts/sonification-explorer/issues"
+    "url": "https://github.com/highcharts/sonification-studio/issues"
   },
-  "homepage": "https://github.com/highcharts/sonification-explorer#readme",
+  "homepage": "https://github.com/highcharts/sonification-studio#readme",
   "devDependencies": {
     "@types/jest": "^24.9.1",
     "@typescript-eslint/eslint-plugin": "^2.34.0",

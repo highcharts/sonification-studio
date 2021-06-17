@@ -71,7 +71,7 @@
                         The tool is currently in Beta, and should be considered incomplete and in development. Functionality is subject to change without notice. Project files from the current version are not guaranteed to work with future versions, although we will strive to keep backwards compatibility as we add features.
                     </p>
                     <p>
-                        Please visit the <a href="https://github.com/highcharts/sonification-explorer">GitHub repository</a> for the tool to make contributions, log issues, or fork the code to make your own version.
+                        Please visit the <a href="https://github.com/highcharts/sonification-studio">GitHub repository</a> for the tool to make contributions, log issues, or fork the code to make your own version.
                     </p>
                     <div>
                         <h3 id="known-issues">
@@ -111,7 +111,7 @@
                     <a ref="deferContentB">&nbsp;</a><span ref="deferContentC">&nbsp;</span>
                 </p>
                 <p>
-                    Our public <a href="https://github.com/highcharts/sonification-explorer">GitHub repository</a> for the tool supports logging issues, as well as pull requests for contributions. It is also possible to fork the code and make your own customized version. Please note the licensing requirements for commercial use.
+                    Our public <a href="https://github.com/highcharts/sonification-studio">GitHub repository</a> for the tool supports logging issues, as well as pull requests for contributions. It is also possible to fork the code and make your own customized version. Please note the licensing requirements for commercial use.
                 </p>
                 <p>
                     You can also write a post in the <a href="https://www.highcharts.com/forum/viewtopic.php?f=9&t=46101">Highcharts Sonification Studio feedback thread</a> in our public support forum, which we monitor regularly. Note that you will have to register for a free user account in order to post messages in the forum.
@@ -142,8 +142,8 @@ export default {
             const d = 't.com';
             deferredB.setAttribute('href', [a, b, c, d].join(''));
             const e = 'accessibility';
-            const f = '@highsof';
-            const g = 't.com';
+            const f = '@highso';
+            const g = 'ft.com';
             deferredB.innerHTML = [e, f, g].join('');
             (this.$refs.deferContentC as any).innerHTML = ', and we will get back to you.';
         }, 800);

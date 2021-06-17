@@ -1,4 +1,4 @@
-# Sonification Explorer
+# Highcharts Sonification Studio
 
 Edit data and create charts and sonifications. Developed by [Highcharts](https://www.highcharts.com). Designed in collaboration with [Georgia Institute of Technology](https://www.gatech.edu/).
 
