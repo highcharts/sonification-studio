@@ -1,6 +1,6 @@
 # Highcharts Sonification Studio
 
-Edit data and create charts and sonifications. Developed by [Highcharts](https://www.highcharts.com). Designed in collaboration with [Georgia Institute of Technology](https://www.gatech.edu/).
+Edit data and create charts and sonifications. Developed by [Highcharts](https://www.highcharts.com). Designed in collaboration with [Georgia Institute of Technology](https://www.gatech.edu/). Read more and see it live at [sonification.highcharts.com](https://sonification.highcharts.com).
 
 ## License
 
