@@ -24,7 +24,8 @@ export const defaultChartOptions = {
                 '<div>{chartSubtitle}</div>' +
                 '<div>{chartLongdesc}</div>' +
                 '<div>{xAxisDescription}</div>' +
-                '<div>{yAxisDescription}</div>'
+                '<div>{yAxisDescription}</div>',
+            afterChartFormat: ''
         },
         landmarkVerbosity: 'one',
         series: {
