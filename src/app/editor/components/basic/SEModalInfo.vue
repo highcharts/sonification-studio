@@ -26,7 +26,7 @@
                         :src="hcLogo"
                         alt=""
                     >
-                    <span>Highcharts Sonification Studio - {{ dialogTitle }}</span>
+                    <h1>Highcharts Sonification Studio - {{ dialogTitle }}</h1>
                 </div>
                 <div class="spacer" />
                 <button
@@ -128,8 +128,12 @@ export default {
         box-sizing: border-box;
         vertical-align: middle;
         line-height: 24px;
-        font-family: Verdana, sans-serif;
-        font-size: 14px;
+        h1 {
+            font-weight: normal;
+            display: inline-block;
+            font-family: Verdana, sans-serif;
+            font-size: 14px;
+        }
         display: flex;
         img {
             vertical-align: middle;

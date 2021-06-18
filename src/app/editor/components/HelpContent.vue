@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Basics</h1>
+        <h2>Basics</h2>
         <p>
             This tool allows you to import or enter data, edit it, create charts and sonifications, and export them together or separately.
         </p>
@@ -14,7 +14,7 @@
             When you are satisfied with the visual chart and the sonification experience, click the <span class="emp">Save Project</span> button to export your work. The chart and sonification can be combined and exported as a video, or you can export them separately. The data can also be exported separately.
         </p>
 
-        <h1>Modifying the chart or sonification</h1>
+        <h2>Modifying the chart or sonification</h2>
         <p>
             Under the <span class="emp">Chart</span> tab, you will find a sidebar with <span class="emp">Visual</span> and <span class="emp">Audio</span> settings. Each of these have <span class="emp">Global settings</span>, that apply to the whole chart, and <span class="emp">Data series settings</span>, which apply to an individual data series. Each individual setting has a help icon next to it, offering more detailed information about the effect of the setting.
         </p>
@@ -25,7 +25,7 @@
             The <span class="emp">Audio</span> settings will allow you to modify the sonification parameters for the chart. This includes the playback speed, the frequency ranges, the mapping of data parameters to various properties of the sounds, and more.
         </p>
 
-        <h1>Keyboard shortcuts</h1>
+        <h2>Keyboard shortcuts</h2>
         <p>
             The following keyboard shortcuts can be used to control sonification playback when on the <span class="emp">Chart</span> tab:
             <ul>
@@ -45,7 +45,7 @@ export default {};
 <style lang="less" scoped>
     @import "../colors";
 
-    h1, h2, h3 {
+    h2, h3 {
         color: @dark-blue-5;
         font-weight: bold;
         font-size: 1.3em;
@@ -53,7 +53,7 @@ export default {};
         margin-top: 20px;
     }
 
-    h1:first-child {
+    h2:first-child {
         margin-top: 0;
     }
 
