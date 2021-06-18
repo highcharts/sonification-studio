@@ -21,7 +21,7 @@
 
         <SETablist
             class="header-tablist"
-            aria-label="Select design stage"
+            aria-label="Design stage"
         >
             <HeaderTab
                 v-for="tab in headerTabs"
