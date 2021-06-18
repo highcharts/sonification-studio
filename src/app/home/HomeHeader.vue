@@ -3,11 +3,12 @@
         <div class="header-content">
             <div>
                 <a
+                    id="initialFocusElement"
                     class="highcharts-logo"
                     href="https://www.highcharts.com"
                 >
                     <img
-                        alt="Highcharts.com logo"
+                        alt="Highcharts.com homepage"
                         :src="highchartsLogo"
                     >
                 </a>
@@ -21,7 +22,7 @@
                     href="https://www.gatech.edu"
                 >
                     <img
-                        alt="Georgia Institute of Technology logo"
+                        alt="Georgia Institute of Technology homepage"
                         :src="gtLogo"
                     >
                 </a>

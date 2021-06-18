@@ -1,6 +1,7 @@
 <template>
     <div class="app-container">
         <router-view />
+        <div id="routeAnnouncer" />
     </div>
 </template>
 

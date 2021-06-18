@@ -7,7 +7,12 @@
                     :src="highchartsIcon"
                 >
             </a>
-            <h1>Highcharts Sonification Studio</h1>
+            <h1
+                id="initialFocusElement"
+                tabindex="-1"
+            >
+                Highcharts Sonification Studio
+            </h1>
         </div>
         <div class="nav-row">
             <HeaderNav class="section-nav" />
