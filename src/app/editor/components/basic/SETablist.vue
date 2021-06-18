@@ -75,6 +75,6 @@ export default {
 
 <style lang="less" scoped>
     .se-tablist {
-        z-index: 99; /* Avoid most focus outline clipping */
+        z-index: 98; /* Avoid most focus outline clipping, but don't go above popups */
     }
 </style>

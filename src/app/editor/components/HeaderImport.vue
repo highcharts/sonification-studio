@@ -171,7 +171,7 @@ export default {
         justify-content: flex-end;
         align-items: center;
         position: relative;
-        z-index: 10;
+        z-index: 99;
         min-width: 97px;
     }
 
