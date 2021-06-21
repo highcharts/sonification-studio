@@ -1,14 +1,15 @@
 <template>
     <nav>
-        <a
-            href="#"
+        {{ /* Use button element because of potential vue-router issue with #-links */ }}
+        <button
+            role="link"
             class="skip-link"
-            @click="$emit('skipToContent')"
-            @keydown.enter="$emit('skipToContent')"
-            @keydown.space="$emit('skipToContent')"
+            @click="onSkipLinkClick"
+            @keydown.enter="onSkipLinkClick"
+            @keydown.space="onSkipLinkClick"
         >
             Skip to content
-        </a>
+        </button>
 
         <SEButton
             ref="helpBtn"
@@ -127,6 +128,10 @@ export default {
             } else {
                 this.hideHelpDialog();
             }
+        },
+        onSkipLinkClick(e: Event) {
+            this.$emit('skipToContent');
+            e.preventDefault();
         }
     }
 };
