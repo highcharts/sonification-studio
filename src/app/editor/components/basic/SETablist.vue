@@ -1,6 +1,8 @@
 <!--
     A reusable tablist, not containing tabs, but wraps around the tabs, dealing with keyboard nav and ARIA for the list
     itself.
+
+    Allows for using different tab styles for the tabs themselves while abstracting away the keyboard nav.
 -->
 <template>
     <div

@@ -33,6 +33,7 @@ new Vue({
                     window.scrollTo(0, 0);
                 }
 
+                // Additional timeouts required on Chrome with VoiceOver for the announcement and focus to work.
                 setTimeout(() => {
                     const focusElement = document.getElementById('initialFocusElement');
                     if (focusElement) {
