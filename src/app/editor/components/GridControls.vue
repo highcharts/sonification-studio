@@ -100,7 +100,7 @@ export default {
         onClearDataClick() {
             if (window.confirm('This will clear all data from the grid. Proceed?')) {
                 this.$store.commit('dataStore/setTableRowData', []);
-                this.$announcer.announce('Data grid cleared.');
+                (this as any).$announcer.announce('Data grid cleared.');
             }
         },
 
@@ -108,7 +108,7 @@ export default {
             const numRows = this.rowsToAdd;
             if (numRows) {
                 this.$store.commit('dataStore/addTableRows', numRows);
-                this.$announcer.announce('Rows added. Total number of rows: ' + this.$store.getters['dataStore/numRows']);
+                (this as any).$announcer.announce('Rows added. Total number of rows: ' + this.$store.getters['dataStore/numRows']);
 
                 // Scroll after row adding has been processed.
                 setTimeout(() => this.$emit('triggerScrollLastGridRowWithData'), 0);
@@ -124,7 +124,7 @@ export default {
                     columnName: destinationColumn,
                     equation
                 });
-                this.$announcer.announce('Column ' + destinationColumn + ' filled.');
+                (this as any).$announcer.announce('Column ' + destinationColumn + ' filled.');
             }
         }
     }
