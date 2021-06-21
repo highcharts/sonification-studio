@@ -26,7 +26,7 @@
                         :src="hcLogo"
                         alt=""
                     >
-                    <h1>Highcharts Sonification Studio - {{ dialogTitle }}</h1>
+                    <h1>{{ dialogTitle }} - Highcharts Sonification Studio</h1>
                 </div>
                 <div class="spacer" />
                 <button
