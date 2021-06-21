@@ -80,7 +80,8 @@
         <SEControl
             v-show="panType === 'mapped'"
             v-slot="slotProps"
-            label="Direction"
+            fieldset-legend="Direction"
+            is-fieldset
             helptext="Set the polarity of the pan mapping - whether the audio pans from left to right, or right to left, as values get higher."
         >
             <SERadioGroup

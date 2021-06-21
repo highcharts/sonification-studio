@@ -1,5 +1,5 @@
 <!--
-    A reusable control with a label and a helptext.
+    A reusable control with a label and a helptext. Optionally, fieldset and legend can be used instead of a label.
     The input control is placed within the default slot.
 
     Use slot props to access the ID of the control and the added label. Example:
@@ -17,20 +17,30 @@
     controlId is added to the <label>'s "for" attribute, and labelId is the id of the <label>.
 
     Props:
-        - label: String - The label text to show.
+        - [label]: String - The label text to show.
         - [helptext]: String - Show help icon with text popup.
         - [helptextBelow]: Boolean - Show helptext popup below instead of above.
         - [horizontal]: Boolean - Show label to the right of control, rather than above.
         - [horizontalReverse]: Boolean - Show label to the left of control, rather than above.
         - [expandContent]: Boolean - Expand the control content to fill empty space.
+        - [isFieldset]: Boolean - Code the control as a fieldset.
+        - [fieldsetLegend]: String - Legend to add to fieldset.
 -->
 <template>
-    <div
+    <component
+        :is="isFieldset ? 'fieldset' : 'div'"
         class="se-control"
         :class="{ horizontal: horizontal, 'horizontal-reverse': horizontalReverse, 'expand-content': expandContent }"
     >
         <div class="se-control-label-container">
+            <legend
+                v-if="isFieldset && fieldsetLegend"
+            >
+                {{ fieldsetLegend }}
+            </legend>
+
             <label
+                v-if="label"
                 :id="labelUUID"
                 :for="controlUUID"
                 class="se-control-label"
@@ -41,7 +51,7 @@
             <button
                 v-if="helptext"
                 class="helpicon"
-                :aria-label="'Help for ' + label"
+                :aria-label="'Help for ' + (label || fieldsetLegend)"
                 :aria-expanded="helptextActive ? 'true' : 'false'"
                 @click="helptextActive = !helptextActive"
                 @keyup.esc="helptextActive = false"
@@ -73,7 +83,7 @@
                 :controlId="controlUUID"
             />
         </div>
-    </div>
+    </component>
 </template>
 
 <script lang="ts">
@@ -81,12 +91,14 @@ import { getUUID } from '../../core/utils/objects';
 
 export default {
     props: {
-        label: { type: String, required: true },
+        label: { type: String, default: '' },
         helptext: { type: String, default: '' },
         horizontal: { type: Boolean, default: false },
         helptextBelow: { type: Boolean, default: false },
         horizontalReverse: { type: Boolean, default: false },
-        expandContent: { type: Boolean, default: false }
+        expandContent: { type: Boolean, default: false },
+        isFieldset: { type: Boolean, default: false },
+        fieldsetLegend: { type: String, default: '' }
     },
     data() {
         return {
@@ -117,6 +129,7 @@ export default {
         flex-direction: column;
         justify-content: center;
         width: 100%;
+        border: 0;
         &.horizontal {
             flex-direction: row-reverse;
             justify-content: flex-end;
@@ -146,6 +159,9 @@ export default {
         &.expand-content .se-control-content {
             flex: 1;
             display: block;
+        }
+        legend {
+            float: left;
         }
     }
 

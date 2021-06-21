@@ -80,7 +80,8 @@
         <SEControl
             v-show="pitchType === 'mapped'"
             v-slot="slotProps"
-            label="Polarity"
+            fieldset-legend="Polarity"
+            is-fieldset
             helptext="Set the polarity of the pitch mapping - whether the audio goes up or down in pitch with higher values."
         >
             <SERadioGroup

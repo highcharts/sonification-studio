@@ -80,7 +80,8 @@
         <SEControl
             v-show="durationType === 'mapped'"
             v-slot="slotProps"
-            label="Polarity"
+            fieldset-legend="Polarity"
+            is-fieldset
             helptext="Set the polarity of the duration mapping - whether the notes gets shorter or longer as values get higher."
         >
             <SERadioGroup

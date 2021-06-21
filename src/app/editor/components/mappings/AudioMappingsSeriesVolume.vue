@@ -80,7 +80,8 @@
         <SEControl
             v-show="volumeType === 'mapped'"
             v-slot="slotProps"
-            label="Polarity"
+            fieldset-legend="Polarity"
+            is-fieldset
             helptext="Set the polarity of the volume mapping - whether the audio gets louder or quieter as values get higher."
         >
             <SERadioGroup

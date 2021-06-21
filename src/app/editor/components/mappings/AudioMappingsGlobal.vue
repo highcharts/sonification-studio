@@ -32,7 +32,8 @@
                 </SEControl>
                 <SEControl
                     v-slot="slotProps"
-                    label="Data series order"
+                    fieldset-legend="Data series order"
+                    is-fieldset
                     helptext="Which order to play the data series in, either one after the other, or simultaneously."
                 >
                     <SERadioGroup
