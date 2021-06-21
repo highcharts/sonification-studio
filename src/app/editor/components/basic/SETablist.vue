@@ -9,7 +9,6 @@
         ref="tablist"
         role="tablist"
         class="se-tablist"
-        tabindex="0"
         @keydown.left="onmove(-1, $event)"
         @keydown.right="onmove(1, $event)"
         @keydown.up="onmove(-1, $event)"
@@ -23,38 +22,63 @@
 
 <script lang="ts">
 export default {
+    mounted() {
+        this.resetTabindex();
+        const tabs = this.getTabsAsNodeList();
+        const selectedIx = this.getSelectedTabIx();
+        tabs[selectedIx].setAttribute('tabindex', '0');
+    },
     methods: {
+        resetTabindex() {
+            const tabs = this.getTabsAsNodeList();
+            for (let i = 0; i < tabs.length; ++i) {
+                tabs[i].setAttribute('tabindex', '-1');
+            }
+        },
+
         activate(el: Element) {
+            this.resetTabindex();
+            el.setAttribute('tabindex', '0');
             if ((el as any).click) {
                 (el as HTMLButtonElement).click();
             } else {
                 const e = new Event('click');
                 el.dispatchEvent(e);
             }
+            if ((el as any).focus) {
+                (el as any).focus();
+            }
         },
-        getSelectedTabFromNodeList(nodeList: NodeListOf<Element>): number {
-            for (let i = 0; i < nodeList.length; ++i) {
-                if (nodeList[i].getAttribute('aria-selected') === 'true') {
+
+        getTabsAsNodeList(): NodeListOf<Element> {
+            const parent = this.$refs.tablist as Element;
+            const children = parent.querySelectorAll('[role="tab"]');
+            return children;
+        },
+
+        getSelectedTabIx(): number {
+            const tabs = this.getTabsAsNodeList();
+            for (let i = 0; i < tabs.length; ++i) {
+                if (tabs[i].getAttribute('aria-selected') === 'true') {
                     return i;
                 }
             }
             return -1;
         },
+
         onmove(direction: number, e: KeyboardEvent) {
-            const parent = this.$refs.tablist as Element;
-            const children = parent.querySelectorAll('[role="tab"]');
-            if (children && children.length) {
-                const selectedIx = this.getSelectedTabFromNodeList(children);
-                let newIx = selectedIx + direction;
-                if (newIx < 0) {
-                    newIx = children.length - 1;
-                } else if (newIx >= children.length) {
-                    newIx = 0;
-                }
-                e.preventDefault();
-                this.activate(children[newIx]);
+            const children = this.getTabsAsNodeList();
+            const selectedIx = this.getSelectedTabIx();
+            let newIx = selectedIx + direction;
+            if (newIx < 0) {
+                newIx = children.length - 1;
+            } else if (newIx >= children.length) {
+                newIx = 0;
             }
+            e.preventDefault();
+            this.activate(children[newIx]);
         },
+
         onmovehome(e: KeyboardEvent) {
             const parent = this.$refs.tablist as Element;
             const child = parent.querySelector('[role="tab"]');
@@ -63,13 +87,11 @@ export default {
                 this.activate(child);
             }
         },
+
         onmoveend(e: KeyboardEvent) {
-            const parent = this.$refs.tablist as Element;
-            const children = parent.querySelectorAll('[role="tab"]');
-            if (children) {
-                e.preventDefault();
-                this.activate(children[children.length - 1]);
-            }
+            const children = this.getTabsAsNodeList();
+            e.preventDefault();
+            this.activate(children[children.length - 1]);
         }
     }
 };
