@@ -17,6 +17,7 @@
             </div>
 
             <PrimaryNav
+                class="primary-nav"
                 @skipToContent="$emit('skipToContent')"
             />
         </div>
@@ -61,6 +62,10 @@ export default {
         font-size: 0.8125rem;
         font-weight: normal;
         letter-spacing: 0.1em;
+    }
+
+    .primary-nav {
+        flex: 1;
     }
 
     .heading-row {

@@ -1,59 +1,66 @@
 <template>
     <nav aria-label="Primary">
-        {{ /* Use button element because of potential vue-router issue with #-links */ }}
-        <button
-            role="link"
-            class="skip-link"
-            @click="onSkipLinkClick"
-            @keydown.enter="onSkipLinkClick"
-            @keydown.space="onSkipLinkClick"
-        >
-            Skip to content
-        </button>
-
-        <button
-            ref="helpBtn"
-            class="help-btn"
-            :aria-expanded="helpVisible"
-            @click="onHelpClick"
-        >
-            Help
-        </button>
-
-        <SEModalInfo
-            v-show="helpVisible"
-            ref="helpDialog"
-            dialog-title="Help"
-            @close="hideHelpDialog"
-        >
-            <HelpContent />
-        </SEModalInfo>
-
-        <router-link
-            v-slot="{ navigate }"
-            class="header-back"
-            to="/"
-            custom
-        >
-            <div
-                class="header-back-container"
-                @click="navigate"
-            >
-                <img
-                    class="back-icon"
-                    alt=""
-                    :src="backIcon"
+        <ul>
+            <li>
+                {{ /* Use button element because of potential vue-router issue with #-links */ }}
+                <button
+                    role="link"
+                    class="skip-link"
+                    @click="onSkipLinkClick"
+                    @keydown.enter="onSkipLinkClick"
+                    @keydown.space="onSkipLinkClick"
                 >
-                <a
-                    id="back-link-a"
-                    href="#"
-                    @click="navigate"
-                    @keydown.space="navigate"
+                    Skip to content
+                </button>
+            </li>
+
+            <li>
+                <button
+                    ref="helpBtn"
+                    class="help-btn"
+                    :aria-expanded="helpVisible"
+                    @click="onHelpClick"
                 >
-                    Back
-                </a>
-            </div>
-        </router-link>
+                    Help
+                </button>
+                <SEModalInfo
+                    v-show="helpVisible"
+                    ref="helpDialog"
+                    dialog-title="Help"
+                    @close="hideHelpDialog"
+                >
+                    <HelpContent />
+                </SEModalInfo>
+            </li>
+
+            <li>
+                <router-link
+                    v-slot="{ navigate }"
+                    class="header-back"
+                    to="/"
+                    custom
+                >
+                    <div
+                        class="header-back-container"
+                        @click="navigate"
+                    >
+                        <img
+                            class="back-icon"
+                            alt=""
+                            :src="backIcon"
+                        >
+                        <a
+                            id="back-link-a"
+                            href="#"
+                            @click="navigate"
+                            @keydown.space="navigate"
+                        >
+                            Back
+                        </a>
+                    </div>
+                </router-link>
+            </li>
+        </ul>
     </nav>
 </template>
 
@@ -104,11 +111,11 @@ export default {
 <style lang="less" scoped>
     @import "../colors";
 
-    nav {
-        flex: 1;
+    nav ul {
         display: flex;
         align-items: center;
         justify-content: flex-end;
+        list-style: none;
     }
 
     .skip-link {
