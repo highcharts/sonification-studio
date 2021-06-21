@@ -108,7 +108,7 @@ export default {
     methods: {
         hideHelpDialog() {
             this.helpVisible = false;
-            setTimeout(() => (this.$refs['helpBtn'] as any).$el.focus(), 10);
+            this.$nextTick(() => (this.$refs['helpBtn'] as any).$el.focus());
         },
         tabClicked(tabId: string, controlsId: string): void {
             this.$store.commit('viewStore/selectHeaderTab', {
@@ -123,7 +123,7 @@ export default {
         onHelpClick() {
             this.helpVisible = !this.helpVisible;
             if (this.helpVisible) {
-                setTimeout(() => (this.$refs.helpDialog as any).$el.focus(), 10);
+                this.$nextTick(() => (this.$refs.helpDialog as any).$el.focus());
             } else {
                 this.hideHelpDialog();
             }
