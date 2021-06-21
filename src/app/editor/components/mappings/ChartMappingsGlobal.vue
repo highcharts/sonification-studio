@@ -66,7 +66,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Enable legend"
-                helptext="Show a legend with an overview of data series"
+                helptext="Show a legend overview box in the chart with a list of data series"
                 horizontal
             >
                 <SECheckbox
