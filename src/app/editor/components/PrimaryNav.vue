@@ -1,5 +1,5 @@
 <template>
-    <nav>
+    <nav aria-label="Primary">
         {{ /* Use button element because of potential vue-router issue with #-links */ }}
         <button
             role="link"
@@ -11,15 +11,14 @@
             Skip to content
         </button>
 
-        <SEButton
+        <button
             ref="helpBtn"
             class="help-btn"
-            dark
             :aria-expanded="helpVisible"
             @click="onHelpClick"
         >
             Help
-        </SEButton>
+        </button>
 
         <SEModalInfo
             v-show="helpVisible"
@@ -30,74 +29,49 @@
             <HelpContent />
         </SEModalInfo>
 
-        <SETablist
-            class="header-tablist"
-            aria-label="Design stage"
-        >
-            <HeaderTab
-                v-for="tab in headerTabs"
-                :key="tab.name"
-                role="tab"
-                :aria-selected="selectedHeaderTabId === tab.name ? 'true' : 'false'"
-                :aria-controls="tab.controls"
-                :selected="selectedHeaderTabId === tab.name"
-                @click="tabClicked(tab.name, tab.controls)"
-            >
-                {{ tab.name }}
-            </HeaderTab>
-        </SETablist>
-
-        <div class="header-spacing" />
-
         <router-link
             v-slot="{ navigate }"
             class="header-back"
             to="/"
             custom
         >
-            <a
-                href="#"
+            <div
+                class="header-back-container"
                 @click="navigate"
-                @keydown.space="navigate"
             >
                 <img
                     class="back-icon"
                     alt=""
                     :src="backIcon"
                 >
-                Back
-            </a>
+                <a
+                    id="back-link-a"
+                    href="#"
+                    @click="navigate"
+                    @keydown.space="navigate"
+                >
+                    Back
+                </a>
+            </div>
         </router-link>
     </nav>
 </template>
 
 <script lang="ts">
-import HeaderTab from './HeaderTab.vue';
 import HelpContent from './HelpContent.vue';
-import SETablist from './basic/SETablist.vue';
 import SEModalInfo from './basic/SEModalInfo.vue';
-import SEButton from './basic/SEButton.vue';
-import { mapState } from 'vuex';
 import backIcon from '../assets/angle-left-solid.svg';
 
 export default {
     components: {
-        SETablist, HeaderTab, HelpContent, SEModalInfo, SEButton
+        HelpContent, SEModalInfo
     },
     data() {
         return {
             backIcon,
-            helpVisible: false,
-            headerTabs: [{
-                name: 'Data',
-                controls: 'dataContent',
-            }, {
-                name: 'Chart',
-                controls: 'chartContent',
-            }]
+            helpVisible: false
         };
     },
-    computed: mapState('viewStore', ['selectedHeaderTabId']),
     mounted() {
         document.addEventListener('keydown', e => {
             const keyCode = e.which || e.keyCode;
@@ -109,17 +83,7 @@ export default {
     methods: {
         hideHelpDialog() {
             this.helpVisible = false;
-            this.$nextTick(() => (this.$refs['helpBtn'] as any).$el.focus());
-        },
-        tabClicked(tabId: string, controlsId: string): void {
-            this.$store.commit('viewStore/selectHeaderTab', {
-                selectedTabId: tabId,
-                contentId: controlsId
-            });
-
-            // Make sure we recalculate speed when data has changed
-            this.$store.commit('globalSonifyParametersStore/triggerPlaybackOptsRecalculation');
-            (this as any).$chartBridge.reflowChart();
+            this.$nextTick(() => (this.$refs['helpBtn'] as HTMLButtonElement).focus());
         },
         onHelpClick() {
             this.helpVisible = !this.helpVisible;
@@ -141,9 +105,10 @@ export default {
     @import "../colors";
 
     nav {
-        width: 100%;
+        flex: 1;
         display: flex;
         align-items: center;
+        justify-content: flex-end;
     }
 
     .skip-link {
@@ -173,64 +138,74 @@ export default {
         }
     }
 
-    .header-tablist {
-        flex: 1;
-        max-width: 600px;
-        display: flex;
-        height: 100%;
-        padding-bottom: 1px;
-        box-sizing: border-box;
-    }
-    .header-tab:first-child {
-        border-radius: 4px 0px 0px 4px;
-    }
-    .header-tab:last-child {
-        border-radius: 0px 4px 4px 0px;
-    }
-    .header-tab {
-        flex: 1;
-        margin-right: 1px;
+    .back-icon {
+        width: 18px;
+        height: 18px;
+        margin-top: 0;
+        margin-right: -3px;
+        vertical-align: middle;
     }
 
-    .header-spacing {
-        flex: 1;
+    .header-back-container {
+        cursor: pointer;
+        &:hover {
+            img {
+                filter: sepia() hue-rotate(130deg) brightness(90%);
+            }
+            #back-link-a {
+                text-decoration: underline;
+                color: #e4f4ff;
+            }
+        }
     }
 
-    .header-back {
-        margin-right: 5px;
-        padding: 3px 13px 3px 3px;
+    .header-back a {
+        padding: 0;
+        font: inherit;
+        font-size: 14px;
         line-height: 24px;
+        font-weight: normal;
         vertical-align: middle;
         text-decoration: none;
-        color: @dark-gray-5;
-        border: 1px solid transparent;
-        border-radius: 5px;
-        cursor: pointer;
-        img {
-            width: 24px;
-            height: 24px;
-            margin-top: -3px;
-            margin-right: -4px;
-            vertical-align: middle;
-        }
+        color: white;
+        border: 0;
         &:visited {
-            color: @dark-gray-5;
+            color: white;
         }
         &:hover {
-            color: @dark-gray-6;
-            border: 1px solid @dark-gray-7;
+            color: #e4f4ff;
         }
         &:active {
-            color: @dark-gray-5;
-            border: 1px solid @dark-gray-5;
-            background-color: rgba(0, 0, 0, 0.01);
+            color: #ccccf1;
         }
     }
 
     .help-btn {
-        margin-top: 4px;
-        margin-bottom: 6px;
-        order: 4;
+        border: 0;
+        border-right: 1px solid #656985;
+        line-height: 24px;
+        background-color: transparent;
+        margin: 0;
+        margin-right: 8px;
+        padding: 0;
+        padding-right: 12px;
+        color: white;
+        font: inherit;
+        font-size: 14px;
+        font-weight: normal;
+        cursor: pointer;
+        display: block;
+        &:hover {
+            color: #e4f4ff;
+            text-decoration: underline;
+        }
+        &:active {
+            color: #ccccf1;
+        }
+    }
+
+    button::-moz-focus-inner {
+        border: 0;
     }
 
 </style>

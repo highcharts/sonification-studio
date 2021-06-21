@@ -1,24 +1,28 @@
 <template>
     <header>
         <div class="heading-row">
-            <a href="https://sonification.highcharts.com">
-                <img
-                    alt="Highcharts sonification homepage"
-                    :src="highchartsIcon"
+            <div class="logo-container">
+                <a href="https://sonification.highcharts.com">
+                    <img
+                        alt="Highcharts sonification homepage"
+                        :src="highchartsIcon"
+                    >
+                </a>
+                <h1
+                    id="initialFocusElement"
+                    tabindex="-1"
                 >
-            </a>
-            <h1
-                id="initialFocusElement"
-                tabindex="-1"
-            >
-                Highcharts Sonification Studio
-            </h1>
-        </div>
-        <div class="nav-row">
-            <HeaderNav
-                class="section-nav"
+                    Highcharts Sonification Studio
+                </h1>
+            </div>
+
+            <PrimaryNav
                 @skipToContent="$emit('skipToContent')"
             />
+        </div>
+
+        <div class="nav-container">
+            <EditorNav class="section-nav" />
             <HeaderImport class="section-import" />
             <HeaderExport class="section-export" />
         </div>
@@ -27,13 +31,15 @@
 
 <script lang="ts">
 import highchartsIcon from '../assets/highcharts-logo.svg';
-import HeaderNav from './HeaderNav.vue';
+import EditorNav from './EditorNav.vue';
+import PrimaryNav from './PrimaryNav.vue';
 import HeaderImport from './HeaderImport.vue';
 import HeaderExport from './HeaderExport.vue';
 
 export default {
     components: {
-        HeaderNav,
+        EditorNav,
+        PrimaryNav,
         HeaderImport,
         HeaderExport
     },
@@ -49,23 +55,20 @@ export default {
     header {
         display: flex;
         flex-direction: column;
-        img {
-            width: 16px;
-            height: $width;
-            margin: 0 8px -2px;
-        }
-        a {
-            float: left;
-        }
     }
+
     h1 {
         font-size: 13px;
         font-weight: normal;
         letter-spacing: 0.1em;
     }
+
     .heading-row {
         display: flex;
+        width: 100%;
+        box-sizing: border-box;
         align-items: center;
+        justify-content: space-between;
         background-color: #47475c;
         border-bottom: 1px solid @dark-blue-5;
         color: #D9D9D9;
@@ -73,11 +76,25 @@ export default {
         margin-bottom: 5px;
         border-bottom: 1px solid @dark-blue-5;
     }
-    .nav-row {
+
+    .nav-container {
         width: 100%;
         display: flex;
         box-sizing: border-box;
         padding-left: 10px;
         padding-right: 10px;
+    }
+
+    .logo-container {
+        flex: 1;
+        margin-top: 5px;
+        img {
+            width: 16px;
+            height: $width;
+            margin: 0 8px 0px;
+        }
+        a {
+            float: left;
+        }
     }
 </style>

@@ -181,5 +181,6 @@ export default {
 
     .popup-content {
         padding: 25px 40px 20px;
+        color: @dark-gray-5;
     }
 </style>
