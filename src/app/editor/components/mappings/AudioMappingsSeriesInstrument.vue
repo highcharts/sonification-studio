@@ -15,7 +15,7 @@
         <SEControl
             v-slot="slotProps"
             label="Instrument"
-            helptext="The type of instrument to use for playing this data series. Click the 'Play audio sample' button below to hear a sample of this instrument."
+            helptext="The type of instrument to use for playing this data series. Click the &quot;Play audio sample&quot; button below to hear a sample of this instrument."
             :horizontal-reverse="true"
             :expand-content="true"
         >
