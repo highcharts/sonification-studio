@@ -148,7 +148,7 @@ export default {
             align-items: flex-end;
         }
         legend {
-            font-size: 13px;
+            font-size: 0.8125rem;
             margin-left: 8px;
             margin-bottom: 1px;
         }
@@ -170,11 +170,11 @@ export default {
     input[type="number"], /deep/ .se-control-content input {
         display: block;
         font-family: inherit;
-        font-size: 13px;
+        font-size: 0.8125rem;
         font-weight: normal;
         line-height: 1;
         padding: .30em 0.7em .31em .7em;
-        height: 30px;
+        height: 1.875rem;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
@@ -185,7 +185,7 @@ export default {
 
     input[type="number"] {
         align-self: center;
-        width: 55px;
+        width: 3.4375rem;
         margin: 0 8px;
     }
 
@@ -206,7 +206,7 @@ export default {
     }
 
     .control-label, /deep/ .se-control-label {
-        font-size: 13px;
+        font-size: 0.8125rem;
     }
 
     legend.hidden {

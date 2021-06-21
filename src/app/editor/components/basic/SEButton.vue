@@ -42,7 +42,7 @@ export default {
         border: 1px solid @sebutton-color;
         border-radius: 14px;
         font: inherit;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: bold;
         cursor: pointer;
         display: block;

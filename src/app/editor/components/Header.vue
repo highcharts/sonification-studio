@@ -58,7 +58,7 @@ export default {
     }
 
     h1 {
-        font-size: 13px;
+        font-size: 0.8125rem;
         font-weight: normal;
         letter-spacing: 0.1em;
     }
@@ -89,7 +89,7 @@ export default {
         flex: 1;
         margin-top: 5px;
         img {
-            width: 16px;
+            width: 1rem;
             height: $width;
             margin: 0 8px 0px;
         }

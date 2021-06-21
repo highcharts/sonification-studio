@@ -178,14 +178,14 @@ export default {
     .helpicon {
         margin: 2px;
         margin-left: 4px;
-        width: 18px;
+        width: 1.125rem;
         height: $width;
         background-color: @secontrol-helpicon-bg;
         color: @secontrol-helpicon-color;
         border: 1px solid @secontrol-helpicon-color;
         border-radius: 50%;
         font: inherit;
-        font-size: 13px;
+        font-size: 0.8125rem;
         text-align: center;
         font-weight: bold;
         cursor: pointer;
@@ -220,7 +220,7 @@ export default {
             top: 0;
             margin-top: 20px;
         }
-        font-size: 12px;
+        font-size: 0.75rem;
         font-weight: normal;
         text-align: left;
         z-index: 99;

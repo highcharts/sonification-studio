@@ -235,7 +235,7 @@ export default {
         align-items: center;
         position: relative;
         z-index: 99;
-        min-width: 140px;
+        min-width: 8.7rem;
     }
 
     .se-button {
@@ -304,7 +304,7 @@ export default {
     }
 
     .export-popup {
-        min-width: 200px;
+        min-width: 12.5rem;
         box-sizing: border-box;
         overflow: hidden;
         position: absolute;
@@ -331,7 +331,7 @@ export default {
             width: 100%;
             padding: 6px 15px;
             font: inherit;
-            font-size: 13px;
+            font-size: 0.8125rem;
             font-weight: bold;
             cursor: pointer;
             display: block;

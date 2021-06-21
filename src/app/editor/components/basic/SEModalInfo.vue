@@ -132,7 +132,7 @@ export default {
             font-weight: normal;
             display: inline-block;
             font-family: Verdana, sans-serif;
-            font-size: 14px;
+            font-size: 0.875rem;
         }
         display: flex;
         img {
@@ -147,7 +147,7 @@ export default {
     .header-close {
         margin-left: 15px;
         font: inherit;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: bold;
         cursor: pointer;
         background: transparent;

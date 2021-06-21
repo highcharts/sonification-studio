@@ -47,7 +47,7 @@
                 :value="value"
                 :step="step"
                 :class="{ dark: dark }"
-                :style="'width:' + (Math.round(max).toString().length * 14) + 'px'"
+                :style="'width:' + (Math.round(max).toString().length * 0.875) + 'rem'"
                 @click="$event.target.select()"
                 @input="$emit('input', $event.target.value || 0)"
             >
@@ -115,6 +115,7 @@ export default {
         border: 1px solid @seslider-value-border-color;
         border-radius: 4px;
         text-align: center;
+        font-size: 0.815rem;
         &.dark {
             color: white;
         }

@@ -85,7 +85,7 @@ export default {
         border: 1px solid @setabswitch-color;
         border-radius: 0;
         font: inherit;
-        font-size: 13px;
+        font-size: 0.8125rem;
         font-weight: bold;
         cursor: pointer;
         display: block;

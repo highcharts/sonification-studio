@@ -34,7 +34,7 @@ export default {
         box-sizing: border-box;
         width: 100%;
         min-width: 100px;
-        min-height: 28px;
+        min-height: 1.75rem;
         font-size: 1.04em;
         border: 1px solid @secolorpicker-border-color;
         border-radius: 4px;

@@ -63,7 +63,7 @@ export default {
         display: flex;
         align-items: center;
         img {
-            width: 16px;
+            width: 1rem;
             height: $width;
             margin: 0 8px;
         }

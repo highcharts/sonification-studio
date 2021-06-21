@@ -38,7 +38,7 @@ export default {
         color: @header-tab-btn-color;
         border: none;
         font: inherit;
-        font-size: 18px;
+        font-size: 1.125rem;
         cursor: pointer;
         display: block;
         height: 100%;
@@ -76,7 +76,7 @@ export default {
     }
 
     .small {
-        font-size: 15px;
+        font-size: 0.9375rem;
         .header-tab-btn-icon {
             width: 16px;
             height: 16px;

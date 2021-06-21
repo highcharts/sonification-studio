@@ -162,7 +162,7 @@ export default {
     .header-back a {
         padding: 0;
         font: inherit;
-        font-size: 14px;
+        font-size: 0.875rem;
         line-height: 24px;
         font-weight: normal;
         vertical-align: middle;
@@ -191,7 +191,7 @@ export default {
         padding-right: 12px;
         color: white;
         font: inherit;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: normal;
         cursor: pointer;
         display: block;

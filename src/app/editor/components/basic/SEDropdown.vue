@@ -92,12 +92,12 @@ export default {
         display: block;
         cursor: pointer;
         font-family: inherit;
-        font-size: 13px;
+        font-size: 0.8125rem;
         font-weight: normal;
         line-height: 1;
         padding: .4em 1.2em .4em .7em;
         width: 100%;
-        height: 30px;
+        height: 1.875rem;
         max-width: 100%;
         box-sizing: border-box;
         margin: 0;
@@ -119,7 +119,7 @@ export default {
         top: 2px;
         right: 5px;
         pointer-events: none;
-        width: 18px;
+        width: 1.125rem;
         height: $width;
         transition: filter 0.4s;
     }

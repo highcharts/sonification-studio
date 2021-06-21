@@ -31,7 +31,7 @@ export default {
 
     button {
         padding: 5px 0;
-        width: 38px;
+        width: 2.375rem;
         background: none;
         color: @play-controls-color;
         border: none;

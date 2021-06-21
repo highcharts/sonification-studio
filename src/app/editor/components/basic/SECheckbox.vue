@@ -32,8 +32,8 @@ export default {
 
     input {
         cursor: pointer;
-        width: 19px;
-        height: 19px;
+        width: 1.188rem;
+        height: $width;
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
@@ -52,7 +52,7 @@ export default {
             content: '\2713';
             opacity: 0;
             transition: all 0.18s;
-            font-size: 14px;
+            font-size: 0.875rem;
             text-shadow: 1px 1px 3px rgba(80, 80, 100, 0.8);
             display: block;
             text-align: center;

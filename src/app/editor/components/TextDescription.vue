@@ -78,7 +78,7 @@ export default {
     }
 
     h2 {
-        font-size: 21px;
+        font-size: 1.3125rem;
         color: @text-description-heading-color;
         margin-bottom: 10px;
         font-weight: normal;
@@ -103,6 +103,6 @@ export default {
         &:focus {
             outline: 2px solid @text-description-focus-color;
         }
-        font-size: 14px;
+        font-size: 0.875rem;
     }
 </style>

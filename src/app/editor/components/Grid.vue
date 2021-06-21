@@ -217,8 +217,8 @@ export default {
     $hover-color: hsl(218, 42%, 96%);
     $background-color: #fff;
     $font-family: 'Roboto';
-    $font-size: 14px;
-    $secondary-font-size: 17px;
+    $font-size: 0.875rem;
+    $secondary-font-size: 1.0625rem;
     $secondary-font-weight: normal;
     $secondary-font-family: 'Roboto';
     $secondary-foreground-color-opacity: 0.7;

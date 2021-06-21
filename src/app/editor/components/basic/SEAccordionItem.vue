@@ -77,7 +77,7 @@ export default {
         color: @seaccordionitem-color;
         border: none;
         font: inherit;
-        font-size: 16px;
+        font-size: 1rem;
         font-weight: bold;
         cursor: pointer;
         text-align: left;
