@@ -15,7 +15,10 @@
             </h1>
         </div>
         <div class="nav-row">
-            <HeaderNav class="section-nav" />
+            <HeaderNav
+                class="section-nav"
+                @skipToContent="$emit('skipToContent')"
+            />
             <HeaderImport class="section-import" />
             <HeaderExport class="section-export" />
         </div>

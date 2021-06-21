@@ -3,13 +3,17 @@
         <Data
             v-show="selectedHeaderTabContent === 'dataContent'"
             id="dataContent"
+            ref="dataContent"
             role="tabpanel"
+            tabindex="-1"
         />
 
         <div
             v-show="selectedHeaderTabContent !== 'dataContent'"
             id="chartContent"
+            ref="chartContent"
             role="tabpanel"
+            tabindex="-1"
             aria-label="Chart and sonification"
         >
             <PlayControls class="play-controls" />
@@ -47,7 +51,16 @@ export default {
         Data,
         Sidebar
     },
-    computed: mapState('viewStore', ['selectedHeaderTabContent', 'showChartComponent'])
+    computed: mapState('viewStore', ['selectedHeaderTabContent', 'showChartComponent']),
+    methods: {
+        skipToContent() {
+            if (this.selectedHeaderTabContent === 'dataContent') {
+                ((this.$refs.dataContent as Vue).$el as HTMLElement).focus();
+            } else {
+                (this.$refs.chartContent as HTMLDivElement).focus();
+            }
+        }
+    }
 };
 </script>
 

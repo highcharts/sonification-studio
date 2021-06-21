@@ -1,5 +1,15 @@
 <template>
     <nav>
+        <a
+            href="#"
+            class="skip-link"
+            @click="$emit('skipToContent')"
+            @keydown.enter="$emit('skipToContent')"
+            @keydown.space="$emit('skipToContent')"
+        >
+            Skip to content
+        </a>
+
         <SEButton
             ref="helpBtn"
             class="help-btn"
@@ -129,6 +139,33 @@ export default {
         width: 100%;
         display: flex;
         align-items: center;
+    }
+
+    .skip-link {
+        position: absolute;
+        opacity: 0.000001;
+        z-index: -99;
+        width: 1px;
+        height: 1px;
+        filter: alpha(opacity=1);
+        overflow: hidden;
+        white-space: nowrap;
+        clip: rect(1px, 1px, 1px, 1px);
+        background-color: #fff;
+        padding: 10px;
+        border: 1px solid @dark-blue-5;
+        border-radius: 3px;
+        color: #c40707;
+        &:focus, &:active {
+            z-index: 100;
+            width: auto;
+            height: auto;
+            left: 8px;
+            top: 8px;
+            opacity: 1;
+            clip: auto;
+            filter: none;
+        }
     }
 
     .header-tablist {

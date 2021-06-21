@@ -3,8 +3,13 @@
 -->
 <template>
     <div class="editor-container">
-        <Header />
-        <MainContentView id="mainContentView" />
+        <Header
+            @skipToContent="onSkipToContent"
+        />
+        <MainContentView
+            id="mainContentView"
+            ref="mainContentView"
+        />
         <Footer />
         <div ref="announce" />
     </div>
@@ -83,6 +88,10 @@ export default {
             while (i--) {
                 window.localStorage.removeItem(storageKey + '-' + i);
             }
+        },
+
+        onSkipToContent() {
+            (this.$refs.mainContentView as any).skipToContent();
         }
     }
 };
