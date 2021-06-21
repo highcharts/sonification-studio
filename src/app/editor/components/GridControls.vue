@@ -1,69 +1,65 @@
 <template>
     <div class="grid-controls">
         <div class="grid-controls-group">
-            <span
-                aria-hidden="true"
-                class="control-label grid-controls-center"
-            >
-                Add
-            </span>
-            <input
-                v-model.number="rowsToAdd"
-                type="number"
-                min="0"
-                aria-label="Number of rows to add"
-            >
-            <span
-                aria-hidden="true"
-                class="control-label grid-controls-center"
-            >
-                rows
-            </span>
-            <SEButton
-                class="add-btn"
-                aria-label="Add empty rows to grid"
-                @click="onAddRowsClick"
-            >
-                Add
-            </SEButton>
+            <fieldset>
+                <legend>
+                    Add empty rows to grid
+                </legend>
+
+                <input
+                    v-model.number="rowsToAdd"
+                    type="number"
+                    min="0"
+                    aria-label="Number of rows to add"
+                >
+                <SEButton
+                    class="add-btn"
+                    aria-label="Add rows"
+                    @click="onAddRowsClick"
+                >
+                    Add
+                </SEButton>
+            </fieldset>
         </div>
 
         <div class="grid-controls-group expand">
-            <div class="grid-control-item">
-                <p
-                    id="data-labelDrop"
-                    class="control-label"
-                >
-                    Fill column
-                </p>
-                <SEDropdown
-                    id="data-fillcolumn-drop"
-                    v-model="fillEquationColumn"
-                    labelledby="data-labelDrop"
-                    :options="fillDropdownList"
-                />
-            </div>
+            <fieldset aria-label="Fill column from equation">
+                <div class="grid-control-item expand">
+                    <SEControl
+                        v-slot="slotProps"
+                        label="Fill column from equation"
+                        helptext="Fill each row in a column with the results from an equation. Refer to values in other columns by the column name. Example: 2 * B + A. Note: &quot;i&quot; refers to the row number. Example: 2 + 5 * i."
+                        helptext-below
+                    >
+                        <SETextbox
+                            :id="slotProps.controlId"
+                            v-model="fillEquation"
+                            @keydown.enter="fillColumn()"
+                        />
+                    </SEControl>
+                </div>
 
-            <div class="grid-control-item expand">
-                <SEControl
-                    v-slot="slotProps"
-                    label="Fill equation"
-                    helptext="Fill each row in a column with the results from an equation. Refer to values in other columns by the column name. Example: 2 * B + A. Note: 'i' refers to the row number. Example: 2 + 5 * i."
-                    helptext-below
-                >
-                    <SETextbox
-                        :id="slotProps.controlId"
-                        v-model="fillEquation"
-                        @keydown.enter="fillColumn()"
+                <div class="grid-control-item">
+                    <label
+                        class="control-label"
+                        for="data-fillcolumn-drop"
+                    >
+                        Column
+                    </label>
+                    <SEDropdown
+                        id="data-fillcolumn-drop"
+                        v-model="fillEquationColumn"
+                        :options="fillDropdownList"
                     />
-                </SEControl>
-            </div>
-            <SEButton
-                aria-label="Fill column"
-                @click="fillColumn()"
-            >
-                Fill
-            </SEButton>
+                </div>
+
+                <SEButton
+                    aria-label="Fill column"
+                    @click="fillColumn()"
+                >
+                    Fill
+                </SEButton>
+            </fieldset>
         </div>
 
         <div class="grid-controls-group">
@@ -146,6 +142,16 @@ export default {
         .se-dropdown {
             width: 80px;
         }
+        fieldset {
+            border: 0;
+            display: flex;
+            align-items: flex-end;
+        }
+        legend {
+            font-size: 13px;
+            margin-left: 8px;
+            margin-bottom: 1px;
+        }
     }
 
     .grid-controls-group {
@@ -155,9 +161,6 @@ export default {
 
     .grid-control-item {
         margin: 5px;
-        p {
-            margin-bottom: 5px;
-        }
     }
 
     .grid-controls-center {
@@ -187,12 +190,15 @@ export default {
     }
 
     .add-btn {
-        margin-left: 12px;
+        margin-left: 4px;
     }
 
     .expand {
         flex: 1;
         justify-content: center;
+        fieldset {
+            flex: 1;
+        }
     }
 
     .grid-controls-group.expand {
@@ -201,5 +207,22 @@ export default {
 
     .control-label, /deep/ .se-control-label {
         font-size: 13px;
+    }
+
+    legend.hidden {
+        position: absolute;
+        opacity: 0.000001;
+        z-index: -99;
+        width: 1px;
+        height: 1px;
+        filter: alpha(opacity=1);
+        overflow: hidden;
+        white-space: nowrap;
+        clip: rect(1px, 1px, 1px, 1px);
+    }
+
+    label.control-label {
+        margin-bottom: 5px;
+        display: block;
     }
 </style>

@@ -33,6 +33,7 @@ export default {
         flex-direction: column;
         background-color: @main-content-bg-color;
         padding: 20px;
+        padding-top: 15px;
     }
 
     #gridContainer {
