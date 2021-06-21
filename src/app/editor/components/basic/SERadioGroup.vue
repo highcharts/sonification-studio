@@ -43,7 +43,7 @@ function getUniqueId(val: string): string {
     const now = Date.now();
     const unique = Math.round(Math.random() * 10000).toString(16);
 
-    return `'seradio-group-${val}-${now}-${unique}`;
+    return `seradio-group-${val}-${now}-${unique}`;
 }
 
 export default {
