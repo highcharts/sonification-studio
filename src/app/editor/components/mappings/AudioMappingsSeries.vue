@@ -19,7 +19,7 @@
                 />
             </SEControl>
         </div>
-        <div class="accordion-container">
+        <SEAccordionContainer>
             <SEAccordionItem
                 v-for="item in accordionItems"
                 :key="item.component"
@@ -31,7 +31,7 @@
                     <component :is="item.component" />
                 </keep-alive>
             </SEAccordionItem>
-        </div>
+        </SEAccordionContainer>
     </div>
 </template>
 
@@ -39,6 +39,7 @@
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
+import SEAccordionContainer from '../basic/SEAccordionContainer.vue';
 import AudioMappingsSeriesInstrument from './AudioMappingsSeriesInstrument.vue';
 import AudioMappingsSeriesDuration from './AudioMappingsSeriesDuration.vue';
 import AudioMappingsSeriesPan from './AudioMappingsSeriesPan.vue';
@@ -54,6 +55,7 @@ export default {
         SEControl,
         SEDropdown,
         SEAccordionItem,
+        SEAccordionContainer,
         AudioMappingsSeriesInstrument,
         AudioMappingsSeriesDuration,
         AudioMappingsSeriesPan,
@@ -97,7 +99,7 @@ export default {
         }
     },
     methods: {
-        onAccordionItemClick: function (e: Event, item: GenericObject, isSelected: boolean) {
+        onAccordionItemClick(e: Event, item: GenericObject, isSelected: boolean) {
             this.$store.commit('viewStore/setExpandedSeriesAudioAccordionItem', {
                 itemName: item.heading,
                 expanded: isSelected
@@ -120,7 +122,7 @@ export default {
         box-sizing: border-box;
     }
 
-    .accordion-container {
+    .se-accordion-container {
         width: 100%;
         box-sizing: border-box;
         border: 1px solid @accordion-container-border;
