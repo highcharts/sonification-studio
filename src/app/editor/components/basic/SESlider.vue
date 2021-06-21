@@ -22,7 +22,7 @@
     <div class="se-slider">
         <label
             v-if="label"
-            :id="uuid"
+            :id="uuid1"
             :for="id"
             :class="{ dark: dark }"
         >
@@ -37,9 +37,10 @@
         <div class="se-slider-inner">
             <input
                 v-if="showValueInput"
+                :id="showValueInput ? id : uuid2"
                 type="number"
                 class="se-slider-value-label"
-                :aria-labelledby="label && uuid || labelledby"
+                :aria-labelledby="label && uuid1 || labelledby"
                 :disabled="disabled"
                 :min="min"
                 :max="max"
@@ -51,9 +52,11 @@
                 @input="$emit('input', $event.target.value || 0)"
             >
             <input
-                :id="id"
+                :id="showValueInput ? uuid2 : id"
                 type="range"
                 :disabled="disabled"
+                :aria-hidden="showValueInput"
+                :tabindex="showValueInput ? '-1' : '0'"
                 :min="min"
                 :max="max"
                 :value="value"
@@ -85,10 +88,11 @@ export default {
         arrowThumb: { type: Boolean, default: false }
     },
     data() {
-        return { uuid: '' };
+        return { uuid1: '', uuid2: '' };
     },
     beforeMount() {
-        this.uuid = getUUID('se-slider');
+        this.uuid1 = getUUID('se-slider');
+        this.uuid2 = getUUID('se-slider');
     }
 };
 </script>
