@@ -27,7 +27,7 @@ export const defaultChartOptions = {
                 '<div>{yAxisDescription}</div>',
             afterChartFormat: ''
         },
-        landmarkVerbosity: 'one',
+        landmarkVerbosity: 'disabled',
         series: {
             pointDescriptionEnabledThreshold: 50
         }
