@@ -56,12 +56,15 @@ export default {
     mounted() {
         document.addEventListener('keydown', (e) => {
             if (this.selectedHeaderTabId === 'Chart') {
-                if (keyPressed(Keys.P, Modifiers.Alt, e)) {
+                if (keyPressed(Keys.K, Modifiers.Ctrl, e)) {
                     this.onPlayPauseClick();
-                } else if (keyPressed(Keys.S, Modifiers.Alt, e)) {
+                    e.preventDefault();
+                } else if (keyPressed(Keys.R, Modifiers.Ctrl, e)) {
                     this.onStopClick();
-                } else if (keyPressed(Keys.L, Modifiers.Alt, e)) {
+                    e.preventDefault();
+                } else if (keyPressed(Keys.L, Modifiers.Ctrl, e)) {
                     this.onLoopClick();
+                    e.preventDefault();
                 }
             }
         });

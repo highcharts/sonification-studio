@@ -29,9 +29,11 @@
         <p>
             The following keyboard shortcuts can be used to control sonification playback when on the <span class="emp">Chart</span> tab:
             <ul>
-                <li><span class="shortcut">Alt+P</span>: Play/pause sonification playback</li>
-                <li><span class="shortcut">Alt+S</span>: Stop sonification playback</li>
-                <li><span class="shortcut">Alt+L</span>: Loop sonification playback</li>
+                <li><span class="shortcut">Ctrl+K</span>: Play/pause sonification playback</li>
+                <li><span class="shortcut">Ctrl+R</span>: Stop sonification playback</li>
+                <li><span class="shortcut">Ctrl+L</span>: Loop sonification playback</li>
+                <li><span class="shortcut">Alt+Up arrow</span>: Volume up</li>
+                <li><span class="shortcut">Alt+Down arrow</span>: Volume down</li>
             </ul>
             On macOS, the Option-key corresponds to the Windows Alt-key.
         </p>
