@@ -70,6 +70,7 @@
 </template>
 
 <script lang="ts">
+import { keyPressed, Keys, Modifiers } from '../core/utils/keyboardUtils';
 import { restoreFromProjectFile } from '../core/utils/projectFileHandling';
 import SEFileUploadButton from './basic/SEFileUploadButton.vue';
 import menuIcon from '../assets/bars-solid.svg';
@@ -97,8 +98,7 @@ export default {
             }
         });
         document.addEventListener('keydown', e => {
-            const keyCode = e.which || e.keyCode;
-            if (keyCode === 27 && this.popupVisible) { // esc
+            if (keyPressed(Keys.Esc, Modifiers.None, e) && this.popupVisible) {
                 this.popupVisible = false;
             }
         });

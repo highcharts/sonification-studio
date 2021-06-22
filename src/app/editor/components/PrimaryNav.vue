@@ -65,6 +65,7 @@
 </template>
 
 <script lang="ts">
+import { keyPressed, Keys, Modifiers } from '../core/utils/keyboardUtils';
 import HelpContent from './HelpContent.vue';
 import SEModalInfo from './basic/SEModalInfo.vue';
 import backIcon from '../assets/angle-left-solid.svg';
@@ -81,8 +82,7 @@ export default {
     },
     mounted() {
         document.addEventListener('keydown', e => {
-            const keyCode = e.which || e.keyCode;
-            if (keyCode === 27 && this.helpVisible) { // esc
+            if (keyPressed(Keys.Esc, Modifiers.None, e) && this.helpVisible) {
                 this.hideHelpDialog();
             }
         });

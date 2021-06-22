@@ -21,10 +21,8 @@ export function removeFocusOutlineUnlessKeypress(): void {
     document.addEventListener('keydown', function(e) {
         const whitelistNames = ['Esc', 'Escape', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Up', 'Down',
             'Left', 'Right', 'Control', 'Meta', 'Enter', ' ', 'Tab'];
-        const whitelistCodes = [27, 38, 40, 37, 39, 17, 91, 93, 13, 32, 9];
-        const keyCode = e.which || e.keyCode;
 
-        if (whitelistCodes.includes(keyCode) || whitelistNames.includes(e.key)) {
+        if (whitelistNames.includes(e.key)) {
             setCss(`
                 :focus{outline: solid 4px ${outlineColor};}            
             `);

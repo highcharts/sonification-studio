@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts">
+import { keyPressed, Keys, Modifiers } from '../core/utils/keyboardUtils';
 import { mapState } from 'vuex';
 import playIcon from '../assets/play.svg';
 import stopIcon from '../assets/stop.svg';
@@ -54,18 +55,13 @@ export default {
     computed: mapState('viewStore', ['selectedHeaderTabId']),
     mounted() {
         document.addEventListener('keydown', (e) => {
-            const keyCode = e.which || e.keyCode;
-            const keyPosition = e.code;
-            if (e.altKey && this.selectedHeaderTabId === 'Chart') {
-                if (keyPosition === 'KeyP' || !keyPosition && keyCode === 80) {
-                    // alt+p
+            if (this.selectedHeaderTabId === 'Chart') {
+                if (keyPressed(Keys.P, Modifiers.Alt, e)) {
                     this.onPlayPauseClick();
-                } else if (keyPosition === 'KeyL' || !keyPosition && keyCode === 76) {
-                    // alt+l
-                    this.onLoopClick();
-                } else if (keyPosition === 'KeyS' || !keyPosition && keyCode === 83) {
-                    // alt+s
+                } else if (keyPressed(Keys.S, Modifiers.Alt, e)) {
                     this.onStopClick();
+                } else if (keyPressed(Keys.L, Modifiers.Alt, e)) {
+                    this.onLoopClick();
                 }
             }
         });

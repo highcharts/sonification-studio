@@ -131,6 +131,7 @@
 
 <script lang="ts">
 import { downloadURI } from '../core/utils/browserUtils';
+import { keyPressed, Keys, Modifiers } from '../core/utils/keyboardUtils';
 import { downloadProjectFile } from '../core/utils/projectFileHandling';
 import menuIcon from '../assets/bars-solid.svg';
 import jsIcon from '../assets/js-square-brands.svg';
@@ -169,8 +170,7 @@ export default {
             }
         });
         document.addEventListener('keydown', e => {
-            const keyCode = e.which || e.keyCode;
-            if (keyCode === 27 && this.popupVisible) { // esc
+            if (keyPressed(Keys.Esc, Modifiers.None, e) && this.popupVisible) {
                 this.popupVisible = false;
             }
         });
