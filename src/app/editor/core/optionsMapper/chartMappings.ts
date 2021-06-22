@@ -10,6 +10,10 @@ export class ChartMappings {
         return { legend: { enabled: value } };
     }
 
+    public static inverted(value: boolean): GenericObject {
+        return { chart: { inverted: value } };
+    }
+
     public static title(value: string): GenericObject {
         return { title: { text: value } };
     }

@@ -7,6 +7,7 @@ import { GenericObject, firstDefined } from '../../core/utils/objects';
 const defaultState = () => ({
     type: 'spline',
     legendEnabled: false,
+    inverted: false,
     title: 'Test chart',
     subtitle: '',
     xAxisTitle: '',
@@ -36,6 +37,10 @@ export const chartParametersStore = {
 
         setLegendEnabled(state: any, enabled: boolean) {
             state.legendEnabled = enabled;
+        },
+
+        setChartInverted(state: any, inverted: boolean) {
+            state.inverted = inverted;
         },
 
         setTitle(state: any, title: string) {

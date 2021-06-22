@@ -65,6 +65,18 @@
 
             <SEControl
                 v-slot="slotProps"
+                label="Invert chart"
+                helptext="Make the X axis vertical, and the Y axis horizontal"
+                horizontal
+            >
+                <SECheckbox
+                    :id="slotProps.controlId"
+                    v-model="chartInverted"
+                />
+            </SEControl>
+
+            <SEControl
+                v-slot="slotProps"
                 label="Enable legend"
                 helptext="Show a legend overview box in the chart with a list of data series"
                 horizontal
@@ -121,9 +133,6 @@ export default {
                 name: 'Column',
                 value: 'column'
             }, {
-                name: 'Bar',
-                value: 'bar'
-            }, {
                 name: 'Pie',
                 value: 'pie'
             }, {
@@ -140,6 +149,10 @@ export default {
         chartLegendEnabled: {
             get() { return (this as any).$store.state.chartParametersStore.legendEnabled; },
             set(val) { return this.$store.commit('chartParametersStore/setLegendEnabled', val); }
+        },
+        chartInverted: {
+            get() { return (this as any).$store.state.chartParametersStore.inverted; },
+            set(val) { return this.$store.commit('chartParametersStore/setChartInverted', val); }
         },
         chartTitle: {
             get() { return (this as any).$store.state.chartParametersStore.title; },
