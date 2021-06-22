@@ -28,16 +28,10 @@ interface FillColumnProps {
 }
 
 function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnProps): string {
-    let res = '';
-    try {
-        res = '' + evaluate(fillData.equation, {
-            i: rowIx,
-            ...row
-        });
-    } catch (e) {
-        res = e.message;
-    }
-    return res;
+    return '' + evaluate(fillData.equation, {
+        i: rowIx,
+        ...row
+    });
 }
 
 function getPlaceholderData() {
@@ -117,13 +111,17 @@ export const dataStore = {
             const col = fillData.columnName;
             const newRows: Array<GenericObject> = [];
 
-            rowData.forEach((row: GenericObject, rowIx: number): void => {
-                const newRow = { ...row };
-                newRow[col] = getFillValue(newRow, rowIx, fillData);
-                newRows.push(newRow);
-            });
+            try {
+                rowData.forEach((row: GenericObject, rowIx: number): void => {
+                    const newRow = { ...row };
+                    newRow[col] = getFillValue(newRow, rowIx, fillData);
+                    newRows.push(newRow);
+                });
 
-            Vue.set(state, 'tableRowData', newRows);
+                Vue.set(state, 'tableRowData', newRows);
+            } catch (e) {
+                alert('Error filling column: ' + e.message);
+            }
         },
 
         updateCellValue(state: any, cellData: UpdateCellDataProps) {
