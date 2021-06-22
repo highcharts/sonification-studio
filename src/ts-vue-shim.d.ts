@@ -14,3 +14,7 @@ declare module '*.min.js' {
     const value: any;
     export default value;
 }
+declare module 'highcharts/themes/high-contrast-light' {
+    const value: Function;
+    export default value;
+}

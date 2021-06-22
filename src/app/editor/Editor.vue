@@ -29,6 +29,8 @@ import hcSeriesLabelInit from 'highcharts/modules/series-label';
 import hcNoDataInit from 'highcharts/modules/no-data-to-display';
 import hcSonificationInit from 'highcharts/modules/sonification';
 import hcAccessibilityInit from 'highcharts/modules/accessibility';
+import hcThemeInit from 'highcharts/themes/high-contrast-light';
+hcThemeInit(Highcharts);
 hcMoreInit(Highcharts);
 hcStockInit(Highcharts);
 hcDataInit(Highcharts);
