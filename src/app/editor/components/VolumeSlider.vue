@@ -43,10 +43,14 @@ export default {
     },
     methods: {
         volumeUp() {
-            this.$store.commit('globalSonifyParametersStore/setVolume', Math.min((this.volume as number) + 5, 100));
+            const newVol = Math.min((this.volume as number) + 5, 100);
+            this.$store.commit('globalSonifyParametersStore/setVolume', newVol);
+            (this as any).$announcer.announce('Volume up. ' + newVol + '%');
         },
         volumeDown() {
-            this.$store.commit('globalSonifyParametersStore/setVolume', Math.max((this.volume as number) - 5, 0));
+            const newVol = Math.max((this.volume as number) - 5, 0);
+            this.$store.commit('globalSonifyParametersStore/setVolume', newVol);
+            (this as any).$announcer.announce('Volume down. ' + newVol + '%');
         }
     }
 };
