@@ -3,7 +3,7 @@
         <div id="title">
             <a href="https://www.highcharts.com">
                 <img
-                    alt="Highcharts.com logo"
+                    alt="Highcharts.com homepage"
                     :src="highchartsIcon"
                 >
             </a>
