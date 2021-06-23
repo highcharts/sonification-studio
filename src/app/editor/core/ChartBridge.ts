@@ -331,6 +331,14 @@ export class ChartBridge {
         }
 
         const canvas = document.createElement('canvas');
+        const chartEl: HTMLElement|undefined = this.chart?.renderer?.box;
+        if (!chartEl) {
+            throw new Error('downloadVideo: Could not find chart.');
+        }
+        // Safari needs the canvas width/height to get resolution for video stream.
+        canvas.width = chartEl.offsetWidth;
+        canvas.height = chartEl.offsetHeight;
+
         // eslint-disable-next-line
         const unusedCtx = canvas.getContext('2d'); // Because of bug in firefox, must get context before capt.stream.
         const canvasStream = (canvas as any).captureStream(framerate);
