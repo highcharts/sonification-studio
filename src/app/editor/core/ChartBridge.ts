@@ -302,25 +302,26 @@ export class ChartBridge {
     }
 
 
-    public downloadAudio(complete: () => void): void {
-        if (!this.browserSupportsRecording()) {
-            throw new Error('Browser does not support media recording. Audio could not be downloaded.');
-        }
-        if (this.chart) {
+    public downloadAudio(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (!this.browserSupportsRecording()) {
+                reject(new Error('Browser does not support media recording. Audio could not be downloaded.'));
+            }
+            if (!this.chart) {
+                reject(new Error('Could not download audio, no chart defined.'));
+            }
+
             const context: AudioContext = this.Highcharts.audioContext;
             const destination = context.createMediaStreamDestination();
             this.setAudioDestinationNode(destination);
 
-            const recorder = this.recordStream(destination.stream, true, complete, (e) => {
-                complete();
-                throw e.error;
-            });
+            const recorder = this.recordStream(destination.stream, true, resolve, reject);
 
             this.playChart(() => {
                 this.setAudioDestinationNode();
                 recorder.stop();
             });
-        }
+        });
     }
 
 
@@ -397,7 +398,10 @@ export class ChartBridge {
 
     private drawChartOnCanvas(canvas: HTMLCanvasElement): Promise<void> {
         return new Promise((resolve, reject) => {
-            const svg = this.chart?.renderer.box.outerHTML;
+            const svg = this.chart?.renderer?.box.outerHTML;
+            if (!svg) {
+                reject('No chart to render from.');
+            }
             const win = window;
             const img = new win.Image();
             const imgURL = (win.URL || win.webkitURL || win).createObjectURL(new win.Blob([svg], {
@@ -437,8 +441,9 @@ export class ChartBridge {
     private getMediaRecorder(stream: MediaStream, audioOnly = true): GenericObject {
         const Recorder = (window as any).MediaRecorder;
         const preferredMimeTypes = audioOnly ? [
-            'audio/mpeg',
             'audio/wav',
+            'audio/mpeg',
+            'audio/mp4',
             'audio/ogg',
             'audio/x-aiff',
             'audio/webm',
@@ -448,7 +453,7 @@ export class ChartBridge {
         ];
         const mimeType = preferredMimeTypes.find((type) => Recorder.isTypeSupported(type));
         if (!mimeType) {
-            throw new Error('Media recording not supported by browser');
+            throw new Error('Media recording not supported by browser, no supported file format.');
         }
         return new Recorder(stream, {
             mimeType
@@ -461,6 +466,7 @@ export class ChartBridge {
             'audio/mpeg': 'mp3',
             'audio/wav': 'wav',
             'audio/ogg': 'ogg',
+            'audio/mp4': 'mp4',
             'audio/x-aiff': 'aiff',
             'audio/webm': 'webm',
             'video/mp4': 'mp4',

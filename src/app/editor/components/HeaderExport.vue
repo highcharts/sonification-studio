@@ -180,46 +180,81 @@ export default {
         startSlide(el: HTMLElement) {
             el.style.height = el.scrollHeight + 'px';
         },
+
         endSlide(el: HTMLElement) {
             el.style.height = '';
         },
+
         dlProject() {
             const projectName = (this as any).$chartBridge.getChartTitleForExport();
             downloadProjectFile(projectName, this.$store);
         },
+
         dlVideo() {
+            const announcer = (this as any).$announcer;
+            const component = this;
             this.rendering = true;
+            let waitAnnouncer: number;
+
+            (function waitAnnounce() {
+                if (component.rendering) {
+                    announcer.announce('Rendering video, please wait.');
+                    waitAnnouncer = setTimeout(waitAnnounce, 6000);
+                }
+            }());
+
             (this as any).$chartBridge.downloadVideo(24).then(() => {
+                clearTimeout(waitAnnouncer);
                 this.rendering = false;
+                announcer.announce('Rendering done.');
             }).catch((e: Error) => {
+                clearTimeout(waitAnnouncer);
                 this.rendering = false;
                 console.error('Render to video error:', e);
                 window.alert('Saving to video failed. Error: ' + e.message);
             });
         },
+
         dlAudio() {
+            const component = this;
+            const announcer = (this as any).$announcer;
             this.rendering = true;
-            try {
-                (this as any).$chartBridge.downloadAudio(() => {
-                    this.rendering = false;
-                });
-            } catch (e) {
+            let waitAnnouncer = 0;
+
+            (function waitAnnounce() {
+                if (component.rendering) {
+                    announcer.announce('Rendering audio, please wait.');
+                    waitAnnouncer = setTimeout(waitAnnounce, 6000);
+                }
+            }());
+
+            (this as any).$chartBridge.downloadAudio().then(() => {
                 this.rendering = false;
-                throw e;
-            }
+                clearTimeout(waitAnnouncer);
+                announcer.announce('Rendering done.');
+            }).catch((e: Error) => {
+                this.rendering = false;
+                clearTimeout(waitAnnouncer);
+                console.error('Render to audio error:', e);
+                window.alert('Saving to audio failed. Error: ' + e.message);
+            });
         },
+
         dlSVG() {
             (this as any).$chartBridge.downloadSVG();
         },
+
         dlPNG() {
             (this as any).$chartBridge.downloadPNG();
         },
+
         dlCSV() {
             downloadURI(
                 this.$store.getters['dataStore/tableCSVDataURI'],
                 (this as any).$chartBridge.getChartTitleForExport() + '.csv'
             );
         },
+
         dlChartConfig() {
             (this as any).$chartBridge.downloadChartConfig();
         }
