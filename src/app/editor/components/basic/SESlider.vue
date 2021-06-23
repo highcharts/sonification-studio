@@ -49,7 +49,8 @@
                 :class="{ dark: dark }"
                 :style="'width:' + (Math.round(max).toString().length * 0.875) + 'rem'"
                 @click="$event.target.select()"
-                @input="$emit('input', $event.target.value || 0)"
+                @input="oninput"
+                @change="onchange"
             >
             <input
                 :id="showValueInput ? uuid2 : id"
@@ -88,11 +89,27 @@ export default {
         arrowThumb: { type: Boolean, default: false }
     },
     data() {
-        return { uuid1: '', uuid2: '' };
+        return { uuid1: '', uuid2: '', validityTimer: 0 };
     },
     beforeMount() {
         this.uuid1 = getUUID('se-slider');
         this.uuid2 = getUUID('se-slider');
+    },
+    methods: {
+        oninput(e: Event) {
+            const target = e.target as HTMLInputElement;
+            if (target.checkValidity()) {
+                this.$emit('input', target.value || 0);
+            } else {
+                clearTimeout(this.validityTimer);
+                this.validityTimer = setTimeout(() => target.reportValidity(), 1000);
+            }
+        },
+        onchange(e: Event) {
+            const target = e.target as HTMLInputElement;
+            clearTimeout(this.validityTimer);
+            target.reportValidity();
+        }
     }
 };
 </script>
@@ -129,6 +146,12 @@ export default {
     }
     input[type="number"] {
         -moz-appearance: textfield;
+    }
+
+    input[type="number"]:invalid {
+        border-color: #E40101;
+        box-shadow: 0 0 3px #ff0a0a;
+        border-width: 2px;
     }
 
     .dark {
