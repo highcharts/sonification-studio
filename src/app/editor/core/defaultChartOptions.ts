@@ -69,6 +69,11 @@ export const defaultChartOptions = {
                 groupPixelWidth: 3
             }
         },
+        pie: {
+            dataGrouping: {
+                enabled: false
+            }
+        },
         scatter: {
             marker: {
                 enabled: true
