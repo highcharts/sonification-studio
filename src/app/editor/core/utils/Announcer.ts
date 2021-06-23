@@ -40,6 +40,6 @@ export default class Announcer {
                 this.container.innerHTML = '';
             }
             delete this.clearAnnouncementRegionTimer;
-        }, 1000);
+        }, 5000);
     }
 }

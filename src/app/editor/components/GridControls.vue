@@ -100,7 +100,8 @@ export default {
         onClearDataClick() {
             if (window.confirm('This will clear all data from the grid. Proceed?')) {
                 this.$store.commit('dataStore/setTableRowData', []);
-                (this as any).$announcer.announce('Data grid cleared.');
+                // A timeout seems to be required in order for the announcement not to be overshadowed.
+                setTimeout(() => (this as any).$announcer.announce('Data grid cleared.'), 500);
             }
         },
 
