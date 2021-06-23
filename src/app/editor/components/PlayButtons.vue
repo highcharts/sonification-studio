@@ -52,7 +52,20 @@ export default {
             stopIcon, pauseIcon, holdIcon, loopIcon
         };
     },
-    computed: mapState('viewStore', ['selectedHeaderTabId']),
+    computed: mapState({
+        selectedHeaderTabId: (state: any) => state.viewStore.selectedHeaderTabId,
+        reactToParameterUpdates: (state: any) => state.viewStore.reactToParameterUpdates,
+        reactToDataUpdates: (state: any) => state.dataStore.reactToDataUpdates,
+    }),
+    // Stop looping/playing when something changes.
+    watch: {
+        reactToParameterUpdates() {
+            this.onStopClick();
+        },
+        reactToDataUpdates() {
+            this.onStopClick();
+        },
+    },
     mounted() {
         document.addEventListener('keydown', (e) => {
             if (this.selectedHeaderTabId === 'Chart') {
