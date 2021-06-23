@@ -13,7 +13,7 @@
         :class="{ dark: dark, wide: wide }"
         :aria-expanded="ariaExpanded ? 'true' : ariaExpanded === false ? 'false' : void 0"
         :aria-label="ariaLabel"
-        @click="$emit('click')"
+        @click="$emit('click', $event)"
         @keydown="$emit('keydown', $event)"
     >
         <slot />
