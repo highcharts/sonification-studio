@@ -80,6 +80,8 @@
                         <ul>
                             <li>The data grid component has multiple usability issues, especially for screen reader users. This grid is a 3rd party component and will be replaced.</li>
                             <li>The playback bar can not be manipulated to navigate the sonification.</li>
+                            <li>Some browsers can have issues with exporting video and audio.</li>
+                            <li>The export processes for audio and video should have progress indicators.</li>
                         </ul>
                         <h3 id="planned-features">
                             Planned short-term features:
