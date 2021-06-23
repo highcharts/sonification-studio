@@ -89,6 +89,9 @@ export const defaultChartOptions = {
     scrollbar: {
         enabled: false
     },
+    tooltip: {
+        split: false
+    },
     yAxis: {
         opposite: false
     },
