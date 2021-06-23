@@ -26,7 +26,8 @@
             >
                 <div class="import-popup-content">
                     <p>Load data</p>
-                    <ul>
+                    {{/* Webkit doesn't think this is a real list, so we override heuristics with ARIA */}}
+                    <ul role="list">
                         <li>
                             <button
                                 @click="newProject"

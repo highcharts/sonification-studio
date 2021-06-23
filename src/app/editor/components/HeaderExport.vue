@@ -37,7 +37,8 @@
             >
                 <div class="export-popup-content">
                     <p>Download project as</p>
-                    <ul>
+                    {{/* Webkit doesn't think this is a real list, so we override heuristics with ARIA */}}
+                    <ul role="list">
                         <li>
                             <button
                                 @click="dlProject"
