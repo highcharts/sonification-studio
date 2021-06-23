@@ -76,6 +76,7 @@ export default {
                 newIx = 0;
             }
             e.preventDefault();
+            e.stopPropagation();
             this.activate(children[newIx]);
         },
 
@@ -84,6 +85,7 @@ export default {
             const child = parent.querySelector('[role="tab"]');
             if (child) {
                 e.preventDefault();
+                e.stopPropagation();
                 this.activate(child);
             }
         },
@@ -91,6 +93,7 @@ export default {
         onmoveend(e: KeyboardEvent) {
             const children = this.getTabsAsNodeList();
             e.preventDefault();
+            e.stopPropagation();
             this.activate(children[children.length - 1]);
         }
     }
