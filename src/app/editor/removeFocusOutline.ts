@@ -19,12 +19,11 @@ export function removeFocusOutlineUnlessKeypress(): void {
     });
 
     document.addEventListener('keydown', function(e) {
-        const whitelistNames = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Up', 'Down',
-            'Left', 'Right', 'Enter', ' ', 'Tab'];
+        const whitelistNames = ['Enter', ' ', 'Tab'];
 
         if (whitelistNames.includes(e.key)) {
             setCss(`
-                :focus{outline: solid 4px ${outlineColor};}            
+                :focus{outline: solid 3px ${outlineColor};}            
             `);
         }
     });
