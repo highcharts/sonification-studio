@@ -18,7 +18,7 @@
             v-show="pitchType === 'fixed'"
             v-slot="slotProps"
             label="Pitch value"
-            helptext="Set a specific pitch/frequency value to play for this data series."
+            helptext="Set a specific pitch/frequency value to play for this data series, in Hertz."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -34,7 +34,7 @@
             v-show="pitchType === 'mapped'"
             v-slot="slotProps"
             label="Minimum frequency"
-            helptext="Set a minimum pitch/frequency."
+            helptext="Set a minimum pitch/frequency, in Hertz."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -50,7 +50,7 @@
             v-show="pitchType === 'mapped'"
             v-slot="slotProps"
             label="Maximum frequency"
-            helptext="Set a maximum pitch/frequency."
+            helptext="Set a maximum pitch/frequency, in Hertz."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -82,7 +82,7 @@
             v-slot="slotProps"
             fieldset-legend="Polarity"
             is-fieldset
-            helptext="Set the polarity of the pitch mapping - whether the audio goes up or down in pitch with higher values."
+            helptext="Set the polarity of the pitch mapping - whether the audio goes up (positive) or down (negative) in pitch with higher values."
         >
             <SERadioGroup
                 :id="slotProps.controlId"

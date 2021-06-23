@@ -3,7 +3,7 @@
         <SEControl
             v-slot="slotProps"
             label="Note panning"
-            helptext="Enable pan for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the panning follows the values of a data property."
+            helptext="Enable pan for this data series. Default means the default (global) setting is used, fixed means a fixed value is used, and mapped means the panning follows the values of a data property."
             :horizontal-reverse="true"
             :expand-content="true"
         >
@@ -18,7 +18,7 @@
             v-show="panType === 'fixed'"
             v-slot="slotProps"
             label="Pan value"
-            helptext="Set a specific pan value for this data series, from left to right."
+            helptext="Set a specific pan value for this data series, from left (0) to right (100)."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -34,7 +34,7 @@
             v-show="panType === 'mapped'"
             v-slot="slotProps"
             label="Minimum pan value"
-            helptext="Set a minimum pan value, from left to right."
+            helptext="Set a minimum pan value, from left (0) to right (100)."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -50,7 +50,7 @@
             v-show="panType === 'mapped'"
             v-slot="slotProps"
             label="Maximum pan value"
-            helptext="Set a maximum pan value, from left to right"
+            helptext="Set a maximum pan value, from left (0) to right (100)."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -66,7 +66,7 @@
             v-show="panType === 'mapped'"
             v-slot="slotProps"
             label="Mapping property"
-            helptext="Data property to map panning to."
+            helptext="The data property to map panning to."
             :horizontal-reverse="true"
             :expand-content="true"
         >
@@ -82,7 +82,7 @@
             v-slot="slotProps"
             fieldset-legend="Direction"
             is-fieldset
-            helptext="Set the polarity of the pan mapping - whether the audio pans from left to right, or right to left, as values get higher."
+            helptext="Set the polarity of the pan mapping - whether the audio pans from left to right (positive), or right to left (negative), as values get higher."
         >
             <SERadioGroup
                 :id="slotProps.controlId"

@@ -11,7 +11,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Speed"
-                    helptext="Set the playing speed."
+                    helptext="Set the playing speed from 0 to 100."
                 >
                     <SESlider
                         :id="slotProps.controlId"
@@ -22,7 +22,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Enable chart play marker"
-                    helptext="Show the current play position on the chart."
+                    helptext="Visually show the current play position on the chart with a moving tooltip."
                     horizontal
                 >
                     <SECheckbox
@@ -34,7 +34,7 @@
                     v-slot="slotProps"
                     fieldset-legend="Data series order"
                     is-fieldset
-                    helptext="Which order to play the data series in, either one after the other, or simultaneously."
+                    helptext="Which order to play the data series in, either one after the other (sequentially), or at the same time (simultaneously)."
                 >
                     <SERadioGroup
                         :id="slotProps.controlId"
@@ -49,7 +49,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Min frequency"
-                    helptext="The lowest note to play."
+                    helptext="The lowest note to play, given as note frequency in Hertz."
                 >
                     <SESlider
                         :id="slotProps.controlId"
@@ -62,7 +62,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Max frequency"
-                    helptext="The highest note to play."
+                    helptext="The highest note to play, given as note frequency in Hertz."
                 >
                     <SESlider
                         :id="slotProps.controlId"
@@ -77,8 +77,8 @@
             <div class="controls-group">
                 <SEControl
                     v-slot="slotProps"
-                    label="Enable panning"
-                    helptext="Pan the sound to left and right based on x value."
+                    label="Deafult panning enabled"
+                    helptext="Pan the sound to left and right based on x value by default. Panning behavior can be overridden for each data series."
                     horizontal
                 >
                     <SECheckbox
@@ -88,8 +88,8 @@
                 </SEControl>
                 <SEControl
                     v-slot="slotProps"
-                    label="Pan width"
-                    helptext="How wide to pan the sound when panning is enabled."
+                    label="Deafult pan width"
+                    helptext="How wide to pan the sound when default panning is enabled, from narrow (0) to wide (100). Pan width and placement can be overridden for each data series."
                 >
                     <SESlider
                         :id="slotProps.controlId"

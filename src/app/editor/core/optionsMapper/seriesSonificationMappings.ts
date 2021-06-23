@@ -52,7 +52,7 @@ export class SeriesSonificationMappings {
     }
 
     public static volumeOptions(options: GenericObject): GenericObject {
-        // UI goes from 0-120, mapping is from 0 to 1.2
+        // UI goes from 0-100, mapping is from 0 to 1
         const volumeValueTranslate = (x: number): number => x / 100;
 
         return SeriesSonificationMappings.getMappedOptions(

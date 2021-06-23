@@ -18,7 +18,7 @@
             v-show="durationType === 'fixed'"
             v-slot="slotProps"
             label="Duration value"
-            helptext="Set a fixed note duration for this data series, from short to long notes. Notes may be cut short depending on the overall playback speed setting."
+            helptext="Set a fixed note duration for this data series, from short to long notes, in milliseconds. Timing is not exact, and notes may be cut short depending on the overall playback speed setting."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -34,7 +34,7 @@
             v-show="durationType === 'mapped'"
             v-slot="slotProps"
             label="Minimum duration"
-            helptext="Set a minimum duration, from short to long."
+            helptext="Set a minimum duration, from short to long, in milliseconds. Note that timing is not exact."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -50,7 +50,7 @@
             v-show="durationType === 'mapped'"
             v-slot="slotProps"
             label="Maximum duration"
-            helptext="Set a maximum duration, from short to long."
+            helptext="Set a maximum duration, from short to long, in milliseconds. Note that timing is not exact."
         >
             <SESlider
                 :id="slotProps.controlId"
@@ -82,7 +82,7 @@
             v-slot="slotProps"
             fieldset-legend="Polarity"
             is-fieldset
-            helptext="Set the polarity of the duration mapping - whether the notes gets shorter or longer as values get higher."
+            helptext="Set the polarity of the duration mapping - whether the notes gets shorter (negative) or longer (positive) as values get higher."
         >
             <SERadioGroup
                 :id="slotProps.controlId"

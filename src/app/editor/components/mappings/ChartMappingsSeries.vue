@@ -10,7 +10,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Series"
-                helptext="The data series to apply settings to"
+                helptext="The data series to apply settings to."
             >
                 <SEDropdown
                     :id="slotProps.controlId"
@@ -34,7 +34,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Type"
-                helptext="Override the chart type for this specific data series"
+                helptext="Override the chart type for this specific data series."
             >
                 <SEDropdown
                     :id="slotProps.controlId"
@@ -46,7 +46,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Name"
-                helptext="The data series name in the chart"
+                helptext="The name of this data series in the chart."
             >
                 <SETextbox
                     :id="slotProps.controlId"
@@ -57,7 +57,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Color"
-                helptext="The color of the data series in the chart"
+                helptext="The color of this data series in the chart."
                 horizontal-reverse
             >
                 <SEColorPicker
@@ -69,7 +69,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Dash style"
-                helptext="The data series dash style for lines and borders"
+                helptext="The dash style for this data series' lines and borders."
             >
                 <SEDropdown
                     :id="slotProps.controlId"
@@ -81,7 +81,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Show data point labels"
-                helptext="Show a label on the chart for each data point in this series. Labels may be hidden if no good position is found automatically"
+                helptext="Show a label on the chart for each data point in this series. Labels may be hidden if no good position is found automatically."
                 horizontal
             >
                 <SECheckbox

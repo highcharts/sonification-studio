@@ -18,14 +18,14 @@
             v-show="volumeType === 'fixed'"
             v-slot="slotProps"
             label="Volume value"
-            helptext="Set a fixed volume for this data series, from quiet to loud volume."
+            helptext="Set a fixed volume for this data series, from quiet (0) to loud (100) volume."
         >
             <SESlider
                 :id="slotProps.controlId"
                 v-model.number="volumeValue"
                 :labelledby="slotProps.labelId"
                 :min="0"
-                :max="120"
+                :max="100"
                 :step="1"
             />
         </SEControl>
@@ -34,14 +34,14 @@
             v-show="volumeType === 'mapped'"
             v-slot="slotProps"
             label="Minimum volume"
-            helptext="Set a minimum volume, from quiet to loud."
+            helptext="Set a minimum volume, from quiet (0) to loud (100)."
         >
             <SESlider
                 :id="slotProps.controlId"
                 v-model.number="minVolume"
                 :labelledby="slotProps.labelId"
                 :min="0"
-                :max="120"
+                :max="100"
                 :step="1"
             />
         </SEControl>
@@ -50,14 +50,14 @@
             v-show="volumeType === 'mapped'"
             v-slot="slotProps"
             label="Maximum volume"
-            helptext="Set a maximum volume, from quiet to loud."
+            helptext="Set a maximum volume, from quiet (0) to loud (100)."
         >
             <SESlider
                 :id="slotProps.controlId"
                 v-model.number="maxVolume"
                 :labelledby="slotProps.labelId"
                 :min="0"
-                :max="120"
+                :max="100"
                 :step="1"
             />
         </SEControl>
@@ -82,7 +82,7 @@
             v-slot="slotProps"
             fieldset-legend="Polarity"
             is-fieldset
-            helptext="Set the polarity of the volume mapping - whether the audio gets louder or quieter as values get higher."
+            helptext="Set the polarity of the volume mapping - whether the audio gets louder (positive) or quieter (negative) as values get higher."
         >
             <SERadioGroup
                 :id="slotProps.controlId"

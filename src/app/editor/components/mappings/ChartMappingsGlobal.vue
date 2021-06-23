@@ -10,7 +10,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Type"
-                helptext="The type of chart to draw"
+                helptext="The type of chart to draw."
             >
                 <SEDropdown
                     :id="slotProps.controlId"
@@ -22,7 +22,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Title"
-                helptext="The chart title text"
+                helptext="The chart title text."
             >
                 <SETextbox
                     :id="slotProps.controlId"
@@ -33,7 +33,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Subtitle"
-                helptext="The chart subtitle text"
+                helptext="The chart subtitle text."
             >
                 <SETextbox
                     :id="slotProps.controlId"
@@ -44,7 +44,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="X-Axis title"
-                helptext="Title text for the chart's X axis"
+                helptext="Title text for the chart's X axis."
             >
                 <SETextbox
                     :id="slotProps.controlId"
@@ -55,7 +55,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Y-Axis title"
-                helptext="Title text for the chart's Y axis"
+                helptext="Title text for the chart's Y axis."
             >
                 <SETextbox
                     :id="slotProps.controlId"
@@ -66,7 +66,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Invert chart"
-                helptext="Make the X axis vertical, and the Y axis horizontal"
+                helptext="Make the X axis vertical, and the Y axis horizontal."
                 horizontal
             >
                 <SECheckbox
@@ -78,7 +78,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Enable legend"
-                helptext="Show a legend overview box in the chart with a list of data series"
+                helptext="Show a legend overview box in the chart with a list of data series."
                 horizontal
             >
                 <SECheckbox
@@ -90,7 +90,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Show data series labels"
-                helptext="Show a label on the chart for each data series. Labels may be hidden if no good position is found automatically"
+                helptext="Show a label on the chart for each data series. Labels may be hidden if no good position is found automatically."
                 horizontal
             >
                 <SECheckbox
