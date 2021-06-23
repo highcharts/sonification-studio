@@ -54,7 +54,6 @@
                 :aria-label="'Help for ' + (label || fieldsetLegend)"
                 :aria-expanded="helptextActive ? 'true' : 'false'"
                 @click="helptextActive = !helptextActive"
-                @keyup.esc="helptextActive = false"
             >
                 ?
             </button>
@@ -62,8 +61,7 @@
             <div
                 v-show="helptextActive"
                 class="helptext-popup-container"
-                @click="helptextActive = !helptextActive"
-                @keyup.esc="helptextActive = false"
+                @click="helptextActive = false"
             >
                 <div
                     class="helptext-popup"
@@ -88,6 +86,7 @@
 
 <script lang="ts">
 import { getUUID } from '../../core/utils/objects';
+import { Keys, keyPressed, Modifiers } from '../../core/utils/keyboardUtils';
 
 export default {
     props: {
@@ -113,8 +112,14 @@ export default {
     },
     mounted() {
         document.addEventListener('click', (e: MouseEvent) => {
-            if (!this.$el.contains(e.target as any)) {
+            if (this.helptextActive && !this.$el.contains(e.target as any)) {
                 this.helptextActive = false;
+            }
+        });
+        document.addEventListener('keyup', (e: KeyboardEvent) => {
+            if (this.helptextActive && keyPressed(Keys.Esc, Modifiers.None, e)) {
+                this.helptextActive = false;
+                e.preventDefault();
             }
         });
     }
