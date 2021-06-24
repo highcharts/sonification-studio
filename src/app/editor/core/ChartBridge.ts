@@ -153,6 +153,7 @@ export class ChartBridge {
                         const seriesOptions = this.buildSeriesOptions(seriesIds);
                         if (seriesOptions) {
                             parseResult.series = deepMerge(parseResult.series, seriesOptions);
+                            this.handleGroupOnlySeries(parseResult.series);
                         }
                     }
                 }
@@ -595,6 +596,18 @@ export class ChartBridge {
             );
         }
         return null;
+    }
+
+
+    // Workaround until Highcharts puts a role on series that have too many data points to be exposed individually.
+    private handleGroupOnlySeries(series: Array<GenericObject>): void {
+        series.forEach(seriesOpts => {
+            const data = seriesOpts.data;
+            if (data.length > 50) {
+                seriesOpts.accessibility = seriesOpts.accessibility || {};
+                seriesOpts.accessibility.exposeAsGroupOnly = true;
+            }
+        });
     }
 
 
