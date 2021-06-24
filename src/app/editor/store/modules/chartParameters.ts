@@ -11,7 +11,9 @@ const defaultState = () => ({
     title: 'Test chart',
     subtitle: '',
     xAxisTitle: '',
+    xAxisType: 'linear',
     yAxisTitle: 'Values',
+    yAxisType: 'linear',
     seriesLabelsEnabled: false
 });
 
@@ -55,8 +57,16 @@ export const chartParametersStore = {
             state.xAxisTitle = title;
         },
 
+        setXAxisType(state: any, type: string) {
+            state.xAxisType = type;
+        },
+
         setYAxisTitle(state: any, title: string) {
             state.yAxisTitle = title;
+        },
+
+        setYAxisType(state: any, type: string) {
+            state.yAxisType = type;
         },
 
         setSeriesLabelsEnabled(state: any, enabled: boolean) {

@@ -54,12 +54,36 @@
 
             <SEControl
                 v-slot="slotProps"
+                label="X-Axis type"
+                :helptext="'The type of the X-axis. ' + axisHelptext"
+            >
+                <SEDropdown
+                    :id="slotProps.controlId"
+                    v-model="xAxisType"
+                    :options="axisTypes"
+                />
+            </SEControl>
+
+            <SEControl
+                v-slot="slotProps"
                 label="Y-Axis title"
                 helptext="Title text for the chart's Y axis."
             >
                 <SETextbox
                     :id="slotProps.controlId"
                     v-model="yAxisTitle"
+                />
+            </SEControl>
+
+            <SEControl
+                v-slot="slotProps"
+                label="Y-Axis type"
+                :helptext="'The type of the Y-axis. ' + axisHelptext"
+            >
+                <SEDropdown
+                    :id="slotProps.controlId"
+                    v-model="yAxisType"
+                    :options="axisTypes"
                 />
             </SEControl>
 
@@ -138,7 +162,21 @@ export default {
             }, {
                 name: 'Scatter',
                 value: 'scatter'
-            }]
+            }],
+            axisTypes: [{
+                name: 'Linear',
+                value: 'linear'
+            }, {
+                name: 'Logarithmic',
+                value: 'logarithmic'
+            }, {
+                name: 'Category',
+                value: 'category'
+            }, {
+                name: 'Date',
+                value: 'datetime'
+            }],
+            axisHelptext: 'Linear is a continuous axis from one value to another. Logarithmic is the same, but displayed so that smaller values are given a larger portion of the axis. Note that logarithmic axes can not have negative values. A category axis is simply a set of categories, where each category can be unrelated to the other. A date axis shows time, where the time value is given as UNIX timestamps (milliseconds since 1970), and displayed as human readable dates/time in the chart.'
         };
     },
     computed: {
@@ -166,9 +204,17 @@ export default {
             get() { return (this as any).$store.state.chartParametersStore.xAxisTitle; },
             set(val) { return this.$store.commit('chartParametersStore/setXAxisTitle', val); }
         },
+        xAxisType: {
+            get() { return (this as any).$store.state.chartParametersStore.xAxisType; },
+            set(val) { return this.$store.commit('chartParametersStore/setXAxisType', val); }
+        },
         yAxisTitle: {
             get() { return (this as any).$store.state.chartParametersStore.yAxisTitle; },
             set(val) { return this.$store.commit('chartParametersStore/setYAxisTitle', val); }
+        },
+        yAxisType: {
+            get() { return (this as any).$store.state.chartParametersStore.yAxisType; },
+            set(val) { return this.$store.commit('chartParametersStore/setYAxisType', val); }
         },
         seriesLabelsEnabled: {
             get() { return (this as any).$store.state.chartParametersStore.seriesLabelsEnabled; },

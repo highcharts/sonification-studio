@@ -26,8 +26,16 @@ export class ChartMappings {
         return { xAxis: { title: { text: value || null } } };
     }
 
+    public static xAxisType(value: string): GenericObject {
+        return { xAxis: { type: value || 'linear' } };
+    }
+
     public static yAxisTitle(value: string): GenericObject {
         return { yAxis: { title: { text: value || null } } };
+    }
+
+    public static yAxisType(value: string): GenericObject {
+        return { yAxis: { type: value || 'linear' } };
     }
 
     public static seriesLabelsEnabled(value: boolean): GenericObject {
