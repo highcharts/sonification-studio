@@ -45,11 +45,13 @@ export default {
         volumeUp() {
             const newVol = Math.min((this.volume as number) + 5, 100);
             this.$store.commit('globalSonifyParametersStore/setVolume', newVol);
+            this.volume = newVol;
             (this as any).$announcer.announce('Volume up. ' + newVol + '%');
         },
         volumeDown() {
             const newVol = Math.max((this.volume as number) - 5, 0);
             this.$store.commit('globalSonifyParametersStore/setVolume', newVol);
+            this.volume = newVol;
             (this as any).$announcer.announce('Volume down. ' + newVol + '%');
         }
     }
