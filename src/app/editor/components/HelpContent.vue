@@ -28,14 +28,14 @@
         <h2>Keyboard shortcuts</h2>
         <p>
             The following keyboard shortcuts can be used to control sonification playback when on the <span class="emp">Chart</span> tab:
-            <ul>
-                <li><span class="shortcut">Ctrl+K</span>: Play/pause sonification playback</li>
-                <li><span class="shortcut">Ctrl+R</span>: Stop sonification playback</li>
-                <li><span class="shortcut">Ctrl+L</span>: Loop sonification playback</li>
-                <li><span class="shortcut">Ctrl+.</span>: Volume up</li>
-                <li><span class="shortcut">Ctrl+,</span>: Volume down</li>
-            </ul>
         </p>
+        <ul>
+            <li><span class="shortcut">Ctrl+K</span>: Play/pause sonification playback</li>
+            <li><span class="shortcut">Ctrl+R</span>: Stop sonification playback</li>
+            <li><span class="shortcut">Ctrl+L</span>: Loop sonification playback</li>
+            <li><span class="shortcut">Ctrl+.</span>: Volume up</li>
+            <li><span class="shortcut">Ctrl+,</span>: Volume down</li>
+        </ul>
     </div>
 </template>
 
