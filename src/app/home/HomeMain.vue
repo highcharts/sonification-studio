@@ -197,7 +197,6 @@ export default {
         }
         .overlay {
             position: absolute;
-            display: block;
             background-color: rgba(255, 255, 255, 0.4);
             left: 0;
             top: 0;
@@ -211,6 +210,11 @@ export default {
             &:focus {
                 .go-btn {
                     border: 3px solid #eb4034;
+                }
+            }
+            &:active {
+                .go-btn {
+                    border: none;
                 }
             }
         }
