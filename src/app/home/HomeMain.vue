@@ -8,7 +8,9 @@
             <div class="section to-app">
                 <img
                     :src="appThumb"
+                    :class="{ preload }"
                     alt=""
+                    @load="onimgload"
                 >
                 <router-link
                     v-slot="{ navigate }"
@@ -131,7 +133,7 @@ import feedbackIcon from './comments-regular.svg';
 
 export default {
     data() {
-        return { appThumb, codeIcon, feedbackIcon, chartIcon };
+        return { appThumb, codeIcon, feedbackIcon, chartIcon, preload: true };
     },
     mounted() {
         // Add email after DOM loaded to prevent some spam
@@ -149,6 +151,11 @@ export default {
             deferredB.innerHTML = [e, f, g].join('');
             (this.$refs.deferContentC as any).innerHTML = ', and we will get back to you.';
         }, 800);
+    },
+    methods: {
+        onimgload() {
+            setTimeout(() => this.preload = false, 10);
+        }
     }
 };
 </script>
@@ -184,9 +191,16 @@ export default {
         position: relative;
         img {
             width: 100%;
+            height: auto;
+            opacity: 1;
+            transition: opacity 0.5s;
             margin: 0 auto;
             box-sizing: border-box;
             filter: blur(2.5px);
+            &.preload {
+                height: 490px;
+                opacity: 0;
+            }
         }
         .overlay {
             position: absolute;
