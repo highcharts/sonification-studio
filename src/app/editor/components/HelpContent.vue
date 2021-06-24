@@ -32,10 +32,9 @@
                 <li><span class="shortcut">Ctrl+K</span>: Play/pause sonification playback</li>
                 <li><span class="shortcut">Ctrl+R</span>: Stop sonification playback</li>
                 <li><span class="shortcut">Ctrl+L</span>: Loop sonification playback</li>
-                <li><span class="shortcut">Alt+Up arrow</span>: Volume up</li>
-                <li><span class="shortcut">Alt+Down arrow</span>: Volume down</li>
+                <li><span class="shortcut">Ctrl+.</span>: Volume up</li>
+                <li><span class="shortcut">Ctrl+,</span>: Volume down</li>
             </ul>
-            On macOS, the Option-key corresponds to the Windows Alt-key.
         </p>
     </div>
 </template>

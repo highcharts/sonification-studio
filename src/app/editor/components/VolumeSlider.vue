@@ -31,10 +31,10 @@ export default {
     mounted() {
         document.addEventListener('keydown', (e) => {
             if (this.selectedHeaderTabId === 'Chart') {
-                if (keyPressed(Keys.Up, Modifiers.Alt, e)) {
+                if (keyPressed(Keys.Period, Modifiers.Ctrl, e)) {
                     this.volumeUp();
                     e.preventDefault();
-                } else if (keyPressed(Keys.Down, Modifiers.Alt, e)) {
+                } else if (keyPressed(Keys.Comma, Modifiers.Ctrl, e)) {
                     this.volumeDown();
                     e.preventDefault();
                 }
