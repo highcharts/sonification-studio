@@ -40,24 +40,20 @@
                     to="/"
                     custom
                 >
-                    <div
-                        class="header-back-container"
+                    <a
+                        href="#"
                         @click="navigate"
+                        @keydown.space="navigate"
                     >
                         <img
                             class="back-icon"
                             alt=""
                             :src="backIcon"
                         >
-                        <a
-                            id="back-link-a"
-                            href="#"
-                            @click="navigate"
-                            @keydown.space="navigate"
-                        >
+                        <span class="underline">
                             Back
-                        </a>
-                    </div>
+                        </span>
+                    </a>
                 </router-link>
             </li>
         </ul>
@@ -148,25 +144,12 @@ export default {
     .back-icon {
         width: 18px;
         height: 18px;
-        margin-top: 0;
+        margin-top: -2px;
         margin-right: -3px;
         vertical-align: middle;
     }
 
-    .header-back-container {
-        cursor: pointer;
-        &:hover {
-            img {
-                filter: sepia() hue-rotate(130deg) brightness(90%);
-            }
-            #back-link-a {
-                text-decoration: underline;
-                color: #e4f4ff;
-            }
-        }
-    }
-
-    .header-back a {
+    .header-back {
         padding: 0;
         font: inherit;
         font-size: 0.875rem;
@@ -181,6 +164,12 @@ export default {
         }
         &:hover {
             color: #e4f4ff;
+            img {
+                filter: sepia() hue-rotate(130deg) brightness(90%);
+            }
+            .underline {
+                text-decoration: underline;
+            }
         }
         &:active {
             color: #ccccf1;
