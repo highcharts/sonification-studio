@@ -77,7 +77,7 @@
             <div class="controls-group">
                 <SEControl
                     v-slot="slotProps"
-                    label="Deafult panning enabled"
+                    label="Default panning enabled"
                     helptext="Pan the sound to left and right based on x value by default. Panning behavior can be overridden for each data series."
                     horizontal
                 >
@@ -88,7 +88,7 @@
                 </SEControl>
                 <SEControl
                     v-slot="slotProps"
-                    label="Deafult pan width"
+                    label="Default pan width"
                     helptext="How wide to pan the sound when default panning is enabled, from narrow (0) to wide (100). Pan width and placement can be overridden for each data series."
                 >
                     <SESlider
@@ -163,7 +163,7 @@ export default {
     @import "../../sidebar";
 
     h2 {
-        margin: 20px 5px;
+        margin: 20px 5px 10px;
     }
 
     h3 {
@@ -180,5 +180,17 @@ export default {
 
     .controls-group {
         margin: 20px 0;
+        &:first-child {
+            margin-top: 0;
+            .se-control:first-child {
+                margin-top: 0;
+            }
+        }
+        &:last-child {
+            margin-bottom: 0;
+            .se-control:last-child {
+                margin-bottom: 0;
+            }
+        }
     }
 </style>

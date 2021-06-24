@@ -106,7 +106,7 @@ export default {
         width: 100%;
         min-width: 850px;
         height: 100%;
-        min-height: 850px;
+        min-height: 750px;
         max-height: 100%;
         margin: 0 auto;
         background-color: @app-bg-color;
@@ -118,7 +118,7 @@ export default {
     #mainContentView {
         flex: 1;
         margin-top: 4px;
-        overflow-y: scroll;
+        overflow-y: auto;
         /* Hack for not cutting off helptexts in the x-dimension, even if they overflow */
         padding-left: 110px;
         margin-left: -100px;

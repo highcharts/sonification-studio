@@ -202,7 +202,7 @@ export default {
     @import "../../sidebar";
 
     h2 {
-        margin: 20px 5px;
+        margin: 20px 5px 10px;
     }
 
     .controls-container {
@@ -211,5 +211,11 @@ export default {
 
     .se-control {
         margin: 10px 0 20px;
+        &:last-child {
+            margin-bottom: 0;
+        }
+        &:first-child {
+            margin-top: 0;
+        }
     }
 </style>
