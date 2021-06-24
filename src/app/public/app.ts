@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Editor from '../editor/Editor.vue';
 import Home from '../home/Home.vue';
 import App from '../App.vue';
+import { removeFocusOutlineUnlessKeypress } from '../editor/core/utils/removeFocusOutline';
 import Announcer from '../editor/core/utils/Announcer';
 const routeAnnouncer = new Announcer();
 
@@ -48,6 +49,7 @@ new Vue({
         }
     },
     mounted() {
+        removeFocusOutlineUnlessKeypress();
         const routeAnnouncerEl = document.getElementById('routeAnnouncer');
         if (routeAnnouncerEl) {
             routeAnnouncer.init(routeAnnouncerEl);

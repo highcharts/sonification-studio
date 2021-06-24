@@ -48,7 +48,6 @@ import MainContentView from './components/MainContentView.vue';
 import Footer from './components/Footer.vue';
 import Announcer from './core/utils/Announcer';
 import { store, storageKey, storageRevision } from './store/store';
-import { removeFocusOutlineUnlessKeypress } from './removeFocusOutline';
 import { ChartBridge } from './core/ChartBridge';
 
 Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
@@ -62,7 +61,6 @@ export default {
         Footer
     },
     mounted() {
-        removeFocusOutlineUnlessKeypress();
         announcer.init(this.$refs.announce as HTMLElement);
         document.title = 'Editor | Highcharts Sonification Studio';
         this.initStore();
