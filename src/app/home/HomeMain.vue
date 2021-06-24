@@ -20,19 +20,12 @@
                 >
                     <a
                         href="#"
-                        tabindex="-1"
+                        class="overlay"
                         @click="navigate"
+                        @keydown.space="navigate"
                     >
-                        <div class="overlay">
-                            <a
-                                href="#"
-                                @click="navigate"
-                                @keydown.space="navigate"
-                            >
-                                <div class="go-btn">
-                                    Go to app
-                                </div>
-                            </a>
+                        <div class="go-btn">
+                            Go to app
                         </div>
                     </a>
                 </router-link>
@@ -204,6 +197,7 @@ export default {
         }
         .overlay {
             position: absolute;
+            display: block;
             background-color: rgba(255, 255, 255, 0.4);
             left: 0;
             top: 0;
@@ -213,8 +207,11 @@ export default {
             justify-content: center;
             align-items: center;
             transition: all 0.2s;
-            a {
-                text-decoration: none;
+            text-decoration: none;
+            &:focus {
+                .go-btn {
+                    border: 3px solid #eb4034;
+                }
             }
         }
         .go-btn {
