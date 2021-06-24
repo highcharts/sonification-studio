@@ -5,6 +5,7 @@
             id="dataContent"
             ref="dataContent"
             role="tabpanel"
+            aria-label="Data input"
             tabindex="-1"
         />
 

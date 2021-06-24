@@ -1,12 +1,12 @@
 <template>
-    <section aria-label="Data input">
+    <div class="data-container">
         <GridControls
             @triggerScrollLastGridRowWithData="onTriggerScrollLastGridRowWithData()"
         />
         <div id="gridContainer">
             <Grid ref="grid" />
         </div>
-    </section>
+    </div>
 </template>
 
 <script lang="ts">
@@ -28,7 +28,7 @@ export default {
 <style lang="less" scoped>
     @import "../colors";
 
-    section {
+    .data-container {
         display: flex;
         flex-direction: column;
         background-color: @main-content-bg-color;
