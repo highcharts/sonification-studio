@@ -5,7 +5,6 @@
     <div
         ref="container"
         class="se-accordion-container"
-        tabindex="-1"
         @keydown.up="onmove(-1, $event)"
         @keydown.down="onmove(1, $event)"
         @keydown.home="onmovehome"
@@ -24,9 +23,9 @@ export default {
                 throw 'SEAccordionContainer: No target for keyboard event.';
             }
 
-            const parent = btn.parentNode as HTMLElement;
-            if (parent && parent.classList.contains('se-accordion-item')) {
-                return parent;
+            const grandparent = btn.parentNode?.parentNode as HTMLElement;
+            if (grandparent.classList.contains('se-accordion-item')) {
+                return grandparent;
             }
 
             return null;

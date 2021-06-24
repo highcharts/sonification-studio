@@ -8,18 +8,19 @@
 -->
 <template>
     <div class="se-accordion-item">
-        <button
-            :class="{ selected: isSelected }"
-            :aria-expanded="isSelected ? 'true' : 'false'"
-            @click="onclick"
-        >
-            <h3>{{ heading }}</h3>
-            <div
-                class="select-icon"
+        <h3>
+            <button
                 :class="{ selected: isSelected }"
-            />
-        </button>
-
+                :aria-expanded="isSelected ? 'true' : 'false'"
+                @click="onclick"
+            >
+                {{ heading }}
+                <div
+                    class="select-icon"
+                    :class="{ selected: isSelected }"
+                />
+            </button>
+        </h3>
         <transition
             name="fold"
             @enter="startFold"
@@ -67,6 +68,12 @@ export default {
 
 <style lang="less" scoped>
     @import "../../colors";
+
+    h3 {
+        display: block;
+        margin: 0;
+        padding: 0;
+    }
 
     button {
         position: relative;
