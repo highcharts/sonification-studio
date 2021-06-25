@@ -121,15 +121,4 @@ export default {
         padding: 0 10px 20px;
         box-sizing: border-box;
     }
-
-    .se-accordion-container {
-        width: 100%;
-        box-sizing: border-box;
-        border: 1px solid @accordion-container-border;
-        border-radius: 8px;
-    }
-
-    .se-accordion-item:not(:last-child) {
-        margin-bottom: 3px;
-    }
 </style>

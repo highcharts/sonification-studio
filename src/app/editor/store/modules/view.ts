@@ -36,6 +36,9 @@ export const viewStore = {
         selectedDataSeriesAudioMapping: '',
         expandedSeriesAudioAccordionItems: {
             Instrument: true
+        },
+        expandedChartMappingsAccordionItems: {
+            Basic: true
         }
     },
 
@@ -71,6 +74,10 @@ export const viewStore = {
 
         setExpandedSeriesAudioAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
             Vue.set(state.expandedSeriesAudioAccordionItems, payload.itemName, payload.expanded);
+        },
+
+        setExpandedChartMappingsAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
+            Vue.set(state.expandedChartMappingsAccordionItems, payload.itemName, payload.expanded);
         },
 
         triggerParameterReactivity(state: any) {
