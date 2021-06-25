@@ -30,12 +30,20 @@ export class ChartMappings {
         return { xAxis: { type: value || 'linear' } };
     }
 
+    public static xAxisVisible(value: boolean): GenericObject {
+        return { xAxis: { visible: value } };
+    }
+
     public static yAxisTitle(value: string): GenericObject {
         return { yAxis: { title: { text: value || null } } };
     }
 
     public static yAxisType(value: string): GenericObject {
         return { yAxis: { type: value || 'linear' } };
+    }
+
+    public static yAxisVisible(value: boolean): GenericObject {
+        return { yAxis: { visible: value } };
     }
 
     public static seriesLabelsEnabled(value: boolean): GenericObject {

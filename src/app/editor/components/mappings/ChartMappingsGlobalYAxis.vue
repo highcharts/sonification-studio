@@ -22,6 +22,18 @@
                 :options="axisTypes"
             />
         </SEControl>
+
+        <SEControl
+            v-slot="slotProps"
+            label="Y-axis visible"
+            helptext="Whether or not the Y-axis should be visible on the chart."
+            horizontal
+        >
+            <SECheckbox
+                :id="slotProps.controlId"
+                v-model="yAxisVisible"
+            />
+        </SEControl>
     </div>
 </template>
 
@@ -30,13 +42,15 @@
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SETextbox from '../basic/SETextbox.vue';
+import SECheckbox from '../basic/SECheckbox.vue';
 import { axisTypes, axisHelptext } from '../../core/utils/chartUtils';
 
 export default {
     components: {
         SEControl,
         SEDropdown,
-        SETextbox
+        SETextbox,
+        SECheckbox
     },
     data() {
         return {
@@ -52,6 +66,10 @@ export default {
         yAxisType: {
             get() { return (this as any).$store.state.chartParametersStore.yAxisType; },
             set(val) { return this.$store.commit('chartParametersStore/setYAxisType', val); }
+        },
+        yAxisVisible: {
+            get() { return (this as any).$store.state.chartParametersStore.yAxisVisible; },
+            set(val) { return this.$store.commit('chartParametersStore/setYAxisVisible', val); }
         }
     }
 };

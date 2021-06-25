@@ -12,8 +12,10 @@ const defaultState = () => ({
     subtitle: '',
     xAxisTitle: '',
     xAxisType: 'linear',
+    xAxisVisible: true,
     yAxisTitle: 'Values',
     yAxisType: 'linear',
+    yAxisVisible: true,
     seriesLabelsEnabled: false,
     zoomType: 'x'
 });
@@ -62,12 +64,20 @@ export const chartParametersStore = {
             state.xAxisType = type;
         },
 
+        setXAxisVisible(state: any, visible: boolean) {
+            state.xAxisVisible = visible;
+        },
+
         setYAxisTitle(state: any, title: string) {
             state.yAxisTitle = title;
         },
 
         setYAxisType(state: any, type: string) {
             state.yAxisType = type;
+        },
+
+        setYAxisVisible(state: any, visible: boolean) {
+            state.yAxisVisible = visible;
         },
 
         setSeriesLabelsEnabled(state: any, enabled: boolean) {

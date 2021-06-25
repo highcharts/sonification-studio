@@ -22,6 +22,18 @@
                 :options="axisTypes"
             />
         </SEControl>
+
+        <SEControl
+            v-slot="slotProps"
+            label="X-axis visible"
+            helptext="Whether or not the X-axis should be visible on the chart."
+            horizontal
+        >
+            <SECheckbox
+                :id="slotProps.controlId"
+                v-model="xAxisVisible"
+            />
+        </SEControl>
     </div>
 </template>
 
@@ -30,13 +42,15 @@
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SETextbox from '../basic/SETextbox.vue';
+import SECheckbox from '../basic/SECheckbox.vue';
 import { axisTypes, axisHelptext } from '../../core/utils/chartUtils';
 
 export default {
     components: {
         SEControl,
         SEDropdown,
-        SETextbox
+        SETextbox,
+        SECheckbox
     },
     data() {
         return {
@@ -52,6 +66,10 @@ export default {
         xAxisType: {
             get() { return (this as any).$store.state.chartParametersStore.xAxisType; },
             set(val) { return this.$store.commit('chartParametersStore/setXAxisType', val); }
+        },
+        xAxisVisible: {
+            get() { return (this as any).$store.state.chartParametersStore.xAxisVisible; },
+            set(val) { return this.$store.commit('chartParametersStore/setXAxisVisible', val); }
         }
     }
 };
