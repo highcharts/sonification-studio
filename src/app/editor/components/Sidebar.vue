@@ -1,5 +1,12 @@
 <template>
-    <section aria-label="Settings for chart and audio">
+    <section :aria-labelledby="uuid">
+        <h3
+            :id="uuid"
+            class="sr-only"
+        >
+            Settings for chart and audio
+        </h3>
+
         <SETablist
             class="sidebar-tablist"
             aria-label="Settings category"
@@ -57,6 +64,7 @@ import ChartMappingControls from './mappings/ChartMappingControls.vue';
 import visualIcon from '../assets/chart-line-solid.svg';
 import audioIcon from '../assets/music-solid.svg';
 import { mapState } from 'vuex';
+import { getUUID } from '../core/utils/objects';
 
 export default {
     components: {
@@ -70,7 +78,10 @@ export default {
             visualIcon, audioIcon
         };
     },
-    computed: mapState('viewStore', ['selectedSidebarTabId']),
+    computed: {
+        ...mapState('viewStore', ['selectedSidebarTabId']),
+        uuid: () => getUUID('se-sidebar')
+    },
     methods: {
         tabClicked: function (tabId: string): void {
             this.$store.commit('viewStore/selectSidebarTab', tabId);
@@ -81,6 +92,7 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
+    @import "../sr-only";
 
     @tablist-height: 50px;
 

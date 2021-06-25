@@ -5,7 +5,7 @@
                 {{ /* Use button element because of potential vue-router issue with #-links */ }}
                 <button
                     role="link"
-                    class="skip-link"
+                    class="skip-link sr-only"
                     @click="onSkipLinkClick"
                     @keydown.enter="onSkipLinkClick"
                     @keydown.space="onSkipLinkClick"
@@ -106,6 +106,7 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
+    @import "../sr-only";
 
     nav ul {
         display: flex;
@@ -115,15 +116,6 @@ export default {
     }
 
     .skip-link {
-        position: absolute;
-        opacity: 0.000001;
-        z-index: -99;
-        width: 1px;
-        height: 1px;
-        filter: alpha(opacity=1);
-        overflow: hidden;
-        white-space: nowrap;
-        clip: rect(1px, 1px, 1px, 1px);
         background-color: #fff;
         padding: 10px;
         border: 1px solid @dark-blue-5;

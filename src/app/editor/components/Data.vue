@@ -1,5 +1,14 @@
 <template>
-    <div class="data-container">
+    <div
+        class="data-container"
+        :aria-labelledby="uuid"
+    >
+        <h2
+            :id="uuid"
+            class="sr-only"
+        >
+            Data input
+        </h2>
         <GridControls
             @triggerScrollLastGridRowWithData="onTriggerScrollLastGridRowWithData()"
         />
@@ -10,12 +19,16 @@
 </template>
 
 <script lang="ts">
+import { getUUID } from '../core/utils/objects';
 import Grid from './Grid.vue';
 import GridControls from './GridControls.vue';
 
 export default {
     components: {
         Grid, GridControls
+    },
+    computed: {
+        uuid: () => getUUID('se-data-input')
     },
     methods: {
         onTriggerScrollLastGridRowWithData() {
@@ -27,6 +40,7 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
+    @import "../sr-only";
 
     .data-container {
         display: flex;

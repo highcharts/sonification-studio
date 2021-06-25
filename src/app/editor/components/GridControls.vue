@@ -210,18 +210,6 @@ export default {
         font-size: 0.8125rem;
     }
 
-    legend.hidden {
-        position: absolute;
-        opacity: 0.000001;
-        z-index: -99;
-        width: 1px;
-        height: 1px;
-        filter: alpha(opacity=1);
-        overflow: hidden;
-        white-space: nowrap;
-        clip: rect(1px, 1px, 1px, 1px);
-    }
-
     label.control-label {
         margin-bottom: 5px;
         display: block;

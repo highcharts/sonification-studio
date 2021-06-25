@@ -8,7 +8,7 @@
 -->
 <template>
     <div class="se-accordion-item">
-        <h3>
+        <h5>
             <button
                 :class="{ selected: isSelected }"
                 :aria-expanded="isSelected ? 'true' : 'false'"
@@ -20,7 +20,7 @@
                     :class="{ selected: isSelected }"
                 />
             </button>
-        </h3>
+        </h5>
         <transition
             name="fold"
             @enter="startFold"

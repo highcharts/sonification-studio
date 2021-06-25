@@ -5,7 +5,6 @@
             id="dataContent"
             ref="dataContent"
             role="tabpanel"
-            aria-label="Data input"
             tabindex="-1"
         />
 
@@ -15,8 +14,15 @@
             ref="chartContent"
             role="tabpanel"
             tabindex="-1"
-            aria-label="Chart and sonification"
+            aria-labelledby="chart-tab-heading"
         >
+            <h2
+                id="chart-tab-heading"
+                class="sr-only"
+            >
+                Chart and sonification
+            </h2>
+
             <PlayControls class="play-controls" />
 
             <Preview
@@ -66,6 +72,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
+    @import "../sr-only";
+
     main {
         padding-left: 10px;
         padding-right: 10px;

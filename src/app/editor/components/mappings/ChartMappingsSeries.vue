@@ -3,9 +3,9 @@
         role="tabpanel"
         aria-labelledby="chartmappingseries-heading"
     >
-        <h2 id="chartmappingseries-heading">
+        <h4 id="chartmappingseries-heading">
             Visual settings: Data series
-        </h2>
+        </h4>
         <div class="controls-container">
             <SEControl
                 v-slot="slotProps"
@@ -201,7 +201,7 @@ export default {
 <style lang="less" scoped>
     @import "../../sidebar";
 
-    h2 {
+    h4 {
         margin: 20px 5px 10px;
     }
 

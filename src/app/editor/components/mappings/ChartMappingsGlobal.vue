@@ -3,9 +3,9 @@
         role="tabpanel"
         aria-labelledby="chartmappingsglobal-heading"
     >
-        <h2 id="chartmappingsglobal-heading">
+        <h4 id="chartmappingsglobal-heading">
             Visual settings: Global
-        </h2>
+        </h4>
         <div class="controls-container">
             <SEControl
                 v-slot="slotProps"
@@ -227,7 +227,7 @@ export default {
 <style lang="less" scoped>
     @import "../../sidebar";
 
-    h2 {
+    h4 {
         margin: 20px 5px 10px;
     }
 

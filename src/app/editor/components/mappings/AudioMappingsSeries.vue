@@ -3,9 +3,9 @@
         role="tabpanel"
         aria-labelledby="audiomappingsseries-heading"
     >
-        <h2 id="audiomappingsseries-heading">
+        <h4 id="audiomappingsseries-heading">
             Audio settings: Data series
-        </h2>
+        </h4>
         <div class="series-selector-container">
             <SEControl
                 v-slot="slotProps"
@@ -112,7 +112,7 @@ export default {
 <style lang="less" scoped>
     @import "../../sidebar";
 
-    h2 {
+    h4 {
         margin: 20px 5px 10px;
     }
 

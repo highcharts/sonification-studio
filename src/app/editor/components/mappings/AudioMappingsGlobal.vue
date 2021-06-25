@@ -3,9 +3,9 @@
         role="tabpanel"
         aria-labelledby="audiomappingsglobal-heading"
     >
-        <h2 id="audiomappingsglobal-heading">
+        <h4 id="audiomappingsglobal-heading">
             Audio settings: Global
-        </h2>
+        </h4>
         <div class="controls-container">
             <div class="controls-group">
                 <SEControl
@@ -44,7 +44,7 @@
                 </SEControl>
             </div>
 
-            <h3>Default settings</h3>
+            <h5>Default settings</h5>
             <div class="controls-group">
                 <SEControl
                     v-slot="slotProps"
@@ -162,12 +162,12 @@ export default {
 <style lang="less" scoped>
     @import "../../sidebar";
 
-    h2 {
+    h4 {
         margin: 20px 5px 10px;
     }
 
-    h3 {
-        margin: 30px 0 0;
+    h5 {
+        margin: 25px 0 0;
     }
 
     .controls-container {

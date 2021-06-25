@@ -1,5 +1,11 @@
 <template>
-    <section aria-label="Chart preview">
+    <section :aria-labelledby="uuid">
+        <h3
+            :id="uuid"
+            class="sr-only"
+        >
+            Chart preview
+        </h3>
         <div
             :class="['chart-container', { blur: loadingChart }]"
         >
@@ -31,6 +37,7 @@
 
 <script lang="ts">
 import { mapState } from 'vuex';
+import { getUUID } from '../core/utils/objects';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
 
 export default {
@@ -52,7 +59,9 @@ export default {
             return chartBridge
                 ?.reactiveGet('buildChartOptions', this.reactToParameterUpdates, this.tableCSV) ||
                 {};
-        }
+        },
+
+        uuid: () => getUUID('se-preview')
     },
 
     mounted() {
@@ -65,6 +74,7 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
+    @import "../sr-only";
 
     section {
         background-color: @main-content-bg-color;
