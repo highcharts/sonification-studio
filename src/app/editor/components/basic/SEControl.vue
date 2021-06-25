@@ -101,14 +101,12 @@ export default {
     },
     data() {
         return {
-            helptextActive: false,
-            labelUUID: '',
-            controlUUID: ''
+            helptextActive: false
         };
     },
-    beforeMount() {
-        this.labelUUID = getUUID('se-ctl-label');
-        this.controlUUID = getUUID('se-ctl-content');
+    computed: {
+        labelUUID: () => getUUID('se-ctl-label'),
+        controlUUID: () => getUUID('se-ctl-content')
     },
     mounted() {
         document.addEventListener('click', (e: MouseEvent) => {

@@ -89,11 +89,11 @@ export default {
         arrowThumb: { type: Boolean, default: false }
     },
     data() {
-        return { uuid1: '', uuid2: '', validityTimer: 0 };
+        return { validityTimer: 0 };
     },
-    beforeMount() {
-        this.uuid1 = getUUID('se-slider');
-        this.uuid2 = getUUID('se-slider');
+    computed: {
+        uuid1: () => getUUID('se-slider'),
+        uuid2: () => getUUID('se-slider')
     },
     methods: {
         oninput(e: Event) {
