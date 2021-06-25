@@ -42,4 +42,7 @@ export class ChartMappings {
         return { plotOptions: { series: { label: { enabled: value } } } };
     }
 
+    public static zoomType(value: string): GenericObject {
+        return { chart: { zoomType: value || null } };
+    }
 }

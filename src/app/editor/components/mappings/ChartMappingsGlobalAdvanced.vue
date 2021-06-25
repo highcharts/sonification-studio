@@ -35,6 +35,18 @@
                 v-model="seriesLabelsEnabled"
             />
         </SEControl>
+
+        <SEControl
+            v-slot="slotProps"
+            label="Chart zoom"
+            helptext="Allow zooming by clicking and dragging in the chart to select a range. When zoomed, hold the Alt/Option key to pan around the chart with the mouse."
+        >
+            <SEDropdown
+                :id="slotProps.controlId"
+                v-model="zoomType"
+                :options="zoomTypes"
+            />
+        </SEControl>
     </div>
 </template>
 
@@ -42,14 +54,29 @@
 <script lang="ts">
 import SEControl from '../basic/SEControl.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
+import SEDropdown from '../basic/SEDropdown.vue';
 
 export default {
     components: {
         SEControl,
-        SECheckbox
+        SECheckbox,
+        SEDropdown
     },
     data() {
         return {
+            zoomTypes: [{
+                name: 'None',
+                value: ''
+            }, {
+                name: 'X-axis only',
+                value: 'x'
+            }, {
+                name: 'Y-axis only',
+                value: 'y'
+            }, {
+                name: 'Both',
+                value: 'xy'
+            }]
         };
     },
     computed: {
@@ -64,6 +91,10 @@ export default {
         seriesLabelsEnabled: {
             get() { return (this as any).$store.state.chartParametersStore.seriesLabelsEnabled; },
             set(val) { return this.$store.commit('chartParametersStore/setSeriesLabelsEnabled', val); }
+        },
+        zoomType: {
+            get() { return (this as any).$store.state.chartParametersStore.zoomType; },
+            set(val) { return this.$store.commit('chartParametersStore/setZoomType', val); }
         }
     }
 };

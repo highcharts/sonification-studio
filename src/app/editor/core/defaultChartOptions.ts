@@ -3,7 +3,7 @@ export const defaultChartOptions = {
         animation: {
             duration: 600
         },
-        zoomType: 'x'
+        panKey: 'alt'
     },
     exporting: {
         enabled: false,

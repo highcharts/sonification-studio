@@ -14,7 +14,8 @@ const defaultState = () => ({
     xAxisType: 'linear',
     yAxisTitle: 'Values',
     yAxisType: 'linear',
-    seriesLabelsEnabled: false
+    seriesLabelsEnabled: false,
+    zoomType: 'x'
 });
 
 export const chartParametersStore = {
@@ -71,6 +72,10 @@ export const chartParametersStore = {
 
         setSeriesLabelsEnabled(state: any, enabled: boolean) {
             state.seriesLabelsEnabled = enabled;
-        }
+        },
+
+        setZoomType(state: any, type: string) {
+            state.zoomType = type;
+        },
     }
 };
