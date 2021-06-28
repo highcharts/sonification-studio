@@ -13,15 +13,6 @@
             Stop
         </PlayButton>
         <PlayButton
-            :icon-path="holdIcon"
-            @mousedown="$chartBridge.pauseChart()"
-            @mouseup="$chartBridge.isPaused() && $chartBridge.playChart()"
-            @keydown.space="$chartBridge.pauseChart()"
-            @keyup.space="$chartBridge.isPaused() && $chartBridge.playChart()"
-        >
-            Hold
-        </PlayButton>
-        <PlayButton
             :icon-path="loopIcon"
             @click="onLoopClick"
         >
@@ -36,7 +27,6 @@ import { mapState } from 'vuex';
 import playIcon from '../assets/play.svg';
 import stopIcon from '../assets/stop.svg';
 import pauseIcon from '../assets/pause.svg';
-import holdIcon from '../assets/hold.svg';
 import loopIcon from '../assets/loop.svg';
 import PlayButton from './PlayButton.vue';
 
@@ -49,7 +39,7 @@ export default {
             playing: false,
             looping: false,
             playPauseIcon: playIcon,
-            stopIcon, pauseIcon, holdIcon, loopIcon
+            stopIcon, pauseIcon, loopIcon
         };
     },
     computed: mapState({
