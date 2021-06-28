@@ -35,7 +35,7 @@ export default {
         margin-top: 4px;
         box-sizing: border-box;
         width: 100%;
-        font-size: 1.04em;
+        font-size: 0.9em;
         border: 1px solid @setextbox-border-color;
         border-radius: 4px;
         background-color: @setextbox-bg;
