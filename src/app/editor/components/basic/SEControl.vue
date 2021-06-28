@@ -57,18 +57,23 @@
         <div class="se-control-help-container">
             <button
                 v-if="helptext"
+                ref="helptextBtn"
                 class="helpicon"
                 :aria-label="'Help for ' + (label || fieldsetLegend)"
                 :aria-expanded="helptextActive ? 'true' : 'false'"
-                @click="helptextActive = !helptextActive"
+                @click="onHelptextBtnClick"
             >
                 ?
             </button>
 
             <div
                 v-show="helptextActive"
+                ref="helptextPopupContainer"
                 class="helptext-popup-container"
-                @click="helptextActive = false"
+                tabindex="-1"
+                @keydown.enter="onHelpContainerClick"
+                @keydown.space="onHelpContainerClick"
+                @click="onHelpContainerClick"
             >
                 <div
                     class="helptext-popup"
@@ -128,10 +133,29 @@ export default {
         });
         document.addEventListener('keyup', (e: KeyboardEvent) => {
             if (this.helptextActive && keyPressed(Keys.Esc, Modifiers.None, e)) {
-                this.helptextActive = false;
                 e.preventDefault();
+                if (e.target === (this.$refs as any).helptextPopupContainer) {
+                    this.$nextTick(() => (this.$refs as any).helptextBtn.focus());
+                }
+                this.helptextActive = false;
             }
         });
+    },
+    methods: {
+        onHelptextBtnClick() {
+            this.helptextActive = !this.helptextActive;
+            this.$nextTick(() => setTimeout(() => {
+                const container = (this.$refs as any).helptextPopupContainer;
+                if (container && container.focus) {
+                    container.focus();
+                }
+            }, 10));
+        },
+        onHelpContainerClick(e: Event) {
+            e.preventDefault();
+            this.helptextActive = false;
+            this.$nextTick(() => (this.$refs as any).helptextBtn.focus());
+        }
     }
 };
 </script>
