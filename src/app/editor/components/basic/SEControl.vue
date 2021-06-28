@@ -47,7 +47,14 @@
             >
                 {{ label }}
             </label>
-
+        </div>
+        <div class="se-control-content-container">
+            <slot
+                :labelId="labelUUID"
+                :controlId="controlUUID"
+            />
+        </div>
+        <div class="se-control-help-container">
             <button
                 v-if="helptext"
                 class="helpicon"
@@ -81,12 +88,6 @@
                     />
                 </div>
             </div>
-        </div>
-        <div class="se-control-content">
-            <slot
-                :labelId="labelUUID"
-                :controlId="controlUUID"
-            />
         </div>
     </component>
 </template>
@@ -139,40 +140,71 @@ export default {
     @import "../../colors";
 
     .se-control {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        display: grid;
+        grid-template-columns: auto auto auto 1fr auto;
+        grid-template-rows: auto auto;
         width: 100%;
         border: 0;
         &.horizontal {
-            flex-direction: row-reverse;
-            justify-content: flex-end;
-            align-items: center;
+            grid-template-rows: auto;
+            .se-control-content-container {
+                grid-column: ~"1/2";
+                grid-row: ~"1/2";
+            }
+            .se-control-label-container {
+                grid-column: ~"2/3";
+            }
+            .se-control-help-container {
+                grid-column: ~"3/4";
+            }
             .se-control-label {
                 margin-left: 6px;
             }
+            &.expand-content {
+                grid-template-columns: 1fr auto auto;
+            }
         }
         &.horizontal-reverse {
-            flex-direction: row;
-            justify-content: flex-start;
-            align-items: center;
+            grid-template-rows: auto;
+            .se-control-content-container {
+                grid-column: ~"2/3";
+                grid-row: ~"1/2";
+            }
+            .se-control-help-container {
+                grid-column: ~"3/4";
+            }
             .se-control-label-container {
                 margin-right: 8px;
+            }
+            &.expand-content {
+                .se-control-content-container {
+                    grid-column: ~"2/5";
+                }
+                .se-control-help-container {
+                    grid-column: ~"5/6";
+                }
+                .helpicon {
+                    margin-left: 7px;
+                    margin-right: 0;
+                }
+                .helptext-popup {
+                    right: -5px;
+                    .helptext-arrow {
+                        right: 8px;
+                        left: auto;
+                    }
+                }
             }
         }
         &.horizontal, &.horizontal-reverse {
             .se-control-label {
                 cursor: pointer;
             }
-            .se-control-content {
+            .se-control-content-container {
                 display: flex;
                 justify-content: center;
                 align-items: center;
             }
-        }
-        &.expand-content .se-control-content {
-            flex: 1;
-            display: block;
         }
         legend {
             float: left;
@@ -183,6 +215,20 @@ export default {
         display: flex;
         align-items: center;
         position: relative;
+        grid-column: ~"1/2";
+        grid-row: ~"1/2";
+    }
+
+    .se-control-content-container {
+        grid-column: ~"1/6";
+        grid-row: ~"2/3";
+    }
+
+    .se-control-help-container {
+        grid-column: ~"2/3";
+        grid-row: ~"1/2";
+        justify-self: center;
+        align-self: center;
     }
 
     .se-control-label {
@@ -190,8 +236,7 @@ export default {
     }
 
     .helpicon {
-        margin: 2px;
-        margin-left: 4px;
+        margin: 2px 4px 4px;
         width: 1.125rem;
         height: $width;
         background-color: @secontrol-helpicon-bg;
@@ -228,11 +273,11 @@ export default {
         right: -90px;
         &:not(.below) {
             bottom: 0;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         &.below {
             top: 0;
-            margin-top: 20px;
+            margin-top: 3px;
         }
         font-size: 0.75rem;
         font-weight: normal;
@@ -247,7 +292,8 @@ export default {
             width: 16px;
             height: $width;
             position: absolute;
-            left: calc(50% - 8px);
+            left: calc(50% - 10px);
+            right: auto;
             &:not(.below) {
                 bottom: -4px;
             }
