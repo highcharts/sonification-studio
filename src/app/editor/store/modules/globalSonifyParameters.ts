@@ -17,8 +17,8 @@ const defaultState = () => ({
     playMarkerEnabled: false,
     minFrequency: 392, // G4
     maxFrequency: 1319, // G6
-    panEnabled: false,
-    panWidth: 90
+    panEnabled: true,
+    panWidth: 100
 });
 
 export const globalSonifyParametersStore = {
