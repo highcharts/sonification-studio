@@ -111,17 +111,13 @@ export const dataStore = {
             const col = fillData.columnName;
             const newRows: Array<GenericObject> = [];
 
-            try {
-                rowData.forEach((row: GenericObject, rowIx: number): void => {
-                    const newRow = { ...row };
-                    newRow[col] = getFillValue(newRow, rowIx, fillData);
-                    newRows.push(newRow);
-                });
+            rowData.forEach((row: GenericObject, rowIx: number): void => {
+                const newRow = { ...row };
+                newRow[col] = getFillValue(newRow, rowIx, fillData);
+                newRows.push(newRow);
+            });
 
-                Vue.set(state, 'tableRowData', newRows);
-            } catch (e) {
-                alert('Error filling column: ' + e.message);
-            }
+            Vue.set(state, 'tableRowData', newRows);
         },
 
         updateCellValue(state: any, cellData: UpdateCellDataProps) {

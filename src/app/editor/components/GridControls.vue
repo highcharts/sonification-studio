@@ -124,11 +124,30 @@ export default {
             const destinationColumn = this.fillEquationColumn;
 
             if (equation) {
-                this.$store.commit('dataStore/fillColumn', {
-                    columnName: destinationColumn,
-                    equation
-                });
-                (this as any).$announcer.announce('Column ' + destinationColumn + ' filled.');
+                try {
+                    this.$store.commit('dataStore/fillColumn', {
+                        columnName: destinationColumn,
+                        equation
+                    });
+
+                    let announcement = 'Column ' + destinationColumn + ' filled.';
+
+                    const columnData = this.$store.getters['dataStore/column'](destinationColumn);
+                    const numValuesToAnnounce = Math.min(5, columnData.length);
+                    if (numValuesToAnnounce > 0) {
+                        announcement += ' First values are ';
+                        for (let i = 0; i < numValuesToAnnounce; ++i) {
+                            announcement += i > 0 ?
+                                ', ' + columnData[i] :
+                                columnData[i];
+                        }
+                        announcement += '.';
+                    }
+
+                    (this as any).$announcer.announce(announcement);
+                } catch (e) {
+                    alert('Error filling column: ' + e.message);
+                }
             }
         }
     }
