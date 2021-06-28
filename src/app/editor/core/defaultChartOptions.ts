@@ -19,7 +19,7 @@ export const defaultChartOptions = {
     },
     accessibility: {
         screenReaderSection: {
-            beforeChartFormat: '<div>{chartTitle}</div>' +
+            beforeChartFormat: '<h3>Chart preview: {chartTitle}</h3>' +
                 '<div>{typeDescription}</div>' +
                 '<div>{chartSubtitle}</div>' +
                 '<div>{chartLongdesc}</div>' +
@@ -29,7 +29,7 @@ export const defaultChartOptions = {
         },
         landmarkVerbosity: 'disabled',
         series: {
-            pointDescriptionEnabledThreshold: 50
+            pointDescriptionEnabledThreshold: 200
         }
     },
     sonification: {
