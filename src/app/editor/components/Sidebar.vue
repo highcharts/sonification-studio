@@ -119,10 +119,15 @@ export default {
 
     .header-tab:first-child {
         border-radius: 4px 0px 0px 2px;
+        &:not(.selected) {
+            border-bottom-left-radius: 1px;
+        }
     }
-
     .header-tab:last-child {
         border-radius: 0px 4px 2px 0px;
+        &:not(.selected) {
+            border-bottom-right-radius: 1px;
+        }
     }
 
 </style>
