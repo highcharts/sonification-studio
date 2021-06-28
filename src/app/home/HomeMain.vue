@@ -75,17 +75,18 @@
                         <ul>
                             <li>The data grid component has multiple usability issues, especially for screen reader users. This grid is a 3rd party component and will be replaced.</li>
                             <li>The playback bar can not be manipulated to navigate the sonification.</li>
-                            <li>Some browsers can have issues with exporting video and audio.</li>
-                            <li>The export processes for audio and video should have progress indicators.</li>
+                            <li>Some browsers can have issues with exporting video and audio, and the supported export formats are limited.</li>
                         </ul>
+                        <p>For an up-to-date detailed overview of known issues, visit our <a href="https://github.com/highcharts/sonification-studio/issues">GitHub issues</a> page.</p>
+
                         <h3 id="planned-features">
                             Planned short-term features:
                         </h3>
                         <ul>
-                            <li>Implement our own accessible data grid.</li>
+                            <li>Implement our own, accessible, data grid.</li>
                             <li>MIDI export.</li>
                             <li>Selectable smoothing algorithm for large datasets.</li>
-                            <li>More instruments and timbres.</li>
+                            <li>More instruments and timbres, potentially allow for custom sound sources.</li>
                             <li>More advanced sonification functionality, such as earcons.</li>
                             <li>More chart configuration functionality.</li>
                             <li>Installable progressive webapp-version, perhaps a desktop application version.</li>
