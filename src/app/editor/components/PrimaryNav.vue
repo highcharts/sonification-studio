@@ -2,19 +2,6 @@
     <nav aria-label="Primary">
         <ul>
             <li>
-                {{ /* Use button element because of potential vue-router issue with #-links */ }}
-                <button
-                    role="link"
-                    class="skip-link sr-only"
-                    @click="onSkipLinkClick"
-                    @keydown.enter="onSkipLinkClick"
-                    @keydown.space="onSkipLinkClick"
-                >
-                    Skip to content
-                </button>
-            </li>
-
-            <li>
                 <button
                     ref="helpBtn"
                     class="help-btn"
@@ -95,10 +82,6 @@ export default {
             } else {
                 this.hideHelpDialog();
             }
-        },
-        onSkipLinkClick(e: Event) {
-            this.$emit('skipToContent');
-            e.preventDefault();
         }
     }
 };
@@ -106,31 +89,12 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
-    @import "../sr-only";
 
     nav ul {
         display: flex;
         align-items: center;
         justify-content: flex-end;
         list-style: none;
-    }
-
-    .skip-link {
-        background-color: #fff;
-        padding: 10px;
-        border: 1px solid @dark-blue-5;
-        border-radius: 3px;
-        color: #c40707;
-        &:focus, &:active {
-            z-index: 100;
-            width: auto;
-            height: auto;
-            left: 8px;
-            top: 8px;
-            opacity: 1;
-            clip: auto;
-            filter: none;
-        }
     }
 
     .back-icon {

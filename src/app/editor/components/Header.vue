@@ -16,6 +16,17 @@
                 </h1>
             </div>
 
+            {{ /* Use button element because of potential vue-router issue with #-links */ }}
+            <button
+                role="link"
+                class="skip-link sr-only"
+                @click="onSkipLinkClick"
+                @keydown.enter="onSkipLinkClick"
+                @keydown.space="onSkipLinkClick"
+            >
+                Skip to content
+            </button>
+
             <PrimaryNav
                 class="primary-nav"
                 @skipToContent="$emit('skipToContent')"
@@ -50,6 +61,12 @@ export default {
     data() {
         return { highchartsIcon };
     },
+    methods: {
+        onSkipLinkClick(e: Event) {
+            this.$emit('skipToContent');
+            e.preventDefault();
+        }
+    }
 };
 </script>
 
@@ -104,6 +121,24 @@ export default {
         }
         a {
             float: left;
+        }
+    }
+
+    .skip-link {
+        background-color: #fff;
+        padding: 10px;
+        border: 1px solid @dark-blue-5;
+        border-radius: 3px;
+        color: #c40707;
+        &:focus, &:active {
+            z-index: 100;
+            width: auto;
+            height: auto;
+            left: 8px;
+            top: 8px;
+            opacity: 1;
+            clip: auto;
+            filter: none;
         }
     }
 </style>
