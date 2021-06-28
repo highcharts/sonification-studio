@@ -48,7 +48,10 @@
                 {{ label }}
             </label>
         </div>
-        <div class="se-control-content-container">
+        <div
+            ref="contentSlot"
+            class="se-control-content-container"
+        >
             <slot
                 :labelId="labelUUID"
                 :controlId="controlUUID"
@@ -73,7 +76,6 @@
                 tabindex="-1"
                 @keydown.enter="onHelpContainerClick"
                 @keydown.space="onHelpContainerClick"
-                @click="onHelpContainerClick"
             >
                 <div
                     class="helptext-popup"
@@ -84,7 +86,7 @@
                             v-for="helptextParagraph in helptextParagraphs"
                             :key="helptextParagraph.index"
                         >
-                            {{ helptextParagraph.content }}
+                            <span v-html="helptextParagraph.content" />
                         </p>
                     </div>
                     <div
@@ -127,7 +129,12 @@ export default {
     },
     mounted() {
         document.addEventListener('click', (e: MouseEvent) => {
-            if (this.helptextActive && !this.$el.contains(e.target as any)) {
+            if (
+                this.helptextActive &&
+                !(this.$refs as any).contentSlot.contains(e.target as any) &&
+                !(this.$refs as any).helptextPopupContainer.contains(e.target as any) &&
+                !(this.$refs as any).helptextBtn.contains(e.target as any)
+            ) {
                 this.helptextActive = false;
             }
         });
@@ -152,9 +159,11 @@ export default {
             }, 10));
         },
         onHelpContainerClick(e: Event) {
-            e.preventDefault();
-            this.helptextActive = false;
-            this.$nextTick(() => (this.$refs as any).helptextBtn.focus());
+            if ((e.target as HTMLAnchorElement)?.tagName.toLowerCase() !== 'a') {
+                e.preventDefault();
+                this.helptextActive = false;
+                this.$nextTick(() => (this.$refs as any).helptextBtn.focus());
+            }
         }
     }
 };
@@ -290,7 +299,6 @@ export default {
     }
 
     .helptext-popup {
-        cursor: pointer;
         position: absolute;
         box-shadow: 0 1px 10px @secontrol-helptext-shadow;
         width: 200px;
@@ -336,5 +344,4 @@ export default {
             }
         }
     }
-
 </style>
