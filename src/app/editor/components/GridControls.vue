@@ -1,5 +1,8 @@
 <template>
     <div class="grid-controls">
+        <h3 class="sr-only">
+            Grid tools
+        </h3>
         <div class="grid-controls-group">
             <fieldset>
                 <legend>
@@ -23,7 +26,7 @@
         </div>
 
         <div class="grid-controls-group expand">
-            <fieldset aria-label="Fill column from equation">
+            <fieldset>
                 <div class="grid-control-item expand">
                     <SEControl
                         v-slot="slotProps"
@@ -134,6 +137,7 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
+    @import "../sr-only";
 
     .grid-controls {
         margin: 0 0 10px;
