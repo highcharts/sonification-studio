@@ -31,7 +31,7 @@
                     <SEControl
                         v-slot="slotProps"
                         label="Fill column from equation"
-                        helptext="Fill each row in a column with the results from an equation. Refer to values in other columns by the column name. Example: 2 * B + A. Note: &quot;i&quot; refers to the row number. Example: 2 + 5 * i."
+                        helptext="Fill each row in a column with the results from an equation.<br>Refer to values in other columns by the column name. Example: Filling column C with the equation &quot;2 * B&quot; will result in each row in column C having twice the value as in column B.<br>Use &quot;i&quot; to refer to the row number. Example: &quot;2 * i&quot; will fill in the values 0, 2, 4, 6, 8 etc."
                         helptext-below
                     >
                         <SETextbox
