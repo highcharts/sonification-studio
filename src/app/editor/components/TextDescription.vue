@@ -1,8 +1,6 @@
 <template>
-    <section :aria-labelledby="uuid">
-        <h3
-            :id="uuid"
-        >
+    <div class="textdesc-container">
+        <h3>
             Text Description
         </h3>
 
@@ -28,13 +26,13 @@
         >
             {{ textDescription }}
         </p>
-    </section>
+    </div>
 </template>
 
 <script lang="ts">
 import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
-import { GenericObject, getUUID } from '../core/utils/objects';
+import { GenericObject } from '../core/utils/objects';
 import { describeColumn } from '../core/textDescription';
 
 export default {
@@ -56,8 +54,7 @@ export default {
             }));
 
             return dropdownOptions;
-        },
-        uuid: () => getUUID('se-textdesc')
+        }
     },
     methods: {
         describeColumn() {
@@ -76,7 +73,7 @@ export default {
 <style lang="less" scoped>
     @import "../colors";
 
-    section {
+    .textdesc-container {
         background-color: @main-content-bg-color;
         display: flex;
         flex-direction: column;

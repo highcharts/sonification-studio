@@ -1,9 +1,19 @@
 <template>
-    <section aria-label="Play controls">
+    <div
+        role="region"
+        class="playcontrols-container"
+        aria-labelledby="playcontrols-heading"
+    >
+        <h3
+            id="playcontrols-heading"
+            class="sr-only"
+        >
+            Play controls
+        </h3>
         <PlayButtons class="playControlItem" />
         <PlaybackSlider class="playControlItem growLarge" />
         <VolumeSlider class="playControlItem growSmall" />
-    </section>
+    </div>
 </template>
 
 <script lang="ts">
@@ -22,8 +32,9 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
+    @import "../sr-only";
 
-    section {
+    .playcontrols-container {
         width: 100%;
         background-color: @play-controls-bg;
         color: @play-controls-color;
