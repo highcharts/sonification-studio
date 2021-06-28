@@ -67,7 +67,14 @@
                     class="helptext-popup"
                     :class="{ below: helptextBelow }"
                 >
-                    <p>{{ helptext }}</p>
+                    <div>
+                        <p
+                            v-for="helptextParagraph in helptextParagraphs"
+                            :key="helptextParagraph.index"
+                        >
+                            {{ helptextParagraph.content }}
+                        </p>
+                    </div>
                     <div
                         class="helptext-arrow"
                         :class="{ below: helptextBelow }"
@@ -85,7 +92,7 @@
 </template>
 
 <script lang="ts">
-import { getUUID } from '../../core/utils/objects';
+import { getUUID, GenericObject } from '../../core/utils/objects';
 import { Keys, keyPressed, Modifiers } from '../../core/utils/keyboardUtils';
 
 export default {
@@ -106,7 +113,11 @@ export default {
     },
     computed: {
         labelUUID: () => getUUID('se-ctl-label'),
-        controlUUID: () => getUUID('se-ctl-content')
+        controlUUID: () => getUUID('se-ctl-content'),
+        helptextParagraphs: function(): GenericObject[] {
+            const arr = this.helptext ? this.helptext.split('<br>') : [];
+            return arr.map((x, i) => ({ index: i, content: x }));
+        }
     },
     mounted() {
         document.addEventListener('click', (e: MouseEvent) => {
@@ -249,6 +260,10 @@ export default {
         p {
             z-index: 100;
             position: relative;
+            margin-bottom: 5px;
+            &:last-child {
+                margin-bottom: 0;
+            }
         }
     }
 
