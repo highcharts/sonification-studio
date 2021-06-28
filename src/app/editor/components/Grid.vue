@@ -80,6 +80,7 @@ export default {
         return {
             gridOptions: {
                 singleClickEdit: true,
+                headerHeight: 25,
                 stopEditingWhenGridLosesFocus: true,
                 suppressScrollOnNewData: true,
                 onCellValueChanged: (e: CellValueChangedEvent) => (this as any).onCellValueChanged(e),
@@ -207,21 +208,20 @@ export default {
 </script>
 
 <style lang="scss">
-    $header-background-color: #9BA3B4;
-    $header-foreground-color: #fff;
-    $header-cell-hover-background-color: #a3adc2;
+    $header-background-color: #eef1f8;
+    $header-foreground-color: #616161;
+    $header-cell-hover-background-color: #e0e2eb;
     $odd-row-background-color: #fff;
     $border-color: #d5d3d3;
     $row-border-color: #d5d3d3;
     $cell-horizontal-border: solid 0.5px #e3e0e0;
-    $hover-color: hsl(218, 42%, 96%);
+    $hover-color: #f1f4f9;
     $background-color: #fff;
     $font-family: 'Roboto';
     $font-size: 0.875rem;
-    $secondary-font-size: 1.0625rem;
+    $secondary-font-size: 0.7625rem;
     $secondary-font-weight: normal;
     $secondary-font-family: 'Roboto';
-    $secondary-foreground-color-opacity: 0.7;
 
     @import "../../../../node_modules/ag-grid-community/src/styles/ag-grid.scss";
     @import "../../../../node_modules/ag-grid-community/src/styles/ag-theme-balham/sass/ag-theme-balham.scss";
