@@ -35,7 +35,7 @@
 
         <SEControl
             v-slot="slotProps"
-            label="Musical notes only"
+            label="Round to musical notes"
             helptext="Round all pitches to nearest musical note."
             horizontal
         >
