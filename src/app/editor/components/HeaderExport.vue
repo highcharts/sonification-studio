@@ -48,7 +48,7 @@
                                     alt=""
                                     :src="projectIcon"
                                 >
-                                Project file
+                                Project File
                             </button>
                         </li>
                         <li>
@@ -72,7 +72,7 @@
                                     alt=""
                                     :src="musicIcon"
                                 >
-                                Audio only
+                                Audio Only
                             </button>
                         </li>
                         <li>

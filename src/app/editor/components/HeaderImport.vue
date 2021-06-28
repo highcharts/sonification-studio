@@ -37,7 +37,7 @@
                                     :src="projectIcon"
                                     class="icon"
                                 >
-                                New project
+                                New Project
                             </button>
                         </li>
                         <li>
@@ -50,7 +50,7 @@
                                     :src="projectIcon"
                                     class="icon"
                                 >
-                                Open project file
+                                Open Project File
                             </SEFileUploadButton>
                         </li>
                         <li>
@@ -60,7 +60,7 @@
                                     :src="csvIcon"
                                     class="icon"
                                 >
-                                Import CSV data
+                                Import CSV Data
                             </SEFileUploadButton>
                         </li>
                     </ul>

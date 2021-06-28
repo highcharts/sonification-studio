@@ -67,7 +67,7 @@
 
         <div class="grid-controls-group">
             <SEButton @click="onClearDataClick">
-                Clear grid
+                Clear Grid
             </SEButton>
         </div>
     </div>

@@ -16,7 +16,7 @@
                 wide
                 @click="describeColumn"
             >
-                Describe column
+                Describe Column
             </SEButton>
         </div>
         <p
