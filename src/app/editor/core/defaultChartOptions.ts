@@ -93,14 +93,27 @@ export const defaultChartOptions = {
         split: false
     },
     yAxis: {
-        opposite: false
+        opposite: false,
+        labels: {
+            style: {
+                color: '#666'
+            }
+        }
     },
     xAxis: {
-        type: 'linear'
+        type: 'linear',
+        labels: {
+            style: {
+                color: '#666'
+            }
+        }
     },
     data: {
         csv: '',
         itemDelimiter: ';',
         firstRowAsNames: false
+    },
+    credits: {
+        enabled: false
     }
 };
