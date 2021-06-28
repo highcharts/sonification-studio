@@ -28,7 +28,10 @@
             @before-leave="startFold"
             @after-leave="endFold"
         >
-            <div v-show="isSelected">
+            <div
+                v-show="isSelected"
+                class="se-accordion-item-content-wrapper"
+            >
                 <div class="se-accordion-item-content">
                     <slot />
                 </div>
@@ -105,6 +108,10 @@ export default {
     .se-accordion-item-content {
         padding: 10px;
         box-sizing: border-box;
+    }
+
+    .se-accordion-item-content-wrapper {
+        overflow: visible;
     }
 
     .select-icon {
