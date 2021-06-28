@@ -5,7 +5,7 @@
             :aria-expanded="popupVisible"
             @click="popupVisible=!popupVisible"
         >
-            Save project
+            Save
             <img
                 class="menu-icon"
                 alt=""
@@ -271,7 +271,7 @@ export default {
         align-items: center;
         position: relative;
         z-index: 99;
-        min-width: 8.7rem;
+        min-width: 5.7rem;
     }
 
     .se-button {

@@ -24,6 +24,9 @@
 
         <div class="nav-container">
             <EditorNav class="section-nav" />
+            <h2 class="sr-only">
+                Project tools
+            </h2>
             <HeaderImport class="section-import" />
             <HeaderExport class="section-export" />
         </div>
@@ -52,6 +55,7 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
+    @import "../sr-only";
 
     header {
         display: flex;
