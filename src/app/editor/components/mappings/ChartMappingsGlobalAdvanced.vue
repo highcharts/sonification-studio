@@ -27,7 +27,7 @@
         <SEControl
             v-slot="slotProps"
             label="Show data series labels"
-            helptext="Show a label on the chart for each data series. Labels may be hidden if no good position is found automatically."
+            helptext="Show a label next to each data series with its name. Labels may be hidden if no good position is found automatically."
             horizontal
         >
             <SECheckbox
