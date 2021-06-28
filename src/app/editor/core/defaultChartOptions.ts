@@ -42,7 +42,7 @@ export const defaultChartOptions = {
             e.path.timeline.resetCursor();
         },
         defaultInstrumentOptions: {
-            instrument: 'sineMusical',
+            instrument: 'sine',
             minDuration: 40,
             maxDuration: 3000,
             mapping: {
