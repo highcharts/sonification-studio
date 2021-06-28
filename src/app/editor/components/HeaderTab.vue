@@ -37,6 +37,7 @@ export default {
         background-color: @header-tab-btn-bg;
         color: @header-tab-btn-color;
         border: none;
+        border-bottom: 1px solid @header-tab-unsel-border;
         font: inherit;
         font-size: 1.125rem;
         cursor: pointer;
@@ -47,10 +48,6 @@ export default {
         box-sizing: border-box;
     }
 
-    .header-tab-btn-text {
-        text-decoration: underline;
-    }
-
     button::-moz-focus-inner {
         border: 0;
     }
@@ -59,9 +56,7 @@ export default {
         background-color: @header-tab-btn-selected-bg;
         color: @header-tab-btn-selected-color;
         font-weight: bold;
-        .header-tab-btn-text {
-            text-decoration: none;
-        }
+        border-bottom: 1px solid @header-tab-btn-selected-bg;
         .header-tab-btn-icon {
             filter: invert();
         }
