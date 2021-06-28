@@ -1,4 +1,25 @@
+import { GenericObject } from './utils/objects';
+import { getChartStatistics } from './utils/chartUtils';
+
 export const defaultChartOptions = {
+    lang: {
+        accessibility: {
+            chartTypes: {
+                splineSingle: 'Smoothed line chart.',
+                splineMultiple: 'Smoothed line chart.',
+                lineSingle: 'Line chart.',
+                lineMultiple: 'Line chart.',
+                pieSingle: 'Pie chart.',
+                pieMultiple: 'Pie chart.',
+                columnSingle: 'Column chart.',
+                columnMultiple: 'Column chart.',
+                scatterSingle: 'Scatter chart.',
+                scatterMultiple: 'Scatter chart.',
+                areasplineSingle: 'Smoothed area chart.',
+                areasplineMultiple: 'Smoothed area chart.'
+            }
+        }
+    },
     chart: {
         animation: {
             duration: 600
@@ -19,12 +40,20 @@ export const defaultChartOptions = {
     },
     accessibility: {
         screenReaderSection: {
-            beforeChartFormat: '<h3>Chart preview: {chartTitle}</h3>' +
-                '<div>{typeDescription}</div>' +
-                '<div>{chartSubtitle}</div>' +
-                '<div>{chartLongdesc}</div>' +
-                '<div>{xAxisDescription}</div>' +
-                '<div>{yAxisDescription}</div>',
+            beforeChartFormatter: function (chart: Highcharts.Chart) {
+                const title = chart.options.title?.text;
+                const titleTag = `<h3>Chart preview${title ? ': ' + title : ''}</h3>`;
+                const component = (chart as GenericObject).accessibility.components.infoRegions;
+                const typeDesc = component.getTypeDescriptionText();
+                const subtitle = component.getSubtitleText();
+                const statistics = getChartStatistics(chart);
+                return (
+                    titleTag +
+                    `<div>${typeDesc}</div>` +
+                    `<div>${subtitle}</div>` +
+                    `<div>${statistics}</div>`
+                ).replace('<div></div>', '');
+            },
             afterChartFormat: ''
         },
         landmarkVerbosity: 'disabled',
