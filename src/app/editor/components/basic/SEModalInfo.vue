@@ -9,8 +9,7 @@
         class="popup-outer-container"
         tabindex="-1"
         role="dialog"
-        :aria-label="dialogTitle"
-        aria-modal="true"
+        :aria-label="dialogTitle + ', modal'"
         @click="onclick"
         @keydown.enter="$emit('close')"
         @keydown.space="$emit('close')"
@@ -62,13 +61,14 @@
 import SEButton from './SEButton.vue';
 import hcLogo from '../../assets/highcharts-logo.svg';
 import closeIcon from '../../assets/times-solid.svg';
+import { hideOtherElementsFromAT, unhideElementsFromAT } from '../../core/utils/browserUtils';
 
 export default {
     components: { SEButton },
     props: {
         dialogTitle: { type: String, default: 'Information' }
     },
-    data() { return { hcLogo, closeIcon }; },
+    data() { return { hcLogo, closeIcon, hiddenElementsRef: [] as HTMLElement[] }; },
     methods: {
         onclick(e: MouseEvent) {
             const innerContainer = this.$refs.innerContainer as Element;
@@ -83,6 +83,12 @@ export default {
                 e.stopPropagation();
                 e.preventDefault();
             }
+        },
+        hideOthersFromAT() {
+            this.hiddenElementsRef = hideOtherElementsFromAT((this.$refs as any).outerContainer);
+        },
+        unhideOthersFromAT() {
+            unhideElementsFromAT(this.hiddenElementsRef);
         }
     }
 };
@@ -90,6 +96,7 @@ export default {
 
 <style lang="less" scoped>
     @import "../../colors";
+    @import "../../sr-only";
 
     .popup-outer-container {
         position: absolute;

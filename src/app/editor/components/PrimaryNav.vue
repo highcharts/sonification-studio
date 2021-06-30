@@ -63,6 +63,15 @@ export default {
             helpVisible: false
         };
     },
+    watch: {
+        helpVisible(val) {
+            if (!val) {
+                (this.$refs as any).helpDialog.unhideOthersFromAT();
+            } else {
+                (this.$refs as any).helpDialog.hideOthersFromAT();
+            }
+        }
+    },
     mounted() {
         document.addEventListener('keydown', e => {
             if (keyPressed(Keys.Esc, Modifiers.None, e) && this.helpVisible) {
