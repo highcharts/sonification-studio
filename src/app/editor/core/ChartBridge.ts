@@ -229,7 +229,7 @@ export class ChartBridge {
                     instrument: instrument,
                     playOptions: {
                         frequency: freq,
-                        volume: 1 * globalVolume / 100,
+                        volume: 0.7 * globalVolume / 100,
                         duration: 150
                     }
                 }]

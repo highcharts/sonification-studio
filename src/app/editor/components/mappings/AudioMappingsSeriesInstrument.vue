@@ -15,7 +15,7 @@
         <SEControl
             v-slot="slotProps"
             label="Instrument"
-            helptext="The type of instrument to use for playing this data series. Click the &quot;Play audio sample&quot; button below to hear a sample of this instrument."
+            helptext="The type of instrument to use for playing this data series. Choose below whether or not to play samples of the selected instrument when going through the list."
             :horizontal-reverse="true"
             :expand-content="true"
         >
@@ -23,15 +23,21 @@
                 :id="slotProps.controlId"
                 v-model="instrument"
                 :options="instruments"
+                @input="onInstrumentChange"
             />
         </SEControl>
 
-        <SEButton
-            id="mci-sample-btn"
-            @click="onSampleClick"
+        <SEControl
+            v-slot="slotProps"
+            label="Play audio samples"
+            helptext="Play audio samples as you go through the instrument list."
+            horizontal
         >
-            Play audio sample
-        </SEButton>
+            <SECheckbox
+                :id="slotProps.controlId"
+                v-model="playSamples"
+            />
+        </SEControl>
 
         <SEControl
             v-slot="slotProps"
@@ -52,7 +58,6 @@
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
-import SEButton from '../basic/SEButton.vue';
 
 import {
     makeSeriesParamPropertyMapping,
@@ -66,7 +71,6 @@ export default {
     components: {
         SEControl,
         SECheckbox,
-        SEButton,
         SEDropdown
     },
     data() {
@@ -83,7 +87,8 @@ export default {
             }, {
                 name: 'Square wave',
                 value: 'square'
-            }]
+            }],
+            playSamples: true
         };
     },
     computed: {
@@ -101,8 +106,10 @@ export default {
         this.populateProps();
     },
     methods: {
-        onSampleClick() {
-            (this as any).$chartBridge.playAudioSample(this.instrument);
+        onInstrumentChange() {
+            if (this.playSamples) {
+                (this as any).$chartBridge.playAudioSample(this.instrument);
+            }
         },
         populateProps() {
             this.pitchRoundingEnabled = nullFallback(this.pitchRoundingEnabled, false);
