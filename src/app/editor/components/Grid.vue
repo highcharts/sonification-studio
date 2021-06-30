@@ -1,10 +1,5 @@
 <template>
-    <div
-        class="se-grid-container"
-        tabindex="0"
-        @keyup.enter="focusGrid"
-        @keyup.esc="unfocusGrid"
-    >
+    <div class="se-grid-container">
         <ag-grid-vue
             ref="grid"
             class="se-grid ag-theme-balham"
@@ -81,7 +76,7 @@ export default {
             gridOptions: {
                 singleClickEdit: true,
                 headerHeight: 25,
-                stopEditingWhenGridLosesFocus: true,
+                stopEditingWhenCellsLoseFocus: true,
                 suppressScrollOnNewData: true,
                 onCellValueChanged: (e: CellValueChangedEvent) => (this as any).onCellValueChanged(e),
                 onFirstDataRendered: () => (this as any).updateCSVInDataStore(),
@@ -137,26 +132,6 @@ export default {
             return res;
         },
 
-        focusGrid() {
-            const grid: any = this.$refs.grid;
-            const gridOptions: GridOptions = grid?.gridOptions;
-            const gridApi = gridOptions?.api;
-            const columnApi = gridOptions?.columnApi;
-            const tableRows = this.$store.state.dataStore.tableRowData;
-
-            if (gridApi && columnApi && tableRows.length) {
-                const focusedCell = gridApi.getFocusedCell();
-                const rowToFocus = (focusedCell?.rowIndex ?? -1) + 1;
-                const columnToFocus = focusedCell?.column || columnApi.getAllGridColumns()[0];
-
-                if (tableRows.length > rowToFocus) {
-                    gridApi.ensureIndexVisible(rowToFocus);
-                    gridApi.ensureColumnVisible(columnToFocus);
-                    gridApi.setFocusedCell(rowToFocus, columnToFocus);
-                }
-            }
-        },
-
         scrollToLastGridRowWithData() {
             const gridApi: any = (this.$refs.grid as any)?.gridOptions?.api;
 
@@ -171,11 +146,6 @@ export default {
             }
         },
 
-        unfocusGrid() {
-            const el: any = this.$el;
-            el.focus();
-        },
-
         // Update the CSV render of the table data in the data store.
         updateCSVInDataStore() {
             const grid: any = this.$refs.grid;
@@ -186,13 +156,13 @@ export default {
             if (gridAPI && columnAPI) {
                 const columnsToExport = getColumnIDsWithData(gridAPI, columnAPI);
 
-                const csv = columnsToExport.length ? gridAPI.getDataAsCsv({
+                const csv = columnsToExport.length ? (gridAPI as any).getDataAsCsv({
                     columnKeys: columnsToExport,
                     suppressQuotes: true,
                     shouldRowBeSkipped: (params: ShouldRowBeSkippedParams): boolean => {
                         return !hasRowData(params.node);
                     },
-                    skipHeader: true,
+                    skipColumnHeaders: true,
                     columnSeparator: ';',
                     // Replace ; in the cells with space for the CSV to avoid accidental delimitors.
                     processCellCallback: (params: any): string => {
