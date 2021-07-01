@@ -1,3 +1,4 @@
+import { GenericObject } from './utils/objects';
 
 function removeRedundantNumberPrecision(str: string): string {
     return str.replace(/\.0+(\D)/g, '$1');
@@ -67,7 +68,8 @@ function describeNumericalColumn(columnData: Array<number|null>): string {
 /**
  * Create text description for a column with data.
  */
-export function describeColumn(columnData: Array<string>): string {
-    const numerical = getNumericalColumn(columnData);
-    return numerical ? describeNumericalColumn(numerical) : describeStringColumn(columnData);
+export function describeTable(table: GenericObject): string {
+    //const numerical = getNumericalColumn(columnData);
+    //return numerical ? describeNumericalColumn(numerical) : describeStringColumn(columnData);
+    return 'Placeholder.';
 }

@@ -53,7 +53,8 @@ export const dataStore = {
 
     state: {
         tableCSV: '',
-        tableRowData: [] // Source data for table
+        tableRowData: [], // Source data for table
+        textDescription: '' // Text description for the table/chart
     },
 
     getters: {
@@ -89,6 +90,10 @@ export const dataStore = {
 
         tableCSVDataURI: (state: GenericObject): string => {
             return state.tableCSV ? encodeURI(`data:text/csv;charset=utf-8,${state.tableCSV}`) : '';
+        },
+
+        textDescription: (state: GenericObject): string => {
+            return state.textDescription;
         }
     },
 
@@ -96,6 +101,7 @@ export const dataStore = {
         // Apply a state or replace state with placeholder data.
         restoreStoreState(state: any, newState?: GenericObject) {
             Vue.set(state, 'tableRowData', newState ? newState.tableRowData : getPlaceholderData());
+            state.textDescription = newState ? (newState.textDescription || '') : '';
         },
 
         setTableCSV(state: any, csv: string) {
@@ -140,6 +146,10 @@ export const dataStore = {
 
         setToPlaceholderData(state: any) {
             Vue.set(state, 'tableRowData', getPlaceholderData());
+        },
+
+        setTextDescription(state: any, description: string) {
+            state.textDescription = description;
         }
     },
 

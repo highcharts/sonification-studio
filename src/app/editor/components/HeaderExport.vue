@@ -113,6 +113,18 @@
                         </li>
                         <li>
                             <button
+                                @click="dlTextDesc"
+                                @keydown.enter="dlTextDesc"
+                            >
+                                <img
+                                    alt=""
+                                    :src="textIcon"
+                                >
+                                Text Description
+                            </button>
+                        </li>
+                        <li>
+                            <button
                                 @click="dlChartConfig"
                                 @keydown.enter="dlChartConfig"
                             >
@@ -140,6 +152,7 @@ import pictureIcon from '../assets/image-regular.svg';
 import projectIcon from '../assets/file-export-solid.svg';
 import videoIcon from '../assets/film-solid.svg';
 import musicIcon from '../assets/music-solid.svg';
+import textIcon from '../assets/quote-right-solid.svg';
 import csvIcon from '../assets/file-csv-solid.svg';
 import spinnerIcon from '../assets/spinner-solid.svg';
 import SEButton from './basic/SEButton.vue';
@@ -158,6 +171,7 @@ export default {
             projectIcon,
             videoIcon,
             musicIcon,
+            textIcon,
             csvIcon,
             spinnerIcon,
             popupVisible: false,
@@ -255,6 +269,18 @@ export default {
             );
         },
 
+        dlTextDesc() {
+            const desc = this.$store.state.dataStore.textDescription;
+            if (desc) {
+                downloadURI(
+                    'data:text/plain;charset=UTF-8,' + encodeURIComponent(desc),
+                    (this as any).$chartBridge.getChartTitleForExport() + '.txt'
+                );
+            } else {
+                alert('No text description has been created. Generate an automatic text description or write your own in the "Chart" tab.');
+            }
+        },
+
         dlChartConfig() {
             (this as any).$chartBridge.downloadChartConfig();
         }
@@ -340,7 +366,7 @@ export default {
     }
 
     .export-popup {
-        min-width: 12.5rem;
+        min-width: 13.5rem;
         box-sizing: border-box;
         overflow: hidden;
         position: absolute;

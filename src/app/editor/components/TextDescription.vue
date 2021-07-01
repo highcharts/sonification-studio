@@ -1,68 +1,52 @@
 <template>
     <div class="textdesc-container">
-        <h3>
-            Text Description
-        </h3>
+        <div class="textdesc-heading-row">
+            <h3>
+                Text Description
+            </h3>
 
-        <div id="textdesc-controls">
-            <SEDropdown
-                id="textdesc-dropdown"
-                v-model="selectedColumn"
-                :options="dropdownList"
-                label="Choose column to describe"
-            />
             <SEButton
                 dark
                 wide
-                @click="describeColumn"
+                @click="onGenerateDescription"
             >
-                Describe Column
+                Generate description
             </SEButton>
         </div>
-        <p
-            id="textdesc-display"
+        <textarea
             ref="description"
-            tabindex="-1"
-        >
-            {{ textDescription }}
-        </p>
+            v-model="textDescription"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import SEButton from './basic/SEButton.vue';
-import SEDropdown from './basic/SEDropdown.vue';
 import { GenericObject } from '../core/utils/objects';
-import { describeColumn } from '../core/textDescription';
+import { describeTable } from '../core/textDescription';
 
 export default {
     components: {
-        SEButton, SEDropdown
-    },
-    data() {
-        return {
-            selectedColumn: null,
-            textDescription: ''
-        };
+        SEButton
     },
     computed: {
-        dropdownList() {
-            const colsWithData: Array<number> = this.$store.getters['dataStore/tableColumnNamesWithData'];
-            const dropdownOptions = colsWithData.map((colName): GenericObject => ({
-                name: 'Column ' + colName,
-                value: colName
-            }));
-
-            return dropdownOptions;
+        textDescription: {
+            get() { return (this as any).$store.state.dataStore.textDescription; },
+            set(desc) { return this.$store.commit('dataStore/setTextDescription', desc); }
         }
     },
     methods: {
-        describeColumn() {
-            const columnData = this.$store.getters['dataStore/column'](this.selectedColumn);
-            this.textDescription = describeColumn(columnData);
+        onGenerateDescription() {
+            if (!this.textDescription || window.confirm('This will replace the existing description. Continue?')) {
+                const columnsWithData = this.$store.getters['dataStore/tableColumnNamesWithData'];
+                const columnData = columnsWithData.reduce((acc: GenericObject, columnName: string) => {
+                    acc.columnName = this.$store.getters['dataStore/column'](columnName);
+                    return acc;
+                }, {});
 
-            const description = this.$refs.description as HTMLElement;
-            if (description && description.focus) {
+                this.textDescription = describeTable(columnData);
+
+                const description = this.$refs.description as HTMLElement;
                 description.focus();
             }
         }
@@ -80,25 +64,20 @@ export default {
         padding: 30px;
     }
 
-    h3 {
-        font-size: 1.3125rem;
-        color: @text-description-heading-color;
-        margin-bottom: 10px;
-        font-weight: normal;
-    }
-
-    #textdesc-controls {
+    .textdesc-heading-row {
         display: flex;
-        align-items: center;
-        margin: 5px 0;
+        width: 100%;
+        justify-content: space-between;
+        h3 {
+            font-size: 1.3125rem;
+            color: @text-description-heading-color;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
     }
 
-    .se-dropdown {
-        margin-right: 10px;
-        width: 160px;
-    }
-
-    #textdesc-display {
+    textarea {
+        resize: none;
         flex: 1;
         margin-top: 10px;
         padding: 5px;

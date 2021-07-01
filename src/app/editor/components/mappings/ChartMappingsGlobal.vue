@@ -59,11 +59,9 @@ export default {
             }]
         };
     },
-    computed: {
-        ...mapState({
-            expandedAccordionItems: (state: any) => state.viewStore.expandedChartMappingsAccordionItems
-        })
-    },
+    computed: mapState({
+        expandedAccordionItems: (state: any) => state.viewStore.expandedChartMappingsAccordionItems
+    }),
     methods: {
         onAccordionItemClick(e: Event, item: GenericObject, isSelected: boolean) {
             this.$store.commit('viewStore/setExpandedChartMappingsAccordionItem', {
