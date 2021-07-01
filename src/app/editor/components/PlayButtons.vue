@@ -8,17 +8,17 @@
         </PlayButton>
         <PlayButton
             :icon-path="stopIcon"
-            :enabled="playing || looping || paused"
+            :enabled="playing || paused"
             @click="onStopClick"
         >
             Stop
         </PlayButton>
-        <PlayButton
+        <PlayCheckbox
+            v-model="loopEnabled"
             :icon-path="loopIcon"
-            @click="onLoopClick"
         >
             Loop
-        </PlayButton>
+        </PlayCheckbox>
     </div>
 </template>
 
@@ -30,16 +30,17 @@ import stopIcon from '../assets/stop.svg';
 import pauseIcon from '../assets/pause.svg';
 import loopIcon from '../assets/loop.svg';
 import PlayButton from './PlayButton.vue';
+import PlayCheckbox from './PlayCheckbox.vue';
 
 export default {
     components: {
-        PlayButton
+        PlayButton, PlayCheckbox
     },
     data() {
         return {
             playing: false,
-            looping: false,
             paused: false,
+            loopEnabled: false,
             playPauseIcon: playIcon,
             stopIcon, pauseIcon, loopIcon
         };
@@ -49,7 +50,7 @@ export default {
         reactToParameterUpdates: (state: any) => state.viewStore.reactToParameterUpdates,
         reactToDataUpdates: (state: any) => state.dataStore.reactToDataUpdates,
     }),
-    // Stop looping/playing when something changes.
+    // Stop playing when something changes.
     watch: {
         reactToParameterUpdates() {
             this.onStopClick();
@@ -57,6 +58,9 @@ export default {
         reactToDataUpdates() {
             this.onStopClick();
         },
+        loopEnabled() {
+            this.onStopClick();
+        }
     },
     mounted() {
         document.addEventListener('keydown', (e) => {
@@ -68,7 +72,8 @@ export default {
                     this.onStopClick();
                     e.preventDefault();
                 } else if (keyPressed(Keys.L, Modifiers.Ctrl, e)) {
-                    this.onLoopClick();
+                    this.loopEnabled = !this.loopEnabled;
+                    (this as any).$announcer.announce('Loop ' + (this.loopEnabled ? 'enabled' : 'disabled') + '.');
                     e.preventDefault();
                 }
             }
@@ -79,21 +84,14 @@ export default {
             this.paused = false;
             this.playPauseIcon = this.playing ? playIcon : pauseIcon;
             if (this.playing) {
-                this.$chartBridge.pauseChart();
+                (this as any).$chartBridge.pauseChart();
                 this.paused = true;
-            } else if (this.looping) {
-                this.$chartBridge.loopChart();
+            } else if (this.loopEnabled) {
+                (this as any).$chartBridge.loopChart();
             } else {
-                this.$chartBridge.playChart(this.resetPlayPauseBtn.bind(this));
+                (this as any).$chartBridge.playChart(this.resetPlayPauseBtn.bind(this));
             }
             this.playing = !this.playing;
-        },
-        onLoopClick() {
-            this.paused = false;
-            this.playing = true;
-            this.looping = true;
-            this.playPauseIcon = pauseIcon;
-            this.$chartBridge.loopChart();
         },
         resetPlayPauseBtn() {
             this.paused = false;
@@ -102,22 +100,15 @@ export default {
         },
         onStopClick() {
             this.paused = false;
-            this.looping = false;
             this.resetPlayPauseBtn();
-            this.$chartBridge.stopChart();
+            (this as any).$chartBridge.stopChart();
         }
     }
 };
 </script>
 
 <style lang="less" scoped>
-    @import "../colors";
-
     .play-buttons-container {
         display: flex;
-    }
-
-    .play-button {
-        margin: 0 5px;
     }
 </style>

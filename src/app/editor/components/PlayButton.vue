@@ -32,13 +32,13 @@ export default {
     @import "../colors";
 
     button {
-        padding: 5px 0;
-        width: 2.375rem;
+        padding: 5px 8px;
+        width: 3.2rem;
         background: none;
         color: @play-controls-color;
-        border: none;
         font: inherit;
         cursor: pointer;
+        border: 2px solid transparent;
         display: flex;
         flex-direction: column;
         justify-content: center;
