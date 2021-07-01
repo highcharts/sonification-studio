@@ -40,7 +40,7 @@ export default {
             if (!this.textDescription || window.confirm('This will replace the existing description. Continue?')) {
                 const columnsWithData = this.$store.getters['dataStore/tableColumnNamesWithData'];
                 const columnData = columnsWithData.reduce((acc: GenericObject, columnName: string) => {
-                    acc.columnName = this.$store.getters['dataStore/column'](columnName);
+                    acc[columnName] = this.$store.getters['dataStore/column'](columnName);
                     return acc;
                 }, {});
 

@@ -69,7 +69,12 @@ function describeNumericalColumn(columnData: Array<number|null>): string {
  * Create text description for a column with data.
  */
 export function describeTable(table: GenericObject): string {
-    //const numerical = getNumericalColumn(columnData);
-    //return numerical ? describeNumericalColumn(numerical) : describeStringColumn(columnData);
-    return 'Placeholder.';
+    const descriptions = [];
+    for (const [columnName, columnData] of Object.entries(table)) {
+        const numerical = getNumericalColumn(columnData);
+        const columnDesc = numerical ? describeNumericalColumn(numerical) : describeStringColumn(columnData);
+        descriptions.push(columnName + ': ' + columnDesc);
+    }
+
+    return descriptions.join('\n');
 }
