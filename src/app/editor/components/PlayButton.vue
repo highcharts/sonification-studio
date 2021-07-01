@@ -1,6 +1,7 @@
 <template>
     <div class="play-button">
         <button
+            :disabled="enabled ? null : true"
             @click="$emit('click')"
             @mouseup="$emit('mouseup', $event)"
             @mousedown="$emit('mousedown', $event)"
@@ -21,7 +22,8 @@
 <script lang="ts">
 export default {
     props: {
-        iconPath: { type: String, required: true }
+        iconPath: { type: String, required: true },
+        enabled: { type: Boolean, default: true }
     }
 };
 </script>
@@ -41,17 +43,21 @@ export default {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        &:hover {
+        &:hover:not(:disabled) {
             color: @play-btn-hover-color;
             img {
                 filter: sepia(100%) saturate(700%) hue-rotate(170deg) brightness(95%);
             }
         }
-        &:active {
+        &:active:not(:disabled) {
             img {
                 filter: sepia(100%) saturate(700%) hue-rotate(170deg) brightness(90%);
             }
             color: darken(@play-btn-hover-color, 5%);
+        }
+        &:disabled {
+            opacity: 0.5;
+            cursor: default;
         }
         img {
             width: 16px;

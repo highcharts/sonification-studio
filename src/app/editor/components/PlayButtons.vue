@@ -8,6 +8,7 @@
         </PlayButton>
         <PlayButton
             :icon-path="stopIcon"
+            :enabled="playing || looping || paused"
             @click="onStopClick"
         >
             Stop
@@ -38,6 +39,7 @@ export default {
         return {
             playing: false,
             looping: false,
+            paused: false,
             playPauseIcon: playIcon,
             stopIcon, pauseIcon, loopIcon
         };
@@ -74,9 +76,11 @@ export default {
     },
     methods: {
         onPlayPauseClick() {
+            this.paused = false;
             this.playPauseIcon = this.playing ? playIcon : pauseIcon;
             if (this.playing) {
                 this.$chartBridge.pauseChart();
+                this.paused = true;
             } else if (this.looping) {
                 this.$chartBridge.loopChart();
             } else {
@@ -85,16 +89,19 @@ export default {
             this.playing = !this.playing;
         },
         onLoopClick() {
+            this.paused = false;
             this.playing = true;
             this.looping = true;
             this.playPauseIcon = pauseIcon;
             this.$chartBridge.loopChart();
         },
         resetPlayPauseBtn() {
+            this.paused = false;
             this.playing = false;
             this.playPauseIcon = playIcon;
         },
         onStopClick() {
+            this.paused = false;
             this.looping = false;
             this.resetPlayPauseBtn();
             this.$chartBridge.stopChart();
