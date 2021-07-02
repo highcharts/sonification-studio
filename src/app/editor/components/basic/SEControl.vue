@@ -20,6 +20,7 @@
         - [label]: String - The label text to show.
         - [helptext]: String - Show help icon with text popup.
         - [helptextBelow]: Boolean - Show helptext popup below instead of above.
+        - [helptextLeft]: Boolean - Force helptext popup to be positioned left.
         - [horizontal]: Boolean - Show label to the right of control, rather than above.
         - [horizontalReverse]: Boolean - Show label to the left of control, rather than above.
         - [expandContent]: Boolean - Expand the control content to fill empty space.
@@ -79,7 +80,7 @@
             >
                 <div
                     class="helptext-popup"
-                    :class="{ below: helptextBelow }"
+                    :class="{ below: helptextBelow, left: helptextLeft }"
                 >
                     <div>
                         <p
@@ -109,6 +110,7 @@ export default {
         helptext: { type: String, default: '' },
         horizontal: { type: Boolean, default: false },
         helptextBelow: { type: Boolean, default: false },
+        helptextLeft: { type: Boolean, default: false },
         horizontalReverse: { type: Boolean, default: false },
         expandContent: { type: Boolean, default: false },
         isFieldset: { type: Boolean, default: false },
@@ -310,6 +312,13 @@ export default {
         &.below {
             top: 0;
             margin-top: 3px;
+        }
+        &.left {
+            right: -5px;
+            .helptext-arrow {
+                right: 8px;
+                left: auto;
+            }
         }
         font-size: 0.75rem;
         font-weight: normal;
