@@ -19,6 +19,7 @@
     Props:
         - [label]: String - The label text to show.
         - [helptext]: String - Show help icon with text popup.
+        - [helpfor]: String - Force what to say the help button is for.
         - [helptextBelow]: Boolean - Show helptext popup below instead of above.
         - [helptextLeft]: Boolean - Force helptext popup to be positioned left.
         - [horizontal]: Boolean - Show label to the right of control, rather than above.
@@ -63,7 +64,7 @@
                 v-if="helptext"
                 ref="helptextBtn"
                 class="helpicon"
-                :aria-label="'Help for ' + (label || fieldsetLegend)"
+                :aria-label="'Help for ' + (helpfor || label || fieldsetLegend)"
                 :aria-expanded="helptextActive ? 'true' : 'false'"
                 @click="onHelptextBtnClick"
             >
@@ -108,6 +109,7 @@ export default {
     props: {
         label: { type: String, default: '' },
         helptext: { type: String, default: '' },
+        helpfor: { type: String, default: '' },
         horizontal: { type: Boolean, default: false },
         helptextBelow: { type: Boolean, default: false },
         helptextLeft: { type: Boolean, default: false },
@@ -314,9 +316,9 @@ export default {
             margin-top: 3px;
         }
         &.left {
-            right: -5px;
+            right: 2px;
             .helptext-arrow {
-                right: 8px;
+                right: 3px;
                 left: auto;
             }
         }

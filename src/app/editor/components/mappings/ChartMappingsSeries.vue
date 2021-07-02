@@ -202,7 +202,7 @@ export default {
     @import "../../sidebar";
 
     h4 {
-        margin: 20px 5px 10px;
+        margin: 10px 5px 10px;
     }
 
     .controls-container {

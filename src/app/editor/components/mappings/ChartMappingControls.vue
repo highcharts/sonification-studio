@@ -1,11 +1,13 @@
 <template>
     <div>
-        <SETabSwitch
-            arialabel="Chart settings type"
-            :options="toggleMappingOptions"
-            class="toggleView"
-            @click="toggleMappingActivated"
-        />
+        <TabswitchWrap name="Chart settings type">
+            <SETabSwitch
+                arialabel="Chart settings type"
+                :options="toggleMappingOptions"
+                class="toggleView"
+                @click="toggleMappingActivated"
+            />
+        </TabswitchWrap>
         <div
             :is="activeView"
             :id="activeView"
@@ -16,12 +18,14 @@
 
 <script lang="ts">
 import SETabSwitch from '../basic/SETabSwitch.vue';
+import TabswitchWrap from './TabswitchWrap.vue';
 import ChartMappingsSeries from './ChartMappingsSeries.vue';
 import ChartMappingsGlobal from './ChartMappingsGlobal.vue';
 
 export default {
     components: {
         SETabSwitch,
+        TabswitchWrap,
         ChartMappingsSeries,
         ChartMappingsGlobal
     },
@@ -53,7 +57,6 @@ export default {
 
     .toggleView {
         width: 100%;
-        margin-bottom: 15px;
-        margin-top: 3px;
+        margin: 2px 5px 3px 0;
     }
 </style>

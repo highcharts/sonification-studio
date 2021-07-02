@@ -79,7 +79,7 @@ export default {
 
     button {
         margin: 0;
-        padding: 4px 25px;
+        padding: 4px 20px;
         background-color: @setabswitch-bg;
         color: @setabswitch-color;
         border: 1px solid @setabswitch-color;

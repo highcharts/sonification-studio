@@ -1,11 +1,13 @@
 <template>
     <div>
-        <SETabSwitch
-            arialabel="Audio settings type"
-            :options="toggleMappingOptions"
-            class="toggleView"
-            @click="toggleMappingActivated"
-        />
+        <TabswitchWrap name="Audio settings type">
+            <SETabSwitch
+                arialabel="Audio settings type"
+                :options="toggleMappingOptions"
+                class="toggleView"
+                @click="toggleMappingActivated"
+            />
+        </TabswitchWrap>
         <div
             :is="activeView"
             :id="activeView"
@@ -16,12 +18,14 @@
 
 <script lang="ts">
 import SETabSwitch from '../basic/SETabSwitch.vue';
+import TabswitchWrap from './TabswitchWrap.vue';
 import AudioMappingsSeries from './AudioMappingsSeries.vue';
 import AudioMappingsGlobal from './AudioMappingsGlobal.vue';
 
 export default {
     components: {
         SETabSwitch,
+        TabswitchWrap,
         AudioMappingsSeries,
         AudioMappingsGlobal
     },
@@ -53,7 +57,6 @@ export default {
 
     .toggleView {
         width: 100%;
-        margin-bottom: 15px;
-        margin-top: 3px;
+        margin: 2px 5px 3px 0;
     }
 </style>
