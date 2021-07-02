@@ -34,6 +34,14 @@ export class ChartMappings {
         return { xAxis: { visible: value } };
     }
 
+    public static xAxisMin(value: string): GenericObject {
+        return { xAxis: { min: value ? parseFloat(value) : null } };
+    }
+
+    public static xAxisMax(value: string): GenericObject {
+        return { xAxis: { max: value ? parseFloat(value) : null } };
+    }
+
     public static yAxisTitle(value: string): GenericObject {
         return { yAxis: { title: { text: value || null } } };
     }
@@ -44,6 +52,14 @@ export class ChartMappings {
 
     public static yAxisVisible(value: boolean): GenericObject {
         return { yAxis: { visible: value } };
+    }
+
+    public static yAxisMin(value: string): GenericObject {
+        return { yAxis: { min: value ? parseFloat(value) : null } };
+    }
+
+    public static yAxisMax(value: string): GenericObject {
+        return { yAxis: { max: value ? parseFloat(value) : null } };
     }
 
     public static seriesLabelsEnabled(value: boolean): GenericObject {

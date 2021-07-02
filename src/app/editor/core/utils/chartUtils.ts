@@ -39,19 +39,3 @@ export function getChartStatistics(chart: Highcharts.Chart): string {
     }
     return desc;
 }
-
-export const axisTypes = [{
-    name: 'Linear',
-    value: 'linear'
-}, {
-    name: 'Logarithmic',
-    value: 'logarithmic'
-}, {
-    name: 'Category',
-    value: 'category'
-}, {
-    name: 'Date',
-    value: 'datetime'
-}];
-
-export const axisHelptext = 'Linear is a continuous axis from one value to another.<br>Logarithmic is the same, but displayed so that smaller values are given a larger portion of the axis. Note that logarithmic axes can not have negative values.<br>A category axis is simply a set of categories, where each category can be unrelated to the other.<br>A date axis shows time, where the time value is given as UNIX timestamps (milliseconds since 1970), and displayed as human readable dates/time in the chart.';

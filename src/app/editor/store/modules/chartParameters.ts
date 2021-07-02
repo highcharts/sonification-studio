@@ -13,9 +13,13 @@ const defaultState = () => ({
     xAxisTitle: '',
     xAxisType: 'linear',
     xAxisVisible: true,
+    xAxisMin: '',
+    xAxisMax: '',
     yAxisTitle: 'Values',
     yAxisType: 'linear',
     yAxisVisible: true,
+    yAxisMin: '',
+    yAxisMax: '',
     seriesLabelsEnabled: false,
     zoomType: 'x',
     dataGroupingType: 'default'
@@ -69,6 +73,14 @@ export const chartParametersStore = {
             state.xAxisVisible = visible;
         },
 
+        setXAxisMin(state: any, value: string) {
+            state.xAxisMin = value;
+        },
+
+        setXAxisMax(state: any, value: string) {
+            state.xAxisMax = value;
+        },
+
         setYAxisTitle(state: any, title: string) {
             state.yAxisTitle = title;
         },
@@ -79,6 +91,14 @@ export const chartParametersStore = {
 
         setYAxisVisible(state: any, visible: boolean) {
             state.yAxisVisible = visible;
+        },
+
+        setYAxisMin(state: any, value: string) {
+            state.yAxisMin = value;
+        },
+
+        setYAxisMax(state: any, value: string) {
+            state.yAxisMax = value;
         },
 
         setSeriesLabelsEnabled(state: any, enabled: boolean) {

@@ -9,13 +9,16 @@
         <SEAccordionContainer>
             <SEAccordionItem
                 v-for="item in accordionItems"
-                :key="item.component"
+                :key="item.heading"
                 :heading="item.heading"
                 :selected="!!expandedAccordionItems[item.heading]"
                 @click="onAccordionItemClick"
             >
                 <keep-alive>
-                    <component :is="item.component" />
+                    <component
+                        :is="item.component"
+                        :axis="item.axis"
+                    />
                 </keep-alive>
             </SEAccordionItem>
         </SEAccordionContainer>
@@ -27,8 +30,7 @@ import SEAccordionContainer from '../basic/SEAccordionContainer.vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
 import ChartMappingsGlobalBasic from './ChartMappingsGlobalBasic.vue';
 import ChartMappingsGlobalAdvanced from './ChartMappingsGlobalAdvanced.vue';
-import ChartMappingsGlobalXAxis from './ChartMappingsGlobalXAxis.vue';
-import ChartMappingsGlobalYAxis from './ChartMappingsGlobalYAxis.vue';
+import ChartMappingsGlobalAxis from './ChartMappingsGlobalAxis.vue';
 
 import { mapState } from 'vuex';
 import { GenericObject } from '../../core/utils/objects';
@@ -39,8 +41,7 @@ export default {
         SEAccordionItem,
         ChartMappingsGlobalBasic,
         ChartMappingsGlobalAdvanced,
-        ChartMappingsGlobalXAxis,
-        ChartMappingsGlobalYAxis
+        ChartMappingsGlobalAxis
     },
     data() {
         return {
@@ -49,10 +50,12 @@ export default {
                 component: 'ChartMappingsGlobalBasic'
             }, {
                 heading: 'X-axis',
-                component: 'ChartMappingsGlobalXAxis'
+                component: 'ChartMappingsGlobalAxis',
+                axis: 'X'
             }, {
                 heading: 'Y-axis',
-                component: 'ChartMappingsGlobalYAxis'
+                component: 'ChartMappingsGlobalAxis',
+                axis: 'Y'
             }, {
                 heading: 'Advanced',
                 component: 'ChartMappingsGlobalAdvanced'
