@@ -47,6 +47,18 @@
                 :options="zoomTypes"
             />
         </SEControl>
+
+        <SEControl
+            v-slot="slotProps"
+            label="Data grouping"
+            helptext="When there are lots of data points in the chart, data grouping will combine several points into one.<br>Select here whether the points should be summed together when combined, an average should be taken, or the data grouping should be disabled altogether.<br>Selecting default will make an intelligent guess based on the chart type."
+        >
+            <SEDropdown
+                :id="slotProps.controlId"
+                v-model="dataGroupingType"
+                :options="dataGroupingTypes"
+            />
+        </SEControl>
     </div>
 </template>
 
@@ -76,6 +88,19 @@ export default {
             }, {
                 name: 'Both',
                 value: 'xy'
+            }],
+            dataGroupingTypes: [{
+                name: 'None',
+                value: ''
+            }, {
+                name: 'Default',
+                value: 'default'
+            }, {
+                name: 'Average',
+                value: 'average'
+            }, {
+                name: 'Sum',
+                value: 'sum'
             }]
         };
     },
@@ -95,6 +120,10 @@ export default {
         zoomType: {
             get() { return (this as any).$store.state.chartParametersStore.zoomType; },
             set(val) { return this.$store.commit('chartParametersStore/setZoomType', val); }
+        },
+        dataGroupingType: {
+            get() { return (this as any).$store.state.chartParametersStore.dataGroupingType; },
+            set(val) { return this.$store.commit('chartParametersStore/setDataGroupingType', val); }
         }
     }
 };

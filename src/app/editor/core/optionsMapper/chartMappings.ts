@@ -53,4 +53,17 @@ export class ChartMappings {
     public static zoomType(value: string): GenericObject {
         return { chart: { zoomType: value || null } };
     }
+
+    public static dataGroupingType(value: string): GenericObject {
+        return {
+            plotOptions: {
+                series: {
+                    dataGrouping: {
+                        enabled: value !== 'none',
+                        approximation: value === 'default' ? null : value
+                    }
+                }
+            }
+        };
+    }
 }

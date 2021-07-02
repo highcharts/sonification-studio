@@ -17,7 +17,8 @@ const defaultState = () => ({
     yAxisType: 'linear',
     yAxisVisible: true,
     seriesLabelsEnabled: false,
-    zoomType: 'x'
+    zoomType: 'x',
+    dataGroupingType: 'default'
 });
 
 export const chartParametersStore = {
@@ -87,5 +88,9 @@ export const chartParametersStore = {
         setZoomType(state: any, type: string) {
             state.zoomType = type;
         },
+
+        setDataGroupingType(state: any, type: string) {
+            state.dataGroupingType = type;
+        }
     }
 };

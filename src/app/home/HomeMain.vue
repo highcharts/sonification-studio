@@ -85,7 +85,6 @@
                         <ul>
                             <li>Implement our own, accessible, data grid.</li>
                             <li>MIDI export.</li>
-                            <li>Selectable smoothing algorithm for large datasets.</li>
                             <li>More instruments and timbres, potentially allow for custom sound sources.</li>
                             <li>More advanced sonification functionality, such as earcons.</li>
                             <li>More chart configuration functionality.</li>
