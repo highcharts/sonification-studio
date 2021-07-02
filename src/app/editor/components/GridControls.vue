@@ -34,7 +34,7 @@
                         :helptext="fillHelptext"
                         helptext-below
                     >
-                        <SETextbox
+                        <SEInputbox
                             :id="slotProps.controlId"
                             v-model="fillEquation"
                             @keydown.enter="fillColumn()"
@@ -76,14 +76,14 @@
 <script lang="ts">
 import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
-import SETextbox from './basic/SETextbox.vue';
+import SEInputbox from './basic/SEInputbox.vue';
 import SEControl from './basic/SEControl.vue';
 
 type ColumnDropdownItem = { name: string; value: string };
 
 export default {
     components: {
-        SEButton, SEDropdown, SEControl, SETextbox
+        SEButton, SEDropdown, SEControl, SEInputbox
     },
     data() {
         return {

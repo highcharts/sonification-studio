@@ -13,6 +13,7 @@
     <input
         :id="id"
         :value="value"
+        :type="type"
         @input="$emit('input', $event.target.value)"
         @change="$emit('change', $event)"
         @keydown="$emit('keydown', $event)"
@@ -23,6 +24,7 @@
 export default {
     props: {
         id: { type: String, required: true },
+        type: { type: String, default: 'text' },
         value: { type: String, default: '' }
     }
 };
@@ -36,15 +38,15 @@ export default {
         box-sizing: border-box;
         width: 100%;
         font-size: 0.9em;
-        border: 1px solid @setextbox-border-color;
+        border: 1px solid @se-inputbox-border-color;
         border-radius: 4px;
-        background-color: @setextbox-bg;
+        background-color: @se-inputbox-bg;
         padding: 6px 9px;
-        color: @setextbox-color;
+        color: @se-inputbox-color;
 
         &:focus {
-            border: 1px solid @setextbox-focus-border-color;
-            box-shadow: 0 0 5px @setextbox-shadow;
+            border: 1px solid @se-inputbox-focus-border-color;
+            box-shadow: 0 0 5px @se-inputbox-shadow;
             outline: none;
         }
     }

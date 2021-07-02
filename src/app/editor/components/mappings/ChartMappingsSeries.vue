@@ -48,7 +48,7 @@
                 label="Name"
                 helptext="The name of this data series in the chart."
             >
-                <SETextbox
+                <SEInputbox
                     :id="slotProps.controlId"
                     v-model="seriesName"
                 />
@@ -95,7 +95,7 @@
 
 <script lang="ts">
 import SEControl from '../basic/SEControl.vue';
-import SETextbox from '../basic/SETextbox.vue';
+import SEInputbox from '../basic/SEInputbox.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
@@ -107,7 +107,7 @@ import { mapState } from 'vuex';
 export default {
     components: {
         SEControl,
-        SETextbox,
+        SEInputbox,
         SEDropdown,
         SECheckbox,
         SEColorPicker

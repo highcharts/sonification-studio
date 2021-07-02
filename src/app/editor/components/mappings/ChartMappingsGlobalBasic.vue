@@ -17,7 +17,7 @@
             label="Title"
             helptext="The chart title text."
         >
-            <SETextbox
+            <SEInputbox
                 :id="slotProps.controlId"
                 v-model="chartTitle"
             />
@@ -28,7 +28,7 @@
             label="Subtitle"
             helptext="The chart subtitle text."
         >
-            <SETextbox
+            <SEInputbox
                 :id="slotProps.controlId"
                 v-model="chartSubtitle"
             />
@@ -40,13 +40,13 @@
 <script lang="ts">
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
-import SETextbox from '../basic/SETextbox.vue';
+import SEInputbox from '../basic/SEInputbox.vue';
 
 export default {
     components: {
         SEControl,
         SEDropdown,
-        SETextbox
+        SEInputbox
     },
     data() {
         return {

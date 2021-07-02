@@ -5,7 +5,7 @@
             label="Y-Axis title"
             helptext="Title text for the chart's Y axis."
         >
-            <SETextbox
+            <SEInputbox
                 :id="slotProps.controlId"
                 v-model="yAxisTitle"
             />
@@ -41,7 +41,7 @@
 <script lang="ts">
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
-import SETextbox from '../basic/SETextbox.vue';
+import SEInputbox from '../basic/SEInputbox.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import { axisTypes, axisHelptext } from '../../core/utils/chartUtils';
 
@@ -49,7 +49,7 @@ export default {
     components: {
         SEControl,
         SEDropdown,
-        SETextbox,
+        SEInputbox,
         SECheckbox
     },
     data() {
