@@ -4,6 +4,7 @@
 
     Props:
         - heading: String - Heading text.
+        - controls: String - ID of the accordion content container.
         - [selected]: Boolean - Preselect item, render as expanded.
 -->
 <template>
@@ -12,6 +13,7 @@
             <button
                 :class="{ selected: isSelected }"
                 :aria-expanded="isSelected ? 'true' : 'false'"
+                :aria-controls="controls"
                 @click="onclick"
             >
                 {{ heading }}
@@ -44,6 +46,7 @@
 export default {
     props: {
         heading: { type: String, required: true },
+        controls: { type: String, required: true },
         selected: { type: Boolean, default: false }
     },
     data() {

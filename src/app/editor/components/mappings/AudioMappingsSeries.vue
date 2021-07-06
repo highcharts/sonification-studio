@@ -25,10 +25,14 @@
                 :key="item.component"
                 :heading="item.heading"
                 :selected="!!expandedAccordionItems[item.heading]"
+                :controls="item.component"
                 @click="onAccordionItemClick"
             >
                 <keep-alive>
-                    <component :is="item.component" />
+                    <component
+                        :is="item.component"
+                        :id="item.component"
+                    />
                 </keep-alive>
             </SEAccordionItem>
         </SEAccordionContainer>

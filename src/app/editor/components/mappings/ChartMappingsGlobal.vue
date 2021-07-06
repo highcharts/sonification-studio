@@ -11,12 +11,14 @@
                 v-for="item in accordionItems"
                 :key="item.heading"
                 :heading="item.heading"
+                :controls="item.controls || item.component"
                 :selected="!!expandedAccordionItems[item.heading]"
                 @click="onAccordionItemClick"
             >
                 <keep-alive>
                     <component
                         :is="item.component"
+                        :id="item.controls || item.component"
                         :axis="item.axis"
                     />
                 </keep-alive>
@@ -51,10 +53,12 @@ export default {
             }, {
                 heading: 'X-axis',
                 component: 'ChartMappingsGlobalAxis',
+                controls: 'ChartMappingsGlobalXAxis',
                 axis: 'X'
             }, {
                 heading: 'Y-axis',
                 component: 'ChartMappingsGlobalAxis',
+                controls: 'ChartMappingsGlobalYAxis',
                 axis: 'Y'
             }, {
                 heading: 'Advanced',
