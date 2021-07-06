@@ -47,7 +47,7 @@
                         class="control-label"
                         for="data-fillcolumn-drop"
                     >
-                        Column
+                        Column to fill
                     </label>
                     <SEDropdown
                         id="data-fillcolumn-drop"

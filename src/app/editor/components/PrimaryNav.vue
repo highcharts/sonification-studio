@@ -1,5 +1,5 @@
 <template>
-    <nav aria-label="Primary">
+    <nav>
         <ul>
             <li>
                 <button

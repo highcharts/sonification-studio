@@ -34,12 +34,33 @@
         </div>
 
         <div class="nav-container">
-            <EditorNav class="section-nav" />
-            <h2 class="sr-only">
+            <h2
+                id="design-stage-heading"
+                class="sr-only"
+            >
+                Design stage
+            </h2>
+
+            <EditorNav
+                labelledby="design-stage-heading"
+                class="section-nav"
+            />
+
+            <h2
+                id="project-tools-heading"
+                class="sr-only"
+            >
                 Project tools
             </h2>
-            <HeaderImport class="section-import" />
-            <HeaderExport class="section-export" />
+
+            {{ /* Safari list hack requires role="list" */ }}
+            <ul
+                role="list"
+                aria-labelledby="project-tools-heading"
+            >
+                <li><HeaderImport class="section-import" /></li>
+                <li><HeaderExport class="section-export" /></li>
+            </ul>
         </div>
     </header>
 </template>
@@ -106,6 +127,10 @@ export default {
     .nav-container {
         width: 100%;
         display: flex;
+        ul {
+            list-style: none;
+            display: flex;
+        }
         box-sizing: border-box;
         padding-left: 10px;
         padding-right: 10px;

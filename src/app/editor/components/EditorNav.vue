@@ -1,8 +1,9 @@
 <template>
-    <nav aria-label="Editor">
+    <div class="editor-nav-container">
         <SETablist
             class="header-tablist"
-            aria-label="Design stage"
+            :aria-labelledby="labelledby"
+            :aria-label="label"
         >
             <HeaderTab
                 v-for="tab in headerTabs"
@@ -16,7 +17,7 @@
                 {{ tab.name }}
             </HeaderTab>
         </SETablist>
-    </nav>
+    </div>
 </template>
 
 <script lang="ts">
@@ -27,6 +28,10 @@ import { mapState } from 'vuex';
 export default {
     components: {
         SETablist, HeaderTab
+    },
+    props: {
+        label: { type: String, default: null },
+        labelledby: { type: String, default: null }
     },
     data() {
         return {
@@ -58,7 +63,7 @@ export default {
 <style lang="less" scoped>
     @import "../colors";
 
-    nav {
+    .editor-nav-container {
         width: 100%;
         display: flex;
         align-items: center;

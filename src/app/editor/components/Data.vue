@@ -13,6 +13,9 @@
             @triggerScrollLastGridRowWithData="onTriggerScrollLastGridRowWithData()"
         />
         <div id="gridContainer">
+            <h3 class="sr-only">
+                Grid
+            </h3>
             <Grid ref="grid" />
         </div>
     </div>
