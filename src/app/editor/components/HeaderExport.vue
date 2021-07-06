@@ -1,6 +1,7 @@
 <template>
     <div class="export-container">
         <SEButton
+            ref="popupBtn"
             dark
             :aria-expanded="popupVisible"
             @click="popupVisible=!popupVisible"
@@ -187,6 +188,9 @@ export default {
         document.addEventListener('keydown', e => {
             if (keyPressed(Keys.Esc, Modifiers.None, e) && this.popupVisible) {
                 this.popupVisible = false;
+                if (this.$el.contains(e.target as HTMLElement)) {
+                    (this as any).$refs.popupBtn.$el.focus();
+                }
             }
         });
     },
