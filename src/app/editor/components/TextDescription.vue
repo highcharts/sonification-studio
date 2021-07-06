@@ -1,7 +1,7 @@
 <template>
     <div class="textdesc-container">
         <div class="textdesc-heading-row">
-            <h3>
+            <h3 id="textdesc-heading">
                 Text Description
             </h3>
 
@@ -16,6 +16,7 @@
         <textarea
             ref="description"
             v-model="textDescription"
+            aria-labelledby="textdesc-heading"
         />
     </div>
 </template>
