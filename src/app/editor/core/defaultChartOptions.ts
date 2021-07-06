@@ -127,6 +127,9 @@ export const defaultChartOptions = {
             style: {
                 color: '#666'
             }
+        },
+        custom: {
+            allowNegativeLog: true
         }
     },
     xAxis: {
@@ -135,6 +138,9 @@ export const defaultChartOptions = {
             style: {
                 color: '#666'
             }
+        },
+        custom: {
+            allowNegativeLog: true
         }
     },
     data: {
