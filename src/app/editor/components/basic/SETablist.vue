@@ -15,6 +15,7 @@
         @keydown.down="onmove(1, $event)"
         @keydown.home="onmovehome"
         @keydown.end="onmoveend"
+        @click="onclick"
     >
         <slot />
     </div>
@@ -64,6 +65,26 @@ export default {
                 }
             }
             return -1;
+        },
+
+        onclick(e: MouseEvent) {
+            function getBtnParent(el: HTMLElement): HTMLElement | null {
+                if (el.tagName?.toLowerCase() === 'button') {
+                    return el;
+                }
+                const parent = el.parentNode;
+                if (parent) {
+                    return getBtnParent(parent as HTMLElement);
+                }
+                return null;
+            }
+
+            const btn = getBtnParent(e.target as HTMLElement);
+            if (!btn) {
+                console.error('SETablist: Unexpected tab hierarchy');
+            } else {
+                this.activate(btn);
+            }
         },
 
         onmove(direction: number, e: KeyboardEvent) {
