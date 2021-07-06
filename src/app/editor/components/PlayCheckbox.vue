@@ -10,8 +10,9 @@
             </span>
             <input
                 type="checkbox"
-                class="sr-only"
+                class="chk"
                 :checked="value"
+                @keydown.enter="$event.target.checked = !$event.target.checked; $emit('input', $event.target.checked)"
                 @input="$emit('input', $event.target.checked)"
             >
         </label>
@@ -29,7 +30,6 @@ export default {
 
 <style lang="less" scoped>
     @import "../colors";
-    @import "../sr-only";
 
     .play-checkbox {
         font: inherit;
@@ -42,6 +42,7 @@ export default {
             align-items: center;
             cursor: pointer;
             background: none;
+            position: relative;
             color: @play-controls-color;
             border: 2px solid transparent;
             &.checked {
@@ -53,6 +54,23 @@ export default {
                 }
             }
         }
+        .chk {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            &::before {
+                opacity: 0;
+            }
+        }
         .play-checkbox-text {
             display: block;
         }
@@ -61,6 +79,14 @@ export default {
             width: 16px;
             height: $width;
             margin: 6px auto;
+        }
+        &:hover {
+            label {
+                color: #eff6fd;
+                img {
+                    filter: sepia(100%) saturate(800%) hue-rotate(170deg) brightness(98%);
+                }
+            }
         }
     }
 </style>
