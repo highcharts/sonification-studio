@@ -97,7 +97,7 @@ export default {
         };
     },
     beforeMount() {
-        this.fillDropdownList = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+        this.fillDropdownList = 'ABCDEFGHIJK'.split('')
             .map((x): ColumnDropdownItem => ({ name: x, value: x }));
     },
     methods: {

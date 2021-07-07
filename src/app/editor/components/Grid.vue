@@ -121,7 +121,7 @@ export default {
             const codeToChar = (i: number) => String.fromCharCode(65 + i),
                 res = [];
 
-            for (let i = 0; i < 26; ++i) {
+            for (let i = 0; i < 11; ++i) {
                 res.push({
                     headerName: codeToChar(i),
                     field: codeToChar(i),
