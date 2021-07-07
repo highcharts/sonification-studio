@@ -1,16 +1,22 @@
 <template>
     <div class="textdesc-container">
         <div class="textdesc-heading-row">
-            <h3 id="textdesc-heading">
-                Text Description
-            </h3>
+            <SEControl
+                helptext="Write a description for the chart and sonification here. The description is saved with the project, and can also be saved as a text file.<br>Pressing the &quot;Generate Description&quot; button will create an automatic description of the data."
+                helpfor="Text Description"
+                horizontal-reverse
+            >
+                <h3 id="textdesc-heading">
+                    Text Description
+                </h3>
+            </SEControl>
 
             <SEButton
                 dark
                 wide
                 @click="onGenerateDescription"
             >
-                Generate description
+                Generate Description
             </SEButton>
         </div>
         <textarea
@@ -23,12 +29,14 @@
 
 <script lang="ts">
 import SEButton from './basic/SEButton.vue';
+import SEControl from './basic/SEControl.vue';
 import { GenericObject } from '../core/utils/objects';
 import { describeTable } from '../core/textDescription';
 
 export default {
     components: {
-        SEButton
+        SEButton,
+        SEControl
     },
     computed: {
         textDescription: {
@@ -72,9 +80,14 @@ export default {
         h3 {
             font-size: 1.3125rem;
             color: @text-description-heading-color;
-            margin-bottom: 10px;
             font-weight: normal;
+            margin-bottom: 3px;
+            margin-right: 5px;
         }
+        .se-control {
+            width: auto;
+        }
+        margin-bottom: 10px;
     }
 
     textarea {
