@@ -146,7 +146,7 @@ export default {
             if (this.helptextActive && keyPressed(Keys.Esc, Modifiers.None, e)) {
                 e.preventDefault();
                 if (e.target === (this.$refs as any).helptextPopupContainer) {
-                    this.$nextTick(() => (this.$refs as any).helptextBtn.focus());
+                    this.$nextTick(() => setTimeout(() => (this.$refs as any).helptextBtn.focus(), 20));
                 }
                 this.helptextActive = false;
             }
@@ -160,7 +160,7 @@ export default {
                 if (container && container.focus) {
                     container.focus();
                 }
-            }, 10));
+            }, 20));
         },
         onHelpContainerClick(e: Event) {
             if ((e.target as HTMLAnchorElement)?.tagName.toLowerCase() !== 'a') {

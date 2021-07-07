@@ -56,7 +56,7 @@ export default {
                 this.textDescription = describeTable(columnData);
 
                 const description = this.$refs.description as HTMLElement;
-                description.focus();
+                this.$nextTick(() => setTimeout(() => description.focus(), 20));
             }
         }
     }

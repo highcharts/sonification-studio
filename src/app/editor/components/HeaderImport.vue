@@ -103,7 +103,7 @@ export default {
             if (keyPressed(Keys.Esc, Modifiers.None, e) && this.popupVisible) {
                 this.popupVisible = false;
                 if (this.$el.contains(e.target as HTMLElement)) {
-                    (this as any).$refs.popupBtn.$el.focus();
+                    this.$nextTick(() => setTimeout(() => (this as any).$refs.popupBtn.$el.focus(), 20));
                 }
             }
         });
