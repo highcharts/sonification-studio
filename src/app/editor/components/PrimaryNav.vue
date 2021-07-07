@@ -82,12 +82,18 @@ export default {
     methods: {
         hideHelpDialog() {
             this.helpVisible = false;
-            this.$nextTick(() => (this.$refs['helpBtn'] as HTMLButtonElement).focus());
+            this.$nextTick(() => setTimeout(
+                () => (this.$refs['helpBtn'] as HTMLButtonElement).focus(),
+                20
+            ));
         },
         onHelpClick() {
             this.helpVisible = !this.helpVisible;
             if (this.helpVisible) {
-                this.$nextTick(() => (this.$refs.helpDialog as any).$el.focus());
+                this.$nextTick(() => setTimeout(
+                    () => (this.$refs.helpDialog as any).$el.focus(),
+                    20
+                ));
             } else {
                 this.hideHelpDialog();
             }
