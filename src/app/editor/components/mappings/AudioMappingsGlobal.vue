@@ -24,6 +24,7 @@
                     label="Enable chart play marker"
                     helptext="Visually show the current play position on the chart with a moving tooltip."
                     horizontal
+                    helptext-left
                 >
                     <SECheckbox
                         :id="slotProps.controlId"
@@ -80,6 +81,7 @@
                     label="Default panning enabled"
                     helptext="Pan the sound to left and right based on x value by default. Panning behavior can be overridden for each data series."
                     horizontal
+                    helptext-left
                 >
                     <SECheckbox
                         :id="slotProps.controlId"

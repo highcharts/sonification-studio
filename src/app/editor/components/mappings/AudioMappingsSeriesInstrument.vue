@@ -44,6 +44,7 @@
             label="Round to musical notes"
             helptext="Round all pitches to nearest musical note."
             horizontal
+            helptext-left
         >
             <SECheckbox
                 :id="slotProps.controlId"
