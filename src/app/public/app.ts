@@ -26,9 +26,11 @@ new Vue({
     router,
     watch: {
         $route: function(to) {
+            document.body.setAttribute('aria-busy', 'true');
             this.$nextTick(() => {
                 const title = to.meta.title;
                 document.title = title;
+                document.body.setAttribute('aria-busy', 'false');
 
                 if (window) {
                     window.scrollTo(0, 0);
@@ -49,6 +51,7 @@ new Vue({
         }
     },
     mounted() {
+        document.body.setAttribute('aria-busy', 'false');
         removeFocusOutlineUnlessKeypress();
         const routeAnnouncerEl = document.getElementById('routeAnnouncer');
         if (routeAnnouncerEl) {
