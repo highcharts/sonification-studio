@@ -51,7 +51,8 @@ export const defaultChartOptions = {
                     titleTag +
                     `<div>${typeDesc}</div>` +
                     `<div>${subtitle}</div>` +
-                    `<div>${statistics}</div>`
+                    `<div>${statistics}</div>` +
+                    '<div>Skip to next heading to go to end of chart.</div>'
                 ).replace('<div></div>', '');
             },
             afterChartFormat: ''
