@@ -3,7 +3,7 @@
         <SEControl
             v-slot="slotProps"
             label="Note panning"
-            helptext="Enable pan for this data series. Default means the default (global) setting is used, fixed means a fixed value is used, and mapped means the panning follows the values of a data property."
+            helptext="Enable pan for this data series.<br>Default means the default (global) setting is used, fixed means a fixed value is used, and mapped means the panning follows the values of a data property."
             :horizontal-reverse="true"
             :expand-content="true"
         >

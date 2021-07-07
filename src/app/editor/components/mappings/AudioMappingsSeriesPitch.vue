@@ -3,7 +3,7 @@
         <SEControl
             v-slot="slotProps"
             label="Note pitch"
-            helptext="Enable pitch/frequency control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the pitch follows the values of a data property."
+            helptext="Enable pitch/frequency control for this data series.<br>Default means the default setting is used, fixed means a fixed value is used, and mapped means the pitch follows the values of a data property."
             horizontal-reverse
             expand-content
         >
