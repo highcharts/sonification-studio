@@ -79,7 +79,9 @@ export default {
 
     button {
         margin: 0;
-        padding: 4px 20px;
+        padding: 4px 5px;
+        box-sizing: border-box;
+        width: 100%;
         background-color: @setabswitch-bg;
         color: @setabswitch-color;
         border: 1px solid @setabswitch-color;

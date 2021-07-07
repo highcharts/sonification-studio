@@ -26,5 +26,6 @@ export default {
 <style lang="less" scoped>
     .se-control {
         margin-bottom: 25px;
+        grid-template-columns: auto 1fr auto;
     }
 </style>
