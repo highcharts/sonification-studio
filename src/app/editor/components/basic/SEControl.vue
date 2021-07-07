@@ -75,6 +75,9 @@
                 v-show="helptextActive"
                 ref="helptextPopupContainer"
                 class="helptext-popup-container"
+                :aria-label="'Help for ' + (helpfor || label || fieldsetLegend)"
+                :aria-describedby="helptextContentUUID"
+                role="dialog"
                 tabindex="-1"
                 @keydown.enter="onHelpContainerClick"
                 @keydown.space="onHelpContainerClick"
@@ -83,7 +86,28 @@
                     class="helptext-popup"
                     :class="{ below: helptextBelow, left: helptextLeft }"
                 >
-                    <div>
+                    <div class="close-btn-container">
+                        <span
+                            class="helptext-title"
+                            aria-hidden="true"
+                        >
+                            {{ (helpfor || label || fieldsetLegend) }}
+                        </span>
+                        <button
+                            class="close-btn"
+                            aria-label="Close dialog"
+                            @click="hideDialog"
+                        >
+                            <img
+                                :src="closeIcon"
+                                alt=""
+                            >
+                        </button>
+                    </div>
+                    <div
+                        :id="helptextContentUUID"
+                        class="helptext-content-container"
+                    >
                         <p
                             v-for="helptextParagraph in helptextParagraphs"
                             :key="helptextParagraph.index"
@@ -102,6 +126,7 @@
 </template>
 
 <script lang="ts">
+import closeIcon from '../../assets/times-solid.svg';
 import { getUUID, GenericObject } from '../../core/utils/objects';
 import { Keys, keyPressed, Modifiers } from '../../core/utils/keyboardUtils';
 
@@ -120,12 +145,14 @@ export default {
     },
     data() {
         return {
-            helptextActive: false
+            helptextActive: false,
+            closeIcon
         };
     },
     computed: {
         labelUUID: () => getUUID('se-ctl-label'),
         controlUUID: () => getUUID('se-ctl-content'),
+        helptextContentUUID: () => getUUID('se-ctl-helpcontent'),
         helptextParagraphs: function(): GenericObject[] {
             const arr = this.helptext ? this.helptext.split('<br>') : [];
             return arr.map((x, i) => ({ index: i, content: x }));
@@ -165,9 +192,12 @@ export default {
         onHelpContainerClick(e: Event) {
             if ((e.target as HTMLAnchorElement)?.tagName.toLowerCase() !== 'a') {
                 e.preventDefault();
-                this.helptextActive = false;
-                this.$nextTick(() => (this.$refs as any).helptextBtn.focus());
+                this.hideDialog();
             }
+        },
+        hideDialog() {
+            this.helptextActive = false;
+            this.$nextTick(() => (this.$refs as any).helptextBtn.focus());
         }
     }
 };
@@ -175,6 +205,7 @@ export default {
 
 <style lang="less" scoped>
     @import "../../colors";
+    @import "../../sr-only";
 
     .se-control {
         display: grid;
@@ -305,8 +336,8 @@ export default {
     .helptext-popup {
         position: absolute;
         box-shadow: 0 1px 10px @secontrol-helptext-shadow;
-        width: 200px;
-        right: -90px;
+        width: 220px;
+        right: -100px;
         &:not(.below) {
             bottom: 0;
             margin-bottom: 30px;
@@ -326,10 +357,10 @@ export default {
         font-weight: normal;
         text-align: left;
         z-index: 99;
-        padding: 10px;
         box-sizing: border-box;
         background-color: @secontrol-helptext-bg;
         color: @secontrol-helptext-color;
+
         .helptext-arrow {
             background-color: @secontrol-helptext-bg;
             width: 16px;
@@ -344,14 +375,54 @@ export default {
                 top: -4px;
             }
             transform: rotate(45deg);
-            z-index: 98;
+            z-index: 97;
         }
+
         p {
             z-index: 100;
             position: relative;
             margin-bottom: 5px;
             &:last-child {
                 margin-bottom: 0;
+            }
+        }
+
+        .helptext-content-container {
+            padding: 10px;
+            padding-top: 10px;
+        }
+
+        .helptext-title {
+            z-index: 99;
+            margin: 3px 5px;
+            font-size: 0.7rem;
+            color: hsl(219, 20%, 77%);
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', Arial, sans-serif;
+        }
+
+        .close-btn-container {
+            z-index: 99;
+            background-color: @secontrol-helptext-bg;
+            width: 100%;
+            border-bottom: 1px solid darken(@secontrol-helptext-bg, 10%);
+            text-align: right;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .close-btn {
+            z-index: 99;
+            background-color: transparent;
+            border: none;
+            margin: 0;
+            cursor: pointer;
+            opacity: 0.7;
+            img {
+                display: block;
+                margin: 3px 3px;
+                width: 13px;
+                height: $width;
             }
         }
     }
