@@ -21,10 +21,12 @@
         - [helptext]: String - Show help icon with text popup.
         - [helpfor]: String - Force what to say the help button is for.
         - [helptextBelow]: Boolean - Show helptext popup below instead of above.
-        - [helptextLeft]: Boolean - Force helptext popup to be positioned left.
+        - [helptextMiddle]: Boolean - Helptext popup is positioned in the middle horizontally relative to the button.
         - [horizontal]: Boolean - Show label to the right of control, rather than above.
         - [horizontalReverse]: Boolean - Show label to the left of control, rather than above.
-        - [expandContent]: Boolean - Expand the control content to fill empty space.
+        - [helpiconInside]: Boolean - Place the helpicon inside the content, allowing them to overlap.
+        - [expandContent]: Boolean - Expand the control content to fill empty space - also when horizontal.
+        - [compactContent]: Boolean - Do not expand control content, even when vertical.
         - [isFieldset]: Boolean - Code the control as a fieldset.
         - [fieldsetLegend]: String - Legend to add to fieldset.
 -->
@@ -32,7 +34,7 @@
     <component
         :is="isFieldset ? 'fieldset' : 'div'"
         class="se-control"
-        :class="{ horizontal: horizontal, 'horizontal-reverse': horizontalReverse, 'expand-content': expandContent }"
+        :class="{ horizontal: horizontal, 'horizontal-reverse': horizontalReverse, 'expand-content': expandContent, 'compact-content': compactContent, 'helpicon-inside': helpiconInside }"
     >
         <div class="se-control-label-container">
             <legend
@@ -84,7 +86,7 @@
             >
                 <div
                     class="helptext-popup"
-                    :class="{ below: helptextBelow, left: helptextLeft }"
+                    :class="{ below: helptextBelow, middle: helptextMiddle }"
                 >
                     <div class="close-btn-container">
                         <span
@@ -137,9 +139,11 @@ export default {
         helpfor: { type: String, default: '' },
         horizontal: { type: Boolean, default: false },
         helptextBelow: { type: Boolean, default: false },
-        helptextLeft: { type: Boolean, default: false },
+        helptextMiddle: { type: Boolean, default: false },
         horizontalReverse: { type: Boolean, default: false },
+        helpiconInside: { type: Boolean, default: false },
         expandContent: { type: Boolean, default: false },
+        compactContent: { type: Boolean, default: false },
         isFieldset: { type: Boolean, default: false },
         fieldsetLegend: { type: String, default: '' }
     },
@@ -213,6 +217,19 @@ export default {
         grid-template-rows: auto auto;
         width: 100%;
         border: 0;
+        &.compact-content {
+            .se-control-content-container {
+                grid-column: ~"1/2";
+            }
+            .se-control-help-container {
+                grid-column: ~"2/3";
+            }
+        }
+        &.helpicon-inside {
+            .se-control-content-container {
+                grid-column: ~"1/6";
+            }
+        }
         &.horizontal {
             grid-template-rows: auto;
             .se-control-content-container {
@@ -224,6 +241,7 @@ export default {
             }
             .se-control-help-container {
                 grid-column: ~"3/4";
+                grid-row: ~"1/2";
             }
             .se-control-label {
                 margin-left: 6px;
@@ -240,6 +258,7 @@ export default {
             }
             .se-control-help-container {
                 grid-column: ~"3/4";
+                grid-row: ~"1/2";
             }
             .se-control-label-container {
                 margin-right: 8px;
@@ -288,13 +307,16 @@ export default {
     }
 
     .se-control-content-container {
-        grid-column: ~"1/6";
+        grid-column: ~"1/5";
         grid-row: ~"2/3";
+        display: flex;
+        align-items: center;
+        width: 100%;
     }
 
     .se-control-help-container {
-        grid-column: ~"2/3";
-        grid-row: ~"1/2";
+        grid-column: ~"5/6";
+        grid-row: ~"2/3";
         justify-self: center;
         align-self: center;
     }
@@ -304,7 +326,8 @@ export default {
     }
 
     .helpicon {
-        margin: 2px 4px 4px;
+        margin: 4px;
+        z-index: 98;
         width: 1.125rem;
         height: $width;
         background-color: @secontrol-helpicon-bg;
@@ -331,13 +354,14 @@ export default {
 
     .helptext-popup-container {
         position: relative;
+        z-index: 98;
     }
 
     .helptext-popup {
         position: absolute;
         box-shadow: 0 1px 10px @secontrol-helptext-shadow;
         width: 220px;
-        right: -100px;
+        right: 2px;
         &:not(.below) {
             bottom: 0;
             margin-bottom: 30px;
@@ -346,11 +370,11 @@ export default {
             top: 0;
             margin-top: 3px;
         }
-        &.left {
-            right: 2px;
+        &.middle {
+            right: -100px;
             .helptext-arrow {
-                right: 3px;
-                left: auto;
+                right: auto;
+                left: calc(50% - 10px);
             }
         }
         font-size: 0.75rem;
@@ -366,8 +390,8 @@ export default {
             width: 16px;
             height: $width;
             position: absolute;
-            left: calc(50% - 10px);
-            right: auto;
+            left: auto;
+            right: 3px;
             &:not(.below) {
                 bottom: -4px;
             }

@@ -28,6 +28,7 @@
             :label="axis + '-axis visible'"
             :helptext="`Whether or not the ${axis}-axis should be visible on the chart.`"
             horizontal
+            helptext-middle
         >
             <SECheckbox
                 :id="slotProps.controlId"
@@ -40,6 +41,7 @@
                 v-slot="slotProps"
                 label="Minimum"
                 :helptext="`Set desired minimum ${axis}-axis value. Note that the chart might round this up or down depending on the data.<br>Leave blank to let the chart make an automatic choice.`"
+                helptext-middle
             >
                 <SEInputbox
                     :id="slotProps.controlId"
@@ -51,7 +53,6 @@
                 v-slot="slotProps"
                 label="Maximum"
                 :helptext="`Set desired maximum ${axis}-axis value. Note that the chart might round this up or down depending on the data.<br>Leave blank to let the chart make an automatic choice.`"
-                helptext-left
             >
                 <SEInputbox
                     :id="slotProps.controlId"

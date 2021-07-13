@@ -84,7 +84,6 @@ export default {
             flex-direction: row-reverse;
             justify-content: center;
             align-items: center;
-            margin-right: 10px;
             input {
                 cursor: pointer;
                 display: block;
@@ -93,6 +92,9 @@ export default {
             label {
                 cursor: pointer;
                 margin: 3px;
+            }
+            &:not(:last-child) {
+                margin-right: 10px;
             }
         }
     }

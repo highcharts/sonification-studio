@@ -5,6 +5,7 @@
             label="Audio enabled"
             helptext="Enable audio playback for this data series."
             horizontal
+            helptext-middle
         >
             <SECheckbox
                 :id="slotProps.controlId"
@@ -32,6 +33,7 @@
             label="Play audio samples"
             helptext="Play audio samples as you go through the instrument list."
             horizontal
+            helptext-middle
         >
             <SECheckbox
                 :id="slotProps.controlId"
@@ -44,7 +46,6 @@
             label="Round to musical notes"
             helptext="Round all pitches to nearest musical note."
             horizontal
-            helptext-left
         >
             <SECheckbox
                 :id="slotProps.controlId"

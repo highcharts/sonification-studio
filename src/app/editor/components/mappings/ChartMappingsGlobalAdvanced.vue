@@ -5,6 +5,7 @@
             label="Invert chart"
             helptext="Make the X axis vertical, and the Y axis horizontal."
             horizontal
+            helptext-middle
         >
             <SECheckbox
                 :id="slotProps.controlId"
@@ -17,6 +18,7 @@
             label="Enable legend"
             helptext="Show a legend overview box in the chart with a list of data series."
             horizontal
+            helptext-middle
         >
             <SECheckbox
                 :id="slotProps.controlId"

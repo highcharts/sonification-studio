@@ -82,6 +82,7 @@
             v-slot="slotProps"
             fieldset-legend="Direction"
             is-fieldset
+            compact-content
             helptext="Set the polarity of the pan mapping - whether the audio pans from left to right (positive), or right to left (negative), as values get higher."
         >
             <SERadioGroup

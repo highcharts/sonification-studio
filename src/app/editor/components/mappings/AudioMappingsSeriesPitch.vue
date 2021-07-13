@@ -82,6 +82,7 @@
             v-slot="slotProps"
             fieldset-legend="Polarity"
             is-fieldset
+            compact-content
             helptext="Set the polarity of the pitch mapping - whether the audio goes up (positive) or down (negative) in pitch with higher values."
         >
             <SERadioGroup

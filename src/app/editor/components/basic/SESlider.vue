@@ -121,6 +121,7 @@ export default {
         display: flex;
         flex-direction: column;
         color: @seslider-color;
+        width: 100%;
     }
 
     .se-slider-inner {

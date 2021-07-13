@@ -24,7 +24,6 @@
                     label="Enable chart play marker"
                     helptext="Visually show the current play position on the chart with a moving tooltip."
                     horizontal
-                    helptext-left
                 >
                     <SECheckbox
                         :id="slotProps.controlId"
@@ -35,6 +34,7 @@
                     v-slot="slotProps"
                     fieldset-legend="Data series order"
                     is-fieldset
+                    compact-content
                     helptext="Which order to play the data series in, either one after the other (sequentially), or at the same time (simultaneously)."
                 >
                     <SERadioGroup
@@ -81,7 +81,6 @@
                     label="Default panning enabled"
                     helptext="Pan the sound to left and right based on x value by default. Panning behavior can be overridden for each data series."
                     horizontal
-                    helptext-left
                 >
                     <SECheckbox
                         :id="slotProps.controlId"

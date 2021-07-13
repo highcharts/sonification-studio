@@ -82,6 +82,7 @@
             v-slot="slotProps"
             fieldset-legend="Polarity"
             is-fieldset
+            compact-content
             helptext="Set the polarity of the volume mapping - whether the audio gets louder (positive) or quieter (negative) as values get higher."
         >
             <SERadioGroup

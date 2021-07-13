@@ -33,10 +33,12 @@
                         label="Fill column from equation"
                         :helptext="fillHelptext"
                         helptext-below
+                        helpicon-inside
                     >
                         <SEInputbox
                             :id="slotProps.controlId"
                             v-model="fillEquation"
+                            class="equation-input"
                             @keydown.enter="fillColumn()"
                         />
                     </SEControl>
@@ -190,6 +192,10 @@ export default {
 
     .grid-controls-center {
         align-self: center;
+    }
+
+    .equation-input {
+        padding-right: 1.6rem;
     }
 
     input[type="number"], /deep/ .se-control-content input {

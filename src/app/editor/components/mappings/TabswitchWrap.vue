@@ -3,7 +3,6 @@
         helptext="Select between global settings that apply to the whole chart, and data series settings that apply to a single data series - such as a single line in a line chart."
         :helpfor="name"
         helptext-below
-        helptext-left
         horizontal-reverse
     >
         <slot />

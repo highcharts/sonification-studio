@@ -24,6 +24,7 @@
                 label="Visible"
                 helptext="Make the data series visible on the chart or not. Visually hidden series do not play back in audio."
                 horizontal
+                helptext-middle
             >
                 <SECheckbox
                     :id="slotProps.controlId"
@@ -59,6 +60,7 @@
                 label="Color"
                 helptext="The color of this data series in the chart."
                 horizontal-reverse
+                helptext-middle
             >
                 <SEColorPicker
                     :id="slotProps.controlId"

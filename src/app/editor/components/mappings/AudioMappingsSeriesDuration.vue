@@ -82,6 +82,7 @@
             v-slot="slotProps"
             fieldset-legend="Polarity"
             is-fieldset
+            compact-content
             helptext="Set the polarity of the duration mapping - whether the notes gets shorter (negative) or longer (positive) as values get higher."
         >
             <SERadioGroup
