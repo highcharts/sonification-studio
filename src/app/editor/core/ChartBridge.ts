@@ -29,6 +29,7 @@ export class ChartBridge {
 
     private chart: GenericObject|null = null;
     private chartOptions: GenericObject = {};
+    private chartDataOptions: GenericObject = {};
     private chartParametersStore: GenericObject;
     private seriesParametersStore: GenericObject;
     private globalSonifyParametersStore: GenericObject;
@@ -155,6 +156,7 @@ export class ChartBridge {
                             parseResult.series = deepMerge(parseResult.series, seriesOptions);
                             this.handleGroupOnlySeries(parseResult.series);
                         }
+                        this.chartDataOptions = parseResult;
                     }
                 }
             }
@@ -452,7 +454,18 @@ export class ChartBridge {
             delete userOptions.data;
             delete userOptions._seReactivityCounter;
             delete userOptions.plotOptions?.series?.events;
-            return userOptions;
+            delete userOptions.sonification?.onEnd;
+
+            const mergedOptions = deepMerge(userOptions, this.chartOptions);
+            if (this.chartDataOptions?.series) {
+                mergedOptions.series = this.chartDataOptions.series;
+            }
+
+            delete mergedOptions.yAxis['0'];
+            delete mergedOptions.xAxis['0'];
+            delete mergedOptions.isStock;
+            delete mergedOptions.sonification?.events;
+            return mergedOptions;
         }
         return {};
     }
