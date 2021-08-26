@@ -36,6 +36,9 @@ export const defaultChartOptions = {
                     fontSize: '22px'
                 }
             },
+            credits: {
+                enabled: true
+            }
         }
     },
     accessibility: {
@@ -150,6 +153,9 @@ export const defaultChartOptions = {
         firstRowAsNames: false
     },
     credits: {
-        enabled: false
+        enabled: false, // enabled on export only
+        position: {
+            y: -2
+        }
     }
 };

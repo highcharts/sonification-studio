@@ -358,6 +358,11 @@ export class ChartBridge {
         exportStream.addTrack(videoTrack);
         this.setAudioDestinationNode(audioDestination);
 
+        // Add credits before exporting
+        this.chart?.update({
+            credits: { enabled: true }
+        });
+
         return new Promise((resolve, reject) => {
             const recorder = this.recordStream(exportStream, false, void 0, reject);
             const chartPainter = setInterval(() => {
@@ -373,6 +378,12 @@ export class ChartBridge {
                 recorder.stop();
                 this.setAudioDestinationNode();
                 clearInterval(chartPainter);
+
+                // Remove credits again after export
+                this.chart?.update({
+                    credits: { enabled: false }
+                });
+
                 resolve();
             });
         });
