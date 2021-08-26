@@ -150,7 +150,7 @@ export default {
 
     .copyright {
         margin-top: 10px;
-        color: #aeadbd;
+        color: #BAB9C6;
         font-size: 0.7em;
     }
 
