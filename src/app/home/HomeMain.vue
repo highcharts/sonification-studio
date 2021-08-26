@@ -285,12 +285,13 @@ export default {
         margin-top: 0;
         max-width: 50rem;
         a {
-            color: #0e4a72;
-            font-weight: 700;
-            text-decoration: none;
+            color: #1673B1;
+            text-decoration: underline;
             &:hover {
-                color: #203f4b;
-                text-decoration: underline;
+                color: #063AA1;
+            }
+            &:visited {
+                color: #974cb4;
             }
         }
         ul {
@@ -337,7 +338,10 @@ export default {
             color: #fff;
             text-decoration: underline;
             &:hover {
-                color: #cbe8f8;
+                color: #c9e7f7;
+            }
+            &:visited {
+                color: #fff;
             }
         }
     }
