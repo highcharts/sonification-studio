@@ -31,7 +31,7 @@
         <SEControl
             v-slot="slotProps"
             label="Play audio samples"
-            helptext="Play audio samples as you go through the instrument list."
+            helptext="Play a preview sound as you switch between different instruments in the Instrument list above."
             horizontal
             helptext-middle
         >
