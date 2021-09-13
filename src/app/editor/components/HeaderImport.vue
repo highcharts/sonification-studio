@@ -150,7 +150,7 @@ export default {
             }
         },
         newProject() {
-            if(window.confirm('This will clear all data and reset all settings. Proceed?')) {
+            if (window.confirm('This will clear all data and reset all settings. Proceed?')) {
                 this.cleanSlateAndRecreateChart(() => {
                     // Restore state with no argument restores defaults.
                     this.$store.dispatch('restoreState');

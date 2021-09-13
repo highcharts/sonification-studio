@@ -50,16 +50,31 @@
                 />
             </div>
         </div>
+
+        <div id="sidebar-bottom">
+            <SEButton
+                @click="onResetClick"
+            >
+                <img
+                    alt=""
+                    class="reset-icon"
+                    :src="resetIcon"
+                >
+                Reset
+            </SEButton>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import HeaderTab from './HeaderTab.vue';
 import SETablist from './basic/SETablist.vue';
+import SEButton from './basic/SEButton.vue';
 import AudioMappingControls from './mappings/AudioMappingControls.vue';
 import ChartMappingControls from './mappings/ChartMappingControls.vue';
 import visualIcon from '../assets/chart-line-solid.svg';
 import audioIcon from '../assets/music-solid.svg';
+import resetIcon from '../assets/undo-alt-solid.svg';
 import { mapState } from 'vuex';
 
 export default {
@@ -67,17 +82,38 @@ export default {
         AudioMappingControls,
         ChartMappingControls,
         HeaderTab,
+        SEButton,
         SETablist
     },
     data: function () {
         return {
-            visualIcon, audioIcon
+            visualIcon, audioIcon, resetIcon
         };
     },
     computed: mapState('viewStore', ['selectedSidebarTabId']),
     methods: {
-        tabClicked: function (tabId: string): void {
+        tabClicked(tabId: string): void {
             this.$store.commit('viewStore/selectSidebarTab', tabId);
+        },
+
+        onResetClick(): void {
+            if (window.confirm('This will reset all audio and visual settings. Proceed?')) {
+                this.$store.commit('seriesParametersStore/clearState');
+                this.$store.commit('chartParametersStore/restoreStoreState');
+                this.$store.commit('globalSonifyParametersStore/restoreStoreState');
+                this.$store.commit('viewStore/setLoadingChart', true);
+                setTimeout(() => {
+                    this.$store.commit('viewStore/setShowChartComponent', false);
+                    this.$nextTick(() => {
+                        // Recreate chart
+                        this.$store.commit('viewStore/setShowChartComponent', true);
+                        this.$nextTick(() => {
+                            (this as any).$announcer.announce('New project loaded.');
+                            setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 900);
+                        });
+                    });
+                }, 100);
+            }
         }
     }
 };
@@ -88,6 +124,7 @@ export default {
     @import "../sr-only";
 
     @tablist-height: 50px;
+    @bottom-height: 45px;
 
     .sidebar-container {
         display: flex;
@@ -97,17 +134,40 @@ export default {
     #sidebar-content {
         padding: 10px;
         flex: 1;
-        max-height: calc(100% - @tablist-height);
+        max-height: calc(100% - @tablist-height - @bottom-height);
         box-sizing: border-box;
         background-color: @main-content-bg-color;
     }
 
     #scroll-container {
         height: 100%;
+        box-sizing: border-box;
         overflow-y: auto;
         /* Hack for not cutting off helptexts in the x-dimension, even if they overflow */
         padding-left: 100px;
         margin-left: -100px;
+    }
+
+    #sidebar-bottom {
+        background-color: @main-content-bg-color;
+        box-sizing: border-box;
+        height: @bottom-height;
+        .se-button {
+            margin-left: auto;
+            margin-right: 10px;
+            margin-bottom: 12px;
+            &:hover {
+                .reset-icon {
+                    filter: invert();
+                }
+            }
+        }
+        .reset-icon {
+            width: 12px;
+            height: $width;
+            margin-bottom: -1px;
+            margin-right: 2px;
+        }
     }
 
     .sidebar-tablist {
