@@ -52,15 +52,8 @@
             >
                 Project tools
             </h2>
-
-            {{ /* Safari list hack requires role="list" */ }}
-            <ul
-                role="list"
-                aria-labelledby="project-tools-heading"
-            >
-                <li><HeaderImport class="section-import" /></li>
-                <li><HeaderExport class="section-export" /></li>
-            </ul>
+            <HeaderImport class="section-import" />
+            <HeaderExport class="section-export" />
         </div>
     </header>
 </template>

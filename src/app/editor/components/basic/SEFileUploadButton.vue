@@ -14,23 +14,21 @@
         >
             <slot />
         </SEButton>
-        <input
-            ref="fileInput"
-            aria-hidden="true"
-            tabindex="-1"
-            type="file"
-            :accept="fileTypes"
-            @change="emitLoadEventWithFileContents"
-        >
+        <SEFileUpload
+            ref="dialog"
+            :file-types="fileTypes"
+            @load="(e) => $emit('load', e)"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import SEButton from './SEButton.vue';
+import SEFileUpload from './SEFileUpload.vue';
 
 export default {
     components: {
-        SEButton
+        SEButton, SEFileUpload
     },
     props: {
         dark: { type: Boolean, default: false },
@@ -38,49 +36,14 @@ export default {
         fileTypes: { type: String, default: '.txt,.csv' }
     },
     methods: {
-        emitLoadEventWithFileContents(e: any) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = ev => this.$emit('load', ev?.target?.result);
-            reader.readAsText(file);
-
-            const fileInput: any = this.$refs.fileInput;
-            if (fileInput) {
-                fileInput.value = '';
-            }
-        },
-
-        triggerDialog(e: Event) {
-            const fileInput: any = this.$refs.fileInput;
-            if (fileInput) {
-                fileInput.click();
-                e.preventDefault();
-            }
+        triggerDialog() {
+            (this.$refs as any).dialog.triggerDialog();
         }
     }
 };
 </script>
 
 <style lang="less" scoped>
-    @import "../../colors";
-
-    input {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        white-space: nowrap;
-        opacity: 0.00001;
-        z-index: -1;
-    }
-
-    input::-moz-focus-inner {
-        border: 0;
-    }
-
     .se-button {
         width: 100%;
         box-sizing: border-box;

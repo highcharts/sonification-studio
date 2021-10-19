@@ -54,7 +54,17 @@ export const dataStore = {
     state: {
         tableCSV: '',
         tableRowData: [], // Source data for table
-        textDescription: '' // Text description for the table/chart
+        textDescription: '', // Text description for the table/chart
+        selectedDataSource: 'table',
+        googleSpreadsheetId: '',
+        googleApiKey: '',
+        googleAutoUpdateEnabled: false,
+        dataSourcesList: [
+            { name: 'Table', value: 'table' },
+            { name: 'CSV', value: 'csv' },
+            { name: 'Google Sheets', value: 'googlesheets' },
+            { name: 'URL', value: 'url' }
+        ]
     },
 
     getters: {
@@ -106,6 +116,22 @@ export const dataStore = {
 
         setTableCSV(state: any, csv: string) {
             state.tableCSV = csv;
+        },
+
+        setSelectedDataSource(state: any, source: string) {
+            state.selectedDataSource = source;
+        },
+
+        setGoogleSpreadsheetId(state: any, id: string) {
+            state.googleSpreadsheetId = id;
+        },
+
+        setGoogleApiKey(state: any, key: string) {
+            state.googleApiKey = key;
+        },
+
+        setGoogleAutoUpdateEnabled(state: any, enabled: boolean) {
+            state.googleAutoUpdateEnabled = enabled;
         },
 
         setTableRowData(state: any, data: Array<unknown>) {

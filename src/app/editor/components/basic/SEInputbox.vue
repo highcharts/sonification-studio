@@ -12,6 +12,7 @@
 <template>
     <input
         :id="id"
+        class="se-inputbox"
         :value="value"
         :type="type"
         @input="$emit('input', $event.target.value)"

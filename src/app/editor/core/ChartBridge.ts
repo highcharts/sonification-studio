@@ -130,14 +130,30 @@ export class ChartBridge {
         const legendItemClickHook = this.getLegendItemHookOptions();
         const defaultOptions = deepMerge(defaultChartOptions, legendItemClickHook);
 
-        // Need to update the chart data first to know which (new) series to build options for.
-        // Only once the CSV has been parsed can we build the series options. This is why
-        // series options are built separately.
-        const newOptions = Object.assign({
-            data: {
-                csv: csv || 'null',
-
+        const dataSource = this.getStoreParam('dataStore', 'selectedDataSource');
+        const dataSourceOptions = dataSource === 'googlesheets' ? {
+            googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
+            googleSpreadsheetKey: this.getStoreParam('dataStore', 'googleSpreadsheetId'),
+            enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
+            dataRefreshRate: 5,
+            error: (text: string) => {
+                const errContainer = document.getElementById('google-spreadsheet-error') as HTMLElement;
+                errContainer.style.display = 'block';
+                const err = (JSON.parse(text) || {}).error;
+                const message = err.message || text;
+                const code = err.code || 0;
+                const status = err.status || 0;
+                const help = '<p>Issues with the spreadsheet link are usually caused by wrong spreadsheet IDs, API keys, or wrong settings in the Google Sheet or Google Cloud Platform Console.</p>';
+                errContainer.innerHTML = `<h4>Error:</h4> ${message}<br>${help}Status: ${status} | Code: ${code}`;
+            }
+        } : {
+            csv: csv || 'null'
+        };
+        const dataOptions = {
+            data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
+                    const errContainer = document.getElementById('google-spreadsheet-error') as HTMLElement;
+                    errContainer.style.display = 'none';
                     const chart = this.chart;
 
                     if (chart) {
@@ -159,8 +175,13 @@ export class ChartBridge {
                         this.chartDataOptions = parseResult;
                     }
                 }
-            }
-        }, chartSettings);
+            })
+        };
+
+        // Need to update the chart data first to know which (new) series to build options for.
+        // Only once the CSV has been parsed can we build the series options. This is why
+        // series options are built separately.
+        const newOptions = Object.assign(dataOptions, chartSettings);
 
         return deepMerge(defaultOptions, newOptions);
     }
