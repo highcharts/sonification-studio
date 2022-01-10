@@ -56,14 +56,14 @@ export const dataStore = {
         tableRowData: [], // Source data for table
         textDescription: '', // Text description for the table/chart
         selectedDataSource: 'table',
-        googleSpreadsheetId: '',
+        spreadsheetSetupComplete: false,
+        googleSpreadsheetURL: '',
         googleApiKey: '',
         googleAutoUpdateEnabled: false,
         dataSourcesList: [
             { name: 'Table', value: 'table' },
             { name: 'CSV', value: 'csv' },
-            { name: 'Google Sheets', value: 'googlesheets' },
-            { name: 'URL', value: 'url' }
+            { name: 'Google Sheets', value: 'googlesheets' }
         ]
     },
 
@@ -98,6 +98,12 @@ export const dataStore = {
             };
         },
 
+        googleSpreadsheetId: (state: GenericObject): string => {
+            const regex = /docs\.google\.com\/spreadsheets\/d\/([-_.~a-zA-Z0-9]+)(\/|$)/;
+            return state.googleSpreadsheetURL.match(regex)[1];
+        },
+
+
         tableCSVDataURI: (state: GenericObject): string => {
             return state.tableCSV ? encodeURI(`data:text/csv;charset=utf-8,${state.tableCSV}`) : '';
         },
@@ -122,12 +128,16 @@ export const dataStore = {
             state.selectedDataSource = source;
         },
 
-        setGoogleSpreadsheetId(state: any, id: string) {
-            state.googleSpreadsheetId = id;
+        setSpreadsheetSetupComplete(state: any, complete: boolean) {
+            state.spreadsheetSetupComplete = complete;
+        },
+
+        setGoogleSpreadsheetURL(state: any, url: string) {
+            state.googleSpreadsheetURL = url.trim();
         },
 
         setGoogleApiKey(state: any, key: string) {
-            state.googleApiKey = key;
+            state.googleApiKey = key.trim();
         },
 
         setGoogleAutoUpdateEnabled(state: any, enabled: boolean) {

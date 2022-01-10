@@ -1,131 +1,261 @@
 <template>
     <div class="data-g-sheet-container">
-        <div class="center-container">
+        <div class="gsheet-header">
             <h3>Link with Google Sheets</h3>
-            <div class="columns">
-                <div class="col">
-                    <div class="imgAndText">
-                        <img
-                            alt=""
-                            :src="gsheetIcon"
-                        >
-                        <p>
-                            If you have a Google Sheet containing data, you can link it to the Sonification Studio to use the data here.
-                            This will collect data from the Google Sheet, and when you make changes in the Google Sheet, they will be
-                            reflected in the data here as well. Use the configuration options below to set up the link and get started
-                            using your Google Sheet data.
-                        </p>
+            <div class="topBlock">
+                <div class="introText">
+                    <img
+                        alt=""
+                        :src="gsheetIcon"
+                    >
+                    <p>
+                        Linking a Google Sheet will collect the data from there, and when you make changes in the Google Sheet they will be
+                        reflected in the data here as well.
+                    </p>
+                </div>
+                <div class="stepIndicator">
+                    <div class="stepIndicatorInner">
+                        <div class="stepLine">
+                            <div class="stepLineInner" />
+                        </div>
+                        <ol>
+                            <li
+                                class="completedStep"
+                                :aria-current="currentStep === 'apikey' ? 'step' : false"
+                            >
+                                <div
+                                    class="stepIcon"
+                                    aria-hidden="true"
+                                >
+                                    {{ currentStep !== 'apikey' ? '✓' : '1' }}
+                                </div>
+                                API key
+                            </li>
+                            <li
+                                :class="{ completedStep: currentStep === 'sharesettings' || currentStep === 'sheeturl' || currentStep === 'confirmation'}"
+                                :aria-current="currentStep === 'sharesettings' ? 'step' : false"
+                            >
+                                <div
+                                    class="stepIcon"
+                                    aria-hidden="true"
+                                >
+                                    {{ currentStep === 'sheeturl' || currentStep === 'confirmation' ? '✓' : '2' }}
+                                </div>
+                                Share settings
+                            </li>
+                            <li
+                                :class="{ completedStep: currentStep === 'sheeturl' || currentStep === 'confirmation' }"
+                                :aria-current="currentStep === 'sheeturl' ? 'step' : false"
+                            >
+                                <div
+                                    class="stepIcon"
+                                    aria-hidden="true"
+                                >
+                                    {{ currentStep === 'confirmation' ? '✓' : '3' }}
+                                </div>
+                                Sheet URL
+                            </li>
+                            <li
+                                :class="{ completedStep: currentStep === 'confirmation' }"
+                                :aria-current="currentStep === 'confirmation' ? 'step' : false"
+                            >
+                                <div
+                                    class="stepIcon"
+                                    aria-hidden="true"
+                                >
+                                    {{ currentStep === 'confirmation' ? '✓' : '4' }}
+                                </div>
+                                Confirmation
+                            </li>
+                        </ol>
                     </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="stepContentOuter">
+            <div class="stepContent">
+                <div
+                    v-show="currentStep === 'apikey'"
+                    class="apikeyContent"
+                >
+                    <h4>Enter Google API Key</h4>
+                    <div class="columns">
+                        <div class="rightcolumn">
+                            <p class="notebox">
+                                For detailed step-by-step instructions, see this
+                                <a href="https://handsondataviz.org/google-sheets-api-key.html">Hands-On Data Visualization tutorial</a>.
+                            </p>
+                            <p class="notebox">
+                                <b>Note</b> that you need a personal Google Account for this to work, not a Google Suite account from your company
+                                or school.
+                            </p>
+
+                            <div class="inputRow">
+                                <SEInputbox
+                                    id="apiKeyInput"
+                                    v-model="apiKey"
+                                    aria-label="Google API key"
+                                />
+                                <SEButton
+                                    dark
+                                    @click="currentStep = 'sharesettings'"
+                                >
+                                    Next
+                                </SEButton>
+                            </div>
+                        </div>
+                        <div class="leftcolumn">
+                            <p>
+                                For security reasons, Google requires that you generate an API key. This is so that Google can track
+                                how much your sheet is being accessed to avoid overuse.
+                            </p>
+
+                            <h5>Reuse an existing API key</h5>
+                            <p>
+                                If you already have an API key generated, you can reuse it. Note, though, that a spreadsheet can only
+                                be accessed roughly once per second using the same API key.
+                            </p>
+
+                            <h5>Create a new API key</h5>
+                            <p>
+                                Creating a new API key is done at
+                                <a href="https://console.cloud.google.com/apis/credentials">API Services / Credentials</a> in your Google Account.
+                                To create a new API key, click "Create project". Once it has been created, click "Enable APIs and Services",
+                                and enable Google Sheets. Then, in the Credentials sidebar, you can create an API key for this project.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    v-show="currentStep === 'sharesettings'"
+                    class="shareSettingsContent"
+                >
                     <h4>Prepare your Google Sheet</h4>
                     <p>
-                        The Google Sheet you want to link needs to be public in order for this to work. This is done in two steps:
+                        The Google Sheet you want to link needs to be publicly accessible in order for this to work. This is done in two steps:
                         <ol>
                             <li>Click the "Share" button in Google Sheets, and click "Change to anyone with the link", then click "Done".</li>
                             <li>Go to "File > Publish to the Web" in Google Sheets, and click the "Publish" button.</li>
                         </ol>
                     </p>
-
-                    <h4>Auto updates</h4>
                     <p>
-                        Sonification Studio can automatically refresh and update the data when changes are made in the
-                        Google Sheet. If you enable this below, Sonification Studio will look for changes in the data every few seconds.
+                        When you are done, click Next below to continue the setup.
                     </p>
-                    <SEControl
-                        v-slot="slotProps"
-                        label="Automatically refresh data on changes"
-                        helpfor="Automatic refresh"
-                        helptext="Automatically refresh the data when the Google Sheet changes."
-                        :horizontal="true"
-                    >
-                        <SECheckbox
-                            :id="slotProps.controlId"
-                            v-model="autoUpdateEnabled"
-                        />
-                    </SEControl>
+
+                    <div class="navbuttons">
+                        <SEButton
+                            dark
+                            @click="currentStep = 'apikey'"
+                        >
+                            Previous
+                        </SEButton>
+                        <SEButton
+                            dark
+                            @click="currentStep = 'sheeturl'"
+                        >
+                            Next
+                        </SEButton>
+                    </div>
                 </div>
 
-                <div class="col">
-                    <h4>Spreadsheet ID</h4>
-                    <p>
-                        In order to link a Google Sheet, a unique <em>spreadsheet ID</em> is required. This ID identifies your spreadsheet,
-                        and ensures the correct sheet is loaded. Visit <a href="https://developers.google.com/sheets/api/guides/concepts">developers.google.com</a>
-                        for instructions on where to find your Sheet's <em>spreadsheet ID</em>.
-                    </p>
-                    <SEControl
-                        v-slot="slotProps"
-                        label="Google Sheets spreadsheet ID"
-                        helptext="The unique spreadsheet ID for your Google Sheet. See above for instructions."
-                        :horizontal-reverse="true"
-                        :expand-content="true"
-                    >
-                        <SEInputbox
-                            :id="slotProps.controlId"
-                            v-model="spreadsheetId"
-                        />
-                    </SEControl>
+                <div
+                    v-show="currentStep === 'sheeturl'"
+                    class="sheetURLContent"
+                >
+                    <h4>Sheet URL</h4>
+                    <p>Paste a link here to the sheet you want to load data from.</p>
+                    <p>Then click Finish below to link your sheet.</p>
 
-                    <h4>Google API Key</h4>
-                    <p>
-                        For security reasons, Google also requires that you generate an API key. This is so that Google can track
-                        how much your sheet is being accessed to avoid overuse. Creating this key is done at
-                        <a href="https://console.cloud.google.com/apis/credentials">API Services / Credentials</a> in your Google Account.
-                    </p>
-                    <p>
-                        Note that you need a <em>personal</em> Google Account for this to work, not a Google Suite account from your company
-                        or school. If you already have an API key generated, you can reuse it. Note, though, that a spreadsheet can only
-                        be accessed roughly once per second using the same API key.
-                    </p>
-                    <p>
-                        To create a new API key, click "Create project". Once it has been created, click "Enable APIs and Services",
-                        and enable Google Sheets. Then, in the Credentials sidebar, you can create an API key for this project.
-                        For detailed step-by-step instructions, see this
-                        <a href="https://handsondataviz.org/google-sheets-api-key.html">Hands-On Data Visualization tutorial</a>.
-                    </p>
-                    <SEControl
-                        v-slot="slotProps"
-                        label="Google API Key"
-                        helptext="The Google API Key for this project. See above for instructions."
-                        :horizontal-reverse="true"
-                        :expand-content="true"
+                    <SEInputbox
+                        id="sheetURLInput"
+                        v-model="spreadsheetURL"
+                        aria-label="Google Sheet URL"
+                    />
+
+                    <div class="navbuttons">
+                        <SEButton
+                            dark
+                            @click="currentStep = 'sharesettings'"
+                        >
+                            Previous
+                        </SEButton>
+                        <SEButton
+                            dark
+                            @click="onFinishClick"
+                        >
+                            Finish
+                        </SEButton>
+                    </div>
+                </div>
+
+                <div
+                    v-show="currentStep === 'confirmation'"
+                    class="confirmationContent"
+                >
+                    <div class="success">
+                        <h4>Success!</h4>
+                        <p class="successbox">
+                            Your spreadsheet has been successfully linked.
+                        </p>
+                        <p>
+                            Sonification Studio can automatically refresh and update the data when changes are made in the
+                            Google Sheet. If you enable this below, Sonification Studio will look for changes in the data every few seconds.
+                        </p>
+                        <SEControl
+                            v-slot="slotProps"
+                            label="Automatically refresh data on changes"
+                            :horizontal="true"
+                        >
+                            <SECheckbox
+                                :id="slotProps.controlId"
+                                v-model="autoUpdateEnabled"
+                            />
+                        </SEControl>
+
+                        <p>Want to link a different spreadsheet or change your settings? Click below to start over.</p>
+                        <SEButton
+                            dark
+                            @click="onStartOver"
+                        >
+                            Start over
+                        </SEButton>
+                    </div>
+
+                    <div
+                        v-if="false"
+                        class="error"
                     >
-                        <SEInputbox
-                            :id="slotProps.controlId"
-                            v-model="apiKey"
-                        />
-                    </SEControl>
+                        Something went wrong.
+                    </div>
                 </div>
             </div>
-
-            <p
-                id="google-spreadsheet-error"
-                :class="{ hidden: !(apiKey.length && spreadsheetId.length) }"
-                class="error"
-                style="display: none"
-            />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import SEControl from './basic/SEControl.vue';
+import SEButton from './basic/SEButton.vue';
 import SEInputbox from './basic/SEInputbox.vue';
 import SECheckbox from './basic/SECheckbox.vue';
 import gsheetIcon from '../assets/Google_Sheets_logo.svg';
 
 export default {
     components: {
-        SEControl, SEInputbox, SECheckbox
+        SEControl, SEButton, SEInputbox, SECheckbox
     },
     data() {
         return {
-            gsheetIcon
+            gsheetIcon,
+            currentStep: 'apikey'
         };
     },
     computed: {
-        spreadsheetId: {
-            get() { return (this as any).$store.state.dataStore.googleSpreadsheetId; },
-            set(val) { return this.$store.commit('dataStore/setGoogleSpreadsheetId', val); }
+        spreadsheetURL: {
+            get() { return (this as any).$store.state.dataStore.googleSpreadsheetURL; },
+            set(val) { return this.$store.commit('dataStore/setGoogleSpreadsheetURL', val); }
         },
         apiKey: {
             get() { return (this as any).$store.state.dataStore.googleApiKey; },
@@ -134,6 +264,16 @@ export default {
         autoUpdateEnabled: {
             get() { return (this as any).$store.state.dataStore.googleAutoUpdateEnabled; },
             set(val) { return this.$store.commit('dataStore/setGoogleAutoUpdateEnabled', val); }
+        }
+    },
+    methods: {
+        onStartOver() {
+            this.currentStep = 'apikey';
+            this.$store.commit('dataStore/setSpreadsheetSetupComplete', false);
+        },
+        onFinishClick() {
+            this.$store.commit('dataStore/setSpreadsheetSetupComplete', true);
+            this.currentStep = 'confirmation';
         }
     }
 };
@@ -144,11 +284,10 @@ export default {
 
 .data-g-sheet-container {
     height: 100%;
-    overflow-y: auto;
     padding: 0 15px;
     box-sizing: border-box;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
 
     a {
         color: #1673B1;
@@ -161,39 +300,186 @@ export default {
         }
     }
 
-    .center-container {
-        height: 100%;
+    .topBlock {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    @media screen and (max-width: 800px) {
+        .introText {
+            flex: 2;
+        }
+        .stepIndicator {
+            flex: 3;
+        }
+    }
+
+    @media screen and (max-width: 1100px) {
+        .topBlock {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .introText {
+            margin-bottom: 10px;
+        }
+        .stepIndicator {
+            margin-left: 0px !important;
+        }
+    }
+
+    @media screen and (max-width: 1700px) {
+        .leftcolumn {
+            flex: 2;
+        }
+        .rightcolumn {
+            flex: 3;
+        }
+    }
+
+    .introText {
+        display: flex;
+        width: 100%;
+        img {
+            margin-right: 15px;
+            height: 40px;
+        }
+        p {
+            margin-bottom: 0;
+        }
+        align-items: center;
+        margin-top: 25px;
+        margin-right: 40px;
+        font-size: 1.1rem;
+        max-width: 800px;
     }
 
     .se-control-label {
         font-weight: bold;
     }
 
+    .stepIndicator {
+        margin-left: 20px;
+        width: 100%;
+        .stepIndicatorInner {
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        .stepLine {
+            position: relative;
+            max-width: 800px;
+            width: 100%;
+        }
+        .stepLineInner {
+            position: absolute;
+            z-index: 1;
+            left: 0;
+            right: 0;
+            height: 30px;
+            margin-right: 2.2rem;
+            margin-left: 1rem;
+            border-bottom: 1px solid @dark-blue-5;
+            box-sizing: border-box;
+        }
+        ol {
+            display: flex;
+            justify-content: space-between;
+            max-width: 800px;
+        }
+        li {
+            margin-left: 0;
+            list-style: none;
+            z-index: 2;
+            font-weight: bold;
+            color: #333;
+        }
+        li .stepIcon {
+            display: block;
+            background-color: #fff;
+            border-radius: 50%;
+            border: 1px solid @dark-blue-5;
+            width: 50px;
+            height: 50px;
+            margin: 0 auto;
+            text-align: center;
+            line-height: 50px;
+            font-weight: bold;
+            font-size: 19px;
+            margin-bottom: 5px;
+        }
+        li.completedStep .stepIcon {
+            background-color: @dark-blue-5;
+            color: #fff;
+        }
+    }
+
+    .stepContentOuter {
+        position: relative;
+        flex: 1;
+    }
+
+    .stepContent {
+        overflow-y: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 2px 0;
+    }
+
+    .notebox {
+        background-color: #ebebeb;
+        max-width: 800px;
+        padding: 20px;
+    }
+
+    .se-button {
+        margin: 0;
+        margin-left: 15px;
+        border-radius: 3px;
+        height: 2.4rem;
+        padding: 5px 25px;
+        font-size: 1rem;
+    }
+
+    .se-inputbox {
+        margin: 0;
+        border: 1px solid @dark-blue-5;
+        line-height: 1.3rem;
+        font-size: 1.1rem;
+    }
+
+    .inputRow {
+        display: flex;
+        max-width: 600px;
+        justify-items: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
     .columns {
         display: flex;
-        justify-content: space-between;
-        align-items: middle;
-        max-width: 1420px;
+    }
+
+    .leftcolumn {
+        max-width: 800px;
+        padding-left: 20px;
         margin: 0 auto;
-        box-sizing: border-box;
     }
 
-    .col:first-child {
-        padding-right: 40px;
-    }
-
-    .col {
-        box-sizing: border-box;
-        max-width: 700px;
+    .navbuttons {
+        display: flex;
+        max-width: 800px;
+        margin-top: 25px;
+        .se-button:first-child {
+            margin-left: 0px;
+        }
     }
 
     h3 {
-        margin-top: 0;
-        text-align: center;
-        margin-bottom: 25px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid @green-5;
-        font-size: 1.7rem;
+        margin-top: 10px;
+        font-size: 1.9rem;
         color: @dark-blue-5;
     }
 
@@ -201,11 +487,15 @@ export default {
         font-size: 1.3rem;
         margin-top: 25px;
         margin-bottom: 8px;
-        color: @dark-blue-6;
+        color: @dark-gray-4;
     }
 
     h4:first-child {
         margin-top: -5px;
+    }
+
+    h5 {
+        font-size: 1rem;
     }
 
     p {
@@ -213,44 +503,47 @@ export default {
     }
 
     ol {
-        margin-top: 5px;
+        margin-top: 10px;
         li {
             margin-left: 30px;
             margin-bottom: 5px;
         }
     }
 
-    .imgAndText {
-        display: flex;
-        img {
-            margin-right: 30px;
+    .shareSettingsContent {
+        h4 {
+            margin-bottom: 20px;
         }
         p {
-            margin-bottom: 0;
+            margin-bottom: 15px;
         }
-        margin-bottom: 30px;
-        margin-top: 5px;
-        font-size: 1.1rem;
     }
 
-    .error {
-        color: #8d0404;
-        border: 1px solid #b62e2e;
-        padding: 10px;
-        max-width: 600px;
-        margin: 30px auto 0;
+    .sheetURLContent {
+        max-width: 700px;
         h4 {
-            color: #8d0404;
+            margin-bottom: 20px;
         }
-        p {
-            margin: 5px 0;
-            color: #333;
+        .navbuttons {
+            margin-top: 30px;
         }
-        transition: opacity 0.2s;
-        transition-delay: 2s;
-        &.hidden {
-            visibility: hidden;
-            opacity: 0;
+        .se-inputbox {
+            margin-top: 10px;
+        }
+    }
+
+    .confirmationContent .success {
+        max-width: 700px;
+        .successbox {
+            padding: 20px;
+            background-color: @green-9;
+            margin-bottom: 20px;
+        }
+        .se-control {
+            margin-bottom: 20px;
+        }
+        .se-button {
+            margin-left: 0;
         }
     }
 }

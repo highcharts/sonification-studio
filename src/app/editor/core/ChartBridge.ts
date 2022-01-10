@@ -35,6 +35,7 @@ export class ChartBridge {
     private globalSonifyParametersStore: GenericObject;
     private getStoreParam: (storeId: string, param: string) => any;
     private commitToStore: (id: string, payload?: any) => void;
+    private storeGetter: (storeId: string, getterId: string) => any;
     private reactivityTimeouts: GenericObject = {};
     private updateProgressState: UpdateProgressState;
     private _seReactivityCounter: number|null = null;
@@ -55,6 +56,7 @@ export class ChartBridge {
         this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
         this.commitToStore = (id: string, payload?: any) => store.commit(id, payload);
         this.getStoreParam = (storeId: string, param: string): any => store.state[storeId][param];
+        this.storeGetter = (storeId: string, getterId: string): any => store.getters[`${storeId}/${getterId}`];
 
         store.subscribe(this.onStoreMutation.bind(this));
     }
@@ -131,29 +133,29 @@ export class ChartBridge {
         const defaultOptions = deepMerge(defaultChartOptions, legendItemClickHook);
 
         const dataSource = this.getStoreParam('dataStore', 'selectedDataSource');
-        const dataSourceOptions = dataSource === 'googlesheets' ? {
+        const spreadsheetSetupComplete = this.getStoreParam('dataStore', 'spreadsheetSetupComplete');
+
+        const dataSourceOptions = dataSource === 'googlesheets' && spreadsheetSetupComplete ? {
+            csv: void 0,
+            firstRowAsNames: true,
             googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
-            googleSpreadsheetKey: this.getStoreParam('dataStore', 'googleSpreadsheetId'),
+            googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
             enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
             dataRefreshRate: 5,
             error: (text: string) => {
-                const errContainer = document.getElementById('google-spreadsheet-error') as HTMLElement;
-                errContainer.style.display = 'block';
-                const err = (JSON.parse(text) || {}).error;
-                const message = err.message || text;
-                const code = err.code || 0;
-                const status = err.status || 0;
-                const help = '<p>Issues with the spreadsheet link are usually caused by wrong spreadsheet IDs, API keys, or wrong settings in the Google Sheet or Google Cloud Platform Console.</p>';
-                errContainer.innerHTML = `<h4>Error:</h4> ${message}<br>${help}Status: ${status} | Code: ${code}`;
+                console.log('Error', text);
             }
         } : {
-            csv: csv || 'null'
+            csv: csv || 'null',
+            firstRowAsNames: false,
+            googleSpreadsheetKey: '',
+            googleAPIKey: '',
+            enablePolling: false
         };
+
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
-                    const errContainer = document.getElementById('google-spreadsheet-error') as HTMLElement;
-                    errContainer.style.display = 'none';
                     const chart = this.chart;
 
                     if (chart) {
