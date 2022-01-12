@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v9.3.2 (2022-01-11)
+ * @license Highcharts JS v9.3.2 (2022-01-12)
  *
  * Data module
  *
@@ -848,6 +848,10 @@
                 this.firstRowAsNames = pick(options.firstRowAsNames, this.firstRowAsNames, true);
                 this.decimalRegex = (decimalPoint &&
                     new RegExp('^(-?[0-9]+)' + decimalPoint + '([0-9]+)$'));
+                // Always stop old polling when we have new options
+                if (this.liveDataTimeout !== void 0) {
+                    clearTimeout(this.liveDataTimeout);
+                }
                 // This is a two-dimensional array holding the raw, trimmed string
                 // values with the same organisation as the columns array. It makes it
                 // possible for example to revert from interpreted timestamps to
@@ -856,11 +860,7 @@
                 // No need to parse or interpret anything
                 if (this.columns.length) {
                     this.dataFound();
-                    hasData = true;
-                }
-                if (this.hasURLOption(options)) {
-                    clearTimeout(this.liveDataTimeout);
-                    hasData = false;
+                    hasData = !this.hasURLOption(options);
                 }
                 if (!hasData) {
                     // Fetch live data
@@ -1634,7 +1634,7 @@
                         success: function (json) {
                             fn(json);
                             if (options.enablePolling) {
-                                setTimeout(function () {
+                                data.liveDataTimeout = setTimeout(function () {
                                     fetchSheet(fn);
                                 }, refreshRate);
                             }
@@ -2140,7 +2140,8 @@
              * @param {boolean} [redraw=true]
              */
             Data.prototype.update = function (options, redraw) {
-                var chart = this.chart;
+                var chart = this.chart,
+                    chartOptions = chart.options;
                 if (options) {
                     // Set the complete handler
                     options.afterComplete = function (dataOptions) {
@@ -2159,8 +2160,13 @@
                         }
                     };
                     // Apply it
-                    merge(true, chart.options.data, options);
-                    this.init(chart.options.data);
+                    merge(true, chartOptions.data, options);
+                    // Reset columns if fetching spreadsheet, to force a re-fetch
+                    if (chartOptions.data && chartOptions.data.googleSpreadsheetKey &&
+                        !options.columns) {
+                        delete chartOptions.data.columns;
+                    }
+                    this.init(chartOptions.data);
                 }
             };
             return Data;
