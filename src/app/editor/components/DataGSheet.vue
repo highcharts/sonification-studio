@@ -107,8 +107,8 @@
                         </div>
                         <div class="leftcolumn">
                             <p>
-                                For security reasons, Google requires that you generate an API key. This is so that Google can track
-                                how much your sheet is being accessed to avoid overuse.
+                                For security reasons, Google requires that you generate an API key. This is so that Google can keep track
+                                of how much your sheet is being accessed, to avoid overuse.
                             </p>
 
                             <h5>Reuse an existing API key</h5>
@@ -194,25 +194,50 @@
                     v-show="currentStep === 'confirmation'"
                     class="confirmationContent"
                 >
-                    <div class="success">
-                        <h4>Success!</h4>
-                        <p class="successbox">
-                            Your spreadsheet has been successfully linked.
-                        </p>
-                        <p>
-                            Sonification Studio can automatically refresh and update the data when changes are made in the
-                            Google Sheet. If you enable this below, Sonification Studio will look for changes in the data every few seconds.
-                        </p>
-                        <SEControl
-                            v-slot="slotProps"
-                            label="Automatically refresh data on changes"
-                            :horizontal="true"
+                    <div
+                        v-if="googleSheetStatus === statuses.Loading"
+                        class="loading"
+                    >
+                        <img
+                            alt=""
+                            :src="spinnerIcon"
                         >
-                            <SECheckbox
-                                :id="slotProps.controlId"
-                                v-model="autoUpdateEnabled"
-                            />
-                        </SEControl>
+                        <p>Loading data...</p>
+                        <SEButton
+                            dark
+                            @click="onStartOver"
+                        >
+                            Cancel
+                        </SEButton>
+                    </div>
+
+                    <div
+                        v-if="googleSheetStatus === statuses.Success"
+                        class="success"
+                    >
+                        <div class="successbox">
+                            <h4>Success!</h4>
+                            <p>Your spreadsheet has been successfully linked.</p>
+                        </div>
+                        <div v-if="false">
+                            <p style="color:red">
+                                NOTE: Changing this dynamically is not currently supported in Highcharts!
+                            </p>
+                            <p>
+                                Sonification Studio can automatically refresh and update the data when changes are made in the
+                                Google Sheet. If you enable this below, Sonification Studio will look for changes in the data every few seconds.
+                            </p>
+                            <SEControl
+                                v-slot="slotProps"
+                                label="Automatically refresh data on changes"
+                                :horizontal="true"
+                            >
+                                <SECheckbox
+                                    :id="slotProps.controlId"
+                                    v-model="autoUpdateEnabled"
+                                />
+                            </SEControl>
+                        </div>
 
                         <p>Want to link a different spreadsheet or change your settings? Click below to start over.</p>
                         <SEButton
@@ -224,10 +249,24 @@
                     </div>
 
                     <div
-                        v-if="false"
+                        v-if="googleSheetStatus === statuses.Error"
                         class="error"
                     >
-                        Something went wrong.
+                        <div class="errorbox">
+                            <h4>Something went wrong</h4>
+                            <p>{{ humanReadableErrorMessage }}</p>
+                        </div>
+
+                        <p>
+                            We were not able to link your Google Sheet. Please click below to start over.
+                        </p>
+
+                        <SEButton
+                            dark
+                            @click="onStartOver"
+                        >
+                            Start over
+                        </SEButton>
                     </div>
                 </div>
             </div>
@@ -241,6 +280,8 @@ import SEButton from './basic/SEButton.vue';
 import SEInputbox from './basic/SEInputbox.vue';
 import SECheckbox from './basic/SECheckbox.vue';
 import gsheetIcon from '../assets/Google_Sheets_logo.svg';
+import spinnerIcon from '../assets/circle-notch-solid.svg';
+import { GoogleSheetStatus } from '../store/modules/data';
 
 export default {
     components: {
@@ -249,6 +290,8 @@ export default {
     data() {
         return {
             gsheetIcon,
+            spinnerIcon,
+            statuses: GoogleSheetStatus,
             currentStep: 'apikey'
         };
     },
@@ -264,16 +307,46 @@ export default {
         autoUpdateEnabled: {
             get() { return (this as any).$store.state.dataStore.googleAutoUpdateEnabled; },
             set(val) { return this.$store.commit('dataStore/setGoogleAutoUpdateEnabled', val); }
+        },
+        googleSheetStatus: {
+            get() { return (this as any).$store.state.dataStore.googleSheetStatus; },
+            set(val) { return this.$store.commit('dataStore/setGoogleSheetStatus', val); }
+        },
+        googleSheetErrorMessage: {
+            get() { return (this as any).$store.state.dataStore.googleSheetErrorMessage; },
+            set(val) { return this.$store.commit('dataStore/setGoogleSheetErrorMessage', val); }
+        },
+        humanReadableErrorMessage() {
+            const src = this.googleSheetErrorMessage;
+            if (
+                src.indexOf('API key not valid. Please pass a valid API key') > -1 ||
+                src.indexOf('The request is missing a valid API key.') > -1
+            ) {
+                return 'The API key is not valid. Please try again and submit a valid API key.';
+            }
+            if (src.indexOf('Requested entity was not found') > -1) {
+                return 'We could not find the submitted spreadsheet. Please try again and verify that you are pasting the correct link.';
+            }
+            if (src.indexOf('The caller does not have permission') > -1) {
+                return 'No access to spreadsheet. Please ensure you have followed the sharing steps before attempting to link your Google Sheet.';
+            }
+            return 'Please try again.';
         }
     },
     methods: {
         onStartOver() {
             this.currentStep = 'apikey';
             this.$store.commit('dataStore/setSpreadsheetSetupComplete', false);
+            this.$store.commit('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Loading);
         },
         onFinishClick() {
             this.$store.commit('dataStore/setSpreadsheetSetupComplete', true);
             this.currentStep = 'confirmation';
+
+            if (!this.spreadsheetURL) {
+                this.$store.commit('dataStore/setGoogleSheetErrorMessage', 'Requested entity was not found');
+                this.$store.commit('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Error);
+            }
         }
     }
 };
@@ -535,15 +608,72 @@ export default {
     .confirmationContent .success {
         max-width: 700px;
         .successbox {
-            padding: 20px;
+            padding: 25px;
             background-color: @green-9;
             margin-bottom: 20px;
+            h4 {
+                margin-bottom: 15px;
+            }
+            p {
+                margin-bottom: 0;
+            }
         }
         .se-control {
             margin-bottom: 20px;
         }
         .se-button {
             margin-left: 0;
+        }
+    }
+
+    .confirmationContent .error {
+        max-width: 700px;
+        .errorbox {
+            padding: 25px;
+            background-color: @red-9;
+            margin-bottom: 20px;
+            h4 {
+                margin-bottom: 15px;
+            }
+            p {
+                margin-bottom: 0;
+            }
+        }
+        .se-control {
+            margin-bottom: 20px;
+        }
+        .se-button {
+            margin-left: 0;
+        }
+    }
+
+    .confirmationContent .loading {
+        img {
+            width: 30px;
+            height: $width;
+            float: left;
+            margin-right: 20px;
+            display: block;
+            opacity: 0.7;
+            animation: hc-spin 1s linear infinite;
+        }
+        p {
+            line-height: 30px;
+            vertical-align: middle;
+        }
+        .se-button {
+            margin-left: 0;
+            margin-top: 20px;
+        }
+    }
+
+    @keyframes hc-spin {
+        from {
+            transform: rotate(0);
+        }
+
+        to {
+            transform: rotate(360deg);
         }
     }
 }

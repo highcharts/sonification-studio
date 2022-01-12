@@ -5,6 +5,7 @@ import { getSeriesId } from './utils/chartUtils';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
+import { GoogleSheetStatus } from '../store/modules/data';
 import { Store } from 'vuex';
 
 interface UpdateProgressState {
@@ -141,21 +142,28 @@ export class ChartBridge {
             googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
             googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
             enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-            dataRefreshRate: 5,
+            dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
             error: (text: string) => {
-                console.log('Error', text);
+                const errObj = JSON.parse(text);
+                const message = errObj?.error?.message || 'Unknown error';
+                this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
+                this.commitToStore('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Error);
             }
         } : {
             csv: csv || 'null',
+            columns: null,
             firstRowAsNames: false,
             googleSpreadsheetKey: '',
-            googleAPIKey: '',
             enablePolling: false
         };
 
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
+                    if (dataSource === 'googlesheets' && spreadsheetSetupComplete) {
+                        this.commitToStore('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Success);
+                    }
+
                     const chart = this.chart;
 
                     if (chart) {

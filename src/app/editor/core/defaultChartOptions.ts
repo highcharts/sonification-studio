@@ -149,8 +149,7 @@ export const defaultChartOptions = {
     },
     data: {
         csv: '',
-        itemDelimiter: ';',
-        firstRowAsNames: false
+        itemDelimiter: ';'
     },
     credits: {
         enabled: false, // enabled on export only

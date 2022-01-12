@@ -102,7 +102,7 @@ export default {
             get() { return (this as any).$store.state.viewStore.showGridTools; },
             set(val) { return this.$store.commit('viewStore/setShowGridTools', val); }
         },
-        ...mapState('dataStore', ['dataSourcesList']),
+        ...mapState('dataStore', ['dataSourcesList'])
     },
     methods: {
         onTriggerScrollLastGridRowWithData() {

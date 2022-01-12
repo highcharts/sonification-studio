@@ -27,6 +27,12 @@ interface FillColumnProps {
     equation: string;
 }
 
+export enum GoogleSheetStatus {
+    Loading = 0,
+    Success,
+    Error
+}
+
 function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnProps): string {
     return '' + evaluate(fillData.equation, {
         i: rowIx,
@@ -59,7 +65,10 @@ export const dataStore = {
         spreadsheetSetupComplete: false,
         googleSpreadsheetURL: '',
         googleApiKey: '',
-        googleAutoUpdateEnabled: false,
+        googleAutoUpdateEnabled: true,
+        googleAutoUpdateFrequency: 10,
+        googleSheetStatus: GoogleSheetStatus.Loading,
+        googleSheetErrorMessage: '',
         dataSourcesList: [
             { name: 'Table', value: 'table' },
             { name: 'CSV', value: 'csv' },
@@ -100,7 +109,7 @@ export const dataStore = {
 
         googleSpreadsheetId: (state: GenericObject): string => {
             const regex = /docs\.google\.com\/spreadsheets\/d\/([-_.~a-zA-Z0-9]+)(\/|$)/;
-            return state.googleSpreadsheetURL.match(regex)[1];
+            return state.googleSpreadsheetURL && state.googleSpreadsheetURL.match(regex)[1];
         },
 
 
@@ -142,6 +151,14 @@ export const dataStore = {
 
         setGoogleAutoUpdateEnabled(state: any, enabled: boolean) {
             state.googleAutoUpdateEnabled = enabled;
+        },
+
+        setGoogleSheetStatus(state: any, status: GoogleSheetStatus) {
+            state.googleSheetStatus = status;
+        },
+
+        setGoogleSheetErrorMessage(state: any, message: GoogleSheetStatus) {
+            state.googleSheetErrorMessage = message;
         },
 
         setTableRowData(state: any, data: Array<unknown>) {

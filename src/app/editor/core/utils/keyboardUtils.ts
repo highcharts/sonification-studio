@@ -57,5 +57,5 @@ export function keyPressed(key: Keys, mod: number, event: KeyboardEvent): boolea
         return false;
     }
     const keyString = typeof key !== 'string' ? Keys[key] : key;
-    return event.key.toLowerCase() === keyString.toLowerCase();
+    return event.key?.toLowerCase() === keyString.toLowerCase();
 }
