@@ -84,7 +84,7 @@
                         <div class="rightcolumn">
                             <p class="notebox">
                                 For detailed step-by-step instructions, see this
-                                <a href="https://handsondataviz.org/google-sheets-api-key.html">Hands-On Data Visualization tutorial</a>.
+                                <a href="https://support.google.com/googleapi/answer/6158862?hl=en">Google tutorial</a>.
                             </p>
                             <p class="notebox">
                                 <b>Note</b> that you need a personal Google Account for this to work, not a Google Suite account from your company
@@ -219,17 +219,20 @@
                             <h4>Success!</h4>
                             <p>Your spreadsheet has been successfully linked.</p>
                         </div>
-                        <div v-if="false">
-                            <p style="color:red">
-                                NOTE: Changing this dynamically is not currently supported in Highcharts!
+                        <div class="autorefresh">
+                            <h5>Automatic refresh</h5>
+                            <p>
+                                Sonification Studio can automatically refresh the data in the background, so that when changes are made in the
+                                Google Sheet they are reflected in your chart without having to reload the page.
                             </p>
                             <p>
-                                Sonification Studio can automatically refresh and update the data when changes are made in the
-                                Google Sheet. If you enable this below, Sonification Studio will look for changes in the data every few seconds.
+                                If you enable this below, Sonification Studio will look for changes in the data every few seconds. If not, you will have to
+                                reload the page or switch between the Data and Chart tabs to see changes.
                             </p>
+                            <p>Note that enabling this can cause slowdowns with large datasets.</p>
                             <SEControl
                                 v-slot="slotProps"
-                                label="Automatically refresh data on changes"
+                                label="Automatically refresh data in the background"
                                 :horizontal="true"
                             >
                                 <SECheckbox
@@ -618,8 +621,12 @@ export default {
                 margin-bottom: 0;
             }
         }
+        h5 {
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
         .se-control {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         .se-button {
             margin-left: 0;

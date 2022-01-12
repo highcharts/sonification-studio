@@ -65,7 +65,7 @@ export const dataStore = {
         spreadsheetSetupComplete: false,
         googleSpreadsheetURL: '',
         googleApiKey: '',
-        googleAutoUpdateEnabled: true,
+        googleAutoUpdateEnabled: false,
         googleAutoUpdateFrequency: 10,
         googleSheetStatus: GoogleSheetStatus.Loading,
         googleSheetErrorMessage: '',
