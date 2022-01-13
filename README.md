@@ -30,7 +30,7 @@ To build and publish to GitHub pages, ensure app version is correct in `package.
 
 If publishing on other platforms than GitHub, remove the `.nojekyll` file, and ensure the home page is named correctly (`index.html` vs `home.html`).
 
-The contents of the `docs` directory is automatically served on the GitHub pages site. The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
+The contents of the `docs` directory is automatically served on the [GitHub pages site](https://highcharts.github.io/sonification-studio/). The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
 
 ### Tests
 
