@@ -15,6 +15,9 @@
                 </div>
                 <div class="stepIndicator">
                     <div class="stepIndicatorInner">
+                        <h4 class="sr-only">
+                            Progress
+                        </h4>
                         <div class="stepLine">
                             <div class="stepLineInner" />
                         </div>
@@ -79,7 +82,12 @@
                     v-show="currentStep === 'apikey'"
                     class="apikeyContent"
                 >
-                    <h4>Enter Google API Key</h4>
+                    <h4
+                        ref="apikeyHeading"
+                        tabindex="-1"
+                    >
+                        Enter Google API Key
+                    </h4>
                     <div class="columns">
                         <div class="rightcolumn">
                             <p class="notebox">
@@ -132,7 +140,12 @@
                     v-show="currentStep === 'sharesettings'"
                     class="shareSettingsContent"
                 >
-                    <h4>Prepare your Google Sheet</h4>
+                    <h4
+                        ref="sharesettingsHeading"
+                        tabindex="-1"
+                    >
+                        Prepare your Google Sheet
+                    </h4>
                     <p>
                         The Google Sheet you want to link needs to be publicly accessible in order for this to work. This is done in two steps:
                         <ol>
@@ -164,7 +177,12 @@
                     v-show="currentStep === 'sheeturl'"
                     class="sheetURLContent"
                 >
-                    <h4>Sheet URL</h4>
+                    <h4
+                        ref="sheeturlHeading"
+                        tabindex="-1"
+                    >
+                        Sheet URL
+                    </h4>
                     <p>Paste a link here to the sheet you want to load data from.</p>
                     <p>Then click Finish below to link your sheet.</p>
 
@@ -195,14 +213,19 @@
                     class="confirmationContent"
                 >
                     <div
-                        v-if="googleSheetStatus === statuses.Loading"
+                        v-show="googleSheetStatus === statuses.Loading"
                         class="loading"
                     >
                         <img
                             alt=""
                             :src="spinnerIcon"
                         >
-                        <p>Loading data...</p>
+                        <p
+                            ref="loadingDataText"
+                            tabindex="-1"
+                        >
+                            Loading data...
+                        </p>
                         <SEButton
                             dark
                             @click="onStartOver"
@@ -212,11 +235,16 @@
                     </div>
 
                     <div
-                        v-if="googleSheetStatus === statuses.Success"
+                        v-show="googleSheetStatus === statuses.Success"
                         class="success"
                     >
                         <div class="successbox">
-                            <h4>Success!</h4>
+                            <h4
+                                ref="successHeading"
+                                tabindex="-1"
+                            >
+                                Success!
+                            </h4>
                             <p>Your spreadsheet has been successfully linked.</p>
                         </div>
                         <div class="autorefresh">
@@ -252,11 +280,16 @@
                     </div>
 
                     <div
-                        v-if="googleSheetStatus === statuses.Error"
+                        v-show="googleSheetStatus === statuses.Error"
                         class="error"
                     >
                         <div class="errorbox">
-                            <h4>Something went wrong</h4>
+                            <h4
+                                ref="errorHeading"
+                                tabindex="-1"
+                            >
+                                Something went wrong
+                            </h4>
                             <p>{{ humanReadableErrorMessage }}</p>
                         </div>
 
@@ -336,7 +369,37 @@ export default {
             return 'Please try again.';
         }
     },
+    watch: {
+        currentStep(newStep) {
+            switch(newStep) {
+            case 'apikey':
+                this.focusDeferred((this.$refs as any).apikeyHeading);
+                break;
+            case 'sharesettings':
+                this.focusDeferred((this.$refs as any).sharesettingsHeading);
+                break;
+            case 'sheeturl':
+                this.focusDeferred((this.$refs as any).sheeturlHeading);
+                break;
+            case 'confirmation':
+                if (this.googleSheetStatus === GoogleSheetStatus.Loading) {
+                    this.focusDeferred((this.$refs as any).loadingDataText);
+                }
+                break;
+            }
+        },
+        googleSheetStatus(newStatus: GoogleSheetStatus) {
+            if (newStatus === GoogleSheetStatus.Success) {
+                this.focusDeferred((this.$refs as any).successHeading);
+            } else if (newStatus === GoogleSheetStatus.Error) {
+                this.focusDeferred((this.$refs as any).errorHeading);
+            }
+        }
+    },
     methods: {
+        focusDeferred(el: HTMLElement) {
+            this.$nextTick(() => setTimeout(() => el?.focus(), 80));
+        },
         onStartOver() {
             this.currentStep = 'apikey';
             this.$store.commit('dataStore/setSpreadsheetSetupComplete', false);
@@ -357,6 +420,7 @@ export default {
 
 <style lang="less">
 @import "../colors";
+@import "../sr-only";
 
 .data-g-sheet-container {
     height: 100%;
