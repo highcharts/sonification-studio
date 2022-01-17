@@ -39,7 +39,7 @@
                 :aria-expanded="showGridTools"
                 @click="showGridTools = !showGridTools"
             >
-                Show toolbar
+                Table tools
             </SEToolbarMenu>
             <span class="placeholder" />
         </div>
