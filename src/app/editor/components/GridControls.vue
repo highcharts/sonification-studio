@@ -105,7 +105,8 @@ export default {
     methods: {
         onClearDataClick() {
             if (window.confirm('This will clear all data from the table. Proceed?')) {
-                this.$store.commit('dataStore/setTableRowData', []);
+                const emptyRowData = Array.from(Array(10), () => []);
+                this.$store.commit('dataStore/setTableRowData', emptyRowData);
                 // A timeout seems to be required in order for the announcement not to be overshadowed.
                 setTimeout(() => (this as any).$announcer.announce('Data table cleared.'), 500);
             }
