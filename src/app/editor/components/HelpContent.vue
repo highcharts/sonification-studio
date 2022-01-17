@@ -5,7 +5,7 @@
             This tool allows you to import or enter data, edit it, create charts and sonifications, and export them together or separately.
         </p>
         <p>
-            In the <span class="emp">Data</span> tab, import or edit your data in the data grid. This will automatically create a visual chart, which can be sonified.
+            In the <span class="emp">Data</span> tab, import or edit your data in the data table. This will automatically create a visual chart, which can be sonified.
         </p>
         <p>
             In the <span class="emp">Chart</span> tab, you can view the resulting chart, and modify the visualization as well as the sonification experience.

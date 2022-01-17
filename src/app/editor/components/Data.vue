@@ -54,7 +54,7 @@
             class="data-input-container"
         >
             <h3 class="sr-only">
-                Grid
+                Data Table
             </h3>
             <Grid ref="grid" />
         </div>
@@ -114,7 +114,7 @@ export default {
         onCSVLoaded(fileContents: string) {
             if (fileContents) {
                 this.$store.dispatch('dataStore/loadFromCSV', fileContents);
-                setTimeout(() => (this as any).$announcer.announce('CSV data loaded into grid.'), 500);
+                setTimeout(() => (this as any).$announcer.announce('CSV data loaded into table.'), 500);
             }
         },
         onDataSourceChange(value: string) {

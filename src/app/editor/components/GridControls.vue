@@ -1,12 +1,12 @@
 <template>
     <div class="grid-controls">
         <h3 class="sr-only">
-            Grid tools
+            Table tools
         </h3>
         <div class="grid-controls-group">
             <fieldset>
                 <legend>
-                    Add empty rows to grid
+                    Add empty rows to table
                 </legend>
 
                 <input
@@ -69,7 +69,7 @@
 
         <div class="grid-controls-group">
             <SEButton @click="onClearDataClick">
-                Clear Grid
+                Clear Table
             </SEButton>
         </div>
     </div>
@@ -104,10 +104,10 @@ export default {
     },
     methods: {
         onClearDataClick() {
-            if (window.confirm('This will clear all data from the grid. Proceed?')) {
+            if (window.confirm('This will clear all data from the table. Proceed?')) {
                 this.$store.commit('dataStore/setTableRowData', []);
                 // A timeout seems to be required in order for the announcement not to be overshadowed.
-                setTimeout(() => (this as any).$announcer.announce('Data grid cleared.'), 500);
+                setTimeout(() => (this as any).$announcer.announce('Data table cleared.'), 500);
             }
         },
 
