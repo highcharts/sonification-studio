@@ -345,7 +345,7 @@ export class ChartBridge {
                 reject(new Error('Could not download audio, no chart defined.'));
             }
 
-            const context: AudioContext = this.Highcharts.audioContext;
+            const context: AudioContext = this.Highcharts.Instrument.audioContext;
             const destination = context.createMediaStreamDestination();
             this.setAudioDestinationNode(destination);
 
@@ -385,7 +385,7 @@ export class ChartBridge {
             throw new Error('Could not get canvas video track.');
         }
 
-        const audioContext: AudioContext = this.Highcharts.audioContext;
+        const audioContext: AudioContext = this.Highcharts.Instrument.audioContext;
         const audioDestination = audioContext.createMediaStreamDestination();
         const exportStream = audioDestination.stream;
         exportStream.addTrack(videoTrack);
@@ -551,7 +551,7 @@ export class ChartBridge {
 
     private setAudioDestinationNode(node?: AudioNode) {
         this.Highcharts.sonification.Instrument.prototype.destinationNode = node ||
-            this.Highcharts.audioContext.destination;
+            this.Highcharts.sonification.Instrument.audioContext.destination;
     }
 
 
