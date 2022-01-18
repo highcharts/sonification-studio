@@ -25,11 +25,6 @@
                         v-model="selectedDataSource"
                         label="Data source"
                         :options="dataSourcesList"
-                        @input="onDataSourceChange"
-                    />
-                    <SEFileUpload
-                        ref="uploadDialog"
-                        @load="onCSVLoaded"
                     />
                 </SEControl>
             </div>
@@ -63,10 +58,6 @@
             v-show="selectedDataSource === 'googlesheets'"
             class="data-input-container"
         />
-        <DataURLPoll
-            v-show="selectedDataSource === 'url'"
-            class="data-input-container"
-        />
     </div>
 </template>
 
@@ -75,25 +66,18 @@ import { getUUID } from '../core/utils/objects';
 import Grid from './Grid.vue';
 import GridControls from './GridControls.vue';
 import DataGSheet from './DataGSheet.vue';
-import DataURLPoll from './DataURLpoll.vue';
 import SEToolbarMenu from './basic/SEToolbarMenu.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import SEControl from './basic/SEControl.vue';
-import SEFileUpload from './basic/SEFileUpload.vue';
 import { mapState } from 'vuex';
 
 export default {
     components: {
-        Grid, GridControls, DataGSheet, DataURLPoll, SEToolbarMenu, SEDropdown, SEControl, SEFileUpload
-    },
-    data() {
-        return {
-            csvImportTimer: 0
-        };
+        Grid, GridControls, DataGSheet, SEToolbarMenu, SEDropdown, SEControl
     },
     computed: {
         uuid: () => getUUID('se-data-input'),
-        sourceHasCustomUI() { return this.selectedDataSource === 'url' || this.selectedDataSource === 'googlesheets'; },
+        sourceHasCustomUI() { return this.selectedDataSource === 'googlesheets'; },
         selectedDataSource: {
             get() { return (this as any).$store.state.dataStore.selectedDataSource; },
             set(val) { return this.$store.commit('dataStore/setSelectedDataSource', val); }
@@ -107,22 +91,6 @@ export default {
     methods: {
         onTriggerScrollLastGridRowWithData() {
             (this.$refs.grid as any).scrollToLastGridRowWithData();
-        },
-        onCSVDataSource() {
-            (this.$refs as any).uploadDialog.triggerDialog();
-        },
-        onCSVLoaded(fileContents: string) {
-            if (fileContents) {
-                this.$store.dispatch('dataStore/loadFromCSV', fileContents);
-                setTimeout(() => (this as any).$announcer.announce('CSV data loaded into table.'), 500);
-            }
-        },
-        onDataSourceChange(value: string) {
-            if (value === 'csv') {
-                // Some dropdowns fire multiple input events, so queue the handler
-                clearTimeout(this.csvImportTimer);
-                this.csvImportTimer = setTimeout(() => this.onCSVDataSource(), 100);
-            }
         }
     }
 };

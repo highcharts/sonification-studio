@@ -71,7 +71,6 @@ export const dataStore = {
         googleSheetErrorMessage: '',
         dataSourcesList: [
             { name: 'Table', value: 'table' },
-            { name: 'CSV', value: 'csv' },
             { name: 'Google Sheets', value: 'googlesheets' }
         ]
     },
