@@ -9,7 +9,9 @@
         @keydown="$emit('keydown', $event)"
     >
         <div class="btn-content">
-            <slot />
+            <div class="slot-container">
+                <slot />
+            </div>
             <img
                 alt=""
                 aria-hidden="true"
@@ -66,7 +68,13 @@ export default {
         position: absolute;
         width: 9.5rem;
         bottom: 10px;
-        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .slot-container {
+        border-bottom: 1px solid @sebutton-hover-bg;
     }
 
     button::-moz-focus-inner {
@@ -75,7 +83,9 @@ export default {
 
     img {
         pointer-events: none;
-        width: 1.125rem;
+        width: 18px;
         height: $width;
+        margin-top: -8px;
+        margin-left: 3px;
     }
 </style>
