@@ -52,8 +52,9 @@
             >
                 Project tools
             </h2>
-            <HeaderImport class="section-import" />
-            <HeaderExport class="section-export" />
+            <ProjectMenu />
+            <ImportMenu />
+            <ExportMenu />
         </div>
     </header>
 </template>
@@ -62,15 +63,17 @@
 import highchartsIcon from '../assets/highcharts-logo.svg';
 import EditorNav from './EditorNav.vue';
 import PrimaryNav from './PrimaryNav.vue';
-import HeaderImport from './HeaderImport.vue';
-import HeaderExport from './HeaderExport.vue';
+import ImportMenu from './ImportMenu.vue';
+import ExportMenu from './ExportMenu.vue';
+import ProjectMenu from './ProjectMenu.vue';
 
 export default {
     components: {
         EditorNav,
         PrimaryNav,
-        HeaderImport,
-        HeaderExport
+        ImportMenu,
+        ExportMenu,
+        ProjectMenu
     },
     data() {
         return { highchartsIcon };
