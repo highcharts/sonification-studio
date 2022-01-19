@@ -3,7 +3,6 @@
         <SEDropdownMenu
             button-text="Export"
             :button-icon="menuIcon"
-            heading="Download project as"
             :options="menuOptions"
         />
 

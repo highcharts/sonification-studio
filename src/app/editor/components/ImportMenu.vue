@@ -3,7 +3,6 @@
         <SEDropdownMenu
             button-text="Import"
             :button-icon="menuIcon"
-            heading="Load into project"
             :options="menuOptions"
         />
     </div>
