@@ -23,18 +23,18 @@ export default {
             menuIcon,
             projectIcon,
             menuOptions: [{
-                label: 'New project',
+                label: 'New Project',
                 icon: projectIcon,
                 type: 'button',
                 onclick: () => (this as any).newProject()
             }, {
-                label: 'Open project',
+                label: 'Open Project',
                 icon: projectIcon,
                 type: 'fileupload',
                 fileTypes: '.hssp',
                 onload: (c: string) => (this as any).importProject(c)
             }, {
-                label: 'Save project as',
+                label: 'Save Project As',
                 icon: projectIcon,
                 type: 'button',
                 onclick: () => (this as any).dlProject()
