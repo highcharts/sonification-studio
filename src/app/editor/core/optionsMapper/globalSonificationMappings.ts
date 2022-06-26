@@ -30,6 +30,19 @@ export class GlobalSonificationMappings {
         };
     }
 
+    public static detail(value: number): GenericObject {
+        const timespan = 480 - Math.log(value) * 170; // Val goes from 1-15
+        return {
+            sonification: {
+                defaultInstrumentOptions: {
+                    pointGrouping: {
+                        groupTimespan: timespan
+                    }
+                }
+            }
+        };
+    }
+
     public static minNote(value: number): GenericObject {
         return {
             sonification: {

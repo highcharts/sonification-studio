@@ -20,7 +20,8 @@ const defaultState = () => ({
     minNote: 22,
     maxNote: 96,
     panEnabled: true,
-    panWidth: 100
+    panWidth: 100,
+    detail: 8
 });
 
 export const globalSonifyParametersStore = {
@@ -34,7 +35,7 @@ export const globalSonifyParametersStore = {
         // or localStorage session restore. Keep backwards compatibility in mind.
         restoreStoreState(state: any, newState?: GenericObject) {
             const defaultOpts: GenericObject = defaultState();
-            ['volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth'].forEach(
+            ['volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail'].forEach(
                 x => state[x] = newState ? firstDefined(newState[x], state[x]) : defaultOpts[x]);
             ['speed', 'order', 'duration'].forEach(
                 x => state.playbackOpts[x] = newState ? firstDefined(newState.playbackOpts[x], state.playbackOpts[x]) :
@@ -43,6 +44,10 @@ export const globalSonifyParametersStore = {
 
         setVolume(state: any, volume: number) {
             state.volume = volume;
+        },
+
+        setDetail(state: any, detail: number) {
+            state.detail = detail;
         },
 
         setSpeed(state: any, speed: number) {

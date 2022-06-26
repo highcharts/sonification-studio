@@ -166,7 +166,7 @@ export default {
             this.pitchMappingProp = nullFallback(this.pitchMappingProp, 'y');
             this.minNote = nullFallback(this.minNote, 12);
             this.maxNote = nullFallback(this.maxNote, 107);
-            this.pitchValue = nullFallback(this.pitchValue, 440);
+            this.pitchValue = nullFallback(this.pitchValue, 60);
             this.pitchPolarity = nullFallback(this.pitchPolarity, 'positive');
         }
     }

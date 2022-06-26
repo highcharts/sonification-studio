@@ -379,7 +379,7 @@ export class ChartBridge {
             throw new Error('Could not get canvas video track.');
         }
 
-        const audioContext: AudioContext = this.Highcharts.Instrument.audioContext;
+        const audioContext: AudioContext = this.chart?.sonification.audioContext;
         const audioDestination = audioContext.createMediaStreamDestination();
         const exportStream = audioDestination.stream;
         exportStream.addTrack(videoTrack);
@@ -390,7 +390,7 @@ export class ChartBridge {
             credits: { enabled: true }
         });
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => setTimeout(() => {
             const recorder = this.recordStream(exportStream, false, void 0, reject);
             const chartPainter = setInterval(() => {
                 this.drawChartOnCanvas(canvas).catch((e) => {
@@ -401,7 +401,7 @@ export class ChartBridge {
                 });
             }, 1000 / framerate);
 
-            this.playChart(() => {
+            this.playChart(() => setTimeout(() => {
                 recorder.stop();
                 this.setAudioDestinationNode();
                 clearInterval(chartPainter);
@@ -412,8 +412,8 @@ export class ChartBridge {
                 });
 
                 resolve();
-            });
-        });
+            }, 200));
+        }, 200));
     }
 
 

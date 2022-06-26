@@ -23,6 +23,20 @@
                 </SEControl>
                 <SEControl
                     v-slot="slotProps"
+                    label="Detail"
+                    helptext="Set the audio detail from low to high, meaning how many notes are played. When you have a lot of data, multiple points may be combined into a single note depending on this setting."
+                >
+                    <SESlider
+                        :id="slotProps.controlId"
+                        v-model.number="detail"
+                        :labelledby="slotProps.labelId"
+                        :min="1"
+                        :max="15"
+                        :step="1"
+                    />
+                </SEControl>
+                <SEControl
+                    v-slot="slotProps"
                     label="Enable chart play marker"
                     helptext="Visually show the current play position on the chart with a moving crosshair."
                     horizontal
@@ -145,6 +159,10 @@ export default {
         speed: {
             get() { return (this as any).$store.state.globalSonifyParametersStore.playbackOpts.speed; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setSpeed', val); }
+        },
+        detail: {
+            get() { return (this as any).$store.state.globalSonifyParametersStore.detail; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setDetail', val); }
         },
         playMarkerEnabled: {
             get() { return (this as any).$store.state.globalSonifyParametersStore.playMarkerEnabled; },

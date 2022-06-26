@@ -58,6 +58,8 @@ export default {
                     this.$store.commit('viewStore/setShowChartComponent', true);
                     this.$nextTick(() => {
                         try {
+                            const charts = (this as any).$chartBridge.Highcharts.charts;
+                            (this as any).$chartBridge.init(charts[charts.length - 1]);
                             afterRecreate();
                         } finally {
                             setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 1200);
