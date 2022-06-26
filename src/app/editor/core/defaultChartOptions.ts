@@ -69,20 +69,23 @@ export const defaultChartOptions = {
         enabled: true,
         afterSeriesWait: 600,
         order: 'simultaneous',
-        masterVolume: 0.3,
-        // Reset on end
-        onEnd: function (e: any) {
-            e.path.timeline.resetCursor();
+        masterVolume: 0.7,
+        events: {
+            onBoundaryHit(e: GenericObject) {
+                e.timeline.chart.playBoundaryHit(e.next);
+            }
         },
         defaultInstrumentOptions: {
-            instrument: 'sine',
-            minDuration: 40,
-            maxDuration: 3000,
             mapping: {
-                duration: 400,
-                frequency: 'y',
-                volume: 1,
-                pointPlayTime: 'x'
+                pitch: {
+                    mapTo: 'y'
+                }
+            },
+            pointGrouping: {
+                enabled: true,
+                groupTimespan: 40,
+                algorithm: 'minmax',
+                prop: 'y'
             }
         }
     },
@@ -100,7 +103,8 @@ export const defaultChartOptions = {
             dataGrouping: {
                 enabled: true,
                 groupPixelWidth: 3
-            }
+            },
+            cropThreshold: 1
         },
         pie: {
             dataGrouping: {

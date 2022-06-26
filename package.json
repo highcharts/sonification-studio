@@ -60,7 +60,7 @@
     "@types/mathjs": "^6.0.5",
     "ag-grid-community": "^25.3.0",
     "ag-grid-vue": "^25.3.0",
-    "highcharts": "file:./vendor/highcharts-v9.3.2-mod1",
+    "highcharts": "file:./vendor/highcharts-v10.1.0-mod1/",
     "highcharts-vue": "^1.3.5",
     "mathjs": "^7.1.0",
     "vue": "^2.6.11",

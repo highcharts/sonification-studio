@@ -13,8 +13,9 @@ export class SeriesSonificationMappings {
     public static instrument(options: GenericObject): GenericObject {
         return {
             sonification: {
-                instruments: [{
-                    instrument: options.instrument + (options.pitchRoundingEnabled ? 'Musical' : '')
+                tracks: [{
+                    instrument: options.instrument,
+                    roundToMusicalNotes: options.pitchRoundingEnabled
                 }]
             }
         };
@@ -22,15 +23,13 @@ export class SeriesSonificationMappings {
 
     public static pitchOptions(options: GenericObject): GenericObject {
         return SeriesSonificationMappings.getMappedOptions(
-            'frequency',
+            'pitch',
             options.pitchType,
             options.pitchPolarity,
             options.pitchMappingProp,
             options.pitchValue,
-            {
-                minFrequency: options.minFreq,
-                maxFrequency: options.maxFreq
-            }
+            options.minNote,
+            options.maxNote
         );
     }
 
@@ -44,10 +43,8 @@ export class SeriesSonificationMappings {
             options.panPolarity,
             options.panMappingProp,
             panValueTranslate(options.panValue),
-            {
-                minPan: panValueTranslate(options.minPan),
-                maxPan: panValueTranslate(options.maxPan)
-            }
+            panValueTranslate(options.minPan),
+            panValueTranslate(options.maxPan)
         );
     }
 
@@ -61,24 +58,20 @@ export class SeriesSonificationMappings {
             options.volumePolarity,
             options.volumeMappingProp,
             volumeValueTranslate(options.volumeValue),
-            {
-                minVolume: volumeValueTranslate(options.minVolume),
-                maxVolume: volumeValueTranslate(options.maxVolume)
-            }
+            volumeValueTranslate(options.minVolume),
+            volumeValueTranslate(options.maxVolume)
         );
     }
 
     public static durationOptions(options: GenericObject): GenericObject {
         return SeriesSonificationMappings.getMappedOptions(
-            'duration',
+            'noteDuration',
             options.durationType,
             options.durationPolarity,
             options.durationMappingProp,
             options.durationValue,
-            {
-                minDuration: options.minDuration,
-                maxDuration: options.maxDuration
-            }
+            options.minDuration,
+            options.maxDuration
         );
     }
 
@@ -93,25 +86,28 @@ export class SeriesSonificationMappings {
         polarity: string,
         mappedProp: string,
         fixedValue: any,
-        additionalOptions: GenericObject
+        min: any,
+        max: any
     ): GenericObject {
         const mapped = type === 'mapped';
         const fixed = type === 'fixed';
         const mappedValue = (polarity === 'negative' ? '-' : '') + mappedProp;
-        // We only add the additional options if type is 'mapping'
-        const additionalOptsMapped = Object.keys(additionalOptions)
-            .reduce((res: GenericObject, key): GenericObject => {
-                res[key] = mapped ? additionalOptions[key] : null;
-                return res;
-            }, {});
+
+        if (!mapped && !fixed) {
+            return {};
+        }
 
         return {
             sonification: {
-                instruments: [Object.assign({
+                tracks: [{
                     mapping: {
-                        [mappingKey]: mapped ? mappedValue : fixed ? fixedValue : null
+                        [mappingKey]: mapped ? {
+                            mapTo: mappedValue,
+                            min,
+                            max
+                        } : fixedValue
                     }
-                }, additionalOptsMapped)]
+                }]
             }
         };
     }

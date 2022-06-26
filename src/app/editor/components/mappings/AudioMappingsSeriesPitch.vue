@@ -18,14 +18,14 @@
             v-show="pitchType === 'fixed'"
             v-slot="slotProps"
             label="Pitch value"
-            helptext="Set a specific pitch/frequency value to play for this data series, in Hertz."
+            helptext="Set a specific note value to play for this data series, in number of notes from C0."
         >
             <SESlider
                 :id="slotProps.controlId"
                 v-model.number="pitchValue"
                 :labelledby="slotProps.labelId"
-                :min="60"
-                :max="4200"
+                :min="0"
+                :max="110"
                 :step="1"
             />
         </SEControl>
@@ -33,15 +33,15 @@
         <SEControl
             v-show="pitchType === 'mapped'"
             v-slot="slotProps"
-            label="Minimum frequency"
-            helptext="Set a minimum pitch/frequency, in Hertz."
+            label="Minimum note"
+            helptext="Set a minimum pitch/note, in number of notes from C0."
         >
             <SESlider
                 :id="slotProps.controlId"
-                v-model.number="minFreq"
+                v-model.number="minNote"
                 :labelledby="slotProps.labelId"
-                :min="20"
-                :max="4200"
+                :min="0"
+                :max="110"
                 :step="1"
             />
         </SEControl>
@@ -49,15 +49,15 @@
         <SEControl
             v-show="pitchType === 'mapped'"
             v-slot="slotProps"
-            label="Maximum frequency"
-            helptext="Set a maximum pitch/frequency, in Hertz."
+            label="Maximum note"
+            helptext="Set a maximum pitch/frequency, in number of notes from C0."
         >
             <SESlider
                 :id="slotProps.controlId"
-                v-model.number="maxFreq"
+                v-model.number="maxNote"
                 :labelledby="slotProps.labelId"
-                :min="20"
-                :max="4200"
+                :min="10"
+                :max="110"
                 :step="1"
             />
         </SEControl>
@@ -141,8 +141,8 @@ export default {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         pitchType: makeSeriesParamPropertyMapping('pitchType', 'default', 'pitchOptions'),
         pitchMappingProp: makeSeriesParamPropertyMapping('pitchMappingProp', null, 'pitchOptions'),
-        minFreq: makeSeriesParamPropertyMapping('minFreq', null, 'pitchOptions'),
-        maxFreq: makeSeriesParamPropertyMapping('maxFreq', null, 'pitchOptions'),
+        minNote: makeSeriesParamPropertyMapping('minNote', null, 'pitchOptions'),
+        maxNote: makeSeriesParamPropertyMapping('maxNote', null, 'pitchOptions'),
         pitchValue: makeSeriesParamPropertyMapping('pitchValue', null, 'pitchOptions'),
         pitchPolarity: makeSeriesParamPropertyMapping('pitchPolarity', null, 'pitchOptions'),
         mappingProps() {
@@ -164,8 +164,8 @@ export default {
             // are changed by the user are added to the store. Note that we only set the defaults
             // if the data is not already present in the store.
             this.pitchMappingProp = nullFallback(this.pitchMappingProp, 'y');
-            this.minFreq = nullFallback(this.minFreq, 330);
-            this.maxFreq = nullFallback(this.maxFreq, 3300);
+            this.minNote = nullFallback(this.minNote, 12);
+            this.maxNote = nullFallback(this.maxNote, 107);
             this.pitchValue = nullFallback(this.pitchValue, 440);
             this.pitchPolarity = nullFallback(this.pitchPolarity, 'positive');
         }

@@ -28,6 +28,19 @@
 
         <SEControl
             v-slot="slotProps"
+            label="Shared tooltip"
+            helptext="Share a single tooltip between the data series."
+            horizontal
+            helptext-middle
+        >
+            <SECheckbox
+                :id="slotProps.controlId"
+                v-model="sharedTooltipEnabled"
+            />
+        </SEControl>
+
+        <SEControl
+            v-slot="slotProps"
             label="Show data series labels"
             helptext="Show a label next to each data series with its name. Labels may be hidden if no good position is found automatically."
             horizontal
@@ -110,6 +123,10 @@ export default {
         chartLegendEnabled: {
             get() { return (this as any).$store.state.chartParametersStore.legendEnabled; },
             set(val) { return this.$store.commit('chartParametersStore/setLegendEnabled', val); }
+        },
+        sharedTooltipEnabled: {
+            get() { return (this as any).$store.state.chartParametersStore.sharedTooltipEnabled; },
+            set(val) { return this.$store.commit('chartParametersStore/setSharedTooltipEnabled', val); }
         },
         chartInverted: {
             get() { return (this as any).$store.state.chartParametersStore.inverted; },

@@ -10,6 +10,10 @@ export class ChartMappings {
         return { legend: { enabled: value } };
     }
 
+    public static sharedTooltipEnabled(value: boolean): GenericObject {
+        return { tooltip: { shared: value } };
+    }
+
     public static inverted(value: boolean): GenericObject {
         return { chart: { inverted: value } };
     }

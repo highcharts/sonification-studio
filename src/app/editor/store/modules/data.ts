@@ -111,7 +111,6 @@ export const dataStore = {
             return state.googleSpreadsheetURL && state.googleSpreadsheetURL.match(regex)[1];
         },
 
-
         tableCSVDataURI: (state: GenericObject): string => {
             return state.tableCSV ? encodeURI(`data:text/csv;charset=utf-8,${state.tableCSV}`) : '';
         },

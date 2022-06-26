@@ -24,9 +24,9 @@
                 :id="slotProps.controlId"
                 v-model.number="durationValue"
                 :labelledby="slotProps.labelId"
-                :min="40"
-                :max="3000"
-                :step="10"
+                :min="10"
+                :max="5000"
+                :step="1"
             />
         </SEControl>
 
@@ -40,9 +40,9 @@
                 :id="slotProps.controlId"
                 v-model.number="minDuration"
                 :labelledby="slotProps.labelId"
-                :min="40"
-                :max="3000"
-                :step="10"
+                :min="10"
+                :max="2000"
+                :step="1"
             />
         </SEControl>
 
@@ -56,9 +56,9 @@
                 :id="slotProps.controlId"
                 v-model.number="maxDuration"
                 :labelledby="slotProps.labelId"
-                :min="40"
-                :max="3000"
-                :step="10"
+                :min="10"
+                :max="2000"
+                :step="1"
             />
         </SEControl>
 

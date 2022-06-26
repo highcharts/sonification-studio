@@ -10,24 +10,37 @@
             <div class="controls-group">
                 <SEControl
                     v-slot="slotProps"
-                    label="Speed"
-                    helptext="Set the playing speed from 0 to 100."
+                    :label="`Speed (duration ${Math.round(playbackOpts.duration / 100) / 10}s)`"
+                    helptext="Set the playing speed from 1 to 100."
                 >
                     <SESlider
                         :id="slotProps.controlId"
                         v-model.number="speed"
                         :labelledby="slotProps.labelId"
+                        :min="1"
+                        :step="0.1"
                     />
                 </SEControl>
                 <SEControl
                     v-slot="slotProps"
                     label="Enable chart play marker"
-                    helptext="Visually show the current play position on the chart with a moving tooltip."
+                    helptext="Visually show the current play position on the chart with a moving crosshair."
                     horizontal
                 >
                     <SECheckbox
                         :id="slotProps.controlId"
                         v-model="playMarkerEnabled"
+                    />
+                </SEControl>
+                <SEControl
+                    v-slot="slotProps"
+                    label="Show tooltip on play"
+                    helptext="Highlight the current point with a tooltip while playing."
+                    horizontal
+                >
+                    <SECheckbox
+                        :id="slotProps.controlId"
+                        v-model="tooltipMarkerEnabled"
                     />
                 </SEControl>
                 <SEControl
@@ -49,28 +62,28 @@
             <div class="controls-group">
                 <SEControl
                     v-slot="slotProps"
-                    label="Min frequency"
-                    helptext="The lowest note to play, given as note frequency in Hertz."
+                    label="Min note"
+                    helptext="The lowest note to play, given as number of notes from C0."
                 >
                     <SESlider
                         :id="slotProps.controlId"
-                        v-model.number="minFreq"
+                        v-model.number="minNote"
                         :labelledby="slotProps.labelId"
-                        :min="60"
-                        :max="4200"
+                        :min="0"
+                        :max="110"
                     />
                 </SEControl>
                 <SEControl
                     v-slot="slotProps"
-                    label="Max frequency"
-                    helptext="The highest note to play, given as note frequency in Hertz."
+                    label="Max note"
+                    helptext="The highest note to play, given as number of notes from C0."
                 >
                     <SESlider
                         :id="slotProps.controlId"
-                        v-model.number="maxFreq"
+                        v-model.number="maxNote"
                         :labelledby="slotProps.labelId"
-                        :min="60"
-                        :max="4200"
+                        :min="0"
+                        :max="110"
                     />
                 </SEControl>
             </div>
@@ -108,6 +121,7 @@ import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SERadioGroup from '../basic/SERadioGroup.vue';
+import { mapState } from 'vuex';
 
 export default {
     components: {
@@ -136,17 +150,21 @@ export default {
             get() { return (this as any).$store.state.globalSonifyParametersStore.playMarkerEnabled; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setPlayMarkerEnabled', val); }
         },
+        tooltipMarkerEnabled: {
+            get() { return (this as any).$store.state.globalSonifyParametersStore.tooltipMarkerEnabled; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setTooltipMarkerEnabled', val); }
+        },
         order: {
             get() { return (this as any).$store.state.globalSonifyParametersStore.playbackOpts.order; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setOrder', val); }
         },
-        minFreq: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.minFrequency; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setMinFrequency', val); }
+        minNote: {
+            get() { return (this as any).$store.state.globalSonifyParametersStore.minNote; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setMinNote', val); }
         },
-        maxFreq: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.maxFrequency; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setMaxFrequency', val); }
+        maxNote: {
+            get() { return (this as any).$store.state.globalSonifyParametersStore.maxNote; },
+            set(val) { return this.$store.commit('globalSonifyParametersStore/setMaxNote', val); }
         },
         panEnabled: {
             get() { return (this as any).$store.state.globalSonifyParametersStore.panEnabled; },
@@ -155,7 +173,8 @@ export default {
         panWidth: {
             get() { return (this as any).$store.state.globalSonifyParametersStore.panWidth; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setPanWidth', val); }
-        }
+        },
+        ...mapState('globalSonifyParametersStore', ['playbackOpts'])
     }
 };
 </script>

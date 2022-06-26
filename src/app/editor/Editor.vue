@@ -52,6 +52,22 @@ import Announcer from './core/utils/Announcer';
 import { store, storageKey, storageRevision } from './store/store';
 import { ChartBridge } from './core/ChartBridge';
 
+let boundaryInstr: Highcharts.Sonification.SonificationInstrument;
+Highcharts.Chart.prototype.playBoundaryHit = function(next: boolean) {
+    const ax = this.sonification?.audioContext;
+    if (ax) {
+        if (!boundaryInstr) {
+            boundaryInstr = new Highcharts.sonification.SonificationInstrument(
+                ax, ax.destination, { synthPatch: 'step' });
+        }
+        boundaryInstr.scheduleEventAtTime(0, {
+            note: 20,
+            pan: next ? 1 : -1,
+            noteDuration: 200
+        });
+    }
+};
+
 Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
 const announcer = Vue.prototype.$announcer = new Announcer();
 

@@ -69,6 +69,8 @@ import {
     nullFallback
 } from '../../core/utils/objects';
 
+import { mapState } from 'vuex';
+
 export default {
     components: {
         SEControl,
@@ -77,19 +79,6 @@ export default {
     },
     data() {
         return {
-            instruments: [{
-                name: 'Sine wave',
-                value: 'sine'
-            }, {
-                name: 'Triangle wave',
-                value: 'triangle'
-            }, {
-                name: 'Sawtooth wave',
-                value: 'sawtooth'
-            }, {
-                name: 'Square wave',
-                value: 'square'
-            }],
             playSamples: true
         };
     },
@@ -97,7 +86,16 @@ export default {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         sonificationEnabled: makeSeriesParamPropertyMapping('sonificationEnabled', true),
         instrument: makeSeriesParamPropertyMapping('instrument', null, 'instrument'),
-        pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', null, 'instrument')
+        instruments() {
+            return Object.keys(
+                (this as any).$chartBridge.Highcharts.sonification.InstrumentPresets
+            ).map(i => ({
+                name: i[0].toUpperCase() + i.slice(1),
+                value: i
+            }));
+        },
+        pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', null, 'instrument'),
+        ...mapState('viewStore', ['selectedHeaderTabContent'])
     },
     watch: {
         selectedSeries() {
@@ -109,13 +107,13 @@ export default {
     },
     methods: {
         onInstrumentChange() {
-            if (this.playSamples) {
+            if (this.playSamples && this.instrument && this.selectedHeaderTabContent !== 'dataContent') {
                 (this as any).$chartBridge.playAudioSample(this.instrument);
             }
         },
         populateProps() {
-            this.pitchRoundingEnabled = nullFallback(this.pitchRoundingEnabled, false);
-            this.instrument = nullFallback(this.instrument, 'sine');
+            this.pitchRoundingEnabled = nullFallback(this.pitchRoundingEnabled, true);
+            this.instrument = nullFallback(this.instrument, 'piano');
         }
     }
 };

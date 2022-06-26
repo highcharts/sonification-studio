@@ -53,6 +53,11 @@ export default {
                 type: 'button',
                 onclick: () => (this as any).dlAudio()
             }, {
+                label: 'Audio as MIDI',
+                icon: musicIcon,
+                type: 'button',
+                onclick: () => (this as any).dlMIDI()
+            }, {
                 label: 'Image',
                 icon: pictureIcon,
                 type: 'button',
@@ -141,6 +146,10 @@ export default {
             } catch (e) {
                 fail(e);
             }
+        },
+
+        dlMIDI() {
+            (this as any).$chartBridge.downloadMIDI();
         },
 
         dlSVG() {

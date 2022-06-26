@@ -7,16 +7,18 @@
 import { GenericObject, firstDefined } from '../../core/utils/objects';
 
 const defaultState = () => ({
-    volume: 30,
+    volume: 60,
     playbackOpts: {
         // These are grouped because we have to update our interpretation of speed whenever order changes.
         // This way they are mapped to options together.
-        speed: 50,
-        order: 'simultaneous'
+        speed: 70,
+        order: 'simultaneous',
+        duration: 12000 // Computed when setting speed
     },
-    playMarkerEnabled: false,
-    minFrequency: 392, // G4
-    maxFrequency: 1319, // G6
+    playMarkerEnabled: true,
+    tooltipMarkerEnabled: false,
+    minNote: 22,
+    maxNote: 96,
     panEnabled: true,
     panWidth: 100
 });
@@ -32,9 +34,9 @@ export const globalSonifyParametersStore = {
         // or localStorage session restore. Keep backwards compatibility in mind.
         restoreStoreState(state: any, newState?: GenericObject) {
             const defaultOpts: GenericObject = defaultState();
-            ['volume', 'playMarkerEnabled', 'minFrequency', 'maxFrequency', 'panEnabled', 'panWidth'].forEach(
+            ['volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth'].forEach(
                 x => state[x] = newState ? firstDefined(newState[x], state[x]) : defaultOpts[x]);
-            ['speed', 'order'].forEach(
+            ['speed', 'order', 'duration'].forEach(
                 x => state.playbackOpts[x] = newState ? firstDefined(newState.playbackOpts[x], state.playbackOpts[x]) :
                     defaultOpts.playbackOpts[x]);
         },
@@ -45,22 +47,28 @@ export const globalSonifyParametersStore = {
 
         setSpeed(state: any, speed: number) {
             state.playbackOpts.speed = speed;
+            state.playbackOpts.duration =
+                Math.round(1 / Math.pow(speed, 0.4 * speed / 100 + 0.4) * 320000 - 6000);
         },
 
         setPlayMarkerEnabled(state: any, enabled: boolean) {
             state.playMarkerEnabled = enabled;
         },
 
+        setTooltipMarkerEnabled(state: any, enabled: boolean) {
+            state.tooltipMarkerEnabled = enabled;
+        },
+
         setOrder(state: any, order: string) {
             state.playbackOpts.order = order;
         },
 
-        setMinFrequency(state: any, minfreq: number) {
-            state.minFrequency = minfreq;
+        setMinNote(state: any, note: number) {
+            state.minNote = note;
         },
 
-        setMaxFrequency(state: any, maxfreq: number) {
-            state.maxFrequency = maxfreq;
+        setMaxNote(state: any, note: number) {
+            state.maxNote = note;
         },
 
         setPanEnabled(state: any, pan: boolean) {

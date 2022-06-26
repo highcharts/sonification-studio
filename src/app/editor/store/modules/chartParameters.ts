@@ -21,6 +21,7 @@ const defaultState = () => ({
     yAxisMin: '',
     yAxisMax: '',
     seriesLabelsEnabled: false,
+    sharedTooltipEnabled: true,
     zoomType: 'x',
     dataGroupingType: 'default'
 });
@@ -51,6 +52,10 @@ export const chartParametersStore = {
 
         setChartInverted(state: any, inverted: boolean) {
             state.inverted = inverted;
+        },
+
+        setSharedTooltipEnabled(state: any, enabled: boolean) {
+            state.sharedTooltipEnabled = enabled;
         },
 
         setTitle(state: any, title: string) {

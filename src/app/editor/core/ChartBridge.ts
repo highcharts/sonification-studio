@@ -8,12 +8,6 @@ import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMap
 import { GoogleSheetStatus } from '../store/modules/data';
 import { Store } from 'vuex';
 
-interface UpdateProgressState {
-    intervalTimer: number|null;
-    prevTimestamp: number;
-    prevEventStartTime: number;
-}
-
 
 /**
  * Interface between chart-specific logic and the rest of the
@@ -38,7 +32,7 @@ export class ChartBridge {
     private commitToStore: (id: string, payload?: any) => void;
     private storeGetter: (storeId: string, getterId: string) => any;
     private reactivityTimeouts: GenericObject = {};
-    private updateProgressState: UpdateProgressState;
+    private progressTimer: number|undefined;
     private _seReactivityCounter: number|null = null;
     private audioSampleTimeline: GenericObject|null = null;
 
@@ -47,11 +41,6 @@ export class ChartBridge {
      * Construct the class with a Vuex store instance
      */
     constructor(store: Store<any>, private Highcharts: GenericObject) {
-        this.updateProgressState = {
-            intervalTimer: null,
-            prevTimestamp: 0,
-            prevEventStartTime: 0
-        };
         this.chartParametersStore = store.state.chartParametersStore;
         this.seriesParametersStore = store.state.seriesParametersStore;
         this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
@@ -203,8 +192,7 @@ export class ChartBridge {
 
 
     public isPaused(): boolean {
-        const timeline = this.chart?.sonification.timeline;
-        return timeline && timeline.paths.length && !timeline.atStart();
+        return this.chart?.sonification.timeline?.isPaused;
     }
 
 
@@ -217,85 +205,80 @@ export class ChartBridge {
         this.startProgressUpdatePolling();
 
         if (!this.isPaused()) {
-            chart.sonify({
-                onEnd: (e: any) => {
-                    this.stopChart();
-                    if (onEnd) {
-                        onEnd(e);
-                    }
+            chart.sonify((e: any) => {
+                if (onEnd) {
+                    onEnd(e);
                 }
             });
         } else {
-            chart.resumeSonify();
+            chart.sonification.timeline.resume();
         }
     }
 
 
     public stopChart() {
         this.stopProgressUpdatePolling();
-        this.chart?.cancelSonify();
+        this.chart?.sonification.timeline?.reset();
         this.updatePlayProgress();
     }
 
 
     public pauseChart() {
         this.stopProgressUpdatePolling();
-        this.chart?.pauseSonify();
+        this.chart?.sonification.timeline.pause();
     }
 
 
     public loopChart() {
-        this.playChart((e: GenericObject) => {
-            if (!e.cancelled) {
-                this.loopChart();
-            }
-        });
+        this.playChart(() => this.loopChart());
+    }
+
+
+    public playNext() {
+        this.stopProgressUpdatePolling();
+        this.chart?.sonification.timeline.pause();
+    }
+
+
+    public playAdjacent(next: boolean) {
+        this.chart?.sonification.timeline.playAdjacent(next);
+        this.updatePlayProgress();
     }
 
 
     public playAudioSample(instrument: string) {
         const globalVolume = this.getStoreParam('globalSonifyParametersStore', 'volume');
-        const sonificationLib = (Highcharts as any).sonification;
-        const getEarconForFreq = (freq: number) =>
-            (new sonificationLib.Earcon({
-                instruments: [{
-                    instrument: instrument,
-                    playOptions: {
-                        frequency: freq,
-                        volume: 0.7 * globalVolume / 100,
-                        duration: 150
-                    }
-                }]
-            }));
+        const Instrument = this.Highcharts.sonification.SonificationInstrument,
+            Timeline = this.Highcharts.sonification.SonificationTimeline,
+            s = this.chart?.sonification;
 
-        const makeTimelineEvent = (frequency: number, time: number) => (
-            new sonificationLib.TimelineEvent({
-                eventObject: getEarconForFreq(frequency),
-                time: time
-            }));
-
-        const timelinePath = new sonificationLib.TimelinePath({
-            events: [
-                makeTimelineEvent(523, 0),
-                makeTimelineEvent(784, 160),
-                makeTimelineEvent(1047, 320),
-                makeTimelineEvent(1568, 480)
-            ]
-        });
+        if (!s) {
+            return;
+        }
 
         let timeline = this.audioSampleTimeline;
         if (timeline) {
-            timeline.pause();
+            timeline.destroy();
         }
-        timeline = this.audioSampleTimeline = new sonificationLib.Timeline({
-            paths: [timelinePath],
-            onEnd() {
-                if (timeline) {
-                    timeline.pause();
-                    timeline.resetCursor();
-                }
+        timeline = this.audioSampleTimeline = new Timeline() as GenericObject;
+
+        const instr = new Instrument(s.audioContext, s.audioContext.destination, {
+            synthPatch: instrument
+        });
+
+        timeline.addChannel('instrument', instr, [{
+            time: 0,
+            instrumentEventOptions: {
+                note: 'c3',
+                noteDuration: 150,
+                volume: globalVolume / 100
             }
-        }) as GenericObject;
+        },
+        { time: 150, instrumentEventOptions: { note: 'g3' } },
+        { time: 300, instrumentEventOptions: { note: 'c4' } },
+        { time: 450, instrumentEventOptions: { note: 'c5' } },
+        { time: 600, instrumentEventOptions: { note: 'g5' } }]);
+
         timeline.play();
     }
 
@@ -315,6 +298,16 @@ export class ChartBridge {
                 type: 'image/svg+xml',
                 filename: this.getChartTitleForExport()
             });
+        }
+    }
+
+
+    public downloadMIDI(): void {
+        if (this.chart?.sonification.timeline) {
+            this.chart.sonification.timeline.downloadMIDI(
+                this.getChartTitleForExport());
+        } else {
+            alert('Chart not created yet.');
         }
     }
 
@@ -341,20 +334,21 @@ export class ChartBridge {
             if (!this.browserSupportsRecording()) {
                 reject(new Error('Browser does not support media recording. Audio could not be downloaded.'));
             }
-            if (!this.chart) {
+            if (!this.chart?.sonification) {
                 reject(new Error('Could not download audio, no chart defined.'));
             }
 
-            const context: AudioContext = this.Highcharts.Instrument.audioContext;
+            const context: AudioContext = this.chart?.sonification.audioContext;
             const destination = context.createMediaStreamDestination();
             this.setAudioDestinationNode(destination);
 
             const recorder = this.recordStream(destination.stream, true, resolve, reject);
 
-            this.playChart(() => {
-                this.setAudioDestinationNode();
-                recorder.stop();
-            });
+            setTimeout(() =>
+                this.playChart(() => setTimeout(() => {
+                    recorder.stop();
+                    this.setAudioDestinationNode();
+                }, 300)), 300);
         });
     }
 
@@ -485,7 +479,6 @@ export class ChartBridge {
             delete userOptions.data;
             delete userOptions._seReactivityCounter;
             delete userOptions.plotOptions?.series?.events;
-            delete userOptions.sonification?.onEnd;
 
             const mergedOptions = deepMerge(userOptions, this.chartOptions);
             if (this.chartDataOptions?.series) {
@@ -507,6 +500,7 @@ export class ChartBridge {
         const preferredMimeTypes = audioOnly ? [
             'audio/wav',
             'audio/mpeg',
+            'audio/mp3',
             'audio/mp4',
             'audio/ogg',
             'audio/x-aiff',
@@ -530,6 +524,7 @@ export class ChartBridge {
             'audio/mpeg': 'mp3',
             'audio/wav': 'wav',
             'audio/ogg': 'ogg',
+            'audio/mp3': 'mp3',
             'audio/mp4': 'mp4',
             'audio/x-aiff': 'aiff',
             'audio/webm': 'webm',
@@ -550,8 +545,8 @@ export class ChartBridge {
 
 
     private setAudioDestinationNode(node?: AudioNode) {
-        this.Highcharts.sonification.Instrument.prototype.destinationNode = node ||
-            this.Highcharts.sonification.Instrument.audioContext.destination;
+        this.chart?.sonification.setAudioDestination(node ||
+            this.chart.sonification.audioContext.destination);
     }
 
 
@@ -577,7 +572,7 @@ export class ChartBridge {
 
 
     private isPlaying(): boolean {
-        return !!Object.keys(this.chart?.sonification?.timeline?.pathsPlaying || {}).length;
+        return this.chart?.sonification.isPlaying();
     }
 
 
@@ -669,130 +664,28 @@ export class ChartBridge {
 
 
     private startProgressUpdatePolling() {
-        const progressState = this.updateProgressState;
-
         this.stopProgressUpdatePolling();
-
-        progressState.prevEventStartTime = Date.now();
-        progressState.prevTimestamp = 0;
-        progressState.intervalTimer = setInterval(
+        this.progressTimer = setInterval(
             this.updatePlayProgress.bind(this), ChartBridge.updateProgressIntervalMs
         );
     }
 
 
     private stopProgressUpdatePolling() {
-        const progressState = this.updateProgressState;
-        progressState.prevEventStartTime = Date.now();
-        progressState.prevTimestamp = 0;
-        if (progressState.intervalTimer) {
-            clearInterval(progressState.intervalTimer);
+        if (this.progressTimer) {
+            clearInterval(this.progressTimer);
         }
     }
 
 
     private updatePlayProgress() {
-        const progressPct = this.getCurrentPlayProgressPct();
-        this.commitToStore('viewStore/setPlaybackProgress', progressPct);
-    }
-
-
-    private getTimelineCurrentEventTime(timeline: GenericObject): number {
-        const curEvents: Array<GenericObject> = Object.values(timeline.getCursor());
-        return curEvents.reduce((maxTime, event): number => {
-            return Math.max(maxTime, event.time);
-        }, 0);
-    }
-
-
-    // Utility function to get the current timestamp of the event playing on a timeline,
-    // plus the expected duration of all previous paths.
-    private getTimelineTotalCursorMs(timeline: GenericObject): number {
-        const curEventTimestamp = this.getTimelineCurrentEventTime(timeline);
-        const splat = (x: any): any[] => {
-            const str = Object.prototype.toString.call(x);
-            const isArray = str === '[object Array]' || str === '[object Array Iterator]';
-            return isArray ? x : [x];
-        };
-
-        let i = timeline.cursor;
-        let previousTime = 0;
-        if (i > 0) {
-            while (i--) {
-                const paths = splat(timeline.paths[i]) || [];
-                const maxPathDuration = paths.reduce((maxDuration, path) => {
-                    return Math.max(maxDuration, path.targetDuration || 0);
-                }, 0);
-
-                previousTime += maxPathDuration;
-            }
-        }
-
-        return previousTime + curEventTimestamp;
-    }
-
-
-    // Get next timeline event timestamp relative to current event, in milliseconds
-    private getNextTimelineTimestamp(timeline: GenericObject): number {
-        const curPaths = timeline.getCurrentPlayingPaths();
-        const curEventTime = this.getTimelineCurrentEventTime(timeline);
-
-        const pathTimes: number[] = curPaths.reduce((times: number[], path: GenericObject): number[] => {
-            return times.concat(path.events.map((ev: GenericObject): number => ev.time));
-        }, []);
-        const pathTimesLarger = pathTimes.filter(x => x > curEventTime);
-        if (pathTimesLarger.length) {
-            return Math.min(...pathTimesLarger) - curEventTime;
-        }
-
-        const targetDuration = curPaths.reduce((maxDuration: number, path: GenericObject) => {
-            return Math.max(maxDuration, path.targetDuration || 0);
-        }, 0);
-        return targetDuration - curEventTime;
-    }
-
-
-    // Utility to get interpolated progress between two event times based on actual time elapsed.
-    private getInterpolatedPlayProgress(
-        prevTime: number,
-        nextTime: number,
-        prevEventStartTime: number
-    ): number {
-        const now = Date.now();
-        const diff = now - prevEventStartTime;
-        const slowdownModifier = 0.9; // Compensate some for the time it takes for the browser to play things
-        const offset = diff * slowdownModifier;
-        return Math.min(offset, nextTime - prevTime);
-    }
-
-
-    private getCurrentPlayProgressPct(): number {
-        const sonification = this.chart?.sonification;
-        const timeline = sonification?.timeline;
-        const progressState = this.updateProgressState;
-        const now = Date.now();
-
-        if (!timeline || !timeline.paths.length) {
+        const chart = this.chart;
+        if (!chart) {
             return 0;
         }
-
-        const curTime = this.getTimelineTotalCursorMs(timeline);
-        const prevTime = progressState.prevTimestamp;
-        const totalDuration = sonification.duration;
-
-        let interpolationOffset = 0;
-        if (curTime === prevTime) {
-            const nextTimeRelative = this.getNextTimelineTimestamp(timeline);
-            const nextTime = nextTimeRelative ? nextTimeRelative + prevTime : totalDuration;
-            interpolationOffset = this.getInterpolatedPlayProgress(
-                prevTime, nextTime, progressState.prevEventStartTime
-            );
-        } else {
-            progressState.prevEventStartTime = now;
-        }
-
-        progressState.prevTimestamp = curTime;
-
-        return Math.round((curTime + interpolationOffset) / totalDuration * 100);
+        const totalDuration = chart.options.sonification.duration || 1,
+            curTime = chart.sonification.timeline?.getCurrentTime() || 0,
+            progressPct = Math.round(100 * curTime / totalDuration);
+        this.commitToStore('viewStore/setPlaybackProgress', progressPct);
     }
 }

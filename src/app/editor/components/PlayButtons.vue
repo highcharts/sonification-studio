@@ -71,10 +71,16 @@ export default {
                 } else if (keyPressed(Keys.R, Modifiers.Ctrl, e)) {
                     this.onStopClick();
                     e.preventDefault();
-                } else if (keyPressed(Keys.L, Modifiers.Ctrl, e)) {
+                } else if (keyPressed(Keys.T, Modifiers.Ctrl, e)) {
                     this.loopEnabled = !this.loopEnabled;
                     (this as any).$announcer.announce('Loop ' + (this.loopEnabled ? 'enabled' : 'disabled') + '.');
                     e.preventDefault();
+                } else if (keyPressed(Keys.J, Modifiers.Ctrl, e)) {
+                    this.resetPlayPauseBtn();
+                    (this as any).$chartBridge.playAdjacent(false);
+                } else if (keyPressed(Keys.L, Modifiers.Ctrl, e)) {
+                    this.resetPlayPauseBtn();
+                    (this as any).$chartBridge.playAdjacent(true);
                 }
             }
         });
