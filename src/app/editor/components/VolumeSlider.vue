@@ -5,6 +5,7 @@
             v-model.number="volume"
             :show-value-input="false"
             label="Volume"
+            :max="130"
             dark
             show-value-in-label
             value-is-pct
@@ -43,7 +44,7 @@ export default {
     },
     methods: {
         volumeUp() {
-            const newVol = Math.min((this.volume as number) + 5, 100);
+            const newVol = Math.min((this.volume as number) + 5, 130);
             this.$store.commit('globalSonifyParametersStore/setVolume', newVol);
             this.volume = newVol;
             (this as any).$announcer.announce('Volume up. ' + newVol + '%');
