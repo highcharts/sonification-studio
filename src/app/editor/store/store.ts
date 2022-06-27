@@ -13,7 +13,7 @@ Vue.use(Vuex);
 // Bump this when making breaking changes to the store API. This will invalidate the
 // localStorage cache, and clear old revisions.
 // Note: Will not as of yet affect loading old project files.
-export const storageRevision = 3;
+export const storageRevision = 4;
 
 // Key for localStorage cache
 export const storageKey = 'highcharts.sonification.studio.appstate';
