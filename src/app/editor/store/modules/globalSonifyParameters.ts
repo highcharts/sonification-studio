@@ -11,13 +11,12 @@ const defaultState = () => ({
     playbackOpts: {
         // These are grouped because we have to update our interpretation of speed whenever order changes.
         // This way they are mapped to options together.
-        speed: 70,
-        order: 'simultaneous',
-        duration: 12000 // Computed when setting speed
+        speed: 79,
+        order: 'simultaneous'
     },
     playMarkerEnabled: true,
     tooltipMarkerEnabled: false,
-    minNote: 22,
+    minNote: 36,
     maxNote: 96,
     panEnabled: true,
     panWidth: 100,
@@ -28,6 +27,13 @@ export const globalSonifyParametersStore = {
     namespaced: true,
 
     state: defaultState(),
+
+    getters: {
+        duration (state: any) {
+            const speed = state.playbackOpts.speed;
+            return Math.round(1 / Math.pow(speed, 0.4 * speed / 100 + 0.4) * 320000 - 6000);
+        }
+    },
 
     mutations: {
         // Apply state or restore to defaults if no state is provided.
@@ -52,8 +58,6 @@ export const globalSonifyParametersStore = {
 
         setSpeed(state: any, speed: number) {
             state.playbackOpts.speed = speed;
-            state.playbackOpts.duration =
-                Math.round(1 / Math.pow(speed, 0.4 * speed / 100 + 0.4) * 320000 - 6000);
         },
 
         setPlayMarkerEnabled(state: any, enabled: boolean) {

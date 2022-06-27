@@ -10,7 +10,7 @@
             <div class="controls-group">
                 <SEControl
                     v-slot="slotProps"
-                    :label="`Speed (duration ${Math.round(playbackOpts.duration / 100) / 10}s)`"
+                    :label="`Speed (duration ${Math.round(duration / 100) / 10}s)`"
                     helptext="Set the playing speed from 1 to 100."
                 >
                     <SESlider
@@ -24,7 +24,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Detail"
-                    helptext="Set the audio detail from low to high, meaning how many notes are played. When you have a lot of data, multiple points may be combined into a single note depending on this setting."
+                    helptext="Set how many notes are played, from low (1) to high (15) number of notes. When you have a lot of data, multiple points may be combined into a single note depending on this setting. This setting does not affect the playing duration, only how many notes are played."
                 >
                     <SESlider
                         :id="slotProps.controlId"
@@ -77,7 +77,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Min note"
-                    helptext="The lowest note to play, given as number of notes from C0."
+                    helptext="The lowest note to play, given as number of notes from the lowest C (C0)."
                 >
                     <SESlider
                         :id="slotProps.controlId"
@@ -90,7 +90,7 @@
                 <SEControl
                     v-slot="slotProps"
                     label="Max note"
-                    helptext="The highest note to play, given as number of notes from C0."
+                    helptext="The highest note to play, given as number of notes from the lowest C (C0)."
                 >
                     <SESlider
                         :id="slotProps.controlId"
@@ -135,7 +135,7 @@ import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SERadioGroup from '../basic/SERadioGroup.vue';
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
     components: {
@@ -192,7 +192,7 @@ export default {
             get() { return (this as any).$store.state.globalSonifyParametersStore.panWidth; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setPanWidth', val); }
         },
-        ...mapState('globalSonifyParametersStore', ['playbackOpts'])
+        ...mapGetters('globalSonifyParametersStore', ['duration'])
     }
 };
 </script>
