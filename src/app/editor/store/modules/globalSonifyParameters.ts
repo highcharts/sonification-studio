@@ -7,13 +7,9 @@
 import { GenericObject, firstDefined } from '../../core/utils/objects';
 
 const defaultState = () => ({
-    volume: 60,
-    playbackOpts: {
-        // These are grouped because we have to update our interpretation of speed whenever order changes.
-        // This way they are mapped to options together.
-        speed: 79,
-        order: 'simultaneous'
-    },
+    volume: 70,
+    speed: 79,
+    order: 'simultaneous',
     playMarkerEnabled: true,
     tooltipMarkerEnabled: false,
     minNote: 36,
@@ -28,24 +24,17 @@ export const globalSonifyParametersStore = {
 
     state: defaultState(),
 
-    getters: {
-        duration (state: any) {
-            const speed = state.playbackOpts.speed;
-            return Math.round(1 / Math.pow(speed, 0.4 * speed / 100 + 0.4) * 320000 - 6000);
-        }
-    },
-
     mutations: {
         // Apply state or restore to defaults if no state is provided.
         // Add items here if they are to be restored from opening project files
         // or localStorage session restore. Keep backwards compatibility in mind.
         restoreStoreState(state: any, newState?: GenericObject) {
             const defaultOpts: GenericObject = defaultState();
-            ['volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail'].forEach(
+            [
+                'volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail',
+                'speed', 'order'
+            ].forEach(
                 x => state[x] = newState ? firstDefined(newState[x], state[x]) : defaultOpts[x]);
-            ['speed', 'order', 'duration'].forEach(
-                x => state.playbackOpts[x] = newState ? firstDefined(newState.playbackOpts[x], state.playbackOpts[x]) :
-                    defaultOpts.playbackOpts[x]);
         },
 
         setVolume(state: any, volume: number) {
@@ -57,7 +46,7 @@ export const globalSonifyParametersStore = {
         },
 
         setSpeed(state: any, speed: number) {
-            state.playbackOpts.speed = speed;
+            state.speed = speed;
         },
 
         setPlayMarkerEnabled(state: any, enabled: boolean) {
@@ -69,7 +58,7 @@ export const globalSonifyParametersStore = {
         },
 
         setOrder(state: any, order: string) {
-            state.playbackOpts.order = order;
+            state.order = order;
         },
 
         setMinNote(state: any, note: number) {
@@ -86,9 +75,6 @@ export const globalSonifyParametersStore = {
 
         setPanWidth(state: any, panWidth: number) {
             state.panWidth = panWidth;
-        },
-
-        // Monitored by store-subscription, so only called for side effects
-        triggerPlaybackOptsRecalculation() {} // eslint-disable-line
+        }
     }
 };

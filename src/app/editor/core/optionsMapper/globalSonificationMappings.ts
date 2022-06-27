@@ -1,4 +1,5 @@
 import { GenericObject } from '../utils/objects';
+import { speedToDuration } from '../utils/sonificationTools';
 
 export class GlobalSonificationMappings {
 
@@ -10,11 +11,15 @@ export class GlobalSonificationMappings {
         };
     }
 
-    public static playbackOpts(value: { duration: number; order: string }, chart: GenericObject): GenericObject {
-        const order = value.order;
-        const duration = value.duration;
+    public static speed(value: number): GenericObject {
         return {
-            sonification: { duration, order }
+            sonification: { duration: speedToDuration(value) }
+        };
+    }
+
+    public static order(value: string): GenericObject {
+        return {
+            sonification: { order: value }
         };
     }
 

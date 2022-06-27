@@ -135,7 +135,7 @@ import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SERadioGroup from '../basic/SERadioGroup.vue';
-import { mapGetters } from 'vuex';
+import { speedToDuration } from '../../core/utils/sonificationTools';
 
 export default {
     components: {
@@ -156,8 +156,11 @@ export default {
         };
     },
     computed: {
+        duration() {
+            return speedToDuration((this as any).speed);
+        },
         speed: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.playbackOpts.speed; },
+            get() { return (this as any).$store.state.globalSonifyParametersStore.speed; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setSpeed', val); }
         },
         detail: {
@@ -173,7 +176,7 @@ export default {
             set(val) { return this.$store.commit('globalSonifyParametersStore/setTooltipMarkerEnabled', val); }
         },
         order: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.playbackOpts.order; },
+            get() { return (this as any).$store.state.globalSonifyParametersStore.order; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setOrder', val); }
         },
         minNote: {
@@ -191,8 +194,7 @@ export default {
         panWidth: {
             get() { return (this as any).$store.state.globalSonifyParametersStore.panWidth; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setPanWidth', val); }
-        },
-        ...mapGetters('globalSonifyParametersStore', ['duration'])
+        }
     }
 };
 </script>
