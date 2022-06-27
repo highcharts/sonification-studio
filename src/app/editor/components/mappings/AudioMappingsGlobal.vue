@@ -32,7 +32,7 @@
                         :labelledby="slotProps.labelId"
                         :min="1"
                         :max="15"
-                        :step="1"
+                        :step="0.1"
                     />
                 </SEControl>
                 <SEControl
