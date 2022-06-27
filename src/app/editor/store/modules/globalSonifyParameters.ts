@@ -13,7 +13,7 @@ const defaultState = () => ({
     playMarkerEnabled: true,
     tooltipMarkerEnabled: false,
     minNote: 36,
-    maxNote: 96,
+    maxNote: 90,
     panEnabled: true,
     panWidth: 100,
     detail: 8
