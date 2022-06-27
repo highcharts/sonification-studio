@@ -51,7 +51,7 @@
                         The goal of this tool is to provide a simple, intuitive, and accessible way for users to import their data, edit it, visualize it, sonify it, and export the results to a useful format. We want users to be able to use the tool without having to write code, and without prior sonification expertise.
                     </p>
                     <p>
-                        The tool is open sourced under the MIT license to allow for extensions and forks from the community, and ensure the tool is available to all. A <a href="https://www.highcharts.com">Highcharts license</a> is required for commercial use of the tool, but otherwise usage is completely free.
+                        The tool is open sourced under the MIT license to allow for extensions and forks from the community, and ensure the tool is available to all. A <a href="https://www.highcharts.com">Highcharts license</a> is required for commercial use of the tool, but otherwise usage is free.
                     </p>
                 </div>
                 <div class="development-section">
@@ -63,7 +63,7 @@
                         Development
                     </h2>
                     <p>
-                        The tool is currently in Beta, and should be considered incomplete and in development. Functionality is subject to change without notice. Project files from the current version are not guaranteed to work with future versions, although we will strive to keep backwards compatibility as we add features.
+                        The tool is currently in Beta, and functionality is subject to change without notice. Project files from the current version are not guaranteed to work with future versions, although we will strive to keep backwards compatibility as we add features. Please get in touch should you have trouble loading an old project file, as we may be able to help.
                     </p>
                     <p>
                         Please visit the <a href="https://github.com/highcharts/sonification-studio">GitHub repository</a> for the tool to make contributions, log issues, or fork the code to make your own version.
@@ -74,8 +74,7 @@
                         </h3>
                         <ul>
                             <li>The data grid component has multiple usability issues, especially for screen reader users. This grid is a 3rd party component and will be replaced.</li>
-                            <li>The playback bar can not be manipulated to navigate the sonification.</li>
-                            <li>Some browsers can have issues with exporting video and audio, and the supported export formats are limited.</li>
+                            <li>Some browsers can have issues with exporting video and audio, and the supported export formats are limited. You may want to use your own screen-recording sofware to work around this, depending on your use case.</li>
                         </ul>
                         <p>For an up-to-date detailed overview of known issues, visit our <a href="https://github.com/highcharts/sonification-studio/issues">GitHub issues</a> page.</p>
 
@@ -84,11 +83,12 @@
                         </h3>
                         <ul>
                             <li>Implement our own, accessible, data grid.</li>
-                            <li>MIDI export.</li>
-                            <li>More instruments and timbres, potentially allow for custom sound sources.</li>
-                            <li>More advanced sonification functionality, such as earcons.</li>
-                            <li>More chart configuration functionality.</li>
-                            <li>Installable progressive webapp-version, perhaps a desktop application version.</li>
+                            <li>Filter and tremolo mapping.</li>
+                            <li>Invisible, but audible, data series.</li>
+                            <li>Drag playback slider to scrub.</li>
+                            <li>Sonification contexts and notifications.</li>
+                            <li>More chart types.</li>
+                            <li>Installable progressive webapp-version, possibly a desktop application version.</li>
                         </ul>
                         <p>If you have requests for features not listed here, please get in touch with us.</p>
                     </div>
