@@ -146,6 +146,23 @@ export default {
             }
         },
 
+        // Is the first column text?
+        columnType(column: Array<string|null>, rowsToCheck: number): 'number'|'string'|'date'|'empty' {
+            const len = Math.min(rowsToCheck, column.length);
+            let hasData = false;
+            for (let i = 0; i < len; ++i) {
+                const val = column[i];
+                hasData = hasData || !!(val?.trim().length);
+                if (
+                    val !== null &&
+                    (isNaN(val as any) || isNaN(parseFloat(val)))
+                ) {
+                    return isNaN(Date.parse(val)) ? 'string' : 'date';
+                }
+            }
+            return hasData ? 'number' : 'empty';
+        },
+
         // Update the CSV render of the table data in the data store.
         updateCSVInDataStore() {
             const grid: any = this.$refs.grid;
@@ -171,6 +188,17 @@ export default {
                 }) : '';
 
                 this.$store.commit('dataStore/setTableCSV', csv);
+
+                const firstColumn = this.$store.getters['dataStore/column']('A');
+                const xAxisType = this.$store.state.chartParametersStore.xAxisType;
+                const colType = this.columnType(firstColumn, 500);
+                if (colType === 'string' && xAxisType !== 'datetime') {
+                    this.$store.commit('chartParametersStore/setXAxisType', 'category');
+                } else if (colType === 'date' && xAxisType !== 'category') {
+                    this.$store.commit('chartParametersStore/setXAxisType', 'datetime');
+                } else if (firstColumn.length < 500 && colType === 'empty' && xAxisType !== 'logarithmic') {
+                    this.$store.commit('chartParametersStore/setXAxisType', 'linear');
+                }
             }
         }
     }
