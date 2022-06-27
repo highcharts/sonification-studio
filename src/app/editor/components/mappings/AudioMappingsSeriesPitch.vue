@@ -164,8 +164,8 @@ export default {
             // are changed by the user are added to the store. Note that we only set the defaults
             // if the data is not already present in the store.
             this.pitchMappingProp = nullFallback(this.pitchMappingProp, 'y');
-            this.minNote = nullFallback(this.minNote, 12);
-            this.maxNote = nullFallback(this.maxNote, 107);
+            this.minNote = nullFallback(this.minNote, 36);
+            this.maxNote = nullFallback(this.maxNote, 96);
             this.pitchValue = nullFallback(this.pitchValue, 60);
             this.pitchPolarity = nullFallback(this.pitchPolarity, 'positive');
         }
