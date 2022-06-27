@@ -16,7 +16,7 @@ const defaultState = () => ({
     maxNote: 90,
     panEnabled: true,
     panWidth: 100,
-    detail: 8
+    detail: 15
 });
 
 export const globalSonifyParametersStore = {
