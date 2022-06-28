@@ -83,6 +83,9 @@ export default {
                     (this as any).$chartBridge.playAdjacent(true);
                 }
             }
+            if (keyPressed(Keys.Esc, Modifiers.None, e)) {
+                this.onStopClick();
+            }
         });
     },
     methods: {
