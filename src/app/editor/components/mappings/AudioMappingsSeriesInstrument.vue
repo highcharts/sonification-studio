@@ -112,7 +112,7 @@ export default {
             }
         },
         populateProps() {
-            this.pitchRoundingEnabled = nullFallback(this.pitchRoundingEnabled, true);
+            this.pitchRoundingEnabled = nullFallback(this.pitchRoundingEnabled, false);
             this.instrument = nullFallback(this.instrument, 'piano');
         }
     }
