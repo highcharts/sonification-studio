@@ -90,11 +90,11 @@ export default {
             set(val) { return makeSeriesParamPropertySetMapping(this, 'sonificationEnabled', val); },
         },
         instrument: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'instrument', null, 'instrument'); },
+            get() { return makeSeriesParamPropertyGetMapping(this, 'instrument', 'piano', 'instrument'); },
             set(val) { return makeSeriesParamPropertySetMapping(this, 'instrument', val, 'instrument'); },
         },
         pitchRoundingEnabled: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'pitchRoundingEnabled', null, 'instrument'); },
+            get() { return makeSeriesParamPropertyGetMapping(this, 'pitchRoundingEnabled', false, 'instrument'); },
             set(val) { return makeSeriesParamPropertySetMapping(this, 'pitchRoundingEnabled', val, 'instrument'); },
         },
         instruments() {

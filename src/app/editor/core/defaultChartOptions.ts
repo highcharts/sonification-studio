@@ -76,6 +76,7 @@ export const defaultChartOptions = {
             }
         },
         defaultInstrumentOptions: {
+            roundToMusicalNotes: false,
             mapping: {
                 pitch: {
                     mapTo: 'y'
