@@ -36,7 +36,7 @@ export class GlobalSonificationMappings {
     }
 
     public static detail(value: number): GenericObject {
-        const timespan = 480 - Math.log(value) * 170; // Val goes from 1-15
+        const timespan = 1300 - Math.log(value) * 478; // Val goes from 1-15
         return {
             sonification: {
                 defaultInstrumentOptions: {
@@ -90,7 +90,10 @@ export class GlobalSonificationMappings {
         };
     }
 
-    public static panWidth(value: number): GenericObject {
+    public static panWidth(value: number, chart: unknown, params: GenericObject): GenericObject {
+        if (!params.panEnabled) {
+            return {};
+        }
         return {
             sonification: {
                 defaultInstrumentOptions: {
