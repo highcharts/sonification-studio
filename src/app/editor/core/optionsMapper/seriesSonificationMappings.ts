@@ -1,5 +1,8 @@
 import { GenericObject } from '../utils/objects';
 
+// For options where the UI is 0-100, but the option should be 0-1
+const hundredToOneTransform = (x: number): number => x / 100;
+
 export class SeriesSonificationMappings {
 
     public static sonificationEnabled(value: boolean): GenericObject {
@@ -32,9 +35,7 @@ export class SeriesSonificationMappings {
     }
 
     public static volumeOptions(options: GenericObject): GenericObject {
-        // UI goes from 0-100, mapping is from 0 to 1
-        const volumeValueTranslate = (x: number): number => x / 100;
-        return SeriesSonificationMappings.getMappedOptions('volume', null, options, volumeValueTranslate);
+        return SeriesSonificationMappings.getMappedOptions('volume', null, options, hundredToOneTransform);
     }
 
     public static durationOptions(options: GenericObject): GenericObject {
@@ -48,6 +49,15 @@ export class SeriesSonificationMappings {
     public static highpassOptions(options: GenericObject): GenericObject {
         return SeriesSonificationMappings.getMappedOptions('frequency', 'highpass', options);
     }
+
+    public static tremoloDepthOptions(options: GenericObject): GenericObject {
+        return SeriesSonificationMappings.getMappedOptions('depth', 'tremolo', options, hundredToOneTransform);
+    }
+
+    public static tremoloSpeedOptions(options: GenericObject): GenericObject {
+        return SeriesSonificationMappings.getMappedOptions('speed', 'tremolo', options, hundredToOneTransform);
+    }
+
 
     /**
      * Since the handling of the mappings for the different properties is very similar,

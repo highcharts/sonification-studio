@@ -79,6 +79,9 @@ export const defaultChartOptions = {
             mapping: {
                 pitch: {
                     mapTo: 'y'
+                },
+                tremolo: {
+                    speed: 0.55
                 }
             },
             pointGrouping: {

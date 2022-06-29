@@ -51,6 +51,8 @@ import AudioMappingsSeriesPitch from './AudioMappingsSeriesPitch.vue';
 import AudioMappingsSeriesVolume from './AudioMappingsSeriesVolume.vue';
 import AudioMappingsSeriesLowpass from './AudioMappingsSeriesLowpass.vue';
 import AudioMappingsSeriesHighpass from './AudioMappingsSeriesHighpass.vue';
+import AudioMappingsSeriesTremoloDepth from './AudioMappingsSeriesTremoloDepth.vue';
+import AudioMappingsSeriesTremoloSpeed from './AudioMappingsSeriesTremoloSpeed.vue';
 import { GenericObject } from '../../core/utils/objects';
 import { makeSelectedAudioMappingSeriesPropertyMapping } from '../../store/storeUtils';
 import { getSeriesId } from '../../core/utils/chartUtils';
@@ -68,7 +70,9 @@ export default {
         AudioMappingsSeriesPitch,
         AudioMappingsSeriesVolume,
         AudioMappingsSeriesLowpass,
-        AudioMappingsSeriesHighpass
+        AudioMappingsSeriesHighpass,
+        AudioMappingsSeriesTremoloDepth,
+        AudioMappingsSeriesTremoloSpeed
     },
     data() {
         return {
@@ -93,6 +97,12 @@ export default {
             }, {
                 heading: 'Highpass filter',
                 component: 'AudioMappingsSeriesHighpass'
+            }, {
+                heading: 'Tremolo depth',
+                component: 'AudioMappingsSeriesTremoloDepth'
+            }, {
+                heading: 'Tremolo speed',
+                component: 'AudioMappingsSeriesTremoloSpeed'
             }]
         };
     },
