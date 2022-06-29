@@ -22,23 +22,31 @@ export class SeriesSonificationMappings {
     }
 
     public static pitchOptions(options: GenericObject): GenericObject {
-        return SeriesSonificationMappings.getMappedOptions('pitch', options);
+        return SeriesSonificationMappings.getMappedOptions('pitch', null, options);
     }
 
     public static panOptions(options: GenericObject): GenericObject {
         // UI goes from 0-100, mapping is from -1 to +1
         const panValueTranslate = (x: number): number => (x - 50) / 50;
-        return SeriesSonificationMappings.getMappedOptions('pan', options, panValueTranslate);
+        return SeriesSonificationMappings.getMappedOptions('pan', null, options, panValueTranslate);
     }
 
     public static volumeOptions(options: GenericObject): GenericObject {
         // UI goes from 0-100, mapping is from 0 to 1
         const volumeValueTranslate = (x: number): number => x / 100;
-        return SeriesSonificationMappings.getMappedOptions('volume', options, volumeValueTranslate);
+        return SeriesSonificationMappings.getMappedOptions('volume', null, options, volumeValueTranslate);
     }
 
     public static durationOptions(options: GenericObject): GenericObject {
-        return SeriesSonificationMappings.getMappedOptions('noteDuration', options);
+        return SeriesSonificationMappings.getMappedOptions('noteDuration', null, options);
+    }
+
+    public static lowpassOptions(options: GenericObject): GenericObject {
+        return SeriesSonificationMappings.getMappedOptions('frequency', 'lowpass', options);
+    }
+
+    public static highpassOptions(options: GenericObject): GenericObject {
+        return SeriesSonificationMappings.getMappedOptions('frequency', 'highpass', options);
     }
 
     /**
@@ -47,6 +55,7 @@ export class SeriesSonificationMappings {
      */
     private static getMappedOptions(
         mappingKey: string,
+        parentKey: string|null,
         options: GenericObject,
         valueTransform?: Function
     ): GenericObject {
@@ -56,6 +65,7 @@ export class SeriesSonificationMappings {
         const min = valueTransform ? valueTransform(options.min) : options.min;
         const max = valueTransform ? valueTransform(options.max) : options.max;
         const fixedValue = valueTransform ? valueTransform(options.fixedValue) : options.fixedValue;
+        const propObject = { [mappingKey]: mapped ? { mapTo, min, max} : fixedValue };
 
         if (!mapped && !fixed) {
             return {};
@@ -64,9 +74,7 @@ export class SeriesSonificationMappings {
         return {
             sonification: {
                 tracks: [{
-                    mapping: {
-                        [mappingKey]: mapped ? { mapTo, min, max} : fixedValue
-                    }
+                    mapping: parentKey ? { [parentKey]: propObject } : propObject
                 }]
             }
         };

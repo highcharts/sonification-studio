@@ -49,6 +49,8 @@ import AudioMappingsSeriesDuration from './AudioMappingsSeriesDuration.vue';
 import AudioMappingsSeriesPan from './AudioMappingsSeriesPan.vue';
 import AudioMappingsSeriesPitch from './AudioMappingsSeriesPitch.vue';
 import AudioMappingsSeriesVolume from './AudioMappingsSeriesVolume.vue';
+import AudioMappingsSeriesLowpass from './AudioMappingsSeriesLowpass.vue';
+import AudioMappingsSeriesHighpass from './AudioMappingsSeriesHighpass.vue';
 import { GenericObject } from '../../core/utils/objects';
 import { makeSelectedAudioMappingSeriesPropertyMapping } from '../../store/storeUtils';
 import { getSeriesId } from '../../core/utils/chartUtils';
@@ -64,7 +66,9 @@ export default {
         AudioMappingsSeriesDuration,
         AudioMappingsSeriesPan,
         AudioMappingsSeriesPitch,
-        AudioMappingsSeriesVolume
+        AudioMappingsSeriesVolume,
+        AudioMappingsSeriesLowpass,
+        AudioMappingsSeriesHighpass
     },
     data() {
         return {
@@ -83,6 +87,12 @@ export default {
             }, {
                 heading: 'Note duration',
                 component: 'AudioMappingsSeriesDuration'
+            }, {
+                heading: 'Lowpass filter',
+                component: 'AudioMappingsSeriesLowpass'
+            }, {
+                heading: 'Highpass filter',
+                component: 'AudioMappingsSeriesHighpass'
             }]
         };
     },
