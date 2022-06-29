@@ -62,7 +62,8 @@ import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 
 import {
-    makeSeriesParamPropertyMapping,
+    makeSeriesParamPropertyGetMapping,
+    makeSeriesParamPropertySetMapping,
     makeSelectedAudioMappingSeriesPropertyMapping
 } from '../../store/storeUtils';
 import {
@@ -84,8 +85,18 @@ export default {
     },
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
-        sonificationEnabled: makeSeriesParamPropertyMapping('sonificationEnabled', true),
-        instrument: makeSeriesParamPropertyMapping('instrument', null, 'instrument'),
+        sonificationEnabled: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'sonificationEnabled', true); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'sonificationEnabled', val); },
+        },
+        instrument: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'instrument', null, 'instrument'); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'instrument', val, 'instrument'); },
+        },
+        pitchRoundingEnabled: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'pitchRoundingEnabled', null, 'instrument'); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'pitchRoundingEnabled', val, 'instrument'); },
+        },
         instruments() {
             return Object.keys(
                 (this as any).$chartBridge.Highcharts.sonification.InstrumentPresets
@@ -94,7 +105,6 @@ export default {
                 value: i
             }));
         },
-        pitchRoundingEnabled: makeSeriesParamPropertyMapping('pitchRoundingEnabled', null, 'instrument'),
         ...mapState('viewStore', ['selectedHeaderTabContent'])
     },
     watch: {

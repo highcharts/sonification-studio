@@ -1,175 +1,37 @@
 <template>
     <div>
-        <SEControl
-            v-slot="slotProps"
-            label="Note duration"
-            helptext="Enable duration control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the note duration follows the values of a data property. Be aware that notes may be cut short depending on the overall playback speed setting."
-            :horizontal-reverse="true"
-            :expand-content="true"
-        >
-            <SEDropdown
-                :id="slotProps.controlId"
-                v-model="durationType"
-                :options="durationTypes"
-            />
-        </SEControl>
-
-        <SEControl
-            v-show="durationType === 'fixed'"
-            v-slot="slotProps"
-            label="Duration value"
-            helptext="Set a fixed note duration for this data series, from short to long notes, in milliseconds. Timing is not exact, and notes may be cut short depending on the overall playback speed setting."
-        >
-            <SESlider
-                :id="slotProps.controlId"
-                v-model.number="durationValue"
-                :labelledby="slotProps.labelId"
-                :min="10"
-                :max="5000"
-                :step="1"
-            />
-        </SEControl>
-
-        <SEControl
-            v-show="durationType === 'mapped'"
-            v-slot="slotProps"
-            label="Minimum duration"
-            helptext="Set a minimum duration, from short to long, in milliseconds. Note that timing is not exact."
-        >
-            <SESlider
-                :id="slotProps.controlId"
-                v-model.number="minDuration"
-                :labelledby="slotProps.labelId"
-                :min="10"
-                :max="2000"
-                :step="1"
-            />
-        </SEControl>
-
-        <SEControl
-            v-show="durationType === 'mapped'"
-            v-slot="slotProps"
-            label="Maximum duration"
-            helptext="Set a maximum duration, from short to long, in milliseconds. Note that timing is not exact."
-        >
-            <SESlider
-                :id="slotProps.controlId"
-                v-model.number="maxDuration"
-                :labelledby="slotProps.labelId"
-                :min="10"
-                :max="2000"
-                :step="1"
-            />
-        </SEControl>
-
-        <SEControl
-            v-show="durationType === 'mapped'"
-            v-slot="slotProps"
-            label="Mapping property"
-            helptext="Data property to map note duration to. Note duration will follow the values of this data property. Notes may be cut short depending on the overall playback speed setting."
-            :horizontal-reverse="true"
-            :expand-content="true"
-        >
-            <SEDropdown
-                :id="slotProps.controlId"
-                v-model="durationMappingProp"
-                :options="mappingProps"
-            />
-        </SEControl>
-
-        <SEControl
-            v-show="durationType === 'mapped'"
-            v-slot="slotProps"
-            fieldset-legend="Polarity"
-            is-fieldset
-            compact-content
-            helptext="Set the polarity of the duration mapping - whether the notes gets shorter (negative) or longer (positive) as values get higher."
-        >
-            <SERadioGroup
-                :id="slotProps.controlId"
-                v-model="durationPolarity"
-                :options="mcdPolarityOptions"
-            />
-        </SEControl>
+        <AudioMappingProp
+            store-parent-prop="durationOptions"
+            main-mapping-label="Note duration"
+            mapping-type-helptext="Enable note duration control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the note duration follows the values of a data property. Be aware that long notes may be cut short if your playback speed or detail settings are too high."
+            fixed-value-label="Duration value"
+            fixed-value-helptext="Set a fixed note duration for this data series, from short to long notes, in milliseconds. Be aware that long notes may be cut short if your playback speed or detail settings are too high."
+            :min-range-val="15"
+            :max-range-val="3000"
+            :default-min="80"
+            :default-max="600"
+            :default-val="300"
+            min-label="Minimum duration"
+            max-label="Maximum duration"
+            min-helptext="Set a minimum duration, from short to long, in milliseconds."
+            max-helptext="Set a maximum duration, from short to long, in milliseconds. Be aware that long notes may be cut short if your playback speed or detail settings are too high."
+            map-to-label="Map duration to"
+            map-to-helptext="The data property to map note duration to."
+            polarity-helptext="Set the polarity of the duration mapping - whether the notes gets shorter (negative) or longer (positive) as values get higher."
+            pos-polarity-label="Short to long"
+            neg-polarity-label="Long to short"
+        />
     </div>
 </template>
 
-
 <script lang="ts">
-import SEControl from '../basic/SEControl.vue';
-import SESlider from '../basic/SESlider.vue';
-import SEDropdown from '../basic/SEDropdown.vue';
-import SERadioGroup from '../basic/SERadioGroup.vue';
-import {
-    makeSeriesParamPropertyMapping,
-    makeSelectedAudioMappingSeriesPropertyMapping
-} from '../../store/storeUtils';
-import {
-    getMappingDataProps
-} from '../../core/utils/chartUtils';
-import {
-    nullFallback
-} from '../../core/utils/objects';
-
+import AudioMappingProp from './AudioMappingProp.vue';
 export default {
     components: {
-        SEControl,
-        SESlider,
-        SEDropdown,
-        SERadioGroup
-    },
-    data() {
-        return {
-            mcdPolarityOptions: [{
-                value: 'positive', label: 'Positive'
-            }, {
-                value: 'negative', label: 'Negative'
-            }],
-            durationTypes: [{
-                name: 'Default',
-                value: 'default'
-            }, {
-                name: 'Fixed',
-                value: 'fixed'
-            }, {
-                name: 'Mapped',
-                value: 'mapped'
-            }]
-        };
-    },
-    computed: {
-        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
-        durationType: makeSeriesParamPropertyMapping('durationType', 'default', 'durationOptions'),
-        durationMappingProp: makeSeriesParamPropertyMapping('durationMappingProp', null, 'durationOptions'),
-        minDuration: makeSeriesParamPropertyMapping('minDuration', null, 'durationOptions'),
-        maxDuration: makeSeriesParamPropertyMapping('maxDuration', null, 'durationOptions'),
-        durationValue: makeSeriesParamPropertyMapping('durationValue', null, 'durationOptions'),
-        durationPolarity: makeSeriesParamPropertyMapping('durationPolarity', null, 'durationOptions'),
-        mappingProps() {
-            return getMappingDataProps();
-        }
-    },
-    watch: {
-        selectedSeries() {
-            this.populateProps();
-        }
-    },
-    beforeMount() {
-        this.populateProps();
-    },
-    methods: {
-        populateProps() {
-            // Init so that these are always in store, see Pitch mapping component.
-            this.durationMappingProp = nullFallback(this.durationMappingProp, 'y');
-            this.minDuration = nullFallback(this.minDuration, 200);
-            this.maxDuration = nullFallback(this.maxDuration, 2000);
-            this.durationValue = nullFallback(this.durationValue, 400);
-            this.durationPolarity = nullFallback(this.durationPolarity, 'positive');
-        }
+        AudioMappingProp
     }
 };
 </script>
-
 
 <style lang="less" scoped>
     @import "../../accordionOptions";

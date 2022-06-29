@@ -103,7 +103,10 @@ import SECheckbox from '../basic/SECheckbox.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
 import { GenericObject } from '../../core/utils/objects';
 import { getSeriesId } from '../../core/utils/chartUtils';
-import { makeSeriesParamPropertyMapping } from '../../store/storeUtils';
+import {
+    makeSeriesParamPropertyGetMapping,
+    makeSeriesParamPropertySetMapping
+} from '../../store/storeUtils';
 import { mapState } from 'vuex';
 
 export default {
@@ -182,12 +185,30 @@ export default {
                 value: getSeriesId(s)
             }));
         },
-        seriesName: makeSeriesParamPropertyMapping('seriesName'),
-        seriesType: makeSeriesParamPropertyMapping('seriesType'),
-        seriesColor: makeSeriesParamPropertyMapping('seriesColor', '#ffffff'),
-        dashStyle: makeSeriesParamPropertyMapping('dashStyle'),
-        dataLabelsEnabled: makeSeriesParamPropertyMapping('dataLabelsEnabled'),
-        seriesVisible: makeSeriesParamPropertyMapping('seriesVisible', true)
+        seriesName: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesName'); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesName', val); }
+        },
+        seriesColor: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesColor', '#ffffff'); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesColor', val); }
+        },
+        dashStyle: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'dashStyle'); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'dashStyle', val); }
+        },
+        dataLabelsEnabled: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'dataLabelsEnabled'); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'dataLabelsEnabled', val); }
+        },
+        seriesVisible: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesVisible', true); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesVisible', val); }
+        },
+        seriesType: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesType'); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesType', val); }
+        }
     },
     watch: {
         seriesType(type: unknown) {

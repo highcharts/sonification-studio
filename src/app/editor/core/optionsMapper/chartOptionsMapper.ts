@@ -15,8 +15,8 @@ class ChartOptionsMapper {
         return this.options;
     }
 
-    public addSonifyParameter(param: string, value: unknown) {
-        const newOptions = (GlobalSonificationMappings as any)[param](value, this.chart);
+    public addSonifyParameter(param: string, value: unknown, params: GenericObject) {
+        const newOptions = (GlobalSonificationMappings as any)[param](value, this.chart, params);
         this.options = deepMerge(this.options, newOptions);
     }
 
@@ -35,7 +35,7 @@ export function getChartOptionsFromParameters(
     const optionsMapper = new ChartOptionsMapper(chart);
 
     Object.keys(sonifyParameters).forEach((param: string) =>
-        optionsMapper.addSonifyParameter(param, sonifyParameters[param])
+        optionsMapper.addSonifyParameter(param, sonifyParameters[param], sonifyParameters)
     );
     Object.keys(chartParameters).forEach((param: string) =>
         optionsMapper.addChartParameter(param, chartParameters[param])

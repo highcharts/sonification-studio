@@ -81,7 +81,7 @@ export default {
                 heading: 'Volume',
                 component: 'AudioMappingsSeriesVolume'
             }, {
-                heading: 'Duration',
+                heading: 'Note duration',
                 component: 'AudioMappingsSeriesDuration'
             }]
         };
