@@ -80,9 +80,8 @@ export default {
             }
 
             const btn = getBtnParent(e.target as HTMLElement);
-            if (!btn) {
-                console.error('SETablist: Unexpected tab hierarchy');
-            } else {
+            // Note: if clicking and dragging, btn may be undefined
+            if (btn) {
                 this.activate(btn);
             }
         },
