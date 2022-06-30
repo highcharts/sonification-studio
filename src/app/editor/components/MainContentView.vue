@@ -12,6 +12,7 @@
             v-show="selectedHeaderTabContent !== 'dataContent'"
             id="chartContent"
             ref="chartContent"
+            :class="{ 'full-width': !sidebarVisible }"
             role="tabpanel"
             tabindex="-1"
             aria-labelledby="chart-tab-heading"
@@ -31,13 +32,19 @@
             />
 
             <Sidebar
-                id="sidebar"
+                v-show="sidebarVisible"
+                ref="sidebar"
                 class="sidebar"
             />
 
-            <TextDescription
-                class="description"
+            <ShowPanel
+                v-show="!sidebarVisible"
+                name="sidebar"
+                arrow-direction="left"
+                @click="onShowSidebar"
             />
+
+            <TextDescription class="description" />
         </div>
     </main>
 </template>
@@ -48,6 +55,7 @@ import PlayControls from './PlayControls.vue';
 import Preview from './Preview.vue';
 import Data from './Data.vue';
 import Sidebar from './Sidebar.vue';
+import ShowPanel from './ShowPanel.vue';
 import { mapState } from 'vuex';
 
 export default {
@@ -56,9 +64,10 @@ export default {
         PlayControls,
         Preview,
         Data,
-        Sidebar
+        Sidebar,
+        ShowPanel
     },
-    computed: mapState('viewStore', ['selectedHeaderTabContent', 'showChartComponent']),
+    computed: mapState('viewStore', ['selectedHeaderTabContent', 'showChartComponent', 'sidebarVisible']),
     methods: {
         skipToContent() {
             if (this.selectedHeaderTabContent === 'dataContent') {
@@ -66,6 +75,12 @@ export default {
             } else {
                 (this.$refs.chartContent as HTMLDivElement).focus();
             }
+        },
+
+        onShowSidebar() {
+            this.$store.commit('viewStore/setSidebarVisible', true);
+            (this as any).$chartBridge.reflowChart();
+            (this as any).$refs.sidebar.focusHideButton();
         }
     }
 };
@@ -90,12 +105,15 @@ export default {
         display: grid;
         width: 100%;
         height: 100%;
-        grid-template-rows: auto 1.8fr 1fr;
+        grid-template-rows: auto 1fr auto;
         grid-template-columns: 1fr 350px;
         grid-gap: 5px;
+        &.full-width {
+            grid-template-columns: 1fr 5px;
+        }
     }
 
-    .sidebar {
+    .sidebar, .show-panel {
         grid-column-start: 2;
         grid-row-start: 1;
         grid-row-end: 4;

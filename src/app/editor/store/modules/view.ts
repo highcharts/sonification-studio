@@ -31,6 +31,7 @@ export const viewStore = {
         selectedHeaderTabContent: 'dataContent',
         selectedHeaderTabId: 'Data',
         selectedSidebarTabId: 'Visual',
+        sidebarVisible: true,
         showGridTools: false,
         playbackProgress: 0,
         selectedDataSeriesChartMapping: '',
@@ -63,6 +64,10 @@ export const viewStore = {
 
         setSelectedDataSeriesAudioMapping(state: any, seriesId: string) {
             state.selectedDataSeriesAudioMapping = seriesId;
+        },
+
+        setSidebarVisible(state: any, visible: boolean) {
+            state.sidebarVisible = visible;
         },
 
         setShowChartComponent(state: any, show: boolean) {

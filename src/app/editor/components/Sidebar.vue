@@ -52,7 +52,20 @@
         </div>
 
         <div id="sidebar-bottom">
+            <button
+                ref="hideBtn"
+                class="hide-btn"
+                @click="onHideSidebarClick"
+            >
+                <img
+                    alt=""
+                    class="arrow-right-icon"
+                    :src="arrowRightIcon"
+                >
+                Hide
+            </button>
             <SEButton
+                class="reset-btn"
                 @click="onResetClick"
             >
                 <img
@@ -75,6 +88,7 @@ import ChartMappingControls from './mappings/ChartMappingControls.vue';
 import visualIcon from '../assets/chart-line-solid.svg';
 import audioIcon from '../assets/music-solid.svg';
 import resetIcon from '../assets/undo-alt-solid.svg';
+import arrowRightIcon from '../assets/arrow-right.svg';
 import { mapState } from 'vuex';
 
 export default {
@@ -87,7 +101,7 @@ export default {
     },
     data: function () {
         return {
-            visualIcon, audioIcon, resetIcon
+            visualIcon, audioIcon, resetIcon, arrowRightIcon
         };
     },
     computed: mapState('viewStore', ['selectedSidebarTabId']),
@@ -114,6 +128,15 @@ export default {
                     });
                 }, 100);
             }
+        },
+
+        onHideSidebarClick() {
+            this.$store.commit('viewStore/setSidebarVisible', false);
+            (this as any).$chartBridge.reflowChart();
+        },
+
+        focusHideButton() {
+            this.$nextTick(() => (this as any).$refs.hideBtn.focus());
         }
     }
 };
@@ -152,17 +175,36 @@ export default {
         background-color: @main-content-bg-color;
         box-sizing: border-box;
         height: @bottom-height;
-        .se-button {
+        display: flex;
+        align-items: center;
+        padding-bottom: 5px;
+        .reset-btn {
             margin-left: auto;
             margin-right: 10px;
-            margin-bottom: 12px;
             &:hover {
                 .reset-icon {
                     filter: invert();
                 }
             }
         }
-        .reset-icon {
+        .hide-btn {
+            margin-left: 10px;
+            background-color: transparent;
+            color: @seaccordionitem-color;
+            border: none;
+            border-bottom: 1px solid transparent;
+            height: 1rem;
+            font: inherit;
+            font-size: 0.8rem;
+            font-weight: normal;
+            cursor: pointer;
+            text-align: left;
+            display: block;
+            &:hover {
+                border-bottom-color: @seaccordionitem-color;
+            }
+        }
+        .reset-icon, .arrow-right-icon {
             width: 12px;
             height: $width;
             margin-bottom: -1px;
@@ -189,5 +231,4 @@ export default {
             border-bottom-right-radius: 1px;
         }
     }
-
 </style>
