@@ -15,12 +15,20 @@ export class SeriesMappings {
         return { color: value };
     }
 
+    public static seriesOpacity(value: number): GenericObject {
+        return { opacity: value / 100 };
+    }
+
     public static seriesType(value: string): GenericObject {
         return { type: value };
     }
 
     public static seriesVisible(value: boolean): GenericObject {
         return { visible: value };
+    }
+
+    public static seriesShowInLegend(value: boolean): GenericObject {
+        return { showInLegend: value };
     }
 
     public static dashStyle(value: string): GenericObject {

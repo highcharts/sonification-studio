@@ -70,6 +70,20 @@
 
             <SEControl
                 v-slot="slotProps"
+                label="Opacity"
+                helptext="The opacity of the data series color. Set to 0 to make the series invisible, but still audible."
+            >
+                <SESlider
+                    :id="slotProps.controlId"
+                    v-model.number="seriesOpacity"
+                    :labelledby="slotProps.labelId"
+                    :min="0"
+                    :max="100"
+                />
+            </SEControl>
+
+            <SEControl
+                v-slot="slotProps"
                 label="Dash style"
                 helptext="The dash style for this data series' lines and borders."
             >
@@ -77,6 +91,19 @@
                     :id="slotProps.controlId"
                     v-model="dashStyle"
                     :options="dashStyles"
+                />
+            </SEControl>
+
+            <SEControl
+                v-slot="slotProps"
+                label="Show in legend"
+                helptext="Show this data series in the chart legend if the chart legend is enabled."
+                horizontal
+                helptext-middle
+            >
+                <SECheckbox
+                    :id="slotProps.controlId"
+                    v-model="seriesShowInLegend"
                 />
             </SEControl>
 
@@ -100,6 +127,7 @@ import SEControl from '../basic/SEControl.vue';
 import SEInputbox from '../basic/SEInputbox.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
+import SESlider from '../basic/SESlider.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
 import { GenericObject } from '../../core/utils/objects';
 import { getSeriesId } from '../../core/utils/chartUtils';
@@ -115,7 +143,8 @@ export default {
         SEInputbox,
         SEDropdown,
         SECheckbox,
-        SEColorPicker
+        SEColorPicker,
+        SESlider
     },
     data() {
         return {
@@ -193,6 +222,10 @@ export default {
             get() { return makeSeriesParamPropertyGetMapping(this, 'seriesColor', '#ffffff'); },
             set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesColor', val); }
         },
+        seriesOpacity: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesOpacity', 100); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesOpacity', val); }
+        },
         dashStyle: {
             get() { return makeSeriesParamPropertyGetMapping(this, 'dashStyle'); },
             set(val) { return makeSeriesParamPropertySetMapping(this, 'dashStyle', val); }
@@ -204,6 +237,10 @@ export default {
         seriesVisible: {
             get() { return makeSeriesParamPropertyGetMapping(this, 'seriesVisible', true); },
             set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesVisible', val); }
+        },
+        seriesShowInLegend: {
+            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesShowInLegend', true); },
+            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesShowInLegend', val); }
         },
         seriesType: {
             get() { return makeSeriesParamPropertyGetMapping(this, 'seriesType'); },
