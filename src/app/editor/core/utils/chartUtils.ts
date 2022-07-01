@@ -27,9 +27,6 @@ export const seriesTypes = [{
 }, {
     name: 'Scatter',
     value: 'scatter'
-}, {
-    name: 'Area range',
-    value: 'arearange'
 }];
 
 export function getSeriesId(series: GenericObject): string {
