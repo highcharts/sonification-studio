@@ -8,7 +8,7 @@
             <SEDropdown
                 :id="slotProps.controlId"
                 v-model="chartType"
-                :options="chartTypes"
+                :options="seriesTypes"
             />
         </SEControl>
 
@@ -41,6 +41,7 @@
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEInputbox from '../basic/SEInputbox.vue';
+import { seriesTypes } from '../../core/utils/chartUtils';
 
 export default {
     components: {
@@ -49,30 +50,7 @@ export default {
         SEInputbox
     },
     data() {
-        return {
-            chartTypes: [{
-                name: 'Line',
-                value: 'line'
-            }, {
-                name: 'Smoothed line',
-                value: 'spline'
-            }, {
-                name: 'Area',
-                value: 'area'
-            }, {
-                name: 'Smoothed area',
-                value: 'areaspline'
-            }, {
-                name: 'Column',
-                value: 'column'
-            }, {
-                name: 'Pie',
-                value: 'pie'
-            }, {
-                name: 'Scatter',
-                value: 'scatter'
-            }]
-        };
+        return { seriesTypes };
     },
     computed: {
         chartType: {

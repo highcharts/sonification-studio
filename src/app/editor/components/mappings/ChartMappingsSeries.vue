@@ -130,7 +130,7 @@ import SECheckbox from '../basic/SECheckbox.vue';
 import SESlider from '../basic/SESlider.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
 import { GenericObject } from '../../core/utils/objects';
-import { getSeriesId } from '../../core/utils/chartUtils';
+import { getSeriesId, seriesTypes } from '../../core/utils/chartUtils';
 import {
     makeSeriesParamPropertyGetMapping,
     makeSeriesParamPropertySetMapping
@@ -151,28 +151,7 @@ export default {
             seriesTypes: [{
                 name: 'Default',
                 value: null
-            }, {
-                name: 'Line',
-                value: 'line'
-            }, {
-                name: 'Smoothed line',
-                value: 'spline'
-            }, {
-                name: 'Area',
-                value: 'area'
-            }, {
-                name: 'Smoothed area',
-                value: 'areaspline'
-            }, {
-                name: 'Column',
-                value: 'column'
-            }, {
-                name: 'Pie',
-                value: 'pie'
-            }, {
-                name: 'Scatter',
-                value: 'scatter'
-            }],
+            }].concat(seriesTypes as any),
             dashStyles: [{
                 name: 'Solid',
                 value: null
