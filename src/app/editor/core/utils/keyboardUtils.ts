@@ -7,6 +7,8 @@ export enum Keys {
     Enter = 'Enter',
     Tab = 'Tab',
     Space = ' ',
+    Divide = 'Divide',
+    Forwardslash = '/',
     Backspace = 'Backspace',
     Delete = 'Delete',
     Up = 'ArrowUp',

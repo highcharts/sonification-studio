@@ -76,6 +76,12 @@ export default {
         document.addEventListener('keydown', e => {
             if (keyPressed(Keys.Esc, Modifiers.None, e) && this.helpVisible) {
                 this.hideHelpDialog();
+            } else if ((
+                keyPressed(Keys.Forwardslash, Modifiers.Ctrl, e) ||
+                keyPressed(Keys.Divide, Modifiers.Ctrl, e)) &&
+                !this.helpVisible
+            ) {
+                this.onHelpClick();
             }
         });
     },
