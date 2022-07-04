@@ -24,7 +24,13 @@ export const defaultChartOptions = {
         animation: {
             duration: 600
         },
-        panKey: 'alt'
+        panKey: 'alt',
+        events: {
+            afterA11yUpdate: function () {
+                const svg = (this as any).renderer.box;
+                svg.setAttribute('role', 'application');
+            }
+        }
     },
     exporting: {
         enabled: false,
