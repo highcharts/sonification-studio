@@ -83,8 +83,7 @@
                         </h3>
                         <ul>
                             <li>Implement our own, accessible, data grid.</li>
-                            <li>Filter and tremolo mapping.</li>
-                            <li>Invisible, but audible, data series.</li>
+                            <li>Better sonification navigation for screen reader users.</li>
                             <li>Drag playback slider to scrub.</li>
                             <li>Sonification contexts and notifications.</li>
                             <li>More chart types.</li>
