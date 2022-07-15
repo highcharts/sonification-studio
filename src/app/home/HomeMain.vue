@@ -85,7 +85,7 @@
                             <li>Implement our own, accessible, data grid.</li>
                             <li>Better sonification navigation for screen reader users.</li>
                             <li>Drag playback slider to scrub.</li>
-                            <li>Sonification contexts and notifications.</li>
+                            <li>Series-specific sonification contexts and notifications.</li>
                             <li>More chart types.</li>
                             <li>Installable progressive webapp-version, possibly a desktop application version.</li>
                         </ul>
