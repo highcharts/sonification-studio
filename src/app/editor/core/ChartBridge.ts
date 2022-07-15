@@ -57,11 +57,25 @@ export class ChartBridge {
      */
     public init(chart: GenericObject): void {
         this.chart = chart;
-        this.updateChartOptions();
 
-        // Once we have a chart, we need to trigger reactivity again to force updates
-        this.commitToStore('viewStore/triggerParameterReactivity');
-        this.commitToStore('viewStore/triggerDataReactivity');
+        // Once we have a chart, we need to trigger reactivity to get the first update
+        this.forceUpdate();
+    }
+
+
+    /**
+     * Use this function to force chart option updates - mostly useful if altering deep
+     * sub properties in store that are not picked up by the automatic watcher.
+     */
+    public forceUpdate(queued = false): void {
+        if (!queued) {
+            this.updateChartOptions();
+            this.commitToStore('viewStore/triggerParameterReactivity');
+            this.commitToStore('viewStore/triggerDataReactivity');
+        } else {
+            this.queueNewParamReactivity();
+            this.queueNewDataReactivity();
+        }
     }
 
 
@@ -316,6 +330,29 @@ export class ChartBridge {
         const title: string = this.chart?.options.title.text;
         const filteredTitle = title.split('').filter(c => /[\w- ]/.test(c)).join('');
         return filteredTitle || 'export';
+    }
+
+
+    public getAvailableInstruments(): Array<Record<'name'|'value', string>> {
+        return Object.keys(
+            this.Highcharts.sonification.InstrumentPresets
+        ).map(i => ({
+            name: i[0].toUpperCase() + i.slice(1),
+            value: i
+        }));
+    }
+
+
+    public getMinMaxValuesForProp(prop: string): Record<'min'|'max', number> {
+        if (!this.chart) {
+            return { min: 0, max: 100 };
+        }
+        // Todo: Expose the caches in Highcharts to grab from there later.
+        const axis = prop === 'x' ? this.chart.xAxis[0] : this.chart.yAxis[0];
+        return {
+            min: axis.dataMin,
+            max: axis.dataMax
+        };
     }
 
 
@@ -579,18 +616,9 @@ export class ChartBridge {
     private onStoreMutation(mutation: GenericObject) {
         const chartIsValid = this.chart && this.chart.options;
         if (chartIsValid && this.isParameterMutation(mutation)) {
-            this.queueReactivityUpdate(
-                'viewStore/triggerParameterReactivity',
-                ChartBridge.parameterReactivityIntervalMs,
-                'paramReactivityTimeout',
-                () => this.updateChartOptions()
-            );
+            this.queueNewParamReactivity();
         } else if (chartIsValid && this.isDataMutation(mutation)) {
-            this.queueReactivityUpdate(
-                'viewStore/triggerDataReactivity',
-                ChartBridge.dataReactivityIntervalMs,
-                'dataReactivityTimeout'
-            );
+            this.queueNewDataReactivity();
         }
     }
 
@@ -621,6 +649,25 @@ export class ChartBridge {
                 this.commitToStore(mutation);
             }, interval);
         }
+    }
+
+
+    private queueNewParamReactivity() {
+        this.queueReactivityUpdate(
+            'viewStore/triggerParameterReactivity',
+            ChartBridge.parameterReactivityIntervalMs,
+            'paramReactivityTimeout',
+            () => this.updateChartOptions()
+        );
+    }
+
+
+    private queueNewDataReactivity() {
+        this.queueReactivityUpdate(
+            'viewStore/triggerDataReactivity',
+            ChartBridge.dataReactivityIntervalMs,
+            'dataReactivityTimeout'
+        );
     }
 
 

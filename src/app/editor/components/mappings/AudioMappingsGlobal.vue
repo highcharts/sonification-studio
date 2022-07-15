@@ -71,62 +71,33 @@
                     />
                 </SEControl>
             </div>
-
-            <h5>Default settings</h5>
-            <div class="controls-group">
-                <SEControl
-                    v-slot="slotProps"
-                    label="Min note"
-                    helptext="The lowest note to play, given as number of notes from the lowest C (C0)."
-                >
-                    <SESlider
-                        :id="slotProps.controlId"
-                        v-model.number="minNote"
-                        :labelledby="slotProps.labelId"
-                        :min="0"
-                        :max="110"
-                    />
-                </SEControl>
-                <SEControl
-                    v-slot="slotProps"
-                    label="Max note"
-                    helptext="The highest note to play, given as number of notes from the lowest C (C0)."
-                >
-                    <SESlider
-                        :id="slotProps.controlId"
-                        v-model.number="maxNote"
-                        :labelledby="slotProps.labelId"
-                        :min="0"
-                        :max="110"
-                    />
-                </SEControl>
-            </div>
-
-            <div class="controls-group">
-                <SEControl
-                    v-slot="slotProps"
-                    label="Default panning enabled"
-                    helptext="Pan the sound to left and right based on x value by default. Panning behavior can be overridden for each data series."
-                    horizontal
-                >
-                    <SECheckbox
-                        :id="slotProps.controlId"
-                        v-model="panEnabled"
-                    />
-                </SEControl>
-                <SEControl
-                    v-slot="slotProps"
-                    label="Default pan width"
-                    helptext="How wide to pan the sound when default panning is enabled, from narrow (0) to wide (100). Pan width and placement can be overridden for each data series."
-                >
-                    <SESlider
-                        :id="slotProps.controlId"
-                        v-model.number="panWidth"
-                        :labelledby="slotProps.labelId"
-                    />
-                </SEControl>
-            </div>
         </div>
+
+        <SEAccordionContainer>
+            <SEAccordionItem
+                heading="Default audio settings"
+                :selected="expandedGlobalAudioDefaultsAccordionItem"
+                controls="audio-global-defaults"
+                @click="onDefaultsAccordionClick"
+            >
+                <keep-alive>
+                    <AudioMappingsGlobalDefaults id="audio-global-defaults" />
+                </keep-alive>
+            </SEAccordionItem>
+            <SEAccordionItem
+                heading="Global audio contexts"
+                :selected="expandedGlobalAudioContextsAccordionItem"
+                controls="audio-global-contexts"
+                @click="onContextsAccordionClick"
+            >
+                <keep-alive>
+                    <AudioMappingsGlobalContexts
+                        id="audio-global-contexts"
+                        :variable-value-prop="false"
+                    />
+                </keep-alive>
+            </SEAccordionItem>
+        </SEAccordionContainer>
     </div>
 </template>
 
@@ -135,14 +106,23 @@ import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SERadioGroup from '../basic/SERadioGroup.vue';
+import SEAccordionItem from '../basic/SEAccordionItem.vue';
+import SEAccordionContainer from '../basic/SEAccordionContainer.vue';
+import AudioMappingsGlobalDefaults from './AudioMappingsGlobalDefaults.vue';
+import AudioMappingsGlobalContexts from './AudioMappingsGlobalContexts.vue';
 import { speedToDuration } from '../../core/utils/sonificationTools';
+import { mapState } from 'vuex';
 
 export default {
     components: {
         SEControl,
         SESlider,
         SECheckbox,
-        SERadioGroup
+        SERadioGroup,
+        SEAccordionContainer,
+        AudioMappingsGlobalContexts,
+        AudioMappingsGlobalDefaults,
+        SEAccordionItem
     },
     data() {
         return {
@@ -179,21 +159,14 @@ export default {
             get() { return (this as any).$store.state.globalSonifyParametersStore.order; },
             set(val) { return this.$store.commit('globalSonifyParametersStore/setOrder', val); }
         },
-        minNote: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.minNote; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setMinNote', val); }
+        ...mapState('viewStore', ['expandedGlobalAudioDefaultsAccordionItem', 'expandedGlobalAudioContextsAccordionItem']),
+    },
+    methods: {
+        onDefaultsAccordionClick(e: Event, item: unknown, isSelected: boolean) {
+            this.$store.commit('viewStore/setExpandedGlobalAudioDefaultsAccordionItem', isSelected);
         },
-        maxNote: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.maxNote; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setMaxNote', val); }
-        },
-        panEnabled: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.panEnabled; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setPanEnabled', val); }
-        },
-        panWidth: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.panWidth; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setPanWidth', val); }
+        onContextsAccordionClick(e: Event, item: unknown, isSelected: boolean) {
+            this.$store.commit('viewStore/setExpandedGlobalAudioContextsAccordionItem', isSelected);
         }
     }
 };
@@ -206,12 +179,9 @@ export default {
         margin: 10px 5px 10px;
     }
 
-    h5 {
-        margin: 25px 0 0;
-    }
-
     .controls-container {
         padding: 0 10px;
+        margin-bottom: 20px;
     }
 
     .se-control {

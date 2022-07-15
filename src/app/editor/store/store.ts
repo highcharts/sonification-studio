@@ -11,8 +11,8 @@ import { GenericObject } from '../core/utils/objects';
 Vue.use(Vuex);
 
 // Bump this when making breaking changes to the store API. This will invalidate the
-// localStorage cache, and clear old revisions.
-// Note: Will not as of yet affect loading old project files.
+// localStorage cache, and clear old revisions. Will also give user a warning if they
+// try to load project files with storage revision older than this.
 export const storageRevision = 4;
 
 // Key for localStorage cache

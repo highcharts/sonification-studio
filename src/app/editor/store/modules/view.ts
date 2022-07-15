@@ -36,6 +36,8 @@ export const viewStore = {
         playbackProgress: 0,
         selectedDataSeriesChartMapping: '',
         selectedDataSeriesAudioMapping: '',
+        expandedGlobalAudioDefaultsAccordionItem: true,
+        expandedGlobalAudioContextsAccordionItem: false,
         expandedSeriesAudioAccordionItems: {
             Instrument: true
         },
@@ -88,6 +90,14 @@ export const viewStore = {
 
         setExpandedChartMappingsAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
             Vue.set(state.expandedChartMappingsAccordionItems, payload.itemName, payload.expanded);
+        },
+
+        setExpandedGlobalAudioDefaultsAccordionItem(state: any, selected: boolean) {
+            state.expandedGlobalAudioDefaultsAccordionItem = selected;
+        },
+
+        setExpandedGlobalAudioContextsAccordionItem(state: any, selected: boolean) {
+            state.expandedGlobalAudioContextsAccordionItem = selected;
         },
 
         triggerParameterReactivity(state: any) {

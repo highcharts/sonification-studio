@@ -6,6 +6,27 @@
 
 import { GenericObject, firstDefined } from '../../core/utils/objects';
 
+let idCounter = 0;
+const makeDefaultContext = (): GenericObject => ({
+    valueInterval: 1,
+    valueProp: 'x',
+    playWhenType: 'always',
+    playWhenThreshold: 0,
+    playWhenMin: 0,
+    playWhenMax: 0,
+    instrument: 'chop',
+    pitchType: 'fixed',
+    pitchMappingProp: 'y',
+    pitchMappingValue: 0,
+    pitchNote: 60,
+    volume: 70,
+    noteDuration: 300,
+    pan: 50,
+    id: idCounter++,
+    showDetails: true
+});
+
+
 const defaultState = () => ({
     volume: 70,
     speed: 79,
@@ -16,7 +37,8 @@ const defaultState = () => ({
     maxNote: 90,
     panEnabled: true,
     panWidth: 100,
-    detail: 15
+    detail: 15,
+    contexts: [Object.assign(makeDefaultContext(), { playWhenType: 'never' })]
 });
 
 export const globalSonifyParametersStore = {
@@ -32,7 +54,7 @@ export const globalSonifyParametersStore = {
             const defaultOpts: GenericObject = defaultState();
             [
                 'volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail',
-                'speed', 'order'
+                'speed', 'order', 'contexts'
             ].forEach(
                 x => state[x] = newState ? firstDefined(newState[x], state[x]) : defaultOpts[x]);
         },
@@ -75,6 +97,17 @@ export const globalSonifyParametersStore = {
 
         setPanWidth(state: any, panWidth: number) {
             state.panWidth = panWidth;
+        },
+
+        removeContext(state: any, id: number) {
+            const ix = state.contexts.findIndex((c: GenericObject) => c.id === id);
+            if (ix > -1) {
+                state.contexts.splice(ix, 1);
+            }
+        },
+
+        addContext(state: any) {
+            state.contexts.push(makeDefaultContext());
         }
     }
 };

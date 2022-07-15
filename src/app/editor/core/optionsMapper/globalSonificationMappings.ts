@@ -107,4 +107,43 @@ export class GlobalSonificationMappings {
             }
         };
     }
+
+    public static contexts(value: GenericObject[]): GenericObject {
+        const contextOptsFromDef = (def: GenericObject) => {
+            if (def.playWhenType === 'never') {
+                return null;
+            }
+            const opts: GenericObject = {
+                instrument: def.instrument,
+                valueInterval: parseFloat(def.valueInterval),
+                valueProp: 'x',
+                mapping: {
+                    noteDuration: def.noteDuration,
+                    volume: def.volume / 100,
+                    pan: (def.pan - 50) / 50,
+                    pitch: def.pitchType === 'fixed' ? def.pitchNote : {
+                        mapTo: def.pitchMappingProp,
+                        value: def.pitchMappingValue
+                    }
+                }
+            };
+
+            if (def.playWhenType !== 'always') {
+                opts.activeWhen = ({
+                    'crossing above': { crossingUp: def.playWhenThreshold },
+                    'crossing below': { crossingDown: def.playWhenThreshold },
+                    'between': { min: def.playWhenMin, max: def.playWhenMax },
+                } as any)[def.playWhenType];
+                opts.activeWhen.prop = def.valueProp;
+            }
+
+            return opts;
+        };
+
+        return {
+            sonification: {
+                globalContextTracks: value.map(contextOptsFromDef).filter(o => o !== null)
+            }
+        };
+    }
 }

@@ -69,7 +69,6 @@ import {
 import {
     nullFallback
 } from '../../core/utils/objects';
-
 import { mapState } from 'vuex';
 
 export default {
@@ -98,12 +97,7 @@ export default {
             set(val) { return makeSeriesParamPropertySetMapping(this, 'pitchRoundingEnabled', val, 'instrument'); },
         },
         instruments() {
-            return Object.keys(
-                (this as any).$chartBridge.Highcharts.sonification.InstrumentPresets
-            ).map(i => ({
-                name: i[0].toUpperCase() + i.slice(1),
-                value: i
-            }));
+            return (this as any).$chartBridge.getAvailableInstruments();
         },
         ...mapState('viewStore', ['selectedHeaderTabContent'])
     },
