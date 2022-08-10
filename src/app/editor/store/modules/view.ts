@@ -36,7 +36,8 @@ export const viewStore = {
         playbackProgress: 0,
         selectedDataSeriesChartMapping: '',
         selectedDataSeriesAudioMapping: '',
-        expandedGlobalAudioDefaultsAccordionItem: true,
+        expandedGlobalAudioBasicAccordionItem: true,
+        expandedGlobalAudioDefaultsAccordionItem: false,
         expandedGlobalAudioContextsAccordionItem: false,
         expandedSeriesAudioAccordionItems: {
             Instrument: true
@@ -90,6 +91,10 @@ export const viewStore = {
 
         setExpandedChartMappingsAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
             Vue.set(state.expandedChartMappingsAccordionItems, payload.itemName, payload.expanded);
+        },
+
+        setExpandedGlobalAudioBasicAccordionItem(state: any, selected: boolean) {
+            state.expandedGlobalAudioBasicAccordionItem = selected;
         },
 
         setExpandedGlobalAudioDefaultsAccordionItem(state: any, selected: boolean) {

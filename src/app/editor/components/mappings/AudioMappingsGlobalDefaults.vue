@@ -3,7 +3,7 @@
         <div class="controls-group">
             <SEControl
                 v-slot="slotProps"
-                label="Min note"
+                label="Default minimum note"
                 helptext="The lowest note to play, given as number of notes from the lowest C (C0)."
             >
                 <SESlider
@@ -16,7 +16,7 @@
             </SEControl>
             <SEControl
                 v-slot="slotProps"
-                label="Max note"
+                label="Default maximum note"
                 helptext="The highest note to play, given as number of notes from the lowest C (C0)."
             >
                 <SESlider

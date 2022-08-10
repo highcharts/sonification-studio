@@ -5,16 +5,21 @@
             :key="context.id"
             class="context-card"
         >
-            <button
-                class="remove-btn"
-                aria-label="Remove context"
-                @click="onRemoveContext(context.id)"
-            >
-                <img
-                    alt=""
-                    :src="removeIcon"
+            <div class="context-header">
+                <h6>
+                    Context cue {{ context.id }}
+                </h6>
+                <button
+                    class="remove-btn"
+                    aria-label="Remove context"
+                    @click="onRemoveContext(context.id)"
                 >
-            </button>
+                    <img
+                        alt=""
+                        :src="removeIcon"
+                    >
+                </button>
+            </div>
 
             <div class="context-conditions">
                 Play every <input
@@ -359,7 +364,6 @@ export default {
 }
 
 .remove-btn {
-    align-self: flex-end;
     width: 30px;
     background: none;
     border: none;
@@ -380,6 +384,20 @@ export default {
         width: 0.8rem;
         height: $width;
     }
+    &:hover {
+        img {
+            filter: invert();
+        }
+    }
+}
+
+.context-header {
+    display: flex;
+    justify-content: space-between;
+    h6 {
+        font-size: 0.9rem;
+    }
+    margin-bottom: 10px;
 }
 
 .se-control {
@@ -409,7 +427,7 @@ fieldset {
 }
 
 .details-btn {
-    margin-top: 15px;
+    margin-top: 10px;
     margin-bottom: 5px;
     width: 4.5rem;
     background: none;

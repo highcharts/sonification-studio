@@ -2,19 +2,7 @@
     <div>
         <SEControl
             v-slot="slotProps"
-            label="Type"
-            helptext="The type of chart to draw."
-        >
-            <SEDropdown
-                :id="slotProps.controlId"
-                v-model="chartType"
-                :options="seriesTypes"
-            />
-        </SEControl>
-
-        <SEControl
-            v-slot="slotProps"
-            label="Title"
+            label="Chart Title"
             helptext="The chart title text."
         >
             <SEInputbox
@@ -25,12 +13,24 @@
 
         <SEControl
             v-slot="slotProps"
-            label="Subtitle"
+            label="Chart Subtitle"
             helptext="The chart subtitle text."
         >
             <SEInputbox
                 :id="slotProps.controlId"
                 v-model="chartSubtitle"
+            />
+        </SEControl>
+
+        <SEControl
+            v-slot="slotProps"
+            label="Chart Type"
+            helptext="The type of chart to draw."
+        >
+            <SEDropdown
+                :id="slotProps.controlId"
+                v-model="chartType"
+                :options="seriesTypes"
             />
         </SEControl>
     </div>

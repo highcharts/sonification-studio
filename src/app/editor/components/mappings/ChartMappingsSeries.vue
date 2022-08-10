@@ -10,7 +10,7 @@
             <SEControl
                 v-slot="slotProps"
                 label="Series"
-                helptext="The data series to apply settings to."
+                helptext="The data series to edit and apply settings to."
             >
                 <SEDropdown
                     :id="slotProps.controlId"
@@ -21,7 +21,18 @@
 
             <SEControl
                 v-slot="slotProps"
-                label="Visible"
+                label="Series Name"
+                helptext="The name of this data series in the chart."
+            >
+                <SEInputbox
+                    :id="slotProps.controlId"
+                    v-model="seriesName"
+                />
+            </SEControl>
+
+            <SEControl
+                v-slot="slotProps"
+                label="Series Visible"
                 helptext="Make the data series visible on the chart or not. Visually hidden series do not play back in audio."
                 horizontal
                 helptext-middle
@@ -34,24 +45,13 @@
 
             <SEControl
                 v-slot="slotProps"
-                label="Type"
+                label="Series Chart Type"
                 helptext="Override the chart type for this specific data series."
             >
                 <SEDropdown
                     :id="slotProps.controlId"
                     v-model="seriesType"
                     :options="seriesTypes"
-                />
-            </SEControl>
-
-            <SEControl
-                v-slot="slotProps"
-                label="Name"
-                helptext="The name of this data series in the chart."
-            >
-                <SEInputbox
-                    :id="slotProps.controlId"
-                    v-model="seriesName"
                 />
             </SEControl>
 
@@ -84,8 +84,8 @@
 
             <SEControl
                 v-slot="slotProps"
-                label="Dash style"
-                helptext="The dash style for this data series' lines and borders."
+                label="Line Style"
+                helptext="The line dash style for this data series' lines and borders."
             >
                 <SEDropdown
                     :id="slotProps.controlId"

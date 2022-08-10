@@ -2,19 +2,6 @@
     <div>
         <SEControl
             v-slot="slotProps"
-            label="Audio enabled"
-            helptext="Enable audio playback for this data series."
-            horizontal
-            helptext-middle
-        >
-            <SECheckbox
-                :id="slotProps.controlId"
-                v-model="sonificationEnabled"
-            />
-        </SEControl>
-
-        <SEControl
-            v-slot="slotProps"
             label="Instrument"
             helptext="The type of instrument to use for playing this data series. Choose below whether or not to play samples of the selected instrument when going through the list."
             :horizontal-reverse="true"
@@ -30,14 +17,14 @@
 
         <SEControl
             v-slot="slotProps"
-            label="Play audio samples"
-            helptext="Play a preview sound as you switch between different instruments in the Instrument list above."
+            label="Audio enabled for series"
+            helptext="Enable audio playback for this data series."
             horizontal
             helptext-middle
         >
             <SECheckbox
                 :id="slotProps.controlId"
-                v-model="playSamples"
+                v-model="sonificationEnabled"
             />
         </SEControl>
 
@@ -77,11 +64,6 @@ export default {
         SECheckbox,
         SEDropdown
     },
-    data() {
-        return {
-            playSamples: true
-        };
-    },
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         sonificationEnabled: {
@@ -111,7 +93,7 @@ export default {
     },
     methods: {
         onInstrumentChange() {
-            if (this.playSamples && this.instrument && this.selectedHeaderTabContent !== 'dataContent') {
+            if (this.instrument && this.selectedHeaderTabContent !== 'dataContent') {
                 (this as any).$chartBridge.playAudioSample(this.instrument);
             }
         },

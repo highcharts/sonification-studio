@@ -2,19 +2,6 @@
     <div>
         <SEControl
             v-slot="slotProps"
-            label="Invert chart"
-            helptext="Make the X axis vertical, and the Y axis horizontal."
-            horizontal
-            helptext-middle
-        >
-            <SECheckbox
-                :id="slotProps.controlId"
-                v-model="chartInverted"
-            />
-        </SEControl>
-
-        <SEControl
-            v-slot="slotProps"
             label="Enable legend"
             helptext="Show a legend overview box in the chart with a list of data series."
             horizontal
@@ -23,6 +10,18 @@
             <SECheckbox
                 :id="slotProps.controlId"
                 v-model="chartLegendEnabled"
+            />
+        </SEControl>
+
+        <SEControl
+            v-slot="slotProps"
+            label="Show data series labels"
+            helptext="Show a label next to each data series with its name. Labels may be hidden if no good position is found automatically."
+            horizontal
+        >
+            <SECheckbox
+                :id="slotProps.controlId"
+                v-model="seriesLabelsEnabled"
             />
         </SEControl>
 
@@ -41,19 +40,20 @@
 
         <SEControl
             v-slot="slotProps"
-            label="Show data series labels"
-            helptext="Show a label next to each data series with its name. Labels may be hidden if no good position is found automatically."
+            label="Invert chart"
+            helptext="Make the X axis vertical, and the Y axis horizontal."
             horizontal
+            helptext-middle
         >
             <SECheckbox
                 :id="slotProps.controlId"
-                v-model="seriesLabelsEnabled"
+                v-model="chartInverted"
             />
         </SEControl>
 
         <SEControl
             v-slot="slotProps"
-            label="Chart zoom"
+            label="Chart Zoom"
             helptext="Allow zooming by clicking and dragging in the chart to select a range. When zoomed, hold the Alt/Option key to pan around the chart with the mouse."
         >
             <SEDropdown
@@ -65,7 +65,7 @@
 
         <SEControl
             v-slot="slotProps"
-            label="Data grouping"
+            label="Data Grouping"
             helptext="When there are lots of data points in the chart, data grouping will combine several points into one.<br>Select here whether the points should be summed together when combined, an average should be taken, or the data grouping should be disabled altogether.<br>Selecting default will make an intelligent guess based on the chart type."
         >
             <SEDropdown

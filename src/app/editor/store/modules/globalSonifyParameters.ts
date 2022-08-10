@@ -6,7 +6,7 @@
 
 import { GenericObject, firstDefined } from '../../core/utils/objects';
 
-let idCounter = 0;
+let idCounter = 1;
 const makeDefaultContext = (): GenericObject => ({
     valueInterval: 1,
     valueProp: 'x',

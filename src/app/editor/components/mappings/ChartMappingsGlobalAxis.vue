@@ -2,7 +2,7 @@
     <div>
         <SEControl
             v-slot="slotProps"
-            :label="axis + '-Axis title'"
+            :label="axis + '-Axis Title'"
             :helptext="`Title text for the chart's ${axis}-axis.`"
         >
             <SEInputbox
@@ -13,7 +13,7 @@
 
         <SEControl
             v-slot="slotProps"
-            :label="axis + '-Axis type'"
+            :label="axis + '-Axis Type'"
             :helptext="`The type of the ${axis}-axis. ${axisHelptext}`"
         >
             <SEDropdown
@@ -25,7 +25,7 @@
 
         <SEControl
             v-slot="slotProps"
-            :label="axis + '-axis visible'"
+            :label="axis + '-axis Visible'"
             :helptext="`Whether or not the ${axis}-axis should be visible on the chart.`"
             horizontal
             helptext-middle
