@@ -10,6 +10,7 @@
         - [value]: Number - Current slider value (one-way binding only).
         - [step]: Number - Step for slider values.
         - [dark]: Boolean - Alternate styling for dark backgrounds.
+        - [darkOnLight]: Boolean - Alternate dark styling for light backgrounds.
         - [disabled]: Boolean - Do not allow user input.
         - [showValueInput]: Boolean - Display value of slider in an input box.
         - [showPctInLabel]: Boolean - Display percentage value of slider after the label.
@@ -24,12 +25,14 @@
             v-if="label"
             :id="uuid1"
             :for="id"
-            :class="{ dark: dark }"
+            :class="{ dark, 'dark-on-light': darkOnLight }"
+            class="se-slider-label"
         >
             {{ label }}
             <span
                 v-if="showValueInLabel"
                 class="label-value"
+                :class="{ 'dark-on-light': darkOnLight }"
             >
                 {{ value + '' + (valueIsPct ? '%' : '') }}
             </span>
@@ -46,7 +49,7 @@
                 :max="max"
                 :value="value"
                 :step="step"
-                :class="{ dark: dark }"
+                :class="{ dark, 'dark-on-light': darkOnLight }"
                 :style="'width:' + (Math.round(max).toString().length * 0.875) + 'rem'"
                 @click="$event.target.select()"
                 @input="oninput"
@@ -62,7 +65,8 @@
                 :max="max"
                 :value="value"
                 :step="step"
-                :class="{ dark, disabled, 'arrow-thumb': arrowThumb }"
+                :class="{ dark, 'dark-on-light': darkOnLight, disabled, 'arrow-thumb': arrowThumb }"
+                class="se-slider-range-input"
                 @input="$emit('input', $event.target.value || 0)"
             >
         </div>
@@ -78,6 +82,7 @@ export default {
         label: { type: String, default: '' },
         labelledby: { type: String, default: '' },
         dark: { type: Boolean, default: false },
+        darkOnLight: { type: Boolean, default: false },
         disabled: { type: Boolean, default: false },
         showValueInput: { type: Boolean, default: true },
         showValueInLabel: { type: Boolean, default: false },
@@ -137,6 +142,9 @@ export default {
         &.dark {
             color: white;
         }
+        &.dark-on-light {
+            color: @seslider-darkonlight-color;
+        }
         margin-right: 8px;
     }
 
@@ -157,6 +165,10 @@ export default {
 
     .dark {
         color: @seslider-dark-color;
+    }
+
+    .dark-on-light {
+        color: @seslider-darkonlight-color;
     }
 
     .track(@color, @border) {
@@ -234,6 +246,18 @@ export default {
         }
     }
 
+    .thumbStyles(@color) {
+        &::-moz-range-thumb {
+            .arrowThumb(@color);
+        }
+        &::-ms-thumb {
+            .arrowThumb(@color);
+        }
+        &::-webkit-slider-thumb {
+            .arrowThumb(@color);
+        }
+    }
+
     input[type=range] {
         -webkit-appearance: none;
         background: transparent;
@@ -247,20 +271,19 @@ export default {
             .inputStyles(@seslider-dark-color, none);
         }
 
+        &.dark-on-light {
+            .inputStyles(@seslider-darkonlight-color, none);
+            &.arrow-thumb {
+                .thumbStyles(@seslider-darkonlight-color);
+            }
+        }
+
         &.disabled {
             cursor: default;
         }
 
         &.arrow-thumb {
-            &::-moz-range-thumb {
-                .arrowThumb(#fff);
-            }
-            &::-ms-thumb {
-                .arrowThumb(#fff);
-            }
-            &::-webkit-slider-thumb {
-                .arrowThumb(#fff);
-            }
+            .thumbStyles(#fff);
         }
     }
 
@@ -273,6 +296,9 @@ export default {
         opacity: 0.9;
         padding-left: 6px;
         margin-left: 6px;
-        border-left: 1px solid white;
+        border-left: 1px solid #fff;
+        &.dark-on-light {
+            border-color: @seslider-darkonlight-color;
+        }
     }
 </style>

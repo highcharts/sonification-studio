@@ -78,6 +78,7 @@ export default {
         bottom: 0;
         right: 0;
         padding: 30px;
+        padding-top: 25px;
         transition: filter 0.3s;
     }
 

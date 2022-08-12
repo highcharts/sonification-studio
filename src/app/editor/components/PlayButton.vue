@@ -46,12 +46,12 @@ export default {
         &:hover:not(:disabled) {
             color: @play-btn-hover-color;
             img {
-                filter: sepia(100%) saturate(700%) hue-rotate(170deg) brightness(95%);
+                filter: hue-rotate(-10deg) brightness(135%);
             }
         }
         &:active:not(:disabled) {
             img {
-                filter: sepia(100%) saturate(700%) hue-rotate(170deg) brightness(90%);
+                filter: hue-rotate(-10deg) brightness(130%);
             }
             color: darken(@play-btn-hover-color, 5%);
         }

@@ -6,7 +6,7 @@
             :show-value-input="false"
             label="Volume"
             :max="130"
-            dark
+            dark-on-light
             show-value-in-label
             value-is-pct
         />

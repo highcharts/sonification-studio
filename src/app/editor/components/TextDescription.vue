@@ -96,6 +96,7 @@ export default {
         display: flex;
         flex-direction: column;
         padding: 20px 30px;
+        margin-top: 5px
     }
 
     .textdesc-heading-row {

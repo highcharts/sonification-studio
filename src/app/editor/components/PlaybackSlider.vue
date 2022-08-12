@@ -5,9 +5,9 @@
             label="Playback"
             :show-value-input="false"
             :value="playbackProgress"
-            dark
             disabled
             arrow-thumb
+            dark-on-light
         />
     </div>
 </template>

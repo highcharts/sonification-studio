@@ -37,7 +37,7 @@ export default {
         background-color: @header-tab-btn-bg;
         color: @header-tab-btn-color;
         border: none;
-        border-bottom: 1px solid @header-tab-unsel-border;
+        border-bottom: 2px solid @header-tab-unsel-border;
         font: inherit;
         font-size: 1.125rem;
         cursor: pointer;
@@ -56,7 +56,7 @@ export default {
         background-color: @header-tab-btn-selected-bg;
         color: @header-tab-btn-selected-color;
         font-weight: bold;
-        border-bottom: 1px solid @header-tab-btn-selected-bg;
+        border-bottom: 2px solid @header-tab-btn-selected-bg;
         .header-tab-btn-icon {
             filter: invert();
         }

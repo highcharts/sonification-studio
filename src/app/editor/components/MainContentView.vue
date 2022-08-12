@@ -107,7 +107,7 @@ export default {
         height: 100%;
         grid-template-rows: auto 1fr auto;
         grid-template-columns: 1fr 350px;
-        grid-gap: 5px;
+        grid-column-gap: 5px;
         &.full-width {
             grid-template-columns: 1fr 5px;
         }
@@ -120,6 +120,7 @@ export default {
     }
 
     .play-controls {
+        padding: 10px 10px 0 10px;
         grid-column-start: 1;
         grid-column-end: 2;
     }

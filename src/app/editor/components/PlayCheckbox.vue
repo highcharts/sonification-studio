@@ -46,11 +46,11 @@ export default {
             color: @play-controls-color;
             border: 2px solid transparent;
             &.checked {
-                color: #d6e5f7;
-                background-color: rgba(0, 0, 0, 0.3);
+                color: @dark-blue-6;
+                background-color: rgba(54, 116, 177, 0.3);
                 border-bottom: 2px solid #7683AD;
                 img {
-                    filter: sepia(100%) saturate(800%) hue-rotate(170deg) brightness(95%);
+                    filter: brightness(135%);
                 }
             }
         }
@@ -82,7 +82,7 @@ export default {
         }
         &:hover {
             label {
-                color: #eff6fd;
+                color: @play-btn-hover-color;
                 img {
                     filter: sepia(100%) saturate(800%) hue-rotate(170deg) brightness(98%);
                 }
