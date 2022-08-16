@@ -28,8 +28,8 @@ export const viewStore = {
 
         // Normal view state parameters
         loadingChart: false,
-        selectedHeaderTabContent: 'dataContent',
-        selectedHeaderTabId: 'Data',
+        selectedHeaderTabContent: 'chartContent',
+        selectedHeaderTabId: 'Chart',
         selectedSidebarTabId: 'Visual',
         sidebarVisible: true,
         showGridTools: false,
