@@ -189,6 +189,7 @@ export default {
             margin: 0 auto;
             box-sizing: border-box;
             filter: blur(2.5px);
+            padding: 5px;
             &.preload {
                 height: 490px;
                 opacity: 0;
