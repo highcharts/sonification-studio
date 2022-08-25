@@ -41,7 +41,7 @@ function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnPro
 }
 
 function getPlaceholderData() {
-    const res = [];
+    const res = [{ A: 'Index (X value)', B: 'Sensor Data (Y value)' }];
 
     for (let i = 0; i < 175; ++i) {
         res.push({
@@ -170,7 +170,9 @@ export const dataStore = {
 
             rowData.forEach((row: GenericObject, rowIx: number): void => {
                 const newRow = { ...row };
-                newRow[col] = getFillValue(newRow, rowIx, fillData);
+                if (rowIx) { // Don't fill column with headers
+                    newRow[col] = getFillValue(newRow, rowIx, fillData);
+                }
                 newRows.push(newRow);
             });
 
@@ -210,15 +212,10 @@ export const dataStore = {
             const hasSemicolon = csv.indexOf(';') > -1;
             const delim = hasTab ? '\t' : hasSemicolon ? ';' : ',';
             const arr = parseCSV(csv, delim);
-            const firstRowHasNames = !(arr[0]).some(cell => !isNaN(+cell));
             const maxRowLen = arr.reduce((len: number, row): number => {
                 return Math.max(len, row.length);
             }, 0);
             const columnHeaders = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0, maxRowLen).split('');
-
-            if (firstRowHasNames) {
-                arr.shift(); // Remove first row
-            }
 
             const objectifiedArr = arr.map((row: string[]) => {
                 const rowObject: any = {};

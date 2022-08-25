@@ -155,7 +155,7 @@ export class ChartBridge {
         } : {
             csv: csv || 'null',
             columns: null,
-            firstRowAsNames: false,
+            firstRowAsNames: true,
             googleSpreadsheetKey: '',
             enablePolling: false
         };

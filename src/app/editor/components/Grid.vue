@@ -150,7 +150,7 @@ export default {
         columnType(column: Array<string|null>, rowsToCheck: number): 'number'|'string'|'date'|'empty' {
             const len = Math.min(rowsToCheck, column.length);
             let hasData = false;
-            for (let i = 0; i < len; ++i) {
+            for (let i = 1; i < len; ++i) { // Do not check first row, because of column headers
                 const val = column[i];
                 hasData = hasData || !!(val?.trim().length);
                 if (
@@ -232,6 +232,10 @@ export default {
     .ag-cell-edit-input {
         padding: 2px 6px;
         text-align: center;
+    }
+
+    .ag-row-first {
+        font-weight: bold;
     }
 
     .se-grid, .se-grid-container {
