@@ -5,7 +5,7 @@
 import { GenericObject, firstDefined } from '../../core/utils/objects';
 
 const defaultState = () => ({
-    type: 'spline',
+    type: 'areaspline',
     legendEnabled: false,
     inverted: false,
     title: 'Test chart',
