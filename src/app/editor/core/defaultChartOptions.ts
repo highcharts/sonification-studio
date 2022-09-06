@@ -159,6 +159,9 @@ export const defaultChartOptions = {
         },
         custom: {
             allowNegativeLog: true
+        },
+        crosshair: {
+            color: '#727ea1'
         }
     },
     data: {
