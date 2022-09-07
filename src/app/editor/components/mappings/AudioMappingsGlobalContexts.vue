@@ -27,7 +27,7 @@
                     type="number"
                     aria-label="Context interval"
                     :min="0"
-                > X-values,<br>
+                > {{ xAxisIsDate ? context.valueMultiplierName || 'milliseconds' : 'X-values' }},<br>
                 when
                 <select
                     v-show="variableValueProp"
@@ -306,8 +306,9 @@ export default {
         ...mapState({
             reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates,
             contexts: (state: any) => state.globalSonifyParametersStore.contexts,
-            selectedHeaderTabContent: (state: any) => state.viewStore.selectedHeaderTabContent
-        }),
+            selectedHeaderTabContent: (state: any) => state.viewStore.selectedHeaderTabContent,
+            xAxisIsDate: (state: any) => state.chartParametersStore.xAxisType === 'datetime'
+        })
     },
     watch: {
         contexts: {
@@ -318,12 +319,21 @@ export default {
             deep: true
         }
     },
+    mounted() {
+        if (!this.contexts.length) {
+            this.addContext(true);
+        }
+    },
     methods: {
         onRemoveContext(id: number) {
             this.$store.commit('globalSonifyParametersStore/removeContext', id);
         },
-        addContext() {
-            this.$store.commit('globalSonifyParametersStore/addContext');
+        addContext(inactive = false) {
+            const range = this.xRange.max - this.xRange.min;
+            this.$store.commit('globalSonifyParametersStore/addContext', {
+                valueRange: this.xAxisIsDate ? range : null,
+                inactive
+            });
         },
         getPropRange(prop: string) {
             const range = (this as any).$chartBridge.reactiveGet(

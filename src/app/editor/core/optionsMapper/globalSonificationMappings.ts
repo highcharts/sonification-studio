@@ -108,14 +108,22 @@ export class GlobalSonificationMappings {
         };
     }
 
-    public static contexts(value: GenericObject[]): GenericObject {
+    public static contexts(value: GenericObject[], chart: GenericObject): GenericObject {
         const contextOptsFromDef = (def: GenericObject) => {
-            if (def.playWhenType === 'never') {
+            const valueInterval = parseFloat(def.valueInterval) * parseFloat(def.valueMultiplier || 1);
+            if (def.playWhenType === 'never' || !valueInterval) {
                 return null;
             }
+
+            const xDataRange = chart.xAxis[0].dataMax - chart.xAxis[0].dataMin;
+            if (xDataRange / valueInterval > 500) {
+                console.warn('Global audio context #' + def.id + ' muted because of too small interval.');
+                return null;
+            }
+
             const opts: GenericObject = {
                 instrument: def.instrument,
-                valueInterval: parseFloat(def.valueInterval),
+                valueInterval,
                 valueProp: 'x',
                 mapping: {
                     noteDuration: def.noteDuration,

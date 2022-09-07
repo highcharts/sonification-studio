@@ -6,9 +6,16 @@
 
 import { GenericObject, firstDefined } from '../../core/utils/objects';
 
+interface AddContextPayload {
+    valueRange: number|null;
+    inactive: boolean;
+}
+
 let idCounter = 1;
-const makeDefaultContext = (): GenericObject => ({
+const makeDefaultContext = (valueMultiplier: number, valueMultiplierName: string): GenericObject => ({
     valueInterval: 1,
+    valueMultiplier,
+    valueMultiplierName,
     valueProp: 'x',
     playWhenType: 'always',
     playWhenThreshold: 0,
@@ -38,7 +45,7 @@ const defaultState = () => ({
     panEnabled: true,
     panWidth: 100,
     detail: 15,
-    contexts: [Object.assign(makeDefaultContext(), { playWhenType: 'never' })]
+    contexts: []
 });
 
 export const globalSonifyParametersStore = {
@@ -107,8 +114,22 @@ export const globalSonifyParametersStore = {
             }
         },
 
-        addContext(state: any) {
-            state.contexts.push(makeDefaultContext());
+        addContext(state: any, payload: AddContextPayload) {
+            const bin = [
+                [1000 * 60 * 60 * 24 * 365, 'years'],
+                [1000 * 60 * 60 * 24 * 30.42, 'months'],
+                [1000 * 60 * 60 * 24, 'days'],
+                [1000 * 60 * 60, 'hours'],
+                [1000 * 60, 'minutes'],
+                [1000, 'seconds']
+            ].find(([val]) => val as number * 3 < (payload.valueRange || -Infinity));
+
+            state.contexts.push(Object.assign(
+                bin ?
+                    makeDefaultContext(bin[0] as number, bin[1] as string) :
+                    makeDefaultContext(1, 'milliseconds'),
+                payload.inactive ? { playWhenType: 'never' } : {}
+            ));
         }
     }
 };
