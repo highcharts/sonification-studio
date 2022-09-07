@@ -4,7 +4,7 @@ Edit data and create charts and sonifications. Developed by [Highcharts](https:/
 
 ## License
 
-This project is MIT licensed, but makes use of the proprietary Highcharts library. A suitable [Highcharts license](https://highcharts.com) is required for all commercial use. This is important if you are making forks or installing the tool on your own servers.
+This project is licensed under the open source BSD 3-Clause license, but makes use of the proprietary Highcharts library. A suitable [Highcharts license](https://highcharts.com) is required for all commercial use. This is important if you are making forks or installing the tool on your own servers.
 
 ## Develop
 
