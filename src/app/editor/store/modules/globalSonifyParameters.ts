@@ -51,6 +51,7 @@ export const globalSonifyParametersStore = {
         // Add items here if they are to be restored from opening project files
         // or localStorage session restore. Keep backwards compatibility in mind.
         restoreStoreState(state: any, newState?: GenericObject) {
+            idCounter = 1;
             const defaultOpts: GenericObject = defaultState();
             [
                 'volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail',
