@@ -11,7 +11,7 @@
             In the <span class="emp">Chart</span> tab, you can view the resulting chart, and modify the visualization as well as the sonification experience.
         </p>
         <p>
-            When you are satisfied with the visual chart and the sonification experience, click the <span class="emp">Save Project</span> button to export your work. The chart and sonification can be combined and exported as a video, or you can export them separately. The data can also be exported separately.
+            When you are satisfied with the visual chart and the sonification experience, click the <span class="emp">Export</span> menu button to export your work. The chart and sonification can be combined and exported as a video, or you can export them separately. The data can also be exported separately. You can save your project by clicking the <span class="emp">Project</span> menu button, to share it with someone else or to modify it later.
         </p>
 
         <h2>Modifying the chart or sonification</h2>
