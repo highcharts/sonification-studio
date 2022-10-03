@@ -1,6 +1,6 @@
 {
   "name": "highcharts-sonification-studio",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Edit and visualize data with charts and sound",
   "private": true,
   "scripts": {
