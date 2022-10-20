@@ -53,7 +53,7 @@ export default {
     },
     data() {
         return {
-            showTextarea: true
+            showTextarea: false
         };
     },
     computed: {
