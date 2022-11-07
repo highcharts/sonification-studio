@@ -25,6 +25,11 @@
             The <span class="emp">Audio</span> settings will allow you to modify the sonification parameters for the chart. This includes the playback speed, the frequency ranges, the mapping of data parameters to various properties of the sounds, and more.
         </p>
 
+        <h2>Tutorial</h2>
+        <p>
+            For more detailed help, refer to the <router-link to="/tutorial">Getting Started tutorial</router-link>.
+        </p>
+
         <h2>Keyboard shortcuts</h2>
         <p>
             The following keyboard shortcuts can be used to control sonification playback when on the <span class="emp">Chart</span> tab:

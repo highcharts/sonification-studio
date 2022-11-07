@@ -72,7 +72,7 @@ export default {
     methods: {
         onclick(e: MouseEvent) {
             const innerContainer = this.$refs.innerContainer as Element;
-            if (!innerContainer.contains(e.target as Element)) {
+            if (innerContainer && !innerContainer.contains(e.target as Element)) {
                 this.$emit('close');
             }
         },

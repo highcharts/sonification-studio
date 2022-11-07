@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Editor from '../editor/Editor.vue';
 import Home from '../home/Home.vue';
+import Tutorial from '../home/Tutorial.vue';
 import App from '../App.vue';
 import { removeFocusOutlineUnlessKeypress } from '../editor/core/utils/removeFocusOutline';
 import Announcer from '../editor/core/utils/Announcer';
@@ -18,6 +19,10 @@ const router = new VueRouter({
         path: '/app',
         component: Editor,
         meta: { title: 'Editor | Highcharts Sonification Studio' }
+    }, {
+        path: '/tutorial',
+        component: Tutorial,
+        meta: { title: 'Tutorial | Highcharts Sonification Studio' }
     }]
 });
 
