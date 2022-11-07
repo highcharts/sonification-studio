@@ -65,6 +65,10 @@ export default {};
         margin-top: 0;
     }
 
+    a {
+        color: #1673B1;
+    }
+
     p {
         margin-bottom: 10px;
     }

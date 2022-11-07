@@ -6,10 +6,11 @@
         - heading: String - Heading text.
         - controls: String - ID of the accordion content container.
         - [selected]: Boolean - Preselect item, render as expanded.
+        - [headingLevel]: Number - Defaults to 5, rendering as h5.
 -->
 <template>
     <div class="se-accordion-item">
-        <h5>
+        <component :is="`h${headingLevel}`">
             <button
                 :class="{ selected: isSelected }"
                 :aria-expanded="isSelected ? 'true' : 'false'"
@@ -22,7 +23,7 @@
                     :class="{ selected: isSelected }"
                 />
             </button>
-        </h5>
+        </component>
         <transition
             name="fold"
             @enter="startFold"
@@ -47,7 +48,8 @@ export default {
     props: {
         heading: { type: String, required: true },
         controls: { type: String, required: true },
-        selected: { type: Boolean, default: false }
+        selected: { type: Boolean, default: false },
+        headingLevel: { type: Number, default: 5 }
     },
     data() {
         return {
@@ -67,6 +69,15 @@ export default {
         onclick(e: Event) {
             this.isSelected = !this.isSelected;
             this.$emit('click', e, this, this.isSelected);
+        },
+        expand() {
+            this.isSelected = true;
+        },
+        collapse() {
+            this.isSelected = false;
+        },
+        isExpanded() {
+            return this.isSelected;
         }
     }
 };
@@ -74,12 +85,6 @@ export default {
 
 <style lang="less" scoped>
     @import "../../colors";
-
-    h3 {
-        display: block;
-        margin: 0;
-        padding: 0;
-    }
 
     button {
         position: relative;

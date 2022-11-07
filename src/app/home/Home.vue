@@ -62,10 +62,9 @@
                     How to use
                 </h2>
                 <p>
-                    We have built the tool to be simple to use. For detailed instructions, visit our
-                    <router-link to="tutorial">
-                        tutorial page
-                    </router-link>.
+                    We strive to keep the tool easy use. For detailed instructions, visit our
+                    <router-link to="tutorial">tutorial page</router-link>. Please let us know if you
+                    have questions or require assistance, and we will be happy to help.
                 </p>
             </div>
             <div class="development-section">
@@ -93,7 +92,7 @@
                     <p>For an up-to-date detailed overview of known issues, visit our <a href="https://github.com/highcharts/sonification-studio/issues">GitHub issues</a> page.</p>
 
                     <h3 id="planned-features">
-                        Planned short-term features:
+                        Planned features:
                     </h3>
                     <ul>
                         <li>Implement our own, accessible, data grid.</li>
