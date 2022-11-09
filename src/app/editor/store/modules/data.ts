@@ -70,7 +70,7 @@ export const dataStore = {
         googleSheetStatus: GoogleSheetStatus.Loading,
         googleSheetErrorMessage: '',
         dataSourcesList: [
-            { name: 'Table', value: 'table' },
+            { name: 'Grid', value: 'table' },
             { name: 'Google Sheets', value: 'googlesheets' }
         ]
     },

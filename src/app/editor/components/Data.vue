@@ -34,7 +34,7 @@
                 :aria-expanded="showGridTools"
                 @click="showGridTools = !showGridTools"
             >
-                Table tools
+                Grid tools
             </SEToolbarMenu>
             <span class="placeholder" />
         </div>
@@ -49,7 +49,7 @@
             class="data-input-container"
         >
             <h3 class="sr-only">
-                Data Table
+                Data Grid
             </h3>
             <Grid ref="grid" />
         </div>
