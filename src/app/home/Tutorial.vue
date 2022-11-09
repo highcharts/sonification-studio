@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <div class="content section">
+        <div class="tutorial-content section">
             <h1>How to use</h1>
             <nav aria-label="You are here">
                 <a href="https://www.highcharts.com">Home</a> <span>/</span>
@@ -53,23 +53,36 @@
 import Page from './Page.vue';
 import SEAccordionItem from '../editor/components/basic/SEAccordionItem.vue';
 import SEAccordionContainer from '../editor/components/basic/SEAccordionContainer.vue';
-import TutorialExport from './TutorialExport.vue';
 import TutorialImport from './TutorialImport.vue';
+import TutorialConfigureChart from './TutorialConfigureChart.vue';
+import TutorialConfigureAudio from './TutorialConfigureAudio.vue';
+import TutorialExport from './TutorialExport.vue';
+import TutorialProjects from './TutorialProjects.vue';
 import arrowIcon from '../editor/assets/arrow-down.svg';
 
 export default {
     components: {
-        Page, SEAccordionItem, SEAccordionContainer, TutorialExport, TutorialImport
+        Page, SEAccordionItem, SEAccordionContainer, TutorialImport, TutorialConfigureChart,
+        TutorialConfigureAudio, TutorialExport, TutorialProjects
     },
     data() {
         return {
             isAnyCollapsed: true,
             accordionItems: [{
                 component: 'TutorialImport',
-                heading: 'Import your data'
+                heading: '1. Import your data'
+            }, {
+                component: 'TutorialConfigureChart',
+                heading: '2. Configure the chart'
+            }, {
+                component: 'TutorialConfigureAudio',
+                heading: '3. Configure the sonification'
             }, {
                 component: 'TutorialExport',
-                heading: 'Export your data'
+                heading: '4. Export your results'
+            }, {
+                component: 'TutorialProjects',
+                heading: '5. Manage projects'
             }],
             arrowIcon
         };
@@ -87,62 +100,78 @@ export default {
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
     @import "../editor/colors";
 
-    .content.section {
+    .tutorial-content.section {
         margin-top: 0;
-    }
 
-    .accordion-section {
-        max-width: 50rem;
-        margin: 0 auto;
-    }
+        nav {
+            margin-top: 5px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 7px;
+            a {
+                color: #1673B1;
+            }
+        }
 
-    nav {
-        margin-top: 5px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 7px;
-        a {
-            color: #1673B1;
+        .intro-text {
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        .se-accordion-item {
+            margin-top: 4px;
+        }
+
+         #expandAll {
+            background: none;
+            font-size: 1rem;
+            background-color: @seaccordionitem-bg;
+            border: 1px solid @purple-9;
+            padding: 5px 8px;
+            text-align: right;
+            margin-bottom: 5px;
+            margin-left: auto;
+            display: block;
+            color: @seaccordionitem-color;
+            cursor: pointer;
+            img {
+                width: 16px;
+                height: $width;
+            }
+            &:hover {
+                background-color: @purple-9;
+                color: @seaccordionitem-hover-color;
+            }
         }
     }
 
     @media screen and (max-width: 900px) {
-        nav {
+        .tutorial-content.section nav {
             justify-content: center;
         }
     }
 
-    .intro-text {
-        font-size: 1.2rem;
-        margin: 20px 0;
-    }
-
     .tutorial-accordion-content {
-        font-size: 0.6rem;
-    }
-
-    #expandAll {
-        background: none;
+        max-width: 55rem;
+        margin: 0 auto;
         font-size: 1rem;
-        background-color: @seaccordionitem-bg;
-        border: 1px solid @purple-9;
-        padding: 5px 8px;
-        text-align: right;
-        margin-bottom: 5px;
-        margin-left: auto;
-        display: block;
-        color: @seaccordionitem-color;
-        cursor: pointer;
-        img {
-            width: 16px;
-            height: $width;
+        font-family: 'Roboto', sans-serif;
+        h3 {
+            color: @dark-blue-5;
+            margin: 20px 0 0;
+            font-size: 1.5rem;
         }
-        &:hover {
-            background-color: @purple-9;
-            color: @seaccordionitem-hover-color;
+        img {
+            margin: 25px auto 35px;
+            display: block;
+            max-width: 40rem;
+            max-height: 40rem;
+        }
+        p {
+            margin-top: 10px;
         }
     }
 </style>
