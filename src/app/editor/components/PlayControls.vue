@@ -46,14 +46,12 @@ export default {
 
     .playcontrols-inner-container {
         width: 100%;
-        background-color: @play-controls-bg;
+        background-color: darken(@play-controls-bg, 2%);
         color: @play-controls-color;
         display: flex;
         align-items: center;
         padding: 5px;
         box-sizing: border-box;
-        border: 1px solid @purple-7;
-        border-radius: 4px;
     }
 
     .playControlItem {
