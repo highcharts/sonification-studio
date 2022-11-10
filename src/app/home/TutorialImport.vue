@@ -7,27 +7,32 @@
         <p>In the first row you can put column headers. The column headers will determine the default names of your data series unless you change them in the chart configuration.</p>
         <img
             alt="Data grid showing two columns of numbers. Below is the resulting line chart."
+            loading="lazy"
             :src="gridAndChartBasic"
         >
         <p>Empty cells will be treated as <code>null</code> values, and represent missing data.</p>
         <img
             alt="Data grid showing some numbers missing in the second column. Below is the resulting line chart with missing segments."
+            loading="lazy"
             :src="gridAndChartNull"
         >
         <p>It is possible to use text for the X values, which can be useful for certain types of charts.</p>
         <img
             alt="Data grid with text in the first column, numbers in the second. Below is the resulting column chart with text for each column on the X axis."
+            loading="lazy"
             :src="gridAndChartText"
         >
         <p>Clicking the Grid Tools button will expand a toolbar with additional functionality for the data grid. You can add more rows to the grid, clear/empty the grid, or fill columns with the result of an equation.</p>
         <img
             alt=""
+            loading="lazy"
             :src="gridTools"
         >
         <h3>Import CSV data</h3>
         <p>It is possible to import existing CSV data into the grid, from the Import menu. Most data analysis tools will allow you to save data in this format.</p>
         <img
             alt=""
+            loading="lazy"
             :src="importCSV"
         >
         <h3>Google Sheet</h3>
@@ -35,6 +40,7 @@
         <p>When you select to use a Google Sheet as a source, the tool will guide you through the process of setting up the necessary configuration in order to access your Google Sheet.</p>
         <img
             alt=""
+            loading="lazy"
             :src="googleSheet"
         >
     </div>
