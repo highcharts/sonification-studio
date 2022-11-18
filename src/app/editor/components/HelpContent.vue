@@ -37,8 +37,8 @@
         <ul>
             <li><span class="shortcut">Ctrl+K</span>: Play/pause sonification playback</li>
             <li><span class="shortcut">Ctrl+R</span>: Stop sonification playback</li>
-            <li><span class="shortcut">Ctrl+L</span>: Play next note(s) when paused</li>
-            <li><span class="shortcut">Ctrl+J</span>: Play previous note(s) when paused</li>
+            <li><span class="shortcut">Ctrl+Shift+Right Arrow</span>: Play next note(s) when paused</li>
+            <li><span class="shortcut">Ctrl+Shift+Left Arrow</span>: Play previous note(s) when paused</li>
             <li><span class="shortcut">Ctrl+T</span>: Toggle loop sonification playback</li>
             <li><span class="shortcut">Ctrl+.</span>: Volume up</li>
             <li><span class="shortcut">Ctrl+,</span>: Volume down</li>

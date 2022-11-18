@@ -75,10 +75,10 @@ export default {
                     this.loopEnabled = !this.loopEnabled;
                     (this as any).$announcer.announce('Loop ' + (this.loopEnabled ? 'enabled' : 'disabled') + '.');
                     e.preventDefault();
-                } else if (keyPressed(Keys.J, Modifiers.Ctrl, e)) {
+                } else if (keyPressed(Keys.Left, Modifiers.Ctrl + Modifiers.Shift, e)) {
                     this.resetPlayPauseBtn();
                     (this as any).$chartBridge.playAdjacent(false);
-                } else if (keyPressed(Keys.L, Modifiers.Ctrl, e)) {
+                } else if (keyPressed(Keys.Right, Modifiers.Ctrl + Modifiers.Shift, e)) {
                     this.resetPlayPauseBtn();
                     (this as any).$chartBridge.playAdjacent(true);
                 }
