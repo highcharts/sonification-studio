@@ -49,9 +49,8 @@
                 <p>
                     The goal of this tool is to provide a simple, intuitive, and accessible way for users to import their data, edit it, visualize it, sonify it, and export the results to a useful format. We want users to be able to use the tool without having to write code, and without prior sonification expertise.
                 </p>
-                <p>
-                    The tool is open sourced under the BSD 3-clause license to allow for extensions and forks from the community, and ensure the tool is available to all. A <a href="https://www.highcharts.com">Highcharts license</a> is required for commercial use of the tool, but otherwise usage is free.
-                </p>
+                <p>Highcharts Sonification Studio is free to use, and no login is required.</p>
+                <p>The tool - excluding its code dependencies - is open sourced under the <a href="https://opensource.org/licenses/BSD-3-Clause">BSD 3-clause license</a> to allow for extensions and forks from the community, and ensure the tool remains available to all. An appropriate <a href="https://www.highcharts.com">Highcharts license</a> is required for commercial forks of the tool. If you are considering forking the tool and have questions about licensing, please get in touch with us.</p>
             </div>
             <div class="tutorial-section">
                 <h2 id="tutorials">
@@ -62,7 +61,7 @@
                     How to use
                 </h2>
                 <p>
-                    We strive to keep the tool easy use. For detailed instructions, visit our
+                    We strive to keep the tool easy to use. For detailed instructions, visit our
                     <router-link to="tutorial">tutorial page</router-link>. Please let us know if you
                     have questions or require assistance, and we will be happy to help.
                 </p>
@@ -163,7 +162,7 @@ export default {
     },
     methods: {
         onimgload() {
-            setTimeout(() => this.preload = false, 10);
+            setTimeout(() => this.preload = false, 1);
         }
     }
 };
@@ -190,7 +189,7 @@ export default {
             filter: blur(2.5px);
             padding: 5px;
             &.preload {
-                height: 490px;
+                height: 557px;
                 opacity: 0;
             }
         }
