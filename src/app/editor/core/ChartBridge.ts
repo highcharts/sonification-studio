@@ -263,6 +263,9 @@ export class ChartBridge {
 
     public playAdjacent(next: boolean) {
         this.chart?.sonification.timeline.playAdjacent(next, (_: unknown, pointsPlayed: GenericObject[]): void => {
+            if (!pointsPlayed.length) {
+                return;
+            }
             const numSeries = this.chart?.series.length;
             const announcement = pointsPlayed.reduce((acc, cur): string => {
                 const val = numSeries > 1 ? cur.y + ' ' + cur.series.name : cur.y;
