@@ -1,11 +1,13 @@
 /*
- * Utility class for announcing messages to screen readers
+ * Utility class for announcing messages to screen readers.
+ * If only given one container, polite announcements are supported only.
  */
 export default class Announcer {
-    private container?: HTMLElement;
+    private containerPolite?: HTMLElement;
+    private containerAssertive?: HTMLElement;
     private clearAnnouncementRegionTimer?: number;
 
-    public init(container: HTMLElement): void {
+    public init(containerA: HTMLElement, containerB?: HTMLElement): void {
         const hiddenStyle = {
             position: 'absolute',
             width: '1px',
@@ -18,16 +20,19 @@ export default class Announcer {
             filter: 'alpha(opacity=1)',
             opacity: '0.01'
         };
-        const c = this.container = container;
-
-        c.setAttribute('aria-live', 'polite');
-        c.className = 'a11y-announce-container';
-        Object.assign(c.style, hiddenStyle);
+        const cA = this.containerAssertive = containerA;
+        const cP = this.containerPolite = containerB || containerA;
+        cA.setAttribute('aria-live', 'assertive');
+        cP.setAttribute('aria-live', 'polite');
+        cP.className = cA.className = 'a11y-announce-container';
+        Object.assign(cA.style, hiddenStyle);
+        Object.assign(cP.style, hiddenStyle);
     }
 
-    public announce(message: string): void {
-        if (this.container) {
-            this.container.innerHTML = message;
+    public announce(message: string, assertive = false): void {
+        const container = assertive ? this.containerAssertive : this.containerPolite;
+        if (container) {
+            container.innerHTML = message;
         }
 
         // Delete contents after a little while to avoid user finding the live
@@ -36,8 +41,8 @@ export default class Announcer {
             clearTimeout(this.clearAnnouncementRegionTimer);
         }
         this.clearAnnouncementRegionTimer = setTimeout((): void => {
-            if (this.container) {
-                this.container.innerHTML = '';
+            if (container) {
+                container.innerHTML = '';
             }
             delete this.clearAnnouncementRegionTimer;
         }, 5000);

@@ -11,7 +11,8 @@
             ref="mainContentView"
         />
         <Footer />
-        <div ref="announce" />
+        <div ref="announcePolite" />
+        <div ref="announceAssertive" />
     </div>
 </template>
 
@@ -19,28 +20,18 @@
 import Vue from 'vue';
 
 import HighchartsVue from 'highcharts-vue';
-import Highcharts from 'highcharts';
-import hcMoreInit from 'highcharts/highcharts-more';
-import hcStockInit from 'highcharts/modules/stock';
-import hcDataInit from 'highcharts/modules/data';
-import hcExportingInit from 'highcharts/modules/exporting';
-import hcOfflineExportingInit from 'highcharts/modules/offline-exporting';
-import hcSeriesLabelInit from 'highcharts/modules/series-label';
-import hcNoDataInit from 'highcharts/modules/no-data-to-display';
-import hcSonificationInit from 'highcharts/modules/sonification';
-import hcAccessibilityInit from 'highcharts/modules/accessibility';
-import hcThemeInit from 'highcharts/themes/high-contrast-light';
+import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
+import 'highcharts/es-modules/masters/highcharts-more.src';
+import 'highcharts/es-modules/masters/modules/stock.src';
+import 'highcharts/es-modules/masters/modules/data.src';
+import 'highcharts/es-modules/masters/modules/exporting.src';
+import 'highcharts/es-modules/masters/modules/offline-exporting.src';
+import 'highcharts/es-modules/masters/modules/series-label.src';
+import 'highcharts/es-modules/masters/modules/no-data-to-display.src';
+import 'highcharts/es-modules/masters/modules/sonification.src';
+import 'highcharts/es-modules/masters/modules/accessibility.src';
+import 'highcharts/es-modules/masters/themes/high-contrast-light.src';
 import { negativeLogPlugin } from './core/utils/chartUtils';
-hcThemeInit(Highcharts);
-hcMoreInit(Highcharts);
-hcStockInit(Highcharts);
-hcDataInit(Highcharts);
-hcExportingInit(Highcharts);
-hcOfflineExportingInit(Highcharts);
-hcSeriesLabelInit(Highcharts);
-hcNoDataInit(Highcharts);
-hcSonificationInit(Highcharts);
-hcAccessibilityInit(Highcharts);
 negativeLogPlugin(Highcharts);
 window.Highcharts = Highcharts; // Expose on window for debugging
 Vue.use(HighchartsVue);
@@ -70,6 +61,7 @@ Highcharts.Chart.prototype.playBoundaryHit = function(next: boolean) {
 
 Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
 const announcer = Vue.prototype.$announcer = new Announcer();
+Vue.prototype.$chartBridge.initAnnouncer(announcer);
 
 export default {
     store,
@@ -79,7 +71,7 @@ export default {
         Footer
     },
     mounted() {
-        announcer.init(this.$refs.announce as HTMLElement);
+        announcer.init(this.$refs.announcePolite as HTMLElement, this.$refs.announceAssertive as HTMLElement);
         document.title = 'Editor | Highcharts Sonification Studio';
         this.initStore();
     },

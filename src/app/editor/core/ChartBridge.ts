@@ -1,4 +1,5 @@
-import Highcharts from 'highcharts';
+import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
+import type Announcer from './utils/Announcer';
 import { GenericObject, deepMerge } from './utils/objects';
 import { downloadURI } from './utils/browserUtils';
 import { getSeriesId } from './utils/chartUtils';
@@ -23,6 +24,7 @@ export class ChartBridge {
     private static updateProgressIntervalMs = 15;
 
     private chart: GenericObject|null = null;
+    private announcer: Announcer|null = null;
     private chartOptions: GenericObject = {};
     private chartDataOptions: GenericObject = {};
     private chartParametersStore: GenericObject;
@@ -60,6 +62,11 @@ export class ChartBridge {
 
         // Once we have a chart, we need to trigger reactivity to get the first update
         this.forceUpdate();
+    }
+
+
+    public initAnnouncer(announcer: Announcer): void {
+        this.announcer = announcer;
     }
 
 
@@ -255,7 +262,17 @@ export class ChartBridge {
 
 
     public playAdjacent(next: boolean) {
-        this.chart?.sonification.timeline.playAdjacent(next);
+        this.chart?.sonification.timeline.playAdjacent(next, (_: unknown, pointsPlayed: GenericObject[]): void => {
+            const numSeries = this.chart?.series.length;
+            const announcement = pointsPlayed.reduce((acc, cur): string => {
+                const val = numSeries > 1 ? cur.y + ' ' + cur.series.name : cur.y;
+                return acc ? acc + ', ' + val : val;
+            }, '') + '. X is ' + pointsPlayed[0].x;
+
+            if (this.announcer) {
+                this.announcer.announce(announcement, true);
+            }
+        });
         this.updatePlayProgress();
     }
 
