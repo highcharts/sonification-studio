@@ -36,6 +36,18 @@ export default {
             box-sizing: border-box;
         }
 
+        a {
+            color: #1673B1;
+            text-decoration: underline;
+            &:hover {
+                color: #063AA1;
+            }
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
         h1 {
             margin-top: 20px;
             color: #25386f;

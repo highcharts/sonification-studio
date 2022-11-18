@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p>There are multiple ways to get your data into the Highcharts Sonification Studio to get started:</p>
+        <p>There are multiple ways to get your data into the Highcharts Sonification Studio to get started. You will find these by selecting the Data tab.</p>
         <h3>Data grid</h3>
         <p>Data can be entered directly into the data grid spreadsheet.</p>
         <p>The first column contains the X values of the resulting chart. The second column will be the Y values. If you add more columns, they will signify Y values of additional data series. For a regular line chart, this means additional lines.</p>
@@ -29,7 +29,7 @@
             :src="gridTools"
         >
         <h3>Import CSV data</h3>
-        <p>It is possible to import existing CSV data into the grid, from the Import menu. Most data analysis tools will allow you to save data in this format.</p>
+        <p>It is possible to import existing CSV data into the grid, from the Import menu. Most data analysis tools will allow you to save data in this format, including Google Sheet and Microsoft Excel.</p>
         <img
             alt=""
             loading="lazy"

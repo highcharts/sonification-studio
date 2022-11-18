@@ -13,6 +13,8 @@
                 Get started using the Highcharts Sonification Studio to create charts and sonifications.
             </p>
 
+            <p>Select a category below to get an introduction to the topic.</p>
+
             <div class="accordion-section">
                 <button
                     id="expandAll"
@@ -163,6 +165,11 @@ export default {
             color: @dark-blue-5;
             margin: 20px 0 0;
             font-size: 1.5rem;
+        }
+        h4 {
+            color: @dark-gray-4;
+            margin: 20px 0 10px;
+            font-size: 1.2rem;
         }
         img {
             margin: 25px auto 35px;
