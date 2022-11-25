@@ -1,10 +1,10 @@
 # Highcharts Sonification Studio
 
-Edit data and create charts and sonifications. Developed by [Highcharts](https://www.highcharts.com). Designed in collaboration with [Georgia Institute of Technology](https://www.gatech.edu/). Read more and see it live at [sonification.highcharts.com](https://sonification.highcharts.com).
+Edit data and create charts and sonifications. Developed by Highsoft, the company behind [Highcharts](https://www.highcharts.com). Designed in collaboration with [Georgia Institute of Technology](https://www.gatech.edu/). Read more and see it live at [sonification.highcharts.com](https://sonification.highcharts.com).
 
 ## License
 
-This project is licensed under the open source BSD 3-Clause license, but makes use of the proprietary Highcharts library. A suitable [Highcharts license](https://highcharts.com) is required for all commercial use. This is important if you are making forks or installing the tool on your own servers.
+This project is licensed under the open source BSD 3-Clause license, but makes use of the proprietary Highcharts library. A suitable [Highcharts license](https://highcharts.com) is required for all commercial use or distribution. This is important if you are making forks or installing the tool on your own servers. See [LICENSE.md](https://github.com/highcharts/sonification-studio/blob/master/LICENSE.md) for more information.
 
 ## Develop
 

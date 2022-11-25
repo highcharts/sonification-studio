@@ -50,7 +50,7 @@
                     The goal of this tool is to provide a simple, intuitive, and accessible way for users to import their data, edit it, visualize it, sonify it, and export the results to a useful format. We want users to be able to use the tool without having to write code, and without prior sonification expertise.
                 </p>
                 <p>Highcharts Sonification Studio is free to use, and no login is required.</p>
-                <p>The tool - excluding its code dependencies - is open sourced under the <a href="https://opensource.org/licenses/BSD-3-Clause">BSD 3-clause license</a> to allow for extensions and forks from the community, and ensure the tool remains available to all. An appropriate <a href="https://www.highcharts.com">Highcharts license</a> is required for commercial forks of the tool. If you are considering forking the tool and have questions about licensing, please get in touch with us.</p>
+                <p>The tool - excluding its code dependencies - is open sourced under the <a href="https://opensource.org/licenses/BSD-3-Clause">BSD 3-clause license</a> to allow for extensions and forks from the community, and ensure the tool remains available to all. An appropriate <a href="https://www.highcharts.com">Highcharts license</a> is required for commercial forks or distribution of the tool. See <a href="https://github.com/highcharts/sonification-studio/blob/master/LICENSE.md">HSS License</a> for more details.</p>
             </div>
             <div class="tutorial-section">
                 <h2 id="tutorials">
