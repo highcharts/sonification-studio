@@ -2,7 +2,7 @@
     <Page>
         <h1>Highcharts Sonification Studio</h1>
         <div class="section intro">
-            Highcharts has teamed up with the Sonification Lab at Georgia Institute of Technology to bring you a free tool for exploring charts and sonification - using sound to visualize data.
+            Highcharts has teamed up with the Sonification Lab at Georgia Institute of Technology to bring you a free tool for exploring audio charts and sonification - using sound to visualize data.
         </div>
         <div class="section to-app">
             <img
@@ -39,7 +39,7 @@
                     Background
                 </h2>
                 <p>
-                    The Sonification Lab at Georgia Institute of Technology has been a pioneer of sonification research for years, and were the original authors of a tool called the <a href="http://sonify.psych.gatech.edu/research/sonification_sandbox/">Sonification Sandbox</a>. This new Sonification Studio collaboration is an attempt at bringing together the learnings from Georgia Tech's Sonification Sandbox with Highcharts' modern web-based <a href="https://www.highcharts.com/docs/accessibility/sonification">charting and sonification technology</a>, resulting in a more flexible and robust tool for sonification exploration.
+                    The Sonification Lab at Georgia Institute of Technology has been a pioneer of sonification research for years, and were the original authors of a tool called the <a href="http://sonify.psych.gatech.edu/research/sonification_sandbox/">Sonification Sandbox</a>. This new Sonification Studio collaboration is an attempt at bringing together the learnings from Georgia Tech's Sonification Sandbox with Highcharts' modern web-based <a href="https://www.highcharts.com">charting and sonification technology</a>, resulting in a more flexible and robust tool for exploration of audio charts.
                 </p>
             </div>
             <div class="goals-pricing">
@@ -64,6 +64,18 @@
                     We strive to keep the tool easy to use. For detailed instructions, visit our
                     <router-link to="tutorial">tutorial page</router-link>. Please let us know if you
                     have questions or require assistance, and we will be happy to help.
+                </p>
+            </div>
+            <div>
+                <h2>
+                    <img
+                        :src="chartIcon"
+                        alt=""
+                    >
+                    Advanced use
+                </h2>
+                <p>
+                    For more advanced audio charts for programmers, try out <a href="https://www.highcharts.com">Highcharts</a>, the underlying technology used to build this tool. Highcharts supports <a href="https://www.highcharts.com/docs/sonification/getting-started">more advanced</a> features and use cases than what we are able to make available in this tool.
                 </p>
             </div>
             <div class="development-section">
