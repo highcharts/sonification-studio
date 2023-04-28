@@ -68,7 +68,7 @@ export const defaultChartOptions = {
         },
         landmarkVerbosity: 'disabled',
         series: {
-            pointDescriptionEnabledThreshold: 200
+            pointDescriptionEnabledThreshold: 8000
         }
     },
     sonification: {

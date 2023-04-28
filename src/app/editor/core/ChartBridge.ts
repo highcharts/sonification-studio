@@ -719,7 +719,7 @@ export class ChartBridge {
     // Workaround until Highcharts puts a role on series that have too many data points to be exposed individually.
     private handleGroupOnlySeries(series: Array<GenericObject>): void {
         const opts = this.chart?.options || Highcharts.getOptions();
-        const threshold: number = opts?.accessibility.series.pointDescriptionEnabledThreshold || 200;
+        const threshold: number = opts?.accessibility.series.pointDescriptionEnabledThreshold || 8000;
         series.forEach(seriesOpts => {
             const data = seriesOpts.data;
             if (data.length > threshold) {
