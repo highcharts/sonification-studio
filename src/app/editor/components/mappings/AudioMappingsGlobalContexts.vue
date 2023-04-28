@@ -27,7 +27,7 @@
                     type="number"
                     aria-label="Context interval"
                     :min="0"
-                > {{ xAxisIsDate ? context.valueMultiplierName || 'milliseconds' : 'X-values' }},<br>
+                > {{ xAxisIsDate ? context.valueMultiplierName || 'milliseconds' : 'X-values' }},
                 when
                 <select
                     v-show="variableValueProp"
@@ -47,18 +47,26 @@
                 >
                     X
                 </span> is
-                <select
-                    v-model="context.playWhenType"
-                    aria-label="Play when"
+                <SEControl
+                    helpfor="Play when"
+                    helptext="When this context cue should be playing."
+                    :horizontal="true"
+                    :compact-content="true"
                 >
-                    <option
-                        v-for="playWhenType in playWhenTypes"
-                        :key="playWhenType"
-                        :value="playWhenType"
+                    <select
+                        id="playwhen-select"
+                        v-model="context.playWhenType"
+                        aria-label="Play when"
                     >
-                        {{ playWhenType }}
-                    </option>
-                </select>
+                        <option
+                            v-for="playWhenType in playWhenTypes"
+                            :key="playWhenType"
+                            :value="playWhenType"
+                        >
+                            {{ playWhenType }}
+                        </option>
+                    </select>
+                </SEControl>
 
                 <SEControl
                     v-show="context.playWhenType.startsWith('crossing')"
@@ -260,6 +268,22 @@ import removeIcon from '../../assets/xmark-solid.svg';
 import arrowDownIcon from '../../assets/arrow-down.svg';
 import { mapState } from 'vuex';
 
+// Get step value for a slider to fit range
+function getSliderStep(range: number, steps: number): number {
+    const step = Math.abs(range) / steps;
+    if (step >= 1) {
+        const pow = ('' + Math.round(step)).length - 1;
+        return Math.pow(10, pow);
+    } else {
+        const pow = ('' + step).search(/[1-9]/) - 1;
+        if (pow < 0) {
+            return step;
+        }
+        return 1 / Math.pow(10, pow);
+    }
+}
+
+
 export default {
     components: {
         SEButton,
@@ -296,12 +320,10 @@ export default {
             return this.getPropRange('y');
         },
         xStep() {
-            const step = (this.xRange.max - this.xRange.min) / 100;
-            return step > 0.6 ? Math.round(step) : step;
+            return getSliderStep(this.xRange.max - this.xRange.min, 200);
         },
         yStep() {
-            const step = (this.yRange.max - this.yRange.min) / 100;
-            return step > 0.6 ? Math.round(step) : step;
+            return getSliderStep(this.yRange.max - this.yRange.min, 200);
         },
         ...mapState({
             reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates,
@@ -420,7 +442,8 @@ export default {
     }
     select {
         width: 8rem;
-        margin-top: 10px;
+        margin: 10px 5px 8px 0;
+        line-height: 1rem;
     }
 }
 
