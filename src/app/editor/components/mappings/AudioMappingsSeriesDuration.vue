@@ -3,7 +3,7 @@
         <AudioMappingProp
             store-parent-prop="durationOptions"
             main-mapping-label="Note duration"
-            mapping-type-helptext="Enable note duration control for this data series. Default means the default setting is used, fixed means a fixed value is used, and mapped means the note duration follows the values of a data property. Be aware that long notes may be cut short if your playback speed or detail settings are too high."
+            mapping-type-helptext="Enable note duration control for this data series. Note that this only has an effect with instruments that can play long notes, such as flute, saxohpone, or basic1 and basic2. Default means the default setting is used, fixed means a fixed value is used, and mapped means the note duration follows the values of a data property. Be aware that long notes may be cut short if your playback speed or detail settings are too high."
             fixed-value-label="Duration value"
             fixed-value-helptext="Set a fixed note duration for this data series, from short to long notes, in milliseconds. Be aware that long notes may be cut short if your playback speed or detail settings are too high."
             :min-range-val="15"

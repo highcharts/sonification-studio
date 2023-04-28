@@ -3,7 +3,7 @@
         <AudioMappingProp
             store-parent-prop="tremoloDepthOptions"
             main-mapping-label="Tremolo depth"
-            mapping-type-helptext="Enable tremolo depth control for this data series.<br>Default means the default setting is used, fixed means a fixed value is used, and mapped means the depth follows the values of a data property."
+            mapping-type-helptext="A tremolo effect causes the volume of the sound to repeatedly go up and down. Tremolo depth controls how much the volume changes.<br>Default means the default setting is used, fixed means a fixed value is used, and mapped means the depth follows the values of a data property."
             fixed-value-label="Depth value"
             fixed-value-helptext="Set a fixed tremolo depth for this data series, from low (0) to high (100)."
             :default-val="60"

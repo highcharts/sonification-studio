@@ -3,7 +3,7 @@
         <AudioMappingProp
             store-parent-prop="lowpassOptions"
             main-mapping-label="Lowpass filter"
-            mapping-type-helptext="Enable lowpass filter control for this data series.<br>Default means there is no filter applied."
+            mapping-type-helptext="A lowpass filter removes high frequencies, making the sound more dull.<br>Default means there is no filter applied."
             fixed-value-label="Cutoff frequency (Hz)"
             fixed-value-helptext="Set a specific, constant cutoff frequency for the lowpass filter, in Hertz."
             :max-range-val="20000"

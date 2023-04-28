@@ -3,7 +3,7 @@
         <AudioMappingProp
             store-parent-prop="tremoloSpeedOptions"
             main-mapping-label="Tremolo speed"
-            mapping-type-helptext="Enable tremolo speed control for this data series.<br>Default means the default setting is used, fixed means a fixed value is used, and mapped means the speed follows the values of a data property."
+            mapping-type-helptext="A tremolo effect causes the volume of the sound to repeatedly go up and down. Tremolo speed controls how fast the volume is changing.<br>Default means the default setting is used, fixed means a fixed value is used, and mapped means the speed follows the values of a data property."
             fixed-value-label="Speed value"
             fixed-value-helptext="Set a fixed tremolo speed for this data series, from slow (0) to fast (100)."
             :default-val="60"
