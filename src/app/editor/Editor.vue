@@ -20,19 +20,30 @@
 import Vue from 'vue';
 
 import HighchartsVue from 'highcharts-vue';
-import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
-import 'highcharts/es-modules/masters/highcharts-more.src';
-import 'highcharts/es-modules/masters/modules/stock.src';
-import 'highcharts/es-modules/masters/modules/data.src';
-import 'highcharts/es-modules/masters/modules/exporting.src';
-import 'highcharts/es-modules/masters/modules/offline-exporting.src';
-import 'highcharts/es-modules/masters/modules/series-label.src';
-import 'highcharts/es-modules/masters/modules/no-data-to-display.src';
-import 'highcharts/es-modules/masters/modules/sonification.src';
-import 'highcharts/es-modules/masters/modules/accessibility.src';
-import 'highcharts/es-modules/masters/themes/high-contrast-light.src';
+import Highcharts from 'highcharts';
+import hcMoreInit from 'highcharts/highcharts-more.src';
+import hcStockInit from 'highcharts/modules/stock.src';
+import hcDataInit from 'highcharts/modules/data.src';
+import hcExportingInit from 'highcharts/modules/exporting.src';
+import hcOfflineExportingInit from 'highcharts/modules/offline-exporting.src';
+import hcSeriesLabelInit from 'highcharts/modules/series-label.src';
+import hcNoDataInit from 'highcharts/modules/no-data-to-display.src';
+import hcSonificationInit from 'highcharts/modules/sonification.src';
+import hcAccessibilityInit from 'highcharts/modules/accessibility.src';
+import hcThemeInit from 'highcharts/themes/high-contrast-light.src';
 import { negativeLogPlugin } from './core/utils/chartUtils';
+hcThemeInit(Highcharts);
+hcMoreInit(Highcharts);
+hcStockInit(Highcharts);
+hcDataInit(Highcharts);
+hcExportingInit(Highcharts);
+hcOfflineExportingInit(Highcharts);
+hcSeriesLabelInit(Highcharts);
+hcNoDataInit(Highcharts);
+hcSonificationInit(Highcharts);
+hcAccessibilityInit(Highcharts);
 negativeLogPlugin(Highcharts);
+
 window.Highcharts = Highcharts; // Expose on window for debugging
 Vue.use(HighchartsVue);
 
@@ -42,22 +53,6 @@ import Footer from './components/Footer.vue';
 import Announcer from './core/utils/Announcer';
 import { store, storageKey, storageRevision } from './store/store';
 import { ChartBridge } from './core/ChartBridge';
-
-let boundaryInstr: Highcharts.Sonification.SonificationInstrument;
-Highcharts.Chart.prototype.playBoundaryHit = function(next: boolean) {
-    const ax = this.sonification?.audioContext;
-    if (ax) {
-        if (!boundaryInstr) {
-            boundaryInstr = new Highcharts.sonification.SonificationInstrument(
-                ax, ax.destination, { synthPatch: 'step' });
-        }
-        boundaryInstr.scheduleEventAtTime(0, {
-            note: 20,
-            pan: next ? 1 : -1,
-            noteDuration: 200
-        });
-    }
-};
 
 Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
 const announcer = Vue.prototype.$announcer = new Announcer();
