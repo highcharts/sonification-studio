@@ -72,21 +72,12 @@ export const defaultChartOptions = {
         }
     },
     sonification: {
-        enabled: true,
         afterSeriesWait: 600,
         order: 'simultaneous',
         masterVolume: 0.7,
-        events: {
-            onBoundaryHit(e: GenericObject) {
-                e.timeline.chart.playBoundaryHit(e.next);
-            }
-        },
         defaultInstrumentOptions: {
             roundToMusicalNotes: false,
             mapping: {
-                pitch: {
-                    mapTo: 'y'
-                },
                 tremolo: {
                     speed: 0.55
                 }
