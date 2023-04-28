@@ -30,7 +30,7 @@
         <h3>Audio mapping</h3>
         <p>Under settings for each data series, you can adjust how the data is mapped to sound.</p>
         <p>For each series, you can select an instrument sound. Both melodic and percussive instrument presets are available. For more realistic sounding instruments, you may want to export your sonification as MIDI, and import it into a Digital Audio Workstation (DAW) of your choice.</p>
-        <p>You can map the data values to several audio parameters, including pitch, panning, volume, and duration. You can also map data values to sound effects, like tremolo, and filters.</p>
+        <p>You can map the data values to several audio parameters, including pitch, panning, volume, and note duration. You can also map data values to sound effects, like tremolo, and filters.</p>
         <img
             alt="Sidebar showing volume mapped to Y-values, with minimum and maximum settings."
             loading="lazy"
@@ -43,6 +43,25 @@
             loading="lazy"
             :src="audioFixed"
         >
+
+        <h3>Audio parameters explained</h3>
+        <p>These are the controls available for changing how the sound plays:</p>
+        <h4>Pitch</h4>
+        <p>Pitch refers to how high or how low notes are. Picture how notes change and get higher on a piano as you play the piano keys further towards the right side of the instrument.</p>
+        <h4>Pan</h4>
+        <p>Panning refers to the position of a sound in stereo. If you are wearing headphones you can hear how changing the panning places a sound from the left to the right ear.</p>
+        <h4>Volume</h4>
+        <p>Volume refers to how loud the sound is, from silent, to quiet, to loud.</p>
+        <h4>Note duration</h4>
+        <p>Note duration controls how long each note plays for. It only has an affect with instruments that can play long notes, such as flute, saxophone, trumpet, or the basic1 and basic2 instruments. Be aware that notes can get cut short if the play speed or play detail is set high.</p>
+        <h4>Lowpass filter</h4>
+        <p>A lowpass filter reduces high frequencies, which makes sounds sound more dull. You can control how much of the high frequencies is reduced.</p>
+        <h4>Highpass filter</h4>
+        <p>A highpass filter reduces low frequencies, which makes sounds sound thinner. You can control how much of the low frequencies is reduced.</p>
+        <h4>Tremolo depth</h4>
+        <p>A tremolo effect causes the volume to go up and down repeatedly as the sound plays. Tremolo depth controls how much the volume changes.</p>
+        <h4>Tremolo speed</h4>
+        <p>Related to tremolo depth, tremolo speed controls how fast the volume changes.</p>
 
         <h3>Contexts</h3>
         <p>Under Global settings, you can add "Global audio context cues". These are sounds that play in the background along with the sonification, to add context. For example, you may want to play a click for every tick mark on the X-axis, to give the listener a better sense of time as the sonification plays.</p>
