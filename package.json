@@ -10,7 +10,7 @@
     "dev": "npm run clean && npm run lint && parcel src/app/public/index.html",
     "build": "npm run clean && npm run lint && parcel build src/app/public/index.html --no-source-maps --public-url \"./\"",
     "copy-landing-page": "copyfiles -a -f \"./src/project_lander/*\" ./docs",
-    "copy-to-docs": "cross-var \"trash docs/$npm_package_version && copyfiles -f \"./dist/**/*\" ./src/app/public/.nojekyll ./src/app/public/*.png ./src/app/public/favicon.ico ./src/app/public/manifest.webmanifest ./docs/$npm_package_version\"",
+    "copy-to-docs": "cross-var \"trash docs/$npm_package_version && copyfiles -f \"./dist/**/*\" ./src/app/public/.nojekyll ./src/app/public/*.png ./src/app/public/favicon.ico ./src/app/public/manifest.webmanifest ./docs/$npm_package_version && copyfiles -u 2 ./src/app/studies/**/* ./src/app/studies/**/.nojekyll ./docs/$npm_package_version && copyfiles -f ./src/app/studies/* ./src/app/studies/.nojekyll ./docs/$npm_package_version/studies\"",
     "publish": " npm run build && npm run copy-to-docs && npm run copy-landing-page"
   },
   "husky": {
@@ -41,7 +41,7 @@
     "@vue/component-compiler-utils": "^3.1.2",
     "@vue/test-utils": "^1.0.3",
     "babel-core": "^7.0.0-bridge.0",
-    "copyfiles": "^2.3.0",
+    "copyfiles": "^2.4.1",
     "cross-var": "^1.1.0",
     "eslint": "^6.8.0",
     "eslint-plugin-vue": "^6.2.2",
