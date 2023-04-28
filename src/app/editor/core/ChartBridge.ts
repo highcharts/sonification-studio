@@ -262,7 +262,8 @@ export class ChartBridge {
 
 
     public playAdjacent(next: boolean) {
-        this.chart?.sonification.timeline.playAdjacent(next, (_: unknown, pointsPlayed: GenericObject[]): void => {
+        this.chart?.sonification.playAdjacent(next, (context: GenericObject): void => {
+            const pointsPlayed: GenericObject[] = context.pointsPlayed;
             if (!pointsPlayed.length) {
                 return;
             }
@@ -318,21 +319,29 @@ export class ChartBridge {
 
 
     public downloadPNG(): void {
-        if (this.chart) {
-            this.chart.exportChart({
-                filename: this.getChartTitleForExport()
-            });
-        }
+        this.chart?.exportChart({
+            filename: this.getChartTitleForExport()
+        }, {
+            // Workaround for weird bug where xAxis somehow
+            // becomes datetime on export
+            xAxis: {
+                type: this.chart?.options.xAxis.type
+            }
+        });
     }
 
 
     public downloadSVG(): void {
-        if (this.chart) {
-            this.chart.exportChart({
-                type: 'image/svg+xml',
-                filename: this.getChartTitleForExport()
-            });
-        }
+        this.chart?.exportChart({
+            type: 'image/svg+xml',
+            filename: this.getChartTitleForExport()
+        }, {
+            // Workaround for weird bug where xAxis somehow
+            // becomes datetime on export
+            xAxis: {
+                type: this.chart?.options.xAxis.type
+            }
+        });
     }
 
 
@@ -367,7 +376,6 @@ export class ChartBridge {
         if (!this.chart) {
             return { min: 0, max: 100 };
         }
-        // Todo: Expose the caches in Highcharts to grab from there later.
         const axis = prop === 'x' ? this.chart.xAxis[0] : this.chart.yAxis[0];
         return {
             min: axis.dataMin,
