@@ -16,7 +16,7 @@ Clone this repository and install dependencies with `npm i`.
 
 ### Build
 
-To build the project and start a dev server, run `npm run dev`.
+To build the project and start a dev server, run `npm run dev`. Note: It seems there are currently some issues with newer node versions.
 
 To build for production, run `npm run build`. The build output is placed in the `dist` directory.
 
@@ -39,6 +39,12 @@ To run unit tests, run `npm test`.
 Jest is used as the test framework. The tests can be found under `/test`.
 
 Tests are ran automatically before each commit.
+
+### Studies
+
+Studies are stored under `/src/app/studies`, and are copied to `/docs/studies` with their original directory structure upon building/publishing.
+
+These studies are used for publishing demos around research efforts from Highcharts related to sonification.
 
 ### Source files
 
