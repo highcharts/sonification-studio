@@ -25,13 +25,13 @@ export class GlobalSonificationMappings {
 
     public static playMarkerEnabled(value: boolean): GenericObject {
         return {
-            sonification: { showPlayMarker: value }
+            sonification: { showCrosshair: value }
         };
     }
 
     public static tooltipMarkerEnabled(value: boolean): GenericObject {
         return {
-            sonification: { showCrosshairOnly: !value }
+            sonification: { showTooltip: value }
         };
     }
 
