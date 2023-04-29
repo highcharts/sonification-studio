@@ -75,6 +75,7 @@ export const defaultChartOptions = {
         afterSeriesWait: 600,
         order: 'simultaneous',
         masterVolume: 0.7,
+        updateInterval: 50,
         defaultInstrumentOptions: {
             roundToMusicalNotes: false,
             mapping: {

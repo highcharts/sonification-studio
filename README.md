@@ -16,7 +16,7 @@ Clone this repository and install dependencies with `npm i`.
 
 ### Build
 
-To build the project and start a dev server, run `npm run dev`. Note: It seems there are currently some issues with newer node versions.
+To build the project and start a dev server, run `npm run dev`.
 
 To build for production, run `npm run build`. The build output is placed in the `dist` directory.
 
