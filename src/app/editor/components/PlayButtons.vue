@@ -96,7 +96,7 @@ export default {
                 (this as any).$chartBridge.pauseChart();
                 this.paused = true;
             } else if (this.loopEnabled) {
-                (this as any).$chartBridge.loopChart();
+                (this as any).$chartBridge.playChart(void 0, true);
             } else {
                 (this as any).$chartBridge.playChart(this.resetPlayPauseBtn.bind(this));
             }

@@ -217,7 +217,7 @@ export class ChartBridge {
     }
 
 
-    public playChart(onEnd?: (e: any) => void) {
+    public playChart(onEnd?: (e: any) => void, loop = false) {
         const chart = this.chart;
         if (!chart || !chart.series?.length || this.isPlaying()) {
             return;
@@ -225,15 +225,16 @@ export class ChartBridge {
 
         this.startProgressUpdatePolling();
 
-        if (!this.isPaused()) {
-            chart.sonify((e: any) => {
-                if (onEnd) {
-                    onEnd(e);
-                }
-            });
-        } else {
-            chart.sonification.timeline.resume();
-        }
+        chart.toggleSonify(false, (e: any) => {
+            if (onEnd) {
+                onEnd(e);
+            }
+            if (loop && chart) {
+                chart.sonify(onEnd, true);
+            } else {
+                this.stopChart();
+            }
+        });
     }
 
 
@@ -247,11 +248,6 @@ export class ChartBridge {
     public pauseChart() {
         this.stopProgressUpdatePolling();
         this.chart?.sonification.timeline.pause();
-    }
-
-
-    public loopChart() {
-        this.playChart(() => this.loopChart());
     }
 
 
