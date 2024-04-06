@@ -1,8 +1,82 @@
 import { GenericObject } from '../utils/objects';
 
+function parseCsvToMap(csvString: string, plotType: string): Map<string, Array<number | string | [number, number]>> {
+    const rows = csvString.split('\r\n');
+    const headers = rows[0].split(';');
+    const map = new Map<string, Array<number | string | [number, number]>>();
+
+    headers.forEach(header => map.set(header, []));
+
+    if (plotType != "columnErrorbar") {
+        for (let i = 1; i < rows.length; i++) {
+            const values = rows[i].split(';');
+            values.forEach((value, index) => {
+                const key = headers[index];
+                const numValue = parseFloat(value);
+                map.get(key)?.push(isNaN(numValue) ? value : numValue);
+            });
+        }
+    } else {
+        // Assume "Low Value" and "High Value" are at fixed positions
+        const lowIndex = headers.indexOf("Low Value");
+        const highIndex = headers.indexOf("High Value");
+        const errorBarData: Array<[number, number]> = [];
+        
+        for (let i = 1; i < rows.length; i++) {
+            const values = rows[i].split(';');
+            // Convert low and high values from string to number and store as pair
+            const lowValue = parseFloat(values[lowIndex]);
+            const highValue = parseFloat(values[highIndex]);
+            errorBarData.push([lowValue, highValue]);
+
+            // Populate other data into the map
+            values.forEach((value, index) => {
+                if (index !== lowIndex && index !== highIndex) { // Skip low and high values for normal columns
+                    const key = headers[index];
+                    const numValue = parseFloat(value);
+                    map.get(key)?.push(isNaN(numValue) ? value : numValue);
+                }
+            });
+        }
+
+        // Add error bar data under a new key
+        map.set("errorbardata", errorBarData);
+    }
+
+    return map;
+}
+
 export class ChartMappings {
 
     public static type(value: string): GenericObject {
+        return { chart: { type: value } };
+    }
+
+    public static series(value: any, chart: GenericObject): GenericObject {
+        const dataMap = parseCsvToMap(chart.options.data.csv,value);
+
+        // Assume the first two columns are what we're interested in for this example
+        const columnNames = Array.from(dataMap.keys());
+        if (value === 'columnErrorbar') {
+            const errorBarData = dataMap.get("errorbardata") || [];
+
+            const columnSeries =  {
+                name: columnNames[1],
+                type: 'column',
+                data: dataMap.get(columnNames[1]) || [],
+            };
+            const errorBarSeries = {
+                name: columnNames[1]+' ErrorBar',
+                type: 'errorbar',
+                data: errorBarData
+        };
+
+            return [columnSeries,errorBarSeries];
+
+        }
+        // Handle other types as before
+        
+
         return { chart: { type: value } };
     }
 

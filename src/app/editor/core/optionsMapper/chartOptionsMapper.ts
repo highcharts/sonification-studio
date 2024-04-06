@@ -21,8 +21,17 @@ class ChartOptionsMapper {
     }
 
     public addChartParameter(param: string, value: unknown) {
-        const newOptions = (ChartMappings as any)[param](value, this.chart);
-        this.options = deepMerge(this.options, newOptions);
+        if (value === 'columnErrorbar') {
+            const newOptions = ChartMappings.series(value, this.chart);
+        // Assume `newOptions` is an array of series configurations
+            if (!this.options.series) this.options.series = [];
+                newOptions.forEach((seriesConfig: any) => {
+                this.options.series.push(seriesConfig);});
+        } else {
+            // Existing logic
+            const newOptions = (ChartMappings as any)[param](value, this.chart);
+            this.options = deepMerge(this.options, newOptions);
+        }
     }
 }
 
@@ -40,6 +49,7 @@ export function getChartOptionsFromParameters(
     Object.keys(chartParameters).forEach((param: string) =>
         optionsMapper.addChartParameter(param, chartParameters[param])
     );
+
 
     return optionsMapper.build();
 }

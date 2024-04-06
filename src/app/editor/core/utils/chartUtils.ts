@@ -27,6 +27,9 @@ export const seriesTypes = [{
 }, {
     name: 'Scatter',
     value: 'scatter'
+},{
+    name: 'Column + Errorbar',
+    value: 'columnErrorbar'
 }];
 
 export function getSeriesId(series: GenericObject): string {
