@@ -7,7 +7,7 @@
     "test": "jest",
     "clean": "trash dist",
     "lint": "eslint --ext .ts,.js,.vue .",
-    "dev": "npm run clean && parcel src/app/public/index.html",
+    "dev": "npm run clean && npm run lint && parcel src/app/public/index.html",
     "build": "npm run clean && npm run lint && parcel build src/app/public/index.html --no-source-maps --public-url \"./\"",
     "copy-landing-page": "copyfiles -a -f \"./src/project_lander/*\" ./docs",
     "copy-to-docs": "cross-var \"trash docs/$npm_package_version && copyfiles -f \"./dist/**/*\" ./src/app/public/.nojekyll ./src/app/public/*.png ./src/app/public/favicon.ico ./src/app/public/manifest.webmanifest ./docs/$npm_package_version && copyfiles -u 2 ./src/app/studies/**/* ./src/app/studies/**/.nojekyll ./docs/$npm_package_version && copyfiles -f ./src/app/studies/* ./src/app/studies/.nojekyll ./docs/$npm_package_version/studies\"",

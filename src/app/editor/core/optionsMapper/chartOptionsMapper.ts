@@ -23,9 +23,8 @@ class ChartOptionsMapper {
     public addChartParameter(param: string, value: unknown) {
         if (value === 'columnErrorbar') {
             const newOptions = ChartMappings.series(value, this.chart);
-        // Assume `newOptions` is an array of series configurations
             if (!this.options.series) this.options.series = [];
-                newOptions.forEach((seriesConfig: any) => {
+            newOptions.forEach((seriesConfig: any) => {
                 this.options.series.push(seriesConfig);});
         } else {
             // Existing logic

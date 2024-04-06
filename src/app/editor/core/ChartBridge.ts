@@ -124,10 +124,9 @@ export class ChartBridge {
 
         const res = (this as any)[func](payload);
 
-        // if (typeof res === 'object' && res) {
-        res._seReactivityCounter = this._seReactivityCounter;
-        // }
-        console.warn(res);
+        if (typeof res === 'object' && res) {
+            res._seReactivityCounter = this._seReactivityCounter;
+        }
 
         return res;
     }
@@ -188,6 +187,7 @@ export class ChartBridge {
 
                         // Extend parsed results with series options
                         const seriesOptions = this.buildSeriesOptions(seriesIds);
+                        console.log(seriesOptions);
                         if (seriesOptions) {
                             parseResult.series = deepMerge(parseResult.series, seriesOptions);
                             this.handleGroupOnlySeries(parseResult.series);

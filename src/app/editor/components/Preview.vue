@@ -49,10 +49,7 @@ export default {
 
         chartOptions() {
             const chartBridge = (this as any)?.$chartBridge;
-            const options = chartBridge
-            ?.reactiveGet('buildChartOptions', this.reactToParameterUpdates, this.tableCSV) || {};
-        
-        
+            const options = chartBridge?.reactiveGet('buildChartOptions', this.reactToParameterUpdates, this.tableCSV) || {};
             return options;
         }
     },

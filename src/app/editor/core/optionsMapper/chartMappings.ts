@@ -7,7 +7,7 @@ function parseCsvToMap(csvString: string, plotType: string): Map<string, Array<n
 
     headers.forEach(header => map.set(header, []));
 
-    if (plotType != "columnErrorbar") {
+    if (plotType != 'columnErrorbar') {
         for (let i = 1; i < rows.length; i++) {
             const values = rows[i].split(';');
             values.forEach((value, index) => {
@@ -18,10 +18,9 @@ function parseCsvToMap(csvString: string, plotType: string): Map<string, Array<n
         }
     } else {
         // Assume "Low Value" and "High Value" are at fixed positions
-        const lowIndex = headers.indexOf("Low Value");
-        const highIndex = headers.indexOf("High Value");
+        const lowIndex = headers.indexOf('Low Value');
+        const highIndex = headers.indexOf('High Value');
         const errorBarData: Array<[number, number]> = [];
-        
         for (let i = 1; i < rows.length; i++) {
             const values = rows[i].split(';');
             // Convert low and high values from string to number and store as pair
@@ -40,7 +39,7 @@ function parseCsvToMap(csvString: string, plotType: string): Map<string, Array<n
         }
 
         // Add error bar data under a new key
-        map.set("errorbardata", errorBarData);
+        map.set('errorbardata', errorBarData);
     }
 
     return map;
@@ -58,9 +57,8 @@ export class ChartMappings {
         // Assume the first two columns are what we're interested in for this example
         const columnNames = Array.from(dataMap.keys());
         if (value === 'columnErrorbar') {
-            const errorBarData = dataMap.get("errorbardata") || [];
-
-            const columnSeries =  {
+            const errorBarData = dataMap.get('errorbardata') || [];
+            const columnSeries = {
                 name: columnNames[1],
                 type: 'column',
                 data: dataMap.get(columnNames[1]) || [],
@@ -69,14 +67,10 @@ export class ChartMappings {
                 name: columnNames[1]+' ErrorBar',
                 type: 'errorbar',
                 data: errorBarData
-        };
-
+            };
             return [columnSeries,errorBarSeries];
-
         }
         // Handle other types as before
-        
-
         return { chart: { type: value } };
     }
 
