@@ -20,6 +20,9 @@ export class SeriesMappings {
     }
 
     public static seriesType(value: string): GenericObject {
+        if(!value){
+            return { type: '' };
+        }
         return { type: value };
     }
 

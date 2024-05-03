@@ -1,15 +1,15 @@
 /*
-    Data store for the chart/table data.
+Data store for the chart/table data.
 
-    The source data for the table is kept here, and updating this will
-    update the data grid. Updating the data grid will trigger a recompute
-    of the CSV. We are using the table CSV generator in order to preserve
-    table sorting/filtering, but could consider rolling our own for better
-    performance.
+The source data for the table is kept here, and updating this will
+update the data grid. Updating the data grid will trigger a recompute
+of the CSV. We are using the table CSV generator in order to preserve
+table sorting/filtering, but could consider rolling our own for better
+performance.
 
-    Updating values in the data grid should be reflected in the source data,
-    so that the source data always mirrors the data the grid is working with.
- */
+Updating values in the data grid should be reflected in the source data,
+so that the source data always mirrors the data the grid is working with.
+*/
 
 import Vue from 'vue';
 import { parseCSV } from '../../core/utils/csvParser';
@@ -41,12 +41,22 @@ function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnPro
 }
 
 function getPlaceholderData() {
-    const res = [{ A: 'Index (X value)', B: 'Sensor Data (Y value)' }];
+    const res = [{ A: 'Index (X value)', B: 'Sensor Data (Y value)', C: 'LowVaLue1', D: 'High Value    1', E: 'Lo    wVaLue2', F: 'High Val  ue    2' }];
 
-    for (let i = 0; i < 175; ++i) {
+    for (let i = 0; i < 5; ++i) {
+        const B = (Math.sin(i / 3) * i / 2);
+        const C = (B * (0.85 + Math.random() * 0.14)).toFixed(3); // Randomly between 85% to 99% of B
+        const D = (B * (1.03 + Math.random() * 0.12)).toFixed(3); // Randomly between 103% to 115% of B
+        const E = (B * (0.85 + Math.random() * 0.14)).toFixed(3); // Randomly between 85% to 99% of B
+        const F = (B * (1.03 + Math.random() * 0.12)).toFixed(3); // Randomly between 103% to 115% of B
+        const bValue = B.toFixed(3);
         res.push({
             A: '' + i,
-            B: (Math.sin(i / 3) * i / 2).toFixed(3)
+            B: bValue,
+            C: C,
+            D: D,
+            E:E,
+            F:F
         });
     }
 
@@ -77,6 +87,10 @@ export const dataStore = {
 
     getters: {
         numRows: (state: GenericObject): number => {
+            return state.tableRowData.length;
+        },
+
+        tableRowData: (state: GenericObject): number => {
             return state.tableRowData.length;
         },
 

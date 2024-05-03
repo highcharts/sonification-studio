@@ -6,7 +6,7 @@ import { getSeriesId } from './utils/chartUtils';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
-import { GoogleSheetStatus } from '../store/modules/data';
+import { GoogleSheetStatus, dataStore } from '../store/modules/data';
 import { Store } from 'vuex';
 
 
@@ -145,7 +145,6 @@ export class ChartBridge {
 
         const dataSource = this.getStoreParam('dataStore', 'selectedDataSource');
         const spreadsheetSetupComplete = this.getStoreParam('dataStore', 'spreadsheetSetupComplete');
-
         const dataSourceOptions = dataSource === 'googlesheets' && spreadsheetSetupComplete ? {
             csv: void 0,
             firstRowAsNames: true,
@@ -185,7 +184,6 @@ export class ChartBridge {
                             delete s.index;
                             return id;
                         });
-
                         // Extend parsed results with series options
                         const seriesOptions = this.buildSeriesOptions(seriesIds);
                         if (seriesOptions) {
@@ -197,13 +195,16 @@ export class ChartBridge {
                 }
             })
         };
-
         // Need to update the chart data first to know which (new) series to build options for.
         // Only once the CSV has been parsed can we build the series options. This is why
         // series options are built separately.
         const newOptions = Object.assign(dataOptions, chartSettings);
+        const plotParametersMap = deepMerge(defaultOptions, newOptions);
 
-        return deepMerge(defaultOptions, newOptions);
+
+        console.log(plotParametersMap);
+
+        return plotParametersMap;
     }
 
 
