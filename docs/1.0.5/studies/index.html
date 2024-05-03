@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="Highsoft AS">
+        <meta name="description" content="Highcharts sonification related studies.">
+        <meta name="keywords" content="sonification,chart,dataviz,studio,science">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+        <title>Studies | Highcharts Sonification Studio</title>
+        <style>
+            * {
+                margin: 0;
+            }
+            html, body {
+                height: 100%;
+                font-family: 'Roboto', 'Segoe UI', Verdana, sans-serif;
+            }
+            header {
+                width: 100%;
+                height: 4rem;
+                background-image: none;
+                background-color: #484859;
+                display: flex;
+                align-items: center;
+            }
+            #clear {
+                flex-grow: 1;
+            }
+            #hc-icon {
+                height: 2rem;
+                margin-right: 12px;
+                vertical-align: middle;
+                margin-top: -5px;
+            }
+            header a {
+                display: block;
+                padding-left: 15px;
+                text-decoration: none;
+            }
+            header h1 {
+                font-size: 0.9rem;
+                font-weight: normal;
+                color: #d5cbe4;
+            }
+            #header-inner {
+                border-left: 1px solid #d5cbe4;
+                padding-left: 10px;
+            }
+            main {
+                display: flex;
+                height: 90%;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                color: #3a3a42;
+            }
+            main a {
+                color: #4368B1;
+            }
+            main img {
+                display: block;
+                margin: 20px auto;
+                height: 128px;
+                animation-duration: 1.5s;
+                animation-name: imgintro;
+            }
+            main span {
+                animation-duration: 1s;
+                animation-name: textintro;
+                animation-delay: 1.1s;
+                animation-fill-mode: both;
+            }
+            @keyframes imgintro {
+                from {
+                    opacity: 0;
+                    height: 0;
+                    transform: rotate(720deg);
+                }
+                to {
+                    opacity: 1;
+                    height: 128px;
+                    transform: rotate(0deg);
+                }
+            }
+            @keyframes textintro {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <a href="https://www.highcharts.com">
+                <h1>
+                    <img
+                        id="hc-icon"
+                        alt="Highcharts"
+                        src="highcharts-logo.svg"
+                    >
+                    <span id="header-inner">Sonification Studies</span>
+                </h1>
+            </a>
+            <span id="clear"></span>
+        </header>
+        <main>
+            <p>
+                <img src="icon.svg" alt="">
+                <span>Visit us as <a href="https://www.highcharts.com">highcharts.com</a> to learn more about our research work</span>
+            </p>
+        </main>
+    </body>
+</html>

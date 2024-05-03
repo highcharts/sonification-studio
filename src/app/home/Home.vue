@@ -65,6 +65,10 @@
                     <router-link to="tutorial">tutorial page</router-link>. Please let us know if you
                     have questions or require assistance, and we will be happy to help.
                 </p>
+                <p>
+                    Georgia Institute of Technology also maintains a <a href="https://hss-tutorials.github.io/">community page with tutorials</a> for the tool, and we encourage you to visit that page for more in-depth information.
+                    There is also an accompanying <a href="https://www.youtube.com/@HSS-Tutorials">YouTube channel</a> with video tutorials.
+                </p>
             </div>
             <div>
                 <h2>
