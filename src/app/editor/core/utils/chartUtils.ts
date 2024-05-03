@@ -28,8 +28,8 @@ export const seriesTypes = [{
     name: 'Scatter',
     value: 'scatter'
 },{
-    name: 'Column + Errorbar',
-    value: 'columnErrorbar'
+    name: 'Errorbar',
+    value: 'Errorbar'
 }];
 
 export function getSeriesId(series: GenericObject): string {

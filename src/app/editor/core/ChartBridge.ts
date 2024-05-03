@@ -184,10 +184,8 @@ export class ChartBridge {
                             delete s.index;
                             return id;
                         });
-
                         // Extend parsed results with series options
                         const seriesOptions = this.buildSeriesOptions(seriesIds);
-                        console.log(seriesOptions);
                         if (seriesOptions) {
                             parseResult.series = deepMerge(parseResult.series, seriesOptions);
                             this.handleGroupOnlySeries(parseResult.series);
@@ -201,9 +199,10 @@ export class ChartBridge {
         // Only once the CSV has been parsed can we build the series options. This is why
         // series options are built separately.
         const newOptions = Object.assign(dataOptions, chartSettings);
-
-
         const plotParametersMap = deepMerge(defaultOptions, newOptions);
+
+
+        console.log(plotParametersMap);
 
         return plotParametersMap;
     }

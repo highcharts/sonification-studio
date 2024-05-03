@@ -1,49 +1,56 @@
 import { GenericObject } from '../utils/objects';
 
-function parseCsvToMap(csvString: string, plotType: string): Map<string, Array<number | string | [number, number]>> {
-    const rows = csvString.split('\r\n');
-    const headers = rows[0].split(';');
+function parseCsvToMap(csvString: string): Map<string, Array<number | string | [number, number]>> {
     const map = new Map<string, Array<number | string | [number, number]>>();
+    const rows = csvString.split('\n').map(row => row.trim()).filter(row => row !== '');
+    if (rows.length < 2) return map; // return empty map if there's no data or only headers
+    console.log(rows);
+    // Process headers
+    const headers = rows[0].split(';').map(header =>
+        header.toLowerCase().replace(/\s+/g, '')
+    );
 
-    headers.forEach(header => map.set(header, []));
+    // Initialize the map with empty arrays for each header
+    headers.forEach(header => {
+        map.set(header, []);
+    });
 
-    if (plotType != 'columnErrorbar') {
-        for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(';');
-            values.forEach((value, index) => {
-                const key = headers[index];
-                const numValue = parseFloat(value);
-                map.get(key)?.push(isNaN(numValue) ? value : numValue);
-            });
-        }
-    } else {
-        // Assume "Low Value" and "High Value" are at fixed positions
-        const lowIndex = headers.indexOf('Low Value');
-        const highIndex = headers.indexOf('High Value');
-        const errorBarData: Array<[number, number]> = [];
-        for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(';');
-            // Convert low and high values from string to number and store as pair
-            const lowValue = parseFloat(values[lowIndex]);
-            const highValue = parseFloat(values[highIndex]);
-            errorBarData.push([lowValue, highValue]);
-
-            // Populate other data into the map
-            values.forEach((value, index) => {
-                if (index !== lowIndex && index !== highIndex) { // Skip low and high values for normal columns
-                    const key = headers[index];
-                    const numValue = parseFloat(value);
-                    map.get(key)?.push(isNaN(numValue) ? value : numValue);
-                }
-            });
-        }
-
-        // Add error bar data under a new key
-        map.set('errorbardata', errorBarData);
+    // Populate the map
+    for (let i = 1; i < rows.length; i++) {
+        const values = rows[i].split(';');
+        values.forEach((value, index) => {
+            const key = headers[index];
+            map.get(key)?.push(parseFloat(value));
+        });
     }
+
+    // Special handling for error bars: identify pairs and group them
+    const errorBarDataMap = new Map<string, Array<[number, number]>>();
+
+    // Identify low and high pairs dynamically
+    headers.filter(header => header.includes('lowvalue')).forEach(lowKey => {
+        const suffix = lowKey.match(/\d+$/); // matches the trailing number in 'lowvalue1', 'lowvalue2', etc.
+        if (suffix) {
+            const highKey = `highvalue${suffix[0]}`;
+            if (map.has(highKey)) {
+                const errorBarData = [];
+                for (let i = 0; i < map.get(lowKey)!.length; i++) {
+                    errorBarData.push([map.get(lowKey)![i], map.get(highKey)![i]]);
+                }
+                const errorBarKey = `errorbardata${suffix[0]}`;
+                errorBarDataMap.set(errorBarKey, errorBarData);
+            }
+        }});
+
+    // Add error bar data to main map
+    errorBarDataMap.forEach((data, key) => {
+        map.set(key, data);
+    });
 
     return map;
 }
+
+
 
 export class ChartMappings {
 
@@ -51,26 +58,34 @@ export class ChartMappings {
         return { chart: { type: value } };
     }
 
-    public static series(value: any, chart: GenericObject): GenericObject {
-        const dataMap = parseCsvToMap(chart.options.data.csv,value);
-
-        // Assume the first two columns are what we're interested in for this example
-        const columnNames = Array.from(dataMap.keys());
-        if (value === 'columnErrorbar') {
-            const errorBarData = dataMap.get('errorbardata') || [];
-            const columnSeries = {
-                name: columnNames[1],
-                type: 'column',
-                data: dataMap.get(columnNames[1]) || [],
-            };
-            const errorBarSeries = {
-                name: columnNames[1]+' ErrorBar',
-                type: 'errorbar',
-                data: errorBarData
-            };
-            return [columnSeries,errorBarSeries];
+    public static series(value: any, chart: GenericObject): Array<GenericObject> | GenericObject {
+        const dataMap = parseCsvToMap(chart.options.data.csv);
+        const columnNames = Array.from(dataMap.keys()).filter((key, index) => index !== 0 && !key.startsWith('lowvalue') && !key.startsWith('highvalue'));
+        if (value === 'Errorbar') {
+            const seriesArray: Array<GenericObject> = [];
+            // Loop through the map to handle error bar data and normal data\
+            columnNames.forEach((columnName) => {
+                if (columnName.startsWith('errorbardata')) {
+                    // Handle error bar series
+                    const errorBarData = dataMap.get(columnName) || [];
+                    const errorBarSeries: GenericObject = {
+                        name: columnName,
+                        type: 'errorbar',
+                        data: errorBarData
+                    };
+                    seriesArray.push(errorBarSeries);
+                } else {
+                    // Handle normal data series
+                    const normalData = dataMap.get(columnName) || [];
+                    const normalSeries: GenericObject = {
+                        name: columnName,
+                        type: 'column',
+                        data: normalData
+                    };
+                    seriesArray.push(normalSeries);
+                }});
+            return seriesArray;
         }
-        // Handle other types as before
         return { chart: { type: value } };
     }
 

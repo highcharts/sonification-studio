@@ -41,18 +41,22 @@ function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnPro
 }
 
 function getPlaceholderData() {
-    const res = [{ A: 'Index (X value)', B: 'Sensor Data (Y value)', C: 'Low Value', D: 'High Value' }];
+    const res = [{ A: 'Index (X value)', B: 'Sensor Data (Y value)', C: 'LowVaLue1', D: 'High Value    1', E: 'Lo    wVaLue2', F: 'High Val  ue    2' }];
 
     for (let i = 0; i < 5; ++i) {
         const B = (Math.sin(i / 3) * i / 2);
         const C = (B * (0.85 + Math.random() * 0.14)).toFixed(3); // Randomly between 85% to 99% of B
         const D = (B * (1.03 + Math.random() * 0.12)).toFixed(3); // Randomly between 103% to 115% of B
+        const E = (B * (0.85 + Math.random() * 0.14)).toFixed(3); // Randomly between 85% to 99% of B
+        const F = (B * (1.03 + Math.random() * 0.12)).toFixed(3); // Randomly between 103% to 115% of B
         const bValue = B.toFixed(3);
         res.push({
             A: '' + i,
             B: bValue,
             C: C,
-            D: D
+            D: D,
+            E:E,
+            F:F
         });
     }
 
