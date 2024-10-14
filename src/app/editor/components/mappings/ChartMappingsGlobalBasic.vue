@@ -53,6 +53,15 @@ export default {
         return { seriesTypes };
     },
     computed: {
+        filteredSeriesTypes() {
+            const numRows = this.$store.getters['dataStore/numRows'];
+            const numCols = this.$store.getters['dataStore/numCols'];
+            if (numRows > 50 || numCols >= 3) {
+                // Pie doesn't work well with large datasets, limiting to 50 rows, and 2 columns.
+                return seriesTypes.filter(type => type.value !== 'pie');
+            }
+            return seriesTypes;
+        },
         chartType: {
             get() { return (this as any).$store.state.chartParametersStore.type; },
             set(val) { return this.$store.commit('chartParametersStore/setType', val); }
@@ -71,5 +80,5 @@ export default {
 
 
 <style lang="less" scoped>
-    @import "../../accordionOptions";
+@import "../../accordionOptions";
 </style>

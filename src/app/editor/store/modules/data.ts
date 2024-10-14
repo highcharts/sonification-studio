@@ -79,7 +79,13 @@ export const dataStore = {
         numRows: (state: GenericObject): number => {
             return state.tableRowData.length;
         },
-
+        numCols: (state: GenericObject): number => {
+            if (state.tableRowData.length > 0) {
+                // Assuming all rows have the same number of columns
+                return Object.keys(state.tableRowData[0]).length;
+            }
+            return 0;
+        },
         tableColumnNamesWithData: (state: GenericObject): Array<string> => {
             const rows = state.tableRowData;
             const res: GenericObject = {};
