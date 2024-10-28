@@ -30,7 +30,7 @@
             <SEDropdown
                 :id="slotProps.controlId"
                 v-model="chartType"
-                :options="seriesTypes"
+                :options="filteredSeriesTypes"
             />
         </SEControl>
     </div>

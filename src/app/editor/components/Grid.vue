@@ -95,13 +95,18 @@ export default {
                 ensureDomOrder: true,
                 rowBuffer: 200 // Render this many rows regardless of what is in view
             },
-            columnDefs: [{}],
-            rowData: [{}]
+            columnDefs: [],
+            rowData: []
         };
     },
     computed: mapState('dataStore', ['tableRowData']),
-    beforeMount(): void {
-        this.columnDefs = this.makeColumns();
+    watch: {
+        tableRowData: {
+            handler() {
+                (this.columnDefs as any) = this.makeColumns();
+            },
+            immediate: true
+        }
     },
     methods: {
         // Ensure source data for the grid is always up to date with current values.
@@ -118,10 +123,14 @@ export default {
         },
 
         makeColumns(): Array<object> {
+            const numCols = this.tableRowData.length > 0 ? Object.keys(this.tableRowData[0]).length : 0;
             const codeToChar = (i: number) => String.fromCharCode(65 + i),
                 res = [];
 
-            for (let i = 0; i < 11; ++i) {
+            // Ensure at least 11 columns are rendered, so it looks like a grid
+            const maxCols = Math.max(11, numCols);
+
+            for (let i = 0; i < maxCols; ++i) {
                 res.push({
                     headerName: codeToChar(i),
                     field: codeToChar(i),
