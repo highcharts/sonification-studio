@@ -82,6 +82,11 @@ export default {
                 icon: jsIcon,
                 type: 'button',
                 onclick: () => (this as any).dlChartConfig()
+            }, {
+                label: 'HTML file',
+                icon: jsIcon,
+                type: 'button',
+                onclick: () => (this as any).dlHTMLFile()
             }]
         };
     },
@@ -181,6 +186,10 @@ export default {
 
         dlChartConfig() {
             (this as any).$chartBridge.downloadChartConfig();
+        },
+
+        dlHTMLFile() {
+            (this as any).$chartBridge.downloadHTMLFile();
         }
     }
 };

@@ -357,6 +357,28 @@ export class ChartBridge {
         return filteredTitle || 'export';
     }
 
+    public getHTMLChartConfig(): string {
+        const options = this.getChartOptionsForExport();
+        const optionsString = JSON.stringify(options, void 0, 2);
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${this.getChartTitleForExport()}</title>
+                <script src="https://code.highcharts.com/highcharts.js"></script>
+                <script src="https://code.highcharts.com/modules/sonification.js"></script>
+            </head>
+            <body>
+                <div id="container" style="width: 600px; height: 400px;"></div>
+                <script>
+                    const options = ${optionsString};
+                    Highcharts.chart('container', options);
+                </script>
+            </body>
+            </html>
+        `;
+    }
+
 
     public getAvailableInstruments(): Array<Record<'name'|'value', string>> {
         return Object.keys(
@@ -386,6 +408,14 @@ export class ChartBridge {
         const blob = new Blob([json], {type: 'text/json'});
         const uri = window.URL.createObjectURL(blob);
         const filename = this.getChartTitleForExport() + '.json';
+        downloadURI(uri, filename);
+    }
+
+    public downloadHTMLFile(): void {
+        const htmlContent = this.getHTMLChartConfig();
+        const blob = new Blob([htmlContent], {type: 'text/html'});
+        const uri = window.URL.createObjectURL(blob);
+        const filename = this.getChartTitleForExport() + '.html';
         downloadURI(uri, filename);
     }
 
