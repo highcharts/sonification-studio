@@ -124,16 +124,24 @@ export default {
 
         makeColumns(): Array<object> {
             const numCols = this.tableRowData.length > 0 ? Object.keys(this.tableRowData[0]).length : 0;
-            const codeToChar = (i: number) => String.fromCharCode(65 + i),
-                res = [];
+            const res = [];
 
-            // Ensure at least 11 columns are rendered, so it looks like a grid
-            const maxCols = Math.max(11, numCols);
+            // Ensure at least 11 columns are rendered and a maximum of 50.
+            const maxCols = Math.min(Math.max(11, numCols), 50);
+
+            // Generate column headers (A-Z, followed by COL1, COL2, etc.)
+            const columnHeader = (i: number) => {
+                if (i < 26) {
+                    return String.fromCharCode(65 + i);
+                } else {
+                    return `COL${i - 25}`;
+                }
+            };
 
             for (let i = 0; i < maxCols; ++i) {
                 res.push({
-                    headerName: codeToChar(i),
-                    field: codeToChar(i),
+                    headerName: columnHeader(i),
+                    field: columnHeader(i),
                     cellStyle: { textAlign: 'center' }
                 });
             }

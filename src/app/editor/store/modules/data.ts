@@ -221,7 +221,16 @@ export const dataStore = {
             const maxRowLen = arr.reduce((len: number, row): number => {
                 return Math.max(len, row.length);
             }, 0);
-            const columnHeaders = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0, maxRowLen).split('');
+
+            // Generate column headers (A-Z, followed by COL1, COL2, etc.)
+            const columnHeaders: string[] = [];
+            for (let i = 0; i < maxRowLen; i++) {
+                if (i < 26) {
+                    columnHeaders.push(String.fromCharCode(65 + i));
+                } else {
+                    columnHeaders.push(`COL${i - 25}`);
+                }
+            }
 
             const objectifiedArr = arr.map((row: string[]) => {
                 const rowObject: any = {};
