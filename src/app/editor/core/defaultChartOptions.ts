@@ -51,7 +51,7 @@ export const defaultChartOptions = {
         screenReaderSection: {
             beforeChartFormatter: function (chart: Highcharts.Chart) {
                 const title = chart.options.title?.text;
-                const titleTag = `<h3>Chart preview${title ? ': ' + title : ''}</h3>`;
+                const titleTag = `<h1>Chart preview${title ? ': ' + title : ''}</h1>`;
                 const component = (chart as GenericObject).accessibility.components.infoRegions;
                 const typeDesc = component.getTypeDescriptionText();
                 const subtitle = component.getSubtitleText();

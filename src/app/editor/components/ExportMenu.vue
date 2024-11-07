@@ -28,6 +28,7 @@ import videoIcon from '../assets/film-solid.svg';
 import musicIcon from '../assets/music-solid.svg';
 import textIcon from '../assets/quote-right-solid.svg';
 import csvIcon from '../assets/file-csv-solid.svg';
+import htmlIcon from '../assets/file-code-solid.svg';
 import spinnerIcon from '../assets/spinner-solid.svg';
 import SEDropdownMenu from './basic/SEDropdownMenu.vue';
 import SEModalMessage from './basic/SEModalMessage.vue';
@@ -84,7 +85,7 @@ export default {
                 onclick: () => (this as any).dlChartConfig()
             }, {
                 label: 'HTML file',
-                icon: jsIcon,
+                icon: htmlIcon,
                 type: 'button',
                 onclick: () => (this as any).dlHTMLFile()
             }]

@@ -357,22 +357,169 @@ export class ChartBridge {
         return filteredTitle || 'export';
     }
 
+    public getHTMLPlayControlsForChart(): string {
+        return `
+            <div class="playcontrols-inner-container">
+            <h2 id="playcontrols-heading" class="sr-only">Play controls</h2>
+                <div class="logo-wrapper">
+                    <img src="https://sonification.highcharts.com/highcharts-logo.32682632.svg" alt="Highcharts logo" width="16" height="16">
+                    <a href="https://sonification.highcharts.com/"><h1>Highcharts Sonification Studio</h1></a>
+                </div>
+                <div class="play-buttons-container playControlItem">
+                    <div class="play-button-wrap"></div>
+                        <button id="play-button">
+                            Play
+                        </button>
+                    <div class="reset-button-wrap"></div>
+                        <button id="reset-button">
+                            Reset
+                        </button>
+                </div>
+            </div>
+        `;
+    }
+
     public getHTMLChartConfig(): string {
         const options = this.getChartOptionsForExport();
         const optionsString = JSON.stringify(options, void 0, 2);
+        const playControls = this.getHTMLPlayControlsForChart();
         return `
             <!DOCTYPE html>
             <html>
             <head>
                 <title>${this.getChartTitleForExport()}</title>
                 <script src="https://code.highcharts.com/highcharts.js"></script>
+                <script src="https://code.highcharts.com/modules/accessibility.js"></script>
                 <script src="https://code.highcharts.com/modules/sonification.js"></script>
+                <style>
+                    body {
+                        font-family: 'Roboto', sans-serif;
+                    }
+                    h1 {
+                        font-size: .875rem;
+                        font-weight: 400;
+                        letter-spacing: .1em;
+                        margin: 0 5px 0 5px;
+                    }
+                    a:focus, button:focus {
+                        outline: 2px solid red;
+                        outline-offset: 2px;
+                    }
+                    .sr-only {
+                        position: absolute;
+                        width: 1px;
+                        height: 1px;
+                        padding: 0;
+                        margin: -1px;
+                        overflow: hidden;
+                        clip: rect(0,0,0,0);
+                        border: 0;
+                    }
+
+                    .playcontrols-inner-container {
+                        max-width: 900px;
+                        background-color: #ebeffa;
+                        color: #25386f;
+                        display: flex;
+                        align-items: center;
+                        padding: 5px;
+                        box-sizing: border-box;
+                    }
+                    .playControlItem {
+                        margin: 5px 8px;
+                    }
+
+                    .play-buttons-container, .logo-wrapper {
+                        display: flex;
+                    }
+
+                    .play-buttons-container {
+                        margin-left: auto;
+                    }
+                    
+                    .logo-wrapper {
+                        margin-left: 8px;
+                    }
+
+                    button {
+                        padding: 5px 8px;
+                        margin: 0 5px;
+                        width: 3.2rem;
+                        background-color: #25386f;
+                        color: #ffffff;
+                        font: inherit;
+                        cursor: pointer;
+                        border: 2px solid transparent;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        border-radius: 5px;
+                    }
+                    button:hover {
+                        background-color: #ffffff;
+                        color: #25386f;
+                        border: 2px solid #25386f;
+
+                    }
+                    a:visited {
+                        color: inherit;
+                    }
+                    
+                </style>
             </head>
             <body>
-                <div id="container" style="width: 600px; height: 400px;"></div>
+                ${playControls}
+                <div id="container" style="max-width: 900px; max-height: 500px;"></div>
                 <script>
+                    Highcharts.setOptions({
+                        accessibility: {
+                            screenReaderSection: {
+                                beforeChartFormat: '<h2>{chartTitle}</h2>' +
+                                    '<div>{typeDescription}</div>' +
+                                    '<div>{chartSubtitle}</div>' +
+                                    '<div>{chartLongdesc}</div>' +
+                                    '<div>{playAsSoundButton}</div>' +
+                                    '<div>{viewTableButton}</div>' +
+                                    '<div>{xAxisDescription}</div>' +
+                                    '<div>{yAxisDescription}</div>'
+                            }
+                        },
+                        sonification: {
+                            events: {
+                                onEnd: function () {
+                                    document.getElementById('play-button').textContent = 'Play';
+                                },
+                            }
+                        }
+                    });
                     const options = ${optionsString};
-                    Highcharts.chart('container', options);
+                    const chart = Highcharts.chart('container', options);
+
+                    document.getElementById('play-button').onclick = function () {
+                        const btn = this;
+                        const timeline = chart.sonification.timeline;
+                        
+                        if (chart.sonification.isPlaying()) {
+                            timeline.pause();
+                            btn.textContent = 'Play';
+                        } else if (timeline && timeline.isPaused) {
+                            timeline.resume();
+                            btn.textContent = 'Pause'
+                        } else {
+                            chart.sonify();
+                            btn.textContent = 'Pause';
+                        }
+                    }
+                    document.getElementById('reset-button').onclick = function () {
+                        const playBtn = document.getElementById('play-button');
+                        const timeline = chart.sonification.timeline;
+                        if (timeline){
+                            timeline.reset();
+                            playBtn.textContent = 'Play';
+                            
+                        }
+                    }
                 </script>
             </body>
             </html>
@@ -418,7 +565,6 @@ export class ChartBridge {
         const filename = this.getChartTitleForExport() + '.html';
         downloadURI(uri, filename);
     }
-
 
     public downloadAudio(): Promise<void> {
         return new Promise((resolve, reject) => {
