@@ -360,12 +360,22 @@ export class ChartBridge {
     public getHTMLPlayControlsForChart(): string {
         return `
             <div class="playcontrols-inner-container">
-            <h2 id="playcontrols-heading" class="sr-only">Play controls</h2>
                 <div class="logo-wrapper">
-                    <img src="https://sonification.highcharts.com/highcharts-logo.32682632.svg" alt="Highcharts logo" width="16" height="16">
+                    <svg version="1.1" id="logo-highcharts" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="205" height="205" viewBox="0 0 205 205" xml:space="preserve" aria-hidden="true">
+                        <g id="symbol" transform="translate(0,3.41400146484375) scale(3)">
+                            <polygon fill="#8087E8" points="41.53900146484375,0 30.315000534057617,26.209999084472656 15.566999435424805,60.650997161865234 49.85900115966797,46.16499710083008 68.02299499511719,38.49300003051758 " id="svg_2" stroke-width="0" stroke="#383836" fill-opacity="1" stroke-linejoin="round"></polygon>
+                            <polygon fill="#30426B" points="47.25799560546875,31.729999542236328 49.86000061035156,46.16499710083008 68.02400207519531,38.49300003051758 " id="svg_3" stroke-width="0" stroke="#383836" fill-opacity="1" stroke-linejoin="round"></polygon>
+                            <polygon fill="#6699A1" points="41.53900146484375,0 47.25799560546875,31.730998992919922 68.02299499511719,38.49300003051758 " id="svg_4" stroke-width="0" stroke="#383836" fill-opacity="1" stroke-linejoin="round"></polygon>
+                            <polygon fill="#78758C" points="47.25799560546875,31.729999542236328 68.02400207519531,38.49300003051758 30.31599998474121,26.208999633789062 15.566999435424805,60.650997161865234 49.86000061035156,46.16499710083008 " id="svg_5" stroke-width="0" stroke="#383836" fill-opacity="1" stroke-linejoin="round"></polygon>
+                            <polygon fill="#A3EDBA" points="15.566999435424805,60.650997161865234 30.315000534057617,26.209999084472656 0,16.334999084472656 " id="svg_6" stroke-width="0" stroke="#383836" fill-opacity="1" stroke-linejoin="round"></polygon>
+                            <polygon fill="#6699A1" points="49.86000061035156,46.16499710083008 53.185997009277344,64.6099967956543 68.02400207519531,38.49300003051758 " id="svg_7" stroke-width="0" stroke="#383836" fill-opacity="1" stroke-linejoin="round"></polygon>
+                            <polygon fill="#8087E8" points="41.53900146484375,0 30.315000534057617,26.209999084472656 47.25799560546875,31.730998992919922 " id="svg_8" stroke-width="0" stroke="#383836" fill-opacity="1" stroke-linejoin="round"></polygon>
+                        </g>
+			        </svg>
                     <a href="https://sonification.highcharts.com/"><h1>Highcharts Sonification Studio</h1></a>
                 </div>
                 <div class="play-buttons-container playControlItem">
+                    <h2 id="playcontrols-heading" class="sr-only">Play controls</h2>
                     <div class="play-button-wrap"></div>
                         <button id="play-button">
                             Play
@@ -395,6 +405,10 @@ export class ChartBridge {
                     body {
                         font-family: 'Roboto', sans-serif;
                     }
+                    #logo-highcharts {
+                        width: 1rem;
+                        height: 1rem;
+                    }
                     h1 {
                         font-size: .875rem;
                         font-weight: 400;
@@ -414,8 +428,7 @@ export class ChartBridge {
                         overflow: hidden;
                         clip: rect(0,0,0,0);
                         border: 0;
-                    }
-
+        }
                     .playcontrols-inner-container {
                         max-width: 900px;
                         background-color: #ebeffa;
@@ -428,19 +441,15 @@ export class ChartBridge {
                     .playControlItem {
                         margin: 5px 8px;
                     }
-
                     .play-buttons-container, .logo-wrapper {
                         display: flex;
                     }
-
                     .play-buttons-container {
                         margin-left: auto;
                     }
-                    
                     .logo-wrapper {
                         margin-left: 8px;
                     }
-
                     button {
                         padding: 5px 8px;
                         margin: 0 5px;
