@@ -525,6 +525,7 @@ export class ChartBridge {
                         const timeline = chart.sonification.timeline;
                         if (timeline){
                             timeline.reset();
+                            chart.xAxis[0].hideCrosshair();
                             playBtn.textContent = 'Play';
                             
                         }
