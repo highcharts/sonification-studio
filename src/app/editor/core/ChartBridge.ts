@@ -525,6 +525,7 @@ export class ChartBridge {
                         const timeline = chart.sonification.timeline;
                         if (timeline){
                             timeline.reset();
+                            chart.xAxis[0].hideCrosshair();
                             playBtn.textContent = 'Play';
                             
                         }
@@ -571,7 +572,7 @@ export class ChartBridge {
         const htmlContent = this.getHTMLChartConfig();
         const blob = new Blob([htmlContent], {type: 'text/html'});
         const uri = window.URL.createObjectURL(blob);
-        const filename = this.getChartTitleForExport() + '.html';
+        const filename = (this.getChartTitleForExport() + '.html').replace(/ /g, '_').toLowerCase();
         downloadURI(uri, filename);
     }
 
