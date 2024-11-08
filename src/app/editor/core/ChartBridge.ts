@@ -571,7 +571,7 @@ export class ChartBridge {
         const htmlContent = this.getHTMLChartConfig();
         const blob = new Blob([htmlContent], {type: 'text/html'});
         const uri = window.URL.createObjectURL(blob);
-        const filename = this.getChartTitleForExport() + '.html';
+        const filename = (this.getChartTitleForExport() + '.html').replace(/ /g, '_').toLowerCase();
         downloadURI(uri, filename);
     }
 
