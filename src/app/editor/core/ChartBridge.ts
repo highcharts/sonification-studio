@@ -401,6 +401,7 @@ export class ChartBridge {
                 <script src="https://code.highcharts.com/highcharts.js"></script>
                 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
                 <script src="https://code.highcharts.com/modules/sonification.js"></script>
+                <script src="https://code.highcharts.com/themes/high-contrast-light.js"></script>
                 <style>
                     body {
                         font-family: 'Roboto', sans-serif;
