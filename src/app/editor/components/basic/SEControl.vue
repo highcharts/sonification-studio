@@ -114,7 +114,7 @@
                             v-for="helptextParagraph in helptextParagraphs"
                             :key="helptextParagraph.index"
                         >
-                            <span v-html="helptextParagraph.content" />
+                            <span>{{ helptextParagraph.content }}</span>
                         </p>
                     </div>
                     <div
