@@ -62,7 +62,9 @@
                 </h2>
                 <p>
                     We strive to keep the tool easy to use. For detailed instructions, visit our
-                    <router-link to="tutorial">tutorial page</router-link>. Please let us know if you
+                    <router-link to="tutorial">
+                        tutorial page
+                    </router-link>. Please let us know if you
                     have questions or require assistance, and we will be happy to help.
                 </p>
                 <p>

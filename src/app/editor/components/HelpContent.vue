@@ -27,7 +27,9 @@
 
         <h2>Tutorial</h2>
         <p>
-            For more detailed help, refer to the <router-link to="/tutorial">Getting Started tutorial</router-link>.
+            For more detailed help, refer to the <router-link to="/tutorial">
+                Getting Started tutorial
+            </router-link>.
         </p>
 
         <h2>Keyboard shortcuts</h2>
