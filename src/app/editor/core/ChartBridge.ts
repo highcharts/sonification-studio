@@ -9,13 +9,11 @@ import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMap
 import { GoogleSheetStatus } from '../store/modules/data';
 import { Store } from 'vuex';
 
-
 /**
  * Interface between chart-specific logic and the rest of the
  * app.
  */
 export class ChartBridge {
-
     // How often to trigger updates for parameter changes
     private static parameterReactivityIntervalMs = 300;
     // How often to trigger updates for data changes
@@ -23,8 +21,8 @@ export class ChartBridge {
     // Playback progress bar update interval
     private static updateProgressIntervalMs = 15;
 
-    private chart: GenericObject|null = null;
-    private announcer: Announcer|null = null;
+    private chart: GenericObject | null = null;
+    private announcer: Announcer | null = null;
     private chartOptions: GenericObject = {};
     private chartDataOptions: GenericObject = {};
     private chartParametersStore: GenericObject;
@@ -34,10 +32,9 @@ export class ChartBridge {
     private commitToStore: (id: string, payload?: any) => void;
     private storeGetter: (storeId: string, getterId: string) => any;
     private reactivityTimeouts: GenericObject = {};
-    private progressTimer: number|undefined;
-    private _seReactivityCounter: number|null = null;
-    private audioSampleTimeline: GenericObject|null = null;
-
+    private progressTimer: number | undefined;
+    private _seReactivityCounter: number | null = null;
+    private audioSampleTimeline: GenericObject | null = null;
 
     /**
      * Construct the class with a Vuex store instance
@@ -48,11 +45,11 @@ export class ChartBridge {
         this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
         this.commitToStore = (id: string, payload?: any) => store.commit(id, payload);
         this.getStoreParam = (storeId: string, param: string): any => store.state[storeId][param];
-        this.storeGetter = (storeId: string, getterId: string): any => store.getters[`${storeId}/${getterId}`];
+        this.storeGetter = (storeId: string, getterId: string): any =>
+            store.getters[`${storeId}/${getterId}`];
 
         store.subscribe(this.onStoreMutation.bind(this));
     }
-
 
     /**
      * Init the class with a chart
@@ -64,11 +61,9 @@ export class ChartBridge {
         this.forceUpdate();
     }
 
-
     public initAnnouncer(announcer: Announcer): void {
         this.announcer = announcer;
     }
-
 
     /**
      * Use this function to force chart option updates - mostly useful if altering deep
@@ -85,7 +80,6 @@ export class ChartBridge {
         }
     }
 
-
     /**
      * Force chart to update sizing. Sometimes needed when the chart
      * container switches from being invisible to visible.
@@ -93,7 +87,6 @@ export class ChartBridge {
     public reflowChart(): void {
         setTimeout(() => this.chart?.reflow(), 10);
     }
-
 
     /**
      * The purpose of this function is to create a dependency on a
@@ -131,7 +124,6 @@ export class ChartBridge {
         return res;
     }
 
-
     /**
      * Builds the final options passed to the chart for rendering, based on
      * mapping parameters and CSV data.
@@ -144,58 +136,97 @@ export class ChartBridge {
         const defaultOptions = deepMerge(defaultChartOptions, legendItemClickHook);
 
         const dataSource = this.getStoreParam('dataStore', 'selectedDataSource');
-        const spreadsheetSetupComplete = this.getStoreParam('dataStore', 'spreadsheetSetupComplete');
+        const spreadsheetSetupComplete = this.getStoreParam(
+            'dataStore',
+            'spreadsheetSetupComplete'
+        );
 
-        const dataSourceOptions = dataSource === 'googlesheets' && spreadsheetSetupComplete ? {
-            csv: void 0,
-            firstRowAsNames: true,
-            googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
-            googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
-            enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-            dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-            error: (text: string) => {
-                const errObj = JSON.parse(text);
-                const message = errObj?.error?.message || 'Unknown error';
-                this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
-                this.commitToStore('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Error);
-            }
-        } : {
-            csv: csv || 'null',
-            columns: null,
-            firstRowAsNames: true,
-            googleSpreadsheetKey: '',
-            enablePolling: false
-        };
+        const dataSourceOptions =
+            dataSource === 'googlesheets' && spreadsheetSetupComplete
+                ? {
+                    csv: void 0,
+                    firstRowAsNames: true,
+                    googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
+                    googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
+                    enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
+                    dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
+                    error: (text: string) => {
+                        const errObj = JSON.parse(text);
+                        const message = errObj?.error?.message || 'Unknown error';
+                        this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
+                        this.commitToStore(
+                            'dataStore/setGoogleSheetStatus',
+                            GoogleSheetStatus.Error
+                        );
+                    },
+                }
+                : {
+                    csv: csv || 'null',
+                    columns: null,
+                    firstRowAsNames: true,
+                    googleSpreadsheetKey: '',
+                    enablePolling: false,
+                };
 
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
                     if (dataSource === 'googlesheets' && spreadsheetSetupComplete) {
-                        this.commitToStore('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Success);
+                        this.commitToStore(
+                            'dataStore/setGoogleSheetStatus',
+                            GoogleSheetStatus.Success
+                        );
                     }
 
                     const chart = this.chart;
 
                     if (chart) {
                         // Get ids of series parsed
-                        const seriesIds = (parseResult.series || []).map((s: GenericObject, ix: number) => {
-                            s.index = ix;
-                            const id = getSeriesId(s);
+                        const seriesIds = (parseResult.series || []).map(
+                            (s: GenericObject, ix: number) => {
+                                s.index = ix;
+                                const id = getSeriesId(s);
 
-                            delete s.index;
-                            return id;
-                        });
+                                delete s.index;
+                                return id;
+                            }
+                        );
 
                         // Extend parsed results with series options
                         const seriesOptions = this.buildSeriesOptions(seriesIds);
                         if (seriesOptions) {
-                            parseResult.series = deepMerge(parseResult.series, seriesOptions);
+                            const mergedSeries = deepMerge(parseResult.series, seriesOptions);
+
+                            mergedSeries.forEach((s: any, i: number) => {
+                                const seriesData = s.data;
+
+                                const hasData =
+                                    Array.isArray(seriesData) &&
+                                    seriesData.some((point: any) => {
+                                        if (typeof point === 'number') return true;
+                                        if (Array.isArray(point))
+                                            return point[1] !== null && point[1] !== '';
+                                        if (typeof point === 'object' && point !== null)
+                                            return point.y !== null && point.y !== '';
+                                        return point !== null && point !== '';
+                                    });
+
+                                if (!s.name) {
+                                    s.name = `Series ${i + 1}`;
+                                }
+
+                                s.visible = hasData;
+                                s.showInLegend = hasData;
+                            });
+
+                            parseResult.series = mergedSeries;
                             this.handleGroupOnlySeries(parseResult.series);
                         }
+
                         this.chartDataOptions = parseResult;
                     }
-                }
-            })
+                },
+            }),
         };
 
         // Need to update the chart data first to know which (new) series to build options for.
@@ -206,16 +237,13 @@ export class ChartBridge {
         return deepMerge(defaultOptions, newOptions);
     }
 
-
     public getDataSeries(): Array<GenericObject> {
         return this.chart?.series || [];
     }
 
-
     public isPaused(): boolean {
         return this.chart?.sonification.timeline?.isPaused;
     }
-
 
     public playChart(onEnd?: (e: any) => void, loop = false) {
         const chart = this.chart;
@@ -237,25 +265,21 @@ export class ChartBridge {
         });
     }
 
-
     public stopChart() {
         this.stopProgressUpdatePolling();
         this.chart?.sonification.timeline?.reset();
         this.updatePlayProgress();
     }
 
-
     public pauseChart() {
         this.stopProgressUpdatePolling();
         this.chart?.sonification.timeline.pause();
     }
 
-
     public playNext() {
         this.stopProgressUpdatePolling();
         this.chart?.sonification.timeline.pause();
     }
-
 
     public playAdjacent(next: boolean) {
         this.chart?.sonification.playAdjacent(next, (context: GenericObject): void => {
@@ -264,10 +288,13 @@ export class ChartBridge {
                 return;
             }
             const numSeries = this.chart?.series.length;
-            const announcement = pointsPlayed.reduce((acc, cur): string => {
-                const val = numSeries > 1 ? cur.y + ' ' + cur.series.name : cur.y;
-                return acc ? acc + ', ' + val : val;
-            }, '') + '. X is ' + pointsPlayed[0].x;
+            const announcement =
+                pointsPlayed.reduce((acc, cur): string => {
+                    const val = numSeries > 1 ? cur.y + ' ' + cur.series.name : cur.y;
+                    return acc ? acc + ', ' + val : val;
+                }, '') +
+                '. X is ' +
+                pointsPlayed[0].x;
 
             if (this.announcer) {
                 this.announcer.announce(announcement, true);
@@ -275,7 +302,6 @@ export class ChartBridge {
         });
         this.updatePlayProgress();
     }
-
 
     public playAudioSample(instrument: string) {
         const globalVolume = this.getStoreParam('globalSonifyParametersStore', 'volume');
@@ -294,66 +320,72 @@ export class ChartBridge {
         timeline = this.audioSampleTimeline = new Timeline() as GenericObject;
 
         const instr = new Instrument(s.audioContext, s.audioContext.destination, {
-            synthPatch: instrument
+            synthPatch: instrument,
         });
 
-        timeline.addChannel('instrument', instr, [{
-            time: 0,
-            instrumentEventOptions: {
-                note: 'c3',
-                noteDuration: 150,
-                volume: globalVolume / 100
-            }
-        },
-        { time: 150, instrumentEventOptions: { note: 'g3' } },
-        { time: 300, instrumentEventOptions: { note: 'c4' } },
-        { time: 450, instrumentEventOptions: { note: 'c5' } },
-        { time: 600, instrumentEventOptions: { note: 'g5' } }]);
+        timeline.addChannel('instrument', instr, [
+            {
+                time: 0,
+                instrumentEventOptions: {
+                    note: 'c3',
+                    noteDuration: 150,
+                    volume: globalVolume / 100,
+                },
+            },
+            { time: 150, instrumentEventOptions: { note: 'g3' } },
+            { time: 300, instrumentEventOptions: { note: 'c4' } },
+            { time: 450, instrumentEventOptions: { note: 'c5' } },
+            { time: 600, instrumentEventOptions: { note: 'g5' } },
+        ]);
 
         timeline.play();
     }
 
-
     public downloadPNG(): void {
-        this.chart?.exportChart({
-            filename: this.getChartTitleForExport()
-        }, {
-            // Workaround for weird bug where xAxis somehow
-            // becomes datetime on export
-            xAxis: {
-                type: this.chart?.options.xAxis.type
+        this.chart?.exportChart(
+            {
+                filename: this.getChartTitleForExport(),
+            },
+            {
+                // Workaround for weird bug where xAxis somehow
+                // becomes datetime on export
+                xAxis: {
+                    type: this.chart?.options.xAxis.type,
+                },
             }
-        });
+        );
     }
-
 
     public downloadSVG(): void {
-        this.chart?.exportChart({
-            type: 'image/svg+xml',
-            filename: this.getChartTitleForExport()
-        }, {
-            // Workaround for weird bug where xAxis somehow
-            // becomes datetime on export
-            xAxis: {
-                type: this.chart?.options.xAxis.type
+        this.chart?.exportChart(
+            {
+                type: 'image/svg+xml',
+                filename: this.getChartTitleForExport(),
+            },
+            {
+                // Workaround for weird bug where xAxis somehow
+                // becomes datetime on export
+                xAxis: {
+                    type: this.chart?.options.xAxis.type,
+                },
             }
-        });
+        );
     }
-
 
     public downloadMIDI(): void {
         if (this.chart?.sonification.timeline) {
-            this.chart.sonification.timeline.downloadMIDI(
-                this.getChartTitleForExport());
+            this.chart.sonification.timeline.downloadMIDI(this.getChartTitleForExport());
         } else {
             alert('Chart not created yet.');
         }
     }
 
-
     public getChartTitleForExport(): string {
         const title: string = this.chart?.options.title.text;
-        const filteredTitle = title.split('').filter(c => /[\w- ]/.test(c)).join('');
+        const filteredTitle = title
+            .split('')
+            .filter((c) => /[\w- ]/.test(c))
+            .join('');
         return filteredTitle || 'export';
     }
 
@@ -537,33 +569,28 @@ export class ChartBridge {
         `;
     }
 
-
-    public getAvailableInstruments(): Array<Record<'name'|'value', string>> {
-        return Object.keys(
-            this.Highcharts.sonification.InstrumentPresets
-        ).map(i => ({
+    public getAvailableInstruments(): Array<Record<'name' | 'value', string>> {
+        return Object.keys(this.Highcharts.sonification.InstrumentPresets).map((i) => ({
             name: i[0].toUpperCase() + i.slice(1),
-            value: i
+            value: i,
         }));
     }
 
-
-    public getMinMaxValuesForProp(prop: string): Record<'min'|'max', number> {
+    public getMinMaxValuesForProp(prop: string): Record<'min' | 'max', number> {
         if (!this.chart) {
             return { min: 0, max: 100 };
         }
         const axis = prop === 'x' ? this.chart.xAxis[0] : this.chart.yAxis[0];
         return {
             min: axis.dataMin,
-            max: axis.dataMax
+            max: axis.dataMax,
         };
     }
-
 
     public downloadChartConfig(): void {
         const options = this.getChartOptionsForExport();
         const json = JSON.stringify(options, void 0, 2);
-        const blob = new Blob([json], {type: 'text/json'});
+        const blob = new Blob([json], { type: 'text/json' });
         const uri = window.URL.createObjectURL(blob);
         const filename = this.getChartTitleForExport() + '.json';
         downloadURI(uri, filename);
@@ -571,7 +598,7 @@ export class ChartBridge {
 
     public downloadHTMLFile(): void {
         const htmlContent = this.getHTMLChartConfig();
-        const blob = new Blob([htmlContent], {type: 'text/html'});
+        const blob = new Blob([htmlContent], { type: 'text/html' });
         const uri = window.URL.createObjectURL(blob);
         const filename = (this.getChartTitleForExport() + '.html').replace(/ /g, '_').toLowerCase();
         downloadURI(uri, filename);
@@ -580,7 +607,11 @@ export class ChartBridge {
     public downloadAudio(): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.browserSupportsRecording()) {
-                reject(new Error('Browser does not support media recording. Audio could not be downloaded.'));
+                reject(
+                    new Error(
+                        'Browser does not support media recording. Audio could not be downloaded.'
+                    )
+                );
             }
             if (!this.chart?.sonification) {
                 reject(new Error('Could not download audio, no chart defined.'));
@@ -592,22 +623,28 @@ export class ChartBridge {
 
             const recorder = this.recordStream(destination.stream, true, resolve, reject);
 
-            setTimeout(() =>
-                this.playChart(() => setTimeout(() => {
-                    recorder.stop();
-                    this.setAudioDestinationNode();
-                }, 300)), 300);
+            setTimeout(
+                () =>
+                    this.playChart(() =>
+                        setTimeout(() => {
+                            recorder.stop();
+                            this.setAudioDestinationNode();
+                        }, 300)
+                    ),
+                300
+            );
         });
     }
 
-
     public downloadVideo(framerate: number): Promise<void> {
         if (!this.browserSupportsRecording()) {
-            throw new Error('Browser does not support media recording. Video could not be downloaded.');
+            throw new Error(
+                'Browser does not support media recording. Video could not be downloaded.'
+            );
         }
 
         const canvas = document.createElement('canvas');
-        const chartEl: HTMLElement|undefined = this.chart?.renderer?.box;
+        const chartEl: HTMLElement | undefined = this.chart?.renderer?.box;
         if (!chartEl) {
             throw new Error('downloadVideo: Could not find chart.');
         }
@@ -635,35 +672,38 @@ export class ChartBridge {
 
         // Add credits before exporting
         this.chart?.update({
-            credits: { enabled: true }
+            credits: { enabled: true },
         });
 
-        return new Promise((resolve, reject) => setTimeout(() => {
-            const recorder = this.recordStream(exportStream, false, void 0, reject);
-            const chartPainter = setInterval(() => {
-                this.drawChartOnCanvas(canvas).catch((e) => {
-                    clearInterval(chartPainter);
-                    recorder.stop();
-                    this.setAudioDestinationNode();
-                    reject(e);
-                });
-            }, 1000 / framerate);
+        return new Promise((resolve, reject) =>
+            setTimeout(() => {
+                const recorder = this.recordStream(exportStream, false, void 0, reject);
+                const chartPainter = setInterval(() => {
+                    this.drawChartOnCanvas(canvas).catch((e) => {
+                        clearInterval(chartPainter);
+                        recorder.stop();
+                        this.setAudioDestinationNode();
+                        reject(e);
+                    });
+                }, 1000 / framerate);
 
-            this.playChart(() => setTimeout(() => {
-                recorder.stop();
-                this.setAudioDestinationNode();
-                clearInterval(chartPainter);
+                this.playChart(() =>
+                    setTimeout(() => {
+                        recorder.stop();
+                        this.setAudioDestinationNode();
+                        clearInterval(chartPainter);
 
-                // Remove credits again after export
-                this.chart?.update({
-                    credits: { enabled: false }
-                });
+                        // Remove credits again after export
+                        this.chart?.update({
+                            credits: { enabled: false },
+                        });
 
-                resolve();
-            }, 200));
-        }, 200));
+                        resolve();
+                    }, 200)
+                );
+            }, 200)
+        );
     }
-
 
     private recordStream(
         stream: MediaStream,
@@ -677,10 +717,12 @@ export class ChartBridge {
             data.push(e.data);
         };
         recorder.onstop = () => {
-            const blob = new Blob(data, { 'type' : recorder.mimeType });
+            const blob = new Blob(data, { type: recorder.mimeType });
             const url = URL.createObjectURL(blob);
-            const filename = this.getChartTitleForExport() + '.'
-                + this.getFileExtensionFromMimeType(recorder.mimeType);
+            const filename =
+                this.getChartTitleForExport() +
+                '.' +
+                this.getFileExtensionFromMimeType(recorder.mimeType);
             downloadURI(url, filename);
             onEnd?.();
         };
@@ -690,7 +732,6 @@ export class ChartBridge {
         return recorder;
     }
 
-
     private drawChartOnCanvas(canvas: HTMLCanvasElement): Promise<void> {
         return new Promise((resolve, reject) => {
             const svg = this.chart?.renderer?.box.outerHTML;
@@ -699,9 +740,11 @@ export class ChartBridge {
             }
             const win = window;
             const img = new win.Image();
-            const imgURL = (win.URL || win.webkitURL || win).createObjectURL(new win.Blob([svg], {
-                type: 'image/svg+xml'
-            }));
+            const imgURL = (win.URL || win.webkitURL || win).createObjectURL(
+                new win.Blob([svg], {
+                    type: 'image/svg+xml',
+                })
+            );
             const ctx = canvas.getContext && canvas.getContext('2d');
 
             img.onload = () => {
@@ -719,7 +762,6 @@ export class ChartBridge {
             img.src = imgURL;
         });
     }
-
 
     private getChartOptionsForExport(): GenericObject {
         const userOptions = deepMerge(this.chart?.userOptions, {});
@@ -742,30 +784,27 @@ export class ChartBridge {
         return {};
     }
 
-
     private getMediaRecorder(stream: MediaStream, audioOnly = true): GenericObject {
         const Recorder = (window as any).MediaRecorder;
-        const preferredMimeTypes = audioOnly ? [
-            'audio/wav',
-            'audio/mpeg',
-            'audio/mp3',
-            'audio/mp4',
-            'audio/ogg',
-            'audio/x-aiff',
-            'audio/webm',
-        ] : [
-            'video/mp4',
-            'video/webm'
-        ];
+        const preferredMimeTypes = audioOnly
+            ? [
+                'audio/wav',
+                'audio/mpeg',
+                'audio/mp3',
+                'audio/mp4',
+                'audio/ogg',
+                'audio/x-aiff',
+                'audio/webm',
+            ]
+            : ['video/mp4', 'video/webm'];
         const mimeType = preferredMimeTypes.find((type) => Recorder.isTypeSupported(type));
         if (!mimeType) {
             throw new Error('Media recording not supported by browser, no supported file format.');
         }
         return new Recorder(stream, {
-            mimeType
+            mimeType,
         });
     }
-
 
     private getFileExtensionFromMimeType(mimeType: string): string {
         const mapping: GenericObject = {
@@ -777,7 +816,7 @@ export class ChartBridge {
             'audio/x-aiff': 'aiff',
             'audio/webm': 'webm',
             'video/mp4': 'mp4',
-            'video/webm': 'webm'
+            'video/webm': 'webm',
         };
         const extension = Object.keys(mapping).find((key) => mimeType.indexOf(key) > -1);
         if (!extension) {
@@ -786,17 +825,15 @@ export class ChartBridge {
         return mapping[extension];
     }
 
-
     private browserSupportsRecording(): boolean {
         return !!(window as any).MediaRecorder;
     }
 
-
     private setAudioDestinationNode(node?: AudioNode) {
-        this.chart?.sonification.setAudioDestination(node ||
-            this.chart.sonification.audioContext.destination);
+        this.chart?.sonification.setAudioDestination(
+            node || this.chart.sonification.audioContext.destination
+        );
     }
-
 
     private getLegendItemHookOptions(): GenericObject {
         const chartBridge = this;
@@ -809,20 +846,18 @@ export class ChartBridge {
                             chartBridge.commitToStore('seriesParametersStore/setSeriesParameter', {
                                 seriesId: getSeriesId(series),
                                 parameterName: 'seriesVisible',
-                                parameterValue: !series.visible
+                                parameterValue: !series.visible,
                             });
-                        }
-                    }
-                }
-            }
+                        },
+                    },
+                },
+            },
         };
     }
-
 
     private isPlaying(): boolean {
         return this.chart?.sonification.isPlaying();
     }
-
 
     private onStoreMutation(mutation: GenericObject) {
         const chartIsValid = this.chart && this.chart.options;
@@ -833,22 +868,24 @@ export class ChartBridge {
         }
     }
 
-
     private isParameterMutation(mutation: GenericObject): boolean {
-        return mutation.type.startsWith('chartParameters') ||
+        return (
+            mutation.type.startsWith('chartParameters') ||
             mutation.type.startsWith('seriesParameters') ||
-            mutation.type.startsWith('globalSonifyParameters');
+            mutation.type.startsWith('globalSonifyParameters')
+        );
     }
-
 
     private isDataMutation(mutation: GenericObject): boolean {
         return mutation.type.startsWith('dataStore');
     }
 
-
     // Trigger a reactivity update, but only once every X milliseconds.
     private queueReactivityUpdate(
-        mutation: string, interval: number, timeoutId: string, beforeTrigger?: Function
+        mutation: string,
+        interval: number,
+        timeoutId: string,
+        beforeTrigger?: Function
     ) {
         const timeouts = this.reactivityTimeouts;
         if (!timeouts[timeoutId]) {
@@ -862,7 +899,6 @@ export class ChartBridge {
         }
     }
 
-
     private queueNewParamReactivity() {
         this.queueReactivityUpdate(
             'viewStore/triggerParameterReactivity',
@@ -872,7 +908,6 @@ export class ChartBridge {
         );
     }
 
-
     private queueNewDataReactivity() {
         this.queueReactivityUpdate(
             'viewStore/triggerDataReactivity',
@@ -880,7 +915,6 @@ export class ChartBridge {
             'dataReactivityTimeout'
         );
     }
-
 
     // Chart options are cached for performance, only updated on reactivity trigger
     private updateChartOptions() {
@@ -895,8 +929,7 @@ export class ChartBridge {
         }
     }
 
-
-    private buildSeriesOptions(seriesIds: string[]): GenericObject[]|null {
+    private buildSeriesOptions(seriesIds: string[]): GenericObject[] | null {
         if (this.chart) {
             return getSeriesOptionsFromParameters(
                 this.seriesParametersStore.seriesParameters,
@@ -906,12 +939,12 @@ export class ChartBridge {
         return null;
     }
 
-
     // Workaround until Highcharts puts a role on series that have too many data points to be exposed individually.
     private handleGroupOnlySeries(series: Array<GenericObject>): void {
         const opts = this.chart?.options || Highcharts.getOptions();
-        const threshold: number = opts?.accessibility.series.pointDescriptionEnabledThreshold || 8000;
-        series.forEach(seriesOpts => {
+        const threshold: number =
+            opts?.accessibility.series.pointDescriptionEnabledThreshold || 8000;
+        series.forEach((seriesOpts) => {
             const data = seriesOpts.data;
             if (data.length > threshold) {
                 seriesOpts.accessibility = seriesOpts.accessibility || {};
@@ -920,21 +953,19 @@ export class ChartBridge {
         });
     }
 
-
     private startProgressUpdatePolling() {
         this.stopProgressUpdatePolling();
         this.progressTimer = setInterval(
-            this.updatePlayProgress.bind(this), ChartBridge.updateProgressIntervalMs
+            this.updatePlayProgress.bind(this),
+            ChartBridge.updateProgressIntervalMs
         );
     }
-
 
     private stopProgressUpdatePolling() {
         if (this.progressTimer) {
             clearInterval(this.progressTimer);
         }
     }
-
 
     private updatePlayProgress() {
         const chart = this.chart;
@@ -943,7 +974,7 @@ export class ChartBridge {
         }
         const totalDuration = chart.options.sonification.duration || 1,
             curTime = chart.sonification.timeline?.getCurrentTime() || 0,
-            progressPct = Math.round(100 * curTime / totalDuration);
+            progressPct = Math.round((100 * curTime) / totalDuration);
         this.commitToStore('viewStore/setPlaybackProgress', progressPct);
     }
 }

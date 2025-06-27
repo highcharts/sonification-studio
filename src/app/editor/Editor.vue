@@ -4,7 +4,10 @@
 <template>
     <div class="editor-container">
         <Header @skipToContent="onSkipToContent" />
-        <MainContentView id="mainContentView" ref="mainContentView" />
+        <MainContentView
+            id="mainContentView"
+            ref="mainContentView"
+        />
         <Footer />
         <div ref="announcePolite" />
         <div ref="announceAssertive" />

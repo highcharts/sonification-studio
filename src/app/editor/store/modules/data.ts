@@ -43,17 +43,39 @@ function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnPro
     );
 }
 
-function getPlaceholderData() {
-    const res = [{ A: 'Index (X value)', B: 'Sensor Data (Y value)' }];
+function getPlaceholderData(): Array<Record<string, string>> {
+    const columns: string[] = [];
 
-    for (let i = 0; i < 175; ++i) {
-        res.push({
-            A: '' + i,
-            B: ((Math.sin(i / 3) * i) / 2).toFixed(3),
-        });
+    // Generate A-Z column names
+    for (let i = 0; i < 26; i++) {
+        columns.push(String.fromCharCode(65 + i));
     }
 
-    return res;
+    const data: Array<Record<string, string>> = [];
+
+    // Header row
+    const headerRow: Record<string, string> = {
+        A: 'Index (X value)',
+        B: 'Sensor Data (Y value)',
+    };
+    columns.slice(2).forEach((col) => {
+        headerRow[col] = ''; // Leave rest of headers blank
+    });
+    data.push(headerRow);
+
+    // 199 data rows
+    for (let i = 0; i < 199; i++) {
+        const row: Record<string, string> = {
+            A: '' + i,
+            B: ((Math.sin(i / 3) * i) / 2).toFixed(3),
+        };
+        columns.slice(2).forEach((col) => {
+            row[col] = ''; // fill C-Z with blank
+        });
+        data.push(row);
+    }
+
+    return data;
 }
 
 function generateCSV(rowData: Array<Record<string, any>>): string {
@@ -233,6 +255,7 @@ export const dataStore = {
                 return Math.max(len, row.length);
             }, 0);
 
+            console.log('loading from csv');
             const columnHeaders: string[] = [];
             for (let i = 0; i < maxRowLen; i++) {
                 columnHeaders.push(i < 26 ? String.fromCharCode(65 + i) : `COL${i - 25}`);

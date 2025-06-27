@@ -83,18 +83,39 @@ export default class GridProStandalone extends Vue {
         const container = this.$refs.gridContainer as HTMLElement;
         if (!container) return;
 
-        const keys = Object.keys(data[0] || {});
-        if (keys.length === 0) return;
+        // Generate column keys A to AX (50 columns)
+        const columnCount = 50;
+        const columnKeys = Array.from(
+            { length: columnCount },
+            (_, i) =>
+                String.fromCharCode(65 + (i % 26)) +
+                (i >= 26 ? String.fromCharCode(65 + Math.floor(i / 26) - 1) : '')
+        );
 
-        const isHeaderRow = keys.every((k) => typeof data[0][k] === 'string');
+        const keysInData = Object.keys(data[0] || {});
+        const isHeaderRow = keysInData.every((k) => typeof data[0][k] === 'string');
         const header = isHeaderRow ? data[0] : {};
         const bodyData = isHeaderRow ? data.slice(1) : data;
 
+        // Ensure all rows have all 50 columns (with empty string if missing)
+        const paddedData = bodyData.map((row) => {
+            const newRow: Record<string, any> = {};
+            columnKeys.forEach((key) => {
+                newRow[key] = row[key] ?? '';
+            });
+            return newRow;
+        });
+
+        // Create columns data structure
         const columns: Record<string, any[]> = {};
-        keys.forEach((key) => {
-            columns[key] = bodyData.map((row) => row[key]);
+        columnKeys.forEach((key) => {
+            columns[key] = paddedData.map((row) => row[key]);
+
+            // Add header title if present
             if (header[key]) {
                 columns[key].unshift(header[key]);
+            } else {
+                columns[key].unshift('');
             }
         });
 
@@ -106,7 +127,7 @@ export default class GridProStandalone extends Vue {
                     className: 'hcg-center',
                 },
             },
-            columns: keys.map((key) => ({
+            columns: columnKeys.map((key) => ({
                 id: key,
                 title: key,
                 editable: true,
@@ -118,10 +139,13 @@ export default class GridProStandalone extends Vue {
             },
         };
 
+        if (this.gridInstance) {
+            this.gridInstance.destroy();
+        }
+
         this.gridInstance = createGrid(container, config);
 
-        // Recalculate CSV when created
-        this.updateCSV(header, bodyData, keys);
+        this.updateCSV(header, paddedData, columnKeys);
     }
 
     updateCSV(header: Record<string, any>, body: Array<Record<string, any>>, keys: string[]) {
@@ -149,7 +173,21 @@ export default class GridProStandalone extends Vue {
 
 .se-grid-container > div {
     flex-grow: 1;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
     min-height: 300px;
+}
+
+.hcg-center,
+.highcharts-datagrid-header-cell {
+    min-width: 120px !important;
+    max-width: 120px !important;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.highcharts-datagrid-table {
+    width: max-content !important;
 }
 </style>
