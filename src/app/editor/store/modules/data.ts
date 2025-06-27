@@ -30,14 +30,17 @@ interface FillColumnProps {
 export enum GoogleSheetStatus {
     Loading = 0,
     Success,
-    Error
+    Error,
 }
 
 function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnProps): string {
-    return '' + evaluate(fillData.equation, {
-        i: rowIx,
-        ...row
-    });
+    return (
+        '' +
+        evaluate(fillData.equation, {
+            i: rowIx,
+            ...row,
+        })
+    );
 }
 
 function getPlaceholderData() {
@@ -46,21 +49,25 @@ function getPlaceholderData() {
     for (let i = 0; i < 175; ++i) {
         res.push({
             A: '' + i,
-            B: (Math.sin(i / 3) * i / 2).toFixed(3)
+            B: ((Math.sin(i / 3) * i) / 2).toFixed(3),
         });
     }
 
     return res;
 }
 
+function generateCSV(rowData: Array<Record<string, any>>): string {
+    return rowData.map((row) => Object.values(row).join(';')).join('\n');
+}
 
 export const dataStore = {
     namespaced: true,
 
     state: {
         tableCSV: '',
-        tableRowData: [], // Source data for table
-        textDescription: '', // Text description for the table/chart
+        tableRowData: [],
+        tableHeaders: [],
+        textDescription: '',
         selectedDataSource: 'table',
         spreadsheetSetupComplete: false,
         googleSpreadsheetURL: '',
@@ -71,8 +78,8 @@ export const dataStore = {
         googleSheetErrorMessage: '',
         dataSourcesList: [
             { name: 'Grid', value: 'table' },
-            { name: 'Google Sheets', value: 'googlesheets' }
-        ]
+            { name: 'Google Sheets', value: 'googlesheets' },
+        ],
     },
 
     getters: {
@@ -92,11 +99,7 @@ export const dataStore = {
             for (const row of rows) {
                 const columns = Object.entries(row);
                 for (const [col, val] of columns) {
-                    if (
-                        typeof val !== 'undefined' &&
-                        val !== null &&
-                        (val + '').trim() !== ''
-                    ) {
+                    if (typeof val !== 'undefined' && val !== null && (val + '').trim() !== '') {
                         res[col] = col;
                     }
                 }
@@ -105,10 +108,9 @@ export const dataStore = {
             return Object.keys(res).sort();
         },
 
-        column: (state: GenericObject): (key: string) => Array<unknown> => {
+        column: (state: GenericObject): ((key: string) => Array<unknown>) => {
             return (key: string) => {
-                return state.tableRowData
-                    .map((row: GenericObject) => row[key] ?? null);
+                return state.tableRowData.map((row: GenericObject) => row[key] ?? null);
             };
         },
 
@@ -123,14 +125,14 @@ export const dataStore = {
 
         textDescription: (state: GenericObject): string => {
             return state.textDescription;
-        }
+        },
     },
 
     mutations: {
-        // Apply a state or replace state with placeholder data.
         restoreStoreState(state: any, newState?: GenericObject) {
             Vue.set(state, 'tableRowData', newState ? newState.tableRowData : getPlaceholderData());
-            state.textDescription = newState ? (newState.textDescription || '') : '';
+            state.textDescription = newState ? newState.textDescription || '' : '';
+            state.tableCSV = generateCSV(state.tableRowData);
         },
 
         setTableCSV(state: any, csv: string) {
@@ -167,6 +169,8 @@ export const dataStore = {
 
         setTableRowData(state: any, data: Array<unknown>) {
             Vue.set(state, 'tableRowData', data);
+            const csv = generateCSV(state.tableRowData);
+            state.tableCSV = csv;
         },
 
         fillColumn(state: any, fillData: FillColumnProps) {
@@ -176,13 +180,14 @@ export const dataStore = {
 
             rowData.forEach((row: GenericObject, rowIx: number): void => {
                 const newRow = { ...row };
-                if (rowIx) { // Don't fill column with headers
+                if (rowIx) {
                     newRow[col] = getFillValue(newRow, rowIx, fillData);
                 }
                 newRows.push(newRow);
             });
 
             Vue.set(state, 'tableRowData', newRows);
+            state.tableCSV = generateCSV(state.tableRowData);
         },
 
         updateCellValue(state: any, cellData: UpdateCellDataProps) {
@@ -194,6 +199,10 @@ export const dataStore = {
             newRow[column] = cellData.value;
 
             rowData.splice(cellData.rowIndex, 1, newRow);
+
+            const newCSV = generateCSV(state.tableRowData);
+
+            state.tableCSV = newCSV;
         },
 
         addTableRows(state: any, numRows: number) {
@@ -201,15 +210,17 @@ export const dataStore = {
             while (i--) {
                 state.tableRowData.push({});
             }
+            state.tableCSV = generateCSV(state.tableRowData);
         },
 
         setToPlaceholderData(state: any) {
             Vue.set(state, 'tableRowData', getPlaceholderData());
+            state.tableCSV = generateCSV(state.tableRowData);
         },
 
         setTextDescription(state: any, description: string) {
             state.textDescription = description;
-        }
+        },
     },
 
     actions: {
@@ -222,14 +233,9 @@ export const dataStore = {
                 return Math.max(len, row.length);
             }, 0);
 
-            // Generate column headers (A-Z, followed by COL1, COL2, etc.)
             const columnHeaders: string[] = [];
             for (let i = 0; i < maxRowLen; i++) {
-                if (i < 26) {
-                    columnHeaders.push(String.fromCharCode(65 + i));
-                } else {
-                    columnHeaders.push(`COL${i - 25}`);
-                }
+                columnHeaders.push(i < 26 ? String.fromCharCode(65 + i) : `COL${i - 25}`);
             }
 
             const objectifiedArr = arr.map((row: string[]) => {
@@ -244,6 +250,6 @@ export const dataStore = {
             });
 
             commit('setTableRowData', objectifiedArr);
-        }
-    }
+        },
+    },
 };

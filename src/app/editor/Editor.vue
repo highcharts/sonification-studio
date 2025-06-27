@@ -3,13 +3,8 @@
 -->
 <template>
     <div class="editor-container">
-        <Header
-            @skipToContent="onSkipToContent"
-        />
-        <MainContentView
-            id="mainContentView"
-            ref="mainContentView"
-        />
+        <Header @skipToContent="onSkipToContent" />
+        <MainContentView id="mainContentView" ref="mainContentView" />
         <Footer />
         <div ref="announcePolite" />
         <div ref="announceAssertive" />
@@ -45,7 +40,7 @@ import { store, storageKey, storageRevision } from './store/store';
 import { ChartBridge } from './core/ChartBridge';
 
 Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
-const announcer = Vue.prototype.$announcer = new Announcer();
+const announcer = (Vue.prototype.$announcer = new Announcer());
 Vue.prototype.$chartBridge.initAnnouncer(announcer);
 
 export default {
@@ -53,10 +48,13 @@ export default {
     components: {
         Header,
         MainContentView,
-        Footer
+        Footer,
     },
     mounted() {
-        announcer.init(this.$refs.announcePolite as HTMLElement, this.$refs.announceAssertive as HTMLElement);
+        announcer.init(
+            this.$refs.announcePolite as HTMLElement,
+            this.$refs.announceAssertive as HTMLElement
+        );
         document.title = 'Editor | Highcharts Sonification Studio';
         this.initStore();
     },
@@ -75,6 +73,14 @@ export default {
                 this.$store.dispatch('restoreState', restoredState);
             } else {
                 this.$store.commit('dataStore/setToPlaceholderData');
+                this.$nextTick(() => {
+                    const rowData = this.$store.state.dataStore.tableRowData;
+                    this.$store.commit(
+                        'dataStore/setTableCSV',
+                        rowData.map((row) => Object.values(row).join(';')).join('\n')
+                    );
+                    this.$store.commit('viewStore/triggerDataReactivity');
+                });
             }
         },
 
@@ -87,33 +93,33 @@ export default {
 
         onSkipToContent() {
             (this.$refs.mainContentView as any).skipToContent();
-        }
-    }
+        },
+    },
 };
 </script>
 
 <style lang="less" scoped>
-    @import "colors";
+@import 'colors';
 
-    .editor-container {
-        width: 100%;
-        min-width: 850px;
-        height: 100%;
-        min-height: 750px;
-        max-height: 100%;
-        margin: 0 auto;
-        background-color: @app-bg-color;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-    }
+.editor-container {
+    width: 100%;
+    min-width: 850px;
+    height: 100%;
+    min-height: 750px;
+    max-height: 100%;
+    margin: 0 auto;
+    background-color: @app-bg-color;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
 
-    #mainContentView {
-        flex: 1;
-        margin-top: 4px;
-        overflow-y: auto;
-        /* Hack for not cutting off helptexts in the x-dimension, even if they overflow */
-        padding-left: 110px;
-        margin-left: -100px;
-    }
+#mainContentView {
+    flex: 1;
+    margin-top: 4px;
+    overflow-y: auto;
+    /* Hack for not cutting off helptexts in the x-dimension, even if they overflow */
+    padding-left: 110px;
+    margin-left: -100px;
+}
 </style>

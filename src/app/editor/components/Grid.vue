@@ -1,262 +1,155 @@
 <template>
     <div class="se-grid-container">
-        <ag-grid-vue
-            ref="grid"
-            class="se-grid ag-theme-balham"
-            :grid-options="gridOptions"
-            :column-defs="columnDefs"
-            :row-data="tableRowData"
-        />
+        <div ref="gridContainer" />
     </div>
 </template>
 
 <script lang="ts">
+import Vue from 'vue';
+import Component from 'vue-class-component';
 import { mapState } from 'vuex';
-import { AgGridVue } from 'ag-grid-vue';
-import {
-    Column, RowNode, GridApi, ColumnApi, GridOptions,
-    CellValueChangedEvent, ShouldRowBeSkippedParams
-} from 'ag-grid-community';
+import { grid as createGrid } from '@highcharts/dashboards/datagrid';
+import '@highcharts/dashboards/css/datagrid.css';
 
+@Component({
+    computed: {
+        ...mapState('dataStore', ['tableRowData']),
+    },
+})
+export default class GridProStandalone extends Vue {
+    gridInstance: any = null;
+    resizeObserver: ResizeObserver | null = null;
 
-function getColumnIDsWithData(gridAPI: GridApi, columnAPI: ColumnApi): string[] {
-    const allColumns = columnAPI.getAllGridColumns();
+    tableRowData!: Array<Record<string, any>>;
+    $refs!: { gridContainer: HTMLElement };
 
-    return allColumns.filter(
-        (column: Column): boolean => {
-            let hasData = false;
-
-            gridAPI.forEachNodeAfterFilter((rowNode: RowNode) => {
-                hasData = hasData || !!gridAPI.getValue(column.getColId(), rowNode);
+    mounted() {
+        if (!this.tableRowData?.length) {
+            this.$store.commit('dataStore/setToPlaceholderData');
+            this.$nextTick(() => {
+                this.observeAndRenderWhenVisible(this.$store.state.dataStore.tableRowData);
             });
-
-            return hasData;
+        } else {
+            this.observeAndRenderWhenVisible(this.tableRowData);
         }
-    ).map((column: Column) => column.getColId());
-}
 
-
-function hasRowData(rowNode: RowNode) {
-    const rowData = rowNode.data;
-    return !!Object.keys(rowData).length;
-}
-
-
-function stringCompare(a: string, b: string): number {
-    return b.localeCompare(a);
-}
-
-
-function numCompare(a: number, b: number): number {
-    return b - a;
-}
-
-
-function columnSortComparator(a?: string, b?: string): number {
-    if (typeof a === 'undefined' || typeof b === 'undefined') {
-        return 0;
+        this.$watch(
+            () => this.tableRowData,
+            (newVal) => {
+                if (Array.isArray(newVal) && newVal.length > 0) {
+                    this.observeAndRenderWhenVisible(newVal);
+                }
+            },
+            { deep: true, immediate: true }
+        );
     }
 
-    if (isNaN(a as any) || isNaN(b as any)) {
-        return stringCompare(a, b);
+    beforeDestroy() {
+        if (this.gridInstance?.destroy) {
+            this.gridInstance.destroy();
+        }
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
     }
 
-    const numA = parseFloat(a);
-    const numB = parseFloat(b);
-    return numCompare(numA, numB);
-}
+    observeAndRenderWhenVisible(data: Array<Record<string, any>>) {
+        const container = this.$refs.gridContainer as HTMLElement;
+        if (!container || typeof ResizeObserver === 'undefined') {
+            this.renderGrid(data);
+            return;
+        }
 
+        if (this.gridInstance) {
+            this.gridInstance.destroy();
+            this.gridInstance = null;
+        }
 
-export default {
-    components: {
-        AgGridVue
-    },
-    data() {
-        return {
-            gridOptions: {
-                singleClickEdit: true,
-                headerHeight: 25,
-                stopEditingWhenCellsLoseFocus: true,
-                suppressScrollOnNewData: true,
-                onCellValueChanged: (e: CellValueChangedEvent) => (this as any).onCellValueChanged(e),
-                onFirstDataRendered: () => (this as any).updateCSVInDataStore(),
-                onComponentStateChanged: () => (this as any).updateCSVInDataStore(),
-                postSort: () => (this as any).updateCSVInDataStore(),
-                defaultColDef: {
-                    sortable: true,
-                    comparator: columnSortComparator,
-                    filter: true,
-                    editable: true
+        this.resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                const { width, height } = entry.contentRect;
+                if (width > 50 && height > 50) {
+                    this.resizeObserver?.disconnect();
+                    this.renderGrid(data);
+                    break;
+                }
+            }
+        });
+
+        this.resizeObserver.observe(container);
+    }
+
+    renderGrid(data: Array<Record<string, any>>) {
+        const container = this.$refs.gridContainer as HTMLElement;
+        if (!container) return;
+
+        const keys = Object.keys(data[0] || {});
+        if (keys.length === 0) return;
+
+        const isHeaderRow = keys.every((k) => typeof data[0][k] === 'string');
+        const header = isHeaderRow ? data[0] : {};
+        const bodyData = isHeaderRow ? data.slice(1) : data;
+
+        const columns: Record<string, any[]> = {};
+        keys.forEach((key) => {
+            columns[key] = bodyData.map((row) => row[key]);
+            if (header[key]) {
+                columns[key].unshift(header[key]);
+            }
+        });
+
+        const config = {
+            dataTable: { columns },
+            columnDefaults: {
+                cells: {
+                    editable: true,
+                    className: 'hcg-center',
                 },
-
-                // A11y concerns:
-                suppressMenuHide: true, // Always show column menu
-                suppressColumnVirtualisation: true, // Always render all columns in DOM
-                ensureDomOrder: true,
-                rowBuffer: 200 // Render this many rows regardless of what is in view
             },
-            columnDefs: [],
-            rowData: []
+            columns: keys.map((key) => ({
+                id: key,
+                title: key,
+                editable: true,
+            })),
+            rendering: {
+                theme: 'hcg-theme-default',
+                containerHeight: '100%',
+                containerWidth: '100%',
+            },
         };
-    },
-    computed: mapState('dataStore', ['tableRowData']),
-    watch: {
-        tableRowData: {
-            handler() {
-                (this.columnDefs as any) = this.makeColumns();
-            },
-            immediate: true
-        }
-    },
-    methods: {
-        // Ensure source data for the grid is always up to date with current values.
-        onCellValueChanged(e: CellValueChangedEvent): void {
-            const oldVal = e.oldValue || '';
-            const newVal = e.newValue || '';
-            if (oldVal !== newVal) {
-                this.$store.commit('dataStore/updateCellValue', {
-                    rowIndex: e.rowIndex,
-                    columnName: e.colDef.field,
-                    value: e.value || null
-                });
-            }
-        },
 
-        makeColumns(): Array<object> {
-            const numCols = this.tableRowData.length > 0 ? Object.keys(this.tableRowData[0]).length : 0;
-            const res = [];
+        this.gridInstance = createGrid(container, config);
 
-            // Ensure at least 11 columns are rendered and a maximum of 50.
-            const maxCols = Math.min(Math.max(11, numCols), 50);
-
-            // Generate column headers (A-Z, followed by COL1, COL2, etc.)
-            const columnHeader = (i: number) => {
-                if (i < 26) {
-                    return String.fromCharCode(65 + i);
-                } else {
-                    return `COL${i - 25}`;
-                }
-            };
-
-            for (let i = 0; i < maxCols; ++i) {
-                res.push({
-                    headerName: columnHeader(i),
-                    field: columnHeader(i),
-                    cellStyle: { textAlign: 'center' }
-                });
-            }
-
-            return res;
-        },
-
-        scrollToLastGridRowWithData() {
-            const gridApi: any = (this.$refs.grid as any)?.gridOptions?.api;
-
-            if (gridApi) {
-                const rows: Array<boolean> = [];
-                gridApi.forEachNode((node: RowNode) => rows.push(hasRowData(node)));
-
-                const lastRowWithDataIndex = rows.lastIndexOf(true);
-                if (lastRowWithDataIndex > -1) {
-                    gridApi.ensureIndexVisible(lastRowWithDataIndex, 'top');
-                }
-            }
-        },
-
-        // Is the first column text?
-        columnType(column: Array<string|null>, rowsToCheck: number): 'number'|'string'|'date'|'empty' {
-            const len = Math.min(rowsToCheck, column.length);
-            let hasData = false;
-            for (let i = 1; i < len; ++i) { // Do not check first row, because of column headers
-                const val = column[i];
-                hasData = hasData || !!(val?.trim().length);
-                if (
-                    val !== null &&
-                    (isNaN(val as any) || isNaN(parseFloat(val)))
-                ) {
-                    return isNaN(Date.parse(val)) ? 'string' : 'date';
-                }
-            }
-            return hasData ? 'number' : 'empty';
-        },
-
-        // Update the CSV render of the table data in the data store.
-        updateCSVInDataStore() {
-            const grid: any = this.$refs.grid;
-            const gridOptions: GridOptions = grid?.gridOptions;
-            const gridAPI = gridOptions?.api;
-            const columnAPI = gridOptions?.columnApi;
-
-            if (gridAPI && columnAPI) {
-                const columnsToExport = getColumnIDsWithData(gridAPI, columnAPI);
-
-                const csv = columnsToExport.length ? (gridAPI as any).getDataAsCsv({
-                    columnKeys: columnsToExport,
-                    suppressQuotes: true,
-                    shouldRowBeSkipped: (params: ShouldRowBeSkippedParams): boolean => {
-                        return !hasRowData(params.node);
-                    },
-                    skipColumnHeaders: true,
-                    columnSeparator: ';',
-                    // Replace ; in the cells with space for the CSV to avoid accidental delimitors.
-                    processCellCallback: (params: any): string => {
-                        return params?.value?.replace(/;/g, ' ');
-                    }
-                }) : '';
-
-                this.$store.commit('dataStore/setTableCSV', csv);
-
-                const firstColumn = this.$store.getters['dataStore/column']('A');
-                const xAxisType = this.$store.state.chartParametersStore.xAxisType;
-                const colType = this.columnType(firstColumn, 500);
-                if (colType === 'string' && xAxisType !== 'datetime') {
-                    this.$store.commit('chartParametersStore/setXAxisType', 'category');
-                } else if (colType === 'date' && xAxisType !== 'category') {
-                    this.$store.commit('chartParametersStore/setXAxisType', 'datetime');
-                } else if (firstColumn.length < 500 && colType === 'empty' && xAxisType !== 'logarithmic') {
-                    this.$store.commit('chartParametersStore/setXAxisType', 'linear');
-                }
-            }
-        }
+        // Recalculate CSV when created
+        this.updateCSV(header, bodyData, keys);
     }
-};
+
+    updateCSV(header: Record<string, any>, body: Array<Record<string, any>>, keys: string[]) {
+        const headerLine = keys.map((k) => header[k]).join(';');
+
+        const lines = body
+            .filter((row) => Object.values(row).some((v) => v !== '' && v != null))
+            .map((row) => keys.map((k) => ('' + (row[k] ?? '')).replace(/;/g, ' ')).join(';'));
+
+        const csv = [headerLine, ...lines].join('\n');
+        this.$store.commit('dataStore/setTableCSV', csv);
+    }
+}
 </script>
 
-<style lang="scss">
-    $header-background-color: #eef1f8;
-    $header-foreground-color: #616161;
-    $header-cell-hover-background-color: #e0e2eb;
-    $odd-row-background-color: #fff;
-    $border-color: #d5d3d3;
-    $row-border-color: #d5d3d3;
-    $cell-horizontal-border: solid 0.5px #e3e0e0;
-    $hover-color: #f1f4f9;
-    $background-color: #fff;
-    $font-family: 'Roboto';
-    $font-size: 0.875rem;
-    $secondary-font-size: 0.7625rem;
-    $secondary-font-weight: normal;
-    $secondary-font-family: 'Roboto';
+<style>
+.se-grid-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border: 1px dashed #ccc;
+}
 
-    @import "../../../../node_modules/ag-grid-community/src/styles/ag-grid.scss";
-    @import "../../../../node_modules/ag-grid-community/src/styles/ag-theme-balham/sass/ag-theme-balham.scss";
-
-    .ag-header-cell-label {
-        justify-content: center;
-        padding-left: 15px;
-    }
-
-    .ag-cell-edit-input {
-        padding: 2px 6px;
-        text-align: center;
-    }
-
-    .ag-row-first {
-        font-weight: bold;
-    }
-
-    .se-grid, .se-grid-container {
-        width: 100%;
-        height: 100%;
-    }
+.se-grid-container > div {
+    flex-grow: 1;
+    overflow: auto;
+    min-height: 300px;
+}
 </style>

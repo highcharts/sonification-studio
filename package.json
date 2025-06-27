@@ -57,6 +57,8 @@
     "vue-template-compiler": "^2.6.11"
   },
   "dependencies": {
+    "@highcharts/dashboards": "^3.2.0",
+    "@highcharts/grid-lite": "^1.0.1",
     "@types/mathjs": "^6.0.5",
     "ag-grid-community": "^25.3.0",
     "ag-grid-vue": "^25.3.0",
@@ -64,6 +66,7 @@
     "highcharts-vue": "^1.4.3",
     "mathjs": "^7.1.0",
     "vue": "^2.6.11",
+    "vue-class-component": "^7.2.6",
     "vue-hot-reload-api": "^2.3.4",
     "vue-property-decorator": "^8.5.1",
     "vue-router": "^3.5.1",
