@@ -141,32 +141,33 @@ export class ChartBridge {
             'spreadsheetSetupComplete'
         );
 
+        /*eslint-disable indent */
         const dataSourceOptions =
             dataSource === 'googlesheets' && spreadsheetSetupComplete
                 ? {
-                    csv: void 0,
-                    firstRowAsNames: true,
-                    googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
-                    googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
-                    enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-                    dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-                    error: (text: string) => {
-                        const errObj = JSON.parse(text);
-                        const message = errObj?.error?.message || 'Unknown error';
-                        this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
-                        this.commitToStore(
-                            'dataStore/setGoogleSheetStatus',
-                            GoogleSheetStatus.Error
-                        );
-                    },
-                }
+                      csv: void 0,
+                      firstRowAsNames: true,
+                      googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
+                      googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
+                      enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
+                      dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
+                      error: (text: string) => {
+                          const errObj = JSON.parse(text);
+                          const message = errObj?.error?.message || 'Unknown error';
+                          this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
+                          this.commitToStore(
+                              'dataStore/setGoogleSheetStatus',
+                              GoogleSheetStatus.Error
+                          );
+                      },
+                  }
                 : {
-                    csv: csv || 'null',
-                    columns: null,
-                    firstRowAsNames: true,
-                    googleSpreadsheetKey: '',
-                    enablePolling: false,
-                };
+                      csv: csv || 'null',
+                      columns: null,
+                      firstRowAsNames: true,
+                      googleSpreadsheetKey: '',
+                      enablePolling: false,
+                  };
 
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
@@ -788,14 +789,14 @@ export class ChartBridge {
         const Recorder = (window as any).MediaRecorder;
         const preferredMimeTypes = audioOnly
             ? [
-                'audio/wav',
-                'audio/mpeg',
-                'audio/mp3',
-                'audio/mp4',
-                'audio/ogg',
-                'audio/x-aiff',
-                'audio/webm',
-            ]
+                  'audio/wav',
+                  'audio/mpeg',
+                  'audio/mp3',
+                  'audio/mp4',
+                  'audio/ogg',
+                  'audio/x-aiff',
+                  'audio/webm',
+              ]
             : ['video/mp4', 'video/webm'];
         const mimeType = preferredMimeTypes.find((type) => Recorder.isTypeSupported(type));
         if (!mimeType) {
