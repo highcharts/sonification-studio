@@ -115,18 +115,29 @@ export default class GridProStandalone extends Vue {
                 cells: {
                     editable: true,
                     className: 'hcg-center',
-                },
+                    events: {
+                        afterEdit: function () {
+                            // Does not work?
+                            console.log('afterEdit triggered');
+                        },
+                    }
+                }
+            },
+            rendering: {
+                theme: 'hcg-theme-default',
+                containerHeight: '100%',
+                containerWidth: '100%',
+                rows: {
+                    bufferSize: 10,
+                    strictHeights: false
+                }
             },
             columns: columnKeys.map((key) => ({
                 id: key,
                 title: key,
                 editable: true,
-            })),
-            rendering: {
-                theme: 'hcg-theme-default',
-                containerHeight: '100%',
-                containerWidth: '100%',
-            },
+                ...(key === 'metaData' ? { enabled: false } : {})
+            }))
         };
 
         if (this.gridInstance) {
