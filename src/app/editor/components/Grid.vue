@@ -83,7 +83,6 @@ export default class GridProStandalone extends Vue {
         const container = this.$refs.gridContainer as HTMLElement;
         if (!container) return;
 
-        // Generate column keys A to AX (50 columns)
         const columnCount = 50;
         const columnKeys = Array.from(
             { length: columnCount },
@@ -97,7 +96,6 @@ export default class GridProStandalone extends Vue {
         const header = isHeaderRow ? data[0] : {};
         const bodyData = isHeaderRow ? data.slice(1) : data;
 
-        // Ensure all rows have all 50 columns (with empty string if missing)
         const paddedData = bodyData.map((row) => {
             const newRow: Record<string, any> = {};
             columnKeys.forEach((key) => {
@@ -106,17 +104,10 @@ export default class GridProStandalone extends Vue {
             return newRow;
         });
 
-        // Create columns data structure
         const columns: Record<string, any[]> = {};
         columnKeys.forEach((key) => {
             columns[key] = paddedData.map((row) => row[key]);
-
-            // Add header title if present
-            if (header[key]) {
-                columns[key].unshift(header[key]);
-            } else {
-                columns[key].unshift('');
-            }
+            columns[key].unshift(header[key] || '');
         });
 
         const config = {
@@ -158,6 +149,41 @@ export default class GridProStandalone extends Vue {
         const csv = [headerLine, ...lines].join('\n');
         this.$store.commit('dataStore/setTableCSV', csv);
     }
+
+    scrollToLastGridRowWithData() {
+        if (!this.gridInstance || !this.gridInstance.dataTable) return;
+
+        const rowCount = this.gridInstance.dataTable.rowCount;
+
+        // Find the last row with content
+        let lastRowWithDataIndex = -1;
+        for (let i = rowCount - 1; i >= 0; --i) {
+            const row = this.gridInstance.dataTable.getRow(i);
+            const hasData = Object.values(row).some((val) => val !== '' && val != null);
+            if (hasData) {
+                lastRowWithDataIndex = i;
+                break;
+            }
+        }
+
+        if (lastRowWithDataIndex === -1) return; // Nothing to scroll to
+
+        // Locate the DOM row and scroll to it
+        const container = this.$refs.gridContainer as HTMLElement;
+        const tbody = container.querySelector('.highcharts-datagrid-row')?.parentElement;
+
+        if (!tbody) return;
+
+        // Having some problems with virtualization here
+        const targetRow = tbody.children[lastRowWithDataIndex] as HTMLElement;
+
+        if (targetRow) {
+            targetRow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+
+
 }
 </script>
 
