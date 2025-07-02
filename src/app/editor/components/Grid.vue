@@ -34,13 +34,12 @@ export default class GridProStandalone extends Vue {
         }
 
         this.$watch(
-            () => this.tableRowData,
-            (newVal) => {
-                if (Array.isArray(newVal) && newVal.length > 0) {
-                    this.observeAndRenderWhenVisible(newVal);
+            () => this.tableRowData.length,
+            (newLength, oldLength) => {
+                if (newLength !== oldLength) {
+                    this.observeAndRenderWhenVisible(this.tableRowData);
                 }
-            },
-            { deep: true, immediate: true }
+            }
         );
     }
 
@@ -135,13 +134,11 @@ export default class GridProStandalone extends Vue {
         }
 
         this.gridInstance = createGrid(container, config);
-
         this.updateCSV(header, paddedData, columnKeys);
     }
 
     updateCSV(header: Record<string, any>, body: Array<Record<string, any>>, keys: string[]) {
         const headerLine = keys.map((k) => header[k]).join(';');
-
         const lines = body
             .filter((row) => Object.values(row).some((v) => v !== '' && v != null))
             .map((row) => keys.map((k) => ('' + (row[k] ?? '')).replace(/;/g, ' ')).join(';'));
@@ -166,7 +163,7 @@ export default class GridProStandalone extends Vue {
             }
         }
 
-        if (lastRowWithDataIndex === -1) return; // Nothing to scroll to
+        if (lastRowWithDataIndex === -1) return;
 
         // Locate the DOM row and scroll to it
         const container = this.$refs.gridContainer as HTMLElement;
@@ -176,15 +173,12 @@ export default class GridProStandalone extends Vue {
 
         // Having some problems with virtualization here
         const targetRow = tbody.children[lastRowWithDataIndex] as HTMLElement;
-
         if (targetRow) {
             targetRow.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
-
-
-
 }
+
 </script>
 
 <style>
