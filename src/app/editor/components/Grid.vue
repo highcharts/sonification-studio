@@ -115,12 +115,6 @@ export default class GridProStandalone extends Vue {
                 cells: {
                     editable: true,
                     className: 'hcg-center',
-                    events: {
-                        afterEdit: function () {
-                            // Does not work?
-                            console.log('afterEdit triggered');
-                        },
-                    }
                 }
             },
             rendering: {
@@ -130,6 +124,14 @@ export default class GridProStandalone extends Vue {
                 rows: {
                     bufferSize: 10,
                     strictHeights: false
+                }
+            },
+            events: {
+                cell: {
+                    afterEdit: function () {
+                    // Does not work?
+                        console.log('afterEdit triggered');
+                    },
                 }
             },
             columns: columnKeys.map((key) => ({
