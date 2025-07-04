@@ -115,7 +115,7 @@ export default class GridProStandalone extends Vue {
                 cells: {
                     editable: true,
                     className: 'hcg-center',
-                }
+                },
             },
             rendering: {
                 theme: 'hcg-theme-default',
@@ -123,23 +123,22 @@ export default class GridProStandalone extends Vue {
                 containerWidth: '100%',
                 rows: {
                     bufferSize: 10,
-                    strictHeights: false
-                }
+                    strictHeights: false,
+                },
             },
             events: {
                 cell: {
-                    afterEdit: function () {
-                    // Does not work?
-                        console.log('afterEdit triggered');
+                    afterEdit: () => {
+                        this.updateCSVFromGrid();
                     },
-                }
+                },
             },
             columns: columnKeys.map((key) => ({
                 id: key,
                 title: key,
                 editable: true,
-                ...(key === 'metaData' ? { enabled: false } : {})
-            }))
+                ...(key === 'metaData' ? { enabled: false } : {}),
+            })),
         };
 
         if (this.gridInstance) {
@@ -147,14 +146,41 @@ export default class GridProStandalone extends Vue {
         }
 
         this.gridInstance = createGrid(container, config);
-        this.updateCSV(header, paddedData, columnKeys);
+        this.updateCSVFromGrid();
     }
 
-    updateCSV(header: Record<string, any>, body: Array<Record<string, any>>, keys: string[]) {
-        const headerLine = keys.map((k) => header[k]).join(';');
-        const lines = body
-            .filter((row) => Object.values(row).some((v) => v !== '' && v != null))
-            .map((row) => keys.map((k) => ('' + (row[k] ?? '')).replace(/;/g, ' ')).join(';'));
+    updateCSVFromGrid() {
+        if (!this.gridInstance?.dataTable) return;
+
+        const dataTable = this.gridInstance.dataTable;
+        const rowCount = dataTable.rowCount;
+        const columnIds = Object.keys(dataTable.columns || {});
+
+        const nonEmptyCols = columnIds.filter((colId) => {
+            for (let i = 1; i < rowCount; i++) {
+                const value = dataTable.getCell(colId, i);
+                if (value !== '' && value != null) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        if (nonEmptyCols.length === 0) {
+            this.$store.commit('dataStore/setTableCSV', '');
+            return;
+        }
+
+        const headerLine = nonEmptyCols.join(';');
+        const lines = [];
+
+        for (let i = 1; i < rowCount; i++) {
+            const row = nonEmptyCols.map((colId) => {
+                const value = dataTable.getCell(colId, i);
+                return ('' + (value ?? '')).replace(/;/g, ' ');
+            });
+            lines.push(row.join(';'));
+        }
 
         const csv = [headerLine, ...lines].join('\n');
         this.$store.commit('dataStore/setTableCSV', csv);
@@ -178,20 +204,17 @@ export default class GridProStandalone extends Vue {
 
         if (lastRowWithDataIndex === -1) return;
 
-        // Locate the DOM row and scroll to it
         const container = this.$refs.gridContainer as HTMLElement;
         const tbody = container.querySelector('.highcharts-datagrid-row')?.parentElement;
 
         if (!tbody) return;
 
-        // Having some problems with virtualization here
         const targetRow = tbody.children[lastRowWithDataIndex] as HTMLElement;
         if (targetRow) {
             targetRow.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 }
-
 </script>
 
 <style>

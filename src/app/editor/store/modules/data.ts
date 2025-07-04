@@ -255,7 +255,6 @@ export const dataStore = {
                 return Math.max(len, row.length);
             }, 0);
 
-            console.log('loading from csv');
             const columnHeaders: string[] = [];
             for (let i = 0; i < maxRowLen; i++) {
                 columnHeaders.push(i < 26 ? String.fromCharCode(65 + i) : `COL${i - 25}`);

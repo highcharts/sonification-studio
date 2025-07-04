@@ -1,7 +1,6 @@
 import { GenericObject } from '../utils/objects';
 
 export class ChartMappings {
-
     public static type(value: string): GenericObject {
         return { chart: { type: value } };
     }
@@ -79,11 +78,11 @@ export class ChartMappings {
             plotOptions: {
                 series: {
                     dataGrouping: {
-                        enabled: value !== 'none',
-                        approximation: value === 'default' ? null : value
-                    }
-                }
-            }
+                        enabled: value !== 'none' && value !== 'default',
+                        approximation: value === 'default' ? undefined : value,
+                    },
+                },
+            },
         };
     }
 }
