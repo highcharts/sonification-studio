@@ -54,12 +54,26 @@ export default {
                 {};
         }
     },
+    watch: {
+        // Wait until <highcharts> has mounted and provided a chart
+        '$refs.chart'(val) {
+            const chart = (this.$refs.chart as any)?.chart;
+            if (chart && !(this as any).$chartBridge.chart) {
+                (this as any).$chartBridge.init(chart);
+            }
+        },
+    },
 
     mounted() {
         // Init ChartBridge with reference to chart
-        const chart = (this.$refs.chart as any).chart;
-        (this as any).$chartBridge.init(chart);
+        this.$nextTick(() => {
+            const chart = (this.$refs.chart as any)?.chart;
+            if (chart) {
+                (this as any).$chartBridge.init(chart);
+            }
+        });
     }
+
 };
 </script>
 

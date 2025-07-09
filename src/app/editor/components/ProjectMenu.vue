@@ -54,17 +54,19 @@ export default {
             setTimeout(() => {
                 this.$store.commit('viewStore/setShowChartComponent', false);
                 this.$nextTick(() => {
-                    // Recreate chart
-                    this.$store.commit('viewStore/setShowChartComponent', true);
-                    this.$nextTick(() => {
-                        try {
-                            const charts = (this as any).$chartBridge.Highcharts.charts;
-                            (this as any).$chartBridge.init(charts[charts.length - 1]);
-                            afterRecreate();
-                        } finally {
-                            setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 1200);
-                        }
-                    });
+                    // Add a slight delay before recreating the chart
+                    setTimeout(() => {
+                        this.$store.commit('viewStore/setShowChartComponent', true);
+                        this.$nextTick(() => {
+                            try {
+                                const charts = (this as any).$chartBridge.Highcharts.charts;
+                                (this as any).$chartBridge.init(charts[charts.length - 1]);
+                                afterRecreate();
+                            } finally {
+                                setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 1200);
+                            }
+                        });
+                    }, 50);
                 });
             }, 100);
         },
@@ -86,8 +88,14 @@ export default {
             if (window.confirm('This will clear all data and reset all settings. Proceed?')) {
                 this.cleanSlateAndRecreateChart(() => {
                     // Restore state with no argument restores defaults.
-                    this.$store.dispatch('restoreState');
-                    (this as any).$announcer.announce('New project loaded.');
+                    this.$store.commit('dataStore/restoreStoreState');
+                    this.$nextTick(() => {
+                        const csv = this.$store.state.dataStore.tableCSV;
+                        this.$store.dispatch('dataStore/loadFromCSV', csv);
+                        this.$nextTick(() => {
+                            (this as any).$announcer.announce('New project loaded.');
+                        });
+                    });
                 });
             }
         }

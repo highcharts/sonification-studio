@@ -943,16 +943,16 @@ export class ChartBridge {
     // Workaround until Highcharts puts a role on series that have too many data points to be exposed individually.
     private handleGroupOnlySeries(series: Array<GenericObject>): void {
         const opts = this.chart?.options || Highcharts.getOptions();
-        const threshold: number =
+    const threshold: number =
             opts?.accessibility.series.pointDescriptionEnabledThreshold || 8000;
-        series.forEach((seriesOpts) => {
+    series.forEach((seriesOpts) => {
             const data = seriesOpts.data;
-            if (data.length > threshold) {
-                seriesOpts.accessibility = seriesOpts.accessibility || {};
-                seriesOpts.accessibility.exposeAsGroupOnly = true;
-            }
-        });
-    }
+        if (data.length > threshold) {
+            seriesOpts.accessibility = seriesOpts.accessibility || {};
+            seriesOpts.accessibility.exposeAsGroupOnly = true;
+        }
+    });
+}
 
     private startProgressUpdatePolling() {
         this.stopProgressUpdatePolling();

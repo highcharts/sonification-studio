@@ -33,6 +33,7 @@ export default class GridProStandalone extends Vue {
             this.observeAndRenderWhenVisible(this.tableRowData);
         }
 
+        // Watch for changes in row count to trigger grid re-render (adding or removing rows)
         this.$watch(
             () => this.tableRowData.length,
             (newLength, oldLength) => {
@@ -41,6 +42,18 @@ export default class GridProStandalone extends Vue {
                 }
             }
         );
+
+        // Watch for changes in the array refernce to catch data reset, when new project button is clicked.
+        this.$watch(
+            () => this.tableRowData,
+            (newData, oldData) => {
+                if (newData !== oldData) {
+                    this.observeAndRenderWhenVisible(newData);
+                }
+            }
+        );
+
+
     }
 
     beforeDestroy() {
