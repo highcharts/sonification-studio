@@ -243,7 +243,7 @@ export class ChartBridge {
     }
 
     public isPaused(): boolean {
-        return this.chart?.sonification.timeline?.isPaused;
+        return this.chart?.sonification?.timeline?.isPaused;
     }
 
     public playChart(onEnd?: (e: any) => void, loop = false) {
@@ -268,22 +268,22 @@ export class ChartBridge {
 
     public stopChart() {
         this.stopProgressUpdatePolling();
-        this.chart?.sonification.timeline?.reset();
+        this.chart?.sonification?.timeline?.reset();
         this.updatePlayProgress();
     }
 
     public pauseChart() {
         this.stopProgressUpdatePolling();
-        this.chart?.sonification.timeline.pause();
+        this.chart?.sonification?.timeline?.pause();
     }
 
     public playNext() {
         this.stopProgressUpdatePolling();
-        this.chart?.sonification.timeline.pause();
+        this.chart?.sonification?.timeline?.pause();
     }
 
     public playAdjacent(next: boolean) {
-        this.chart?.sonification.playAdjacent(next, (context: GenericObject): void => {
+        this.chart?.sonification?.playAdjacent(next, (context: GenericObject): void => {
             const pointsPlayed: GenericObject[] = context.pointsPlayed;
             if (!pointsPlayed.length) {
                 return;
@@ -351,7 +351,7 @@ export class ChartBridge {
                 // Workaround for weird bug where xAxis somehow
                 // becomes datetime on export
                 xAxis: {
-                    type: this.chart?.options.xAxis.type,
+                    type: this.chart?.options?.xAxis?.type,
                 },
             }
         );
@@ -367,7 +367,7 @@ export class ChartBridge {
                 // Workaround for weird bug where xAxis somehow
                 // becomes datetime on export
                 xAxis: {
-                    type: this.chart?.options.xAxis.type,
+                    type: this.chart?.options?.xAxis?.type,
                 },
             }
         );
@@ -382,11 +382,11 @@ export class ChartBridge {
     }
 
     public getChartTitleForExport(): string {
-        const title: string = this.chart?.options.title.text;
+        const title: string = this.chart?.options?.title?.text;
         const filteredTitle = title
-            .split('')
-            .filter((c) => /[\w- ]/.test(c))
-            .join('');
+            ?.split('')
+            ?.filter((c) => /[\w- ]/.test(c))
+            ?.join('');
         return filteredTitle || 'export';
     }
 
@@ -581,7 +581,13 @@ export class ChartBridge {
         if (!this.chart) {
             return { min: 0, max: 100 };
         }
-        const axis = prop === 'x' ? this.chart.xAxis[0] : this.chart.yAxis[0];
+
+        const axis = prop === 'x' ? this.chart.xAxis?.[0] : this.chart.yAxis?.[0];
+
+        if (!axis || axis.dataMin === undefined || axis.dataMax === undefined) {
+            return { min: 0, max: 100 };
+        }
+
         return {
             min: axis.dataMin,
             max: axis.dataMax,
@@ -616,9 +622,14 @@ export class ChartBridge {
             }
             if (!this.chart?.sonification) {
                 reject(new Error('Could not download audio, no chart defined.'));
+                return;
             }
 
-            const context: AudioContext = this.chart?.sonification.audioContext;
+            const context: AudioContext = this.chart?.sonification?.audioContext;
+            if (!context) {
+                reject(new Error('Could not download audio, no audio context available.'));
+                return;
+            }
             const destination = context.createMediaStreamDestination();
             this.setAudioDestinationNode(destination);
 
@@ -665,7 +676,10 @@ export class ChartBridge {
             throw new Error('Could not get canvas video track.');
         }
 
-        const audioContext: AudioContext = this.chart?.sonification.audioContext;
+        const audioContext: AudioContext = this.chart?.sonification?.audioContext;
+        if (!audioContext) {
+            throw new Error('Could not export video, no audio context available.');
+        }
         const audioDestination = audioContext.createMediaStreamDestination();
         const exportStream = audioDestination.stream;
         exportStream.addTrack(videoTrack);
@@ -831,8 +845,8 @@ export class ChartBridge {
     }
 
     private setAudioDestinationNode(node?: AudioNode) {
-        this.chart?.sonification.setAudioDestination(
-            node || this.chart.sonification.audioContext.destination
+        this.chart?.sonification?.setAudioDestination(
+            node || this.chart?.sonification?.audioContext?.destination
         );
     }
 
@@ -857,7 +871,7 @@ export class ChartBridge {
     }
 
     private isPlaying(): boolean {
-        return this.chart?.sonification.isPlaying();
+        return this.chart?.sonification?.isPlaying();
     }
 
     private onStoreMutation(mutation: GenericObject) {
@@ -942,17 +956,26 @@ export class ChartBridge {
 
     // Workaround until Highcharts puts a role on series that have too many data points to be exposed individually.
     private handleGroupOnlySeries(series: Array<GenericObject>): void {
-        const opts = this.chart?.options || Highcharts.getOptions();
-    const threshold: number =
-            opts?.accessibility.series.pointDescriptionEnabledThreshold || 8000;
-    series.forEach((seriesOpts) => {
-            const data = seriesOpts.data;
-        if (data.length > threshold) {
-            seriesOpts.accessibility = seriesOpts.accessibility || {};
-            seriesOpts.accessibility.exposeAsGroupOnly = true;
+        if (!series || !Array.isArray(series)) {
+            return;
         }
-    });
-}
+
+        const opts = this.chart?.options || Highcharts.getOptions();
+        const threshold: number =
+            opts?.accessibility?.series?.pointDescriptionEnabledThreshold || 8000;
+
+        series.forEach((seriesOpts) => {
+            if (!seriesOpts || !seriesOpts.data || !Array.isArray(seriesOpts.data)) {
+                return;
+            }
+
+            const data = seriesOpts.data;
+            if (data.length > threshold) {
+                seriesOpts.accessibility = seriesOpts.accessibility || {};
+                seriesOpts.accessibility.exposeAsGroupOnly = true;
+            }
+        });
+    }
 
     private startProgressUpdatePolling() {
         this.stopProgressUpdatePolling();
@@ -973,8 +996,8 @@ export class ChartBridge {
         if (!chart) {
             return 0;
         }
-        const totalDuration = chart.options.sonification.duration || 1,
-            curTime = chart.sonification.timeline?.getCurrentTime() || 0,
+        const totalDuration = chart.options?.sonification?.duration || 1,
+            curTime = chart.sonification?.timeline?.getCurrentTime() || 0,
             progressPct = Math.round((100 * curTime) / totalDuration);
         this.commitToStore('viewStore/setPlaybackProgress', progressPct);
     }

@@ -360,6 +360,12 @@ export default {
         getPropRange(prop: string) {
             const range = (this as any).$chartBridge.reactiveGet(
                 'getMinMaxValuesForProp', this.reactToDataUpdates, prop);
+
+            // Add null checks for range and its properties
+            if (!range || typeof range.max !== 'number' || typeof range.min !== 'number') {
+                return { min: 0, max: 100 };
+            }
+
             if (range.max - range.min > 1) {
                 return {
                     max: Math.ceil(range.max),
