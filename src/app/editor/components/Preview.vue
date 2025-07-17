@@ -65,14 +65,18 @@ export default {
     },
 
     mounted() {
-        // Init ChartBridge with reference to chart
         this.$nextTick(() => {
             const chart = (this.$refs.chart as any)?.chart;
             if (chart) {
-                (this as any).$chartBridge.init(chart);
+                const chartBridge = (this as any).$chartBridge;
+                chartBridge.init(chart);
+
+                const csv = this.$store.state.dataStore.tableCSV;
+                this.$store.dispatch('dataStore/loadFromCSV', csv); // ✅ safe to call now
             }
         });
     }
+
 
 };
 </script>

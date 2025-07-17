@@ -172,60 +172,60 @@ export class ChartBridge {
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
-                    if (dataSource === 'googlesheets' && spreadsheetSetupComplete) {
-                        this.commitToStore(
-                            'dataStore/setGoogleSheetStatus',
-                            GoogleSheetStatus.Success
-                        );
-                    }
+    if (dataSource === 'googlesheets' && spreadsheetSetupComplete) {
+        this.commitToStore(
+            'dataStore/setGoogleSheetStatus',
+            GoogleSheetStatus.Success
+        );
+    }
 
-                    const chart = this.chart;
+    const chart = this.chart;
 
                     if (chart) {
                         // Get ids of series parsed
-                        const seriesIds = (parseResult.series || []).map(
-                            (s: GenericObject, ix: number) => {
-                                s.index = ix;
-                                const id = getSeriesId(s);
+    const seriesIds = (parseResult.series || []).map(
+        (s: GenericObject, ix: number) => {
+            s.index = ix;
+            const id = getSeriesId(s);
 
-                                delete s.index;
-                                return id;
-                            }
-                        );
+            delete s.index;
+            return id;
+        }
+    );
 
                         // Extend parsed results with series options
-                        const seriesOptions = this.buildSeriesOptions(seriesIds);
-                        if (seriesOptions) {
-                            const mergedSeries = deepMerge(parseResult.series, seriesOptions);
+    const seriesOptions = this.buildSeriesOptions(seriesIds);
+    if (seriesOptions) {
+        const mergedSeries = deepMerge(parseResult.series, seriesOptions);
 
-                            mergedSeries.forEach((s: any, i: number) => {
-                                const seriesData = s.data;
+        mergedSeries.forEach((s: any, i: number) => {
+            const seriesData = s.data;
 
-                                const hasData =
-                                    Array.isArray(seriesData) &&
-                                    seriesData.some((point: any) => {
-                                        if (typeof point === 'number') return true;
-                                        if (Array.isArray(point))
-                                            return point[1] !== null && point[1] !== '';
-                                        if (typeof point === 'object' && point !== null)
-                                            return point.y !== null && point.y !== '';
-                                        return point !== null && point !== '';
-                                    });
+            const hasData =
+                Array.isArray(seriesData) &&
+                seriesData.some((point: any) => {
+                    if (typeof point === 'number') return true;
+                    if (Array.isArray(point))
+                        return point[1] !== null && point[1] !== '';
+                    if (typeof point === 'object' && point !== null)
+                        return point.y !== null && point.y !== '';
+                    return point !== null && point !== '';
+                });
 
-                                if (!s.name) {
-                                    s.name = `Series ${i + 1}`;
-                                }
+            if (!s.name) {
+                s.name = `Series ${i + 1}`;
+            }
 
-                                s.visible = hasData;
-                                s.showInLegend = hasData;
-                            });
+            s.visible = hasData;
+            s.showInLegend = hasData;
+        });
 
-                            parseResult.series = mergedSeries;
+        parseResult.series = mergedSeries;
                             this.handleGroupOnlySeries(parseResult.series);
-                        }
+    }
 
-                        this.chartDataOptions = parseResult;
-                    }
+    this.chartDataOptions = parseResult;
+}
                 },
             }),
         };

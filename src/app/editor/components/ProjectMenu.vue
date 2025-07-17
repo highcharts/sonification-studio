@@ -87,11 +87,17 @@ export default {
         newProject() {
             if (window.confirm('This will clear all data and reset all settings. Proceed?')) {
                 this.cleanSlateAndRecreateChart(() => {
-                    // Restore state with no argument restores defaults.
+                    // Restore Vuex state to default
                     this.$store.commit('dataStore/restoreStoreState');
+
+                    // Hide chart temporarily to force full remount
+                    this.$store.commit('viewStore/setShowChartComponent', false);
+
                     this.$nextTick(() => {
-                        const csv = this.$store.state.dataStore.tableCSV;
-                        this.$store.dispatch('dataStore/loadFromCSV', csv);
+                        // Show chart again (triggers <Preview> remount and mounted() hook)
+                        this.$store.commit('viewStore/setShowChartComponent', true);
+
+                        // Announce once the new chart will be initialized (chart logic moved to Preview.vue)
                         this.$nextTick(() => {
                             (this as any).$announcer.announce('New project loaded.');
                         });
@@ -99,6 +105,7 @@ export default {
                 });
             }
         }
+
     }
 };
 </script>
