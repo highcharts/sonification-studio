@@ -325,6 +325,10 @@ export default class GridProStandalone extends Vue {
     text-align: center !important;
 }
 
+td {
+    font-size: 0.8rem !important;
+}
+
 /* Make CSV header bold*/
 .se-grid-container .highcharts-datagrid-row[data-row-index="0"] td {
     font-weight: bold;
@@ -339,8 +343,8 @@ export default class GridProStandalone extends Vue {
 
 .hcg-center,
 .highcharts-datagrid-header-cell {
-    min-width: 120px !important;
-    max-width: 120px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -359,7 +363,7 @@ export default class GridProStandalone extends Vue {
 
 .se-grid-container .highcharts-datagrid-table th,
 .se-grid-container .highcharts-datagrid-table td {
-    padding: 4px 8px;
+    padding: 6px 10px;
 }
 
 .se-grid-container .highcharts-datagrid-header-cell {
