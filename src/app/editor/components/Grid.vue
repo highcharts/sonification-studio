@@ -256,6 +256,7 @@ export default class GridProStandalone extends Vue {
         columnIds.forEach((colId) => {
             headerRow[colId] = dataTable.getCell(colId, 0) || '';
         });
+
         updatedRowData.push(headerRow);
 
         // Data rows
@@ -322,6 +323,11 @@ export default class GridProStandalone extends Vue {
 .se-grid-container .highcharts-datagrid-header-cell-content,
 .se-grid-container td {
     text-align: center !important;
+}
+
+/* Make CSV header bold*/
+.se-grid-container .highcharts-datagrid-row[data-row-index="0"] td {
+    font-weight: bold;
 }
 
 .se-grid-container > div {
