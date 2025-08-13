@@ -318,6 +318,12 @@ export default class GridProStandalone extends Vue {
     border: 1px dashed #ccc;
 }
 
+.se-grid-container .highcharts-datagrid-header-cell,
+.se-grid-container .highcharts-datagrid-header-cell-content,
+.se-grid-container td {
+    text-align: center !important;
+}
+
 .se-grid-container > div {
     flex-grow: 1;
     overflow-x: auto;
