@@ -174,10 +174,14 @@ export default class GridProStandalone extends Vue {
         const config = {
             dataTable: { columns },
             columnDefaults: {
+                width: 200,
                 cells: {
                     editable: true,
-                    className: 'hcg-center',
+                    className: 'hcg-center'
                 },
+                header: {
+                    className: 'hcg-center'
+                }
             },
             rendering: {
                 theme: 'hcg-theme-default',
@@ -185,8 +189,14 @@ export default class GridProStandalone extends Vue {
                 containerWidth: '100%',
                 rows: {
                     bufferSize: 10,
-                    strictHeights: false,
+                    strictHeights: false
                 },
+                columns: {
+                    distribution: 'fixed',
+                    resizing: {
+                        mode: 'fixed'
+                    }
+                }
             },
             events: {
                 cell: {
@@ -316,7 +326,11 @@ export default class GridProStandalone extends Vue {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    /*border: 1px dashed #ccc;*/
+}
+
+.se-grid-container > div {
+    flex: 1 1 auto;
+    min-height: 300px;
 }
 
 .se-grid-container .highcharts-datagrid-header-cell,
@@ -334,30 +348,25 @@ td {
     font-weight: bold;
 }
 
-.se-grid-container > div {
-    flex-grow: 1;
-    overflow-x: auto;
-    overflow-y: auto;
-    min-height: 300px;
+.se-grid-container .highcharts-datagrid-container {
+    width: 100%;
+    height: 100%;
 }
 
-.hcg-center,
-.highcharts-datagrid-header-cell {
-    min-width: 200px !important;
-    max-width: 200px !important;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-.highcharts-datagrid-table {
-    width: max-content !important;
+/* Excel-style borders */
+.se-grid-container {
+    --hcg-border-width: 1px;
+    --hcg-border-color: #ccc;
+    --hcg-row-border-width: 1px;
+    --hcg-column-border-width: 1px;
+    --hcg-header-background: #f8f9fa;
+    --hcg-padding: 8px;
 }
 
 .se-grid-container .highcharts-datagrid-table th,
 .se-grid-container .highcharts-datagrid-table td {
-    border-left: .5px solid #ccc;
-    border-right: .5px solid #ccc;
+    border-left: 0.5px solid #ccc;
+    border-right: 0.5px solid #ccc;
     box-sizing: border-box;
 }
 
@@ -370,6 +379,4 @@ td {
     background-color: #f8f9fa;
     font-weight: bold;
 }
-
-
 </style>
