@@ -316,7 +316,7 @@ export default class GridProStandalone extends Vue {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    border: 1px dashed #ccc;
+    /*border: 1px dashed #ccc;*/
 }
 
 .se-grid-container .highcharts-datagrid-header-cell,
@@ -349,4 +349,23 @@ export default class GridProStandalone extends Vue {
 .highcharts-datagrid-table {
     width: max-content !important;
 }
+
+.se-grid-container .highcharts-datagrid-table th,
+.se-grid-container .highcharts-datagrid-table td {
+    border-left: .5px solid #ccc;
+    border-right: .5px solid #ccc;
+    box-sizing: border-box;
+}
+
+.se-grid-container .highcharts-datagrid-table th,
+.se-grid-container .highcharts-datagrid-table td {
+    padding: 4px 8px;
+}
+
+.se-grid-container .highcharts-datagrid-header-cell {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+
 </style>
