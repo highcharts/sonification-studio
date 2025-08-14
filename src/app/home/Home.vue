@@ -103,7 +103,6 @@
                         Known issues:
                     </h3>
                     <ul>
-                        <li>The data grid component has multiple usability issues, especially for screen reader users. This grid is a 3rd party component and will be replaced.</li>
                         <li>Some browsers can have issues with exporting video and audio, and the supported export formats are limited. You may want to use your own screen-recording sofware to work around this, depending on your use case.</li>
                     </ul>
                     <p>For an up-to-date detailed overview of known issues, visit our <a href="https://github.com/highcharts/sonification-studio/issues">GitHub issues</a> page.</p>
@@ -112,7 +111,6 @@
                         Planned features:
                     </h3>
                     <ul>
-                        <li>Implement our own, accessible, data grid.</li>
                         <li>Better sonification navigation for screen reader users.</li>
                         <li>Drag playback slider to scrub.</li>
                         <li>Series-specific sonification contexts and notifications.</li>
