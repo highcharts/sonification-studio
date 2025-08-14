@@ -21,6 +21,8 @@ export default class GridProStandalone extends Vue {
     gridInstance: any = null;
     resizeObserver: ResizeObserver | null = null;
     isUpdatingFromGrid = false;
+    isUpdatingFromStore = false;
+    hasMountedGridOnce = false;
 
     tableRowData!: Array<Record<string, any>>;
     selectedHeaderTabContent!: string;
@@ -105,25 +107,31 @@ export default class GridProStandalone extends Vue {
         console.log('Data passed to observe method length:', data?.length);
 
         const container = this.$refs.gridContainer as HTMLElement;
-        if (!container || typeof ResizeObserver === 'undefined') {
-            this.renderGrid(data);
+        if (!container) return;
+
+        // If grid already buildt once, skip rebuilding.
+        if (this.gridInstance && this.hasMountedGridOnce) {
             return;
         }
 
-        if (this.gridInstance) {
-            this.gridInstance.destroy();
-            this.gridInstance = null;
+        if (typeof ResizeObserver === 'undefined') {
+            this.renderGrid(data);
+            this.hasMountedGridOnce = true;
+            return;
         }
+
+        // Do NOT destroy here, we are preparing the first mount only.
+        // If there was a previous observer, disconnect it before setting a new one.
+        this.resizeObserver?.disconnect();
 
         this.resizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 const { width, height } = entry.contentRect;
                 if (width > 50 && height > 50) {
                     this.resizeObserver?.disconnect();
-                    // Always use fresh data from store instead of captured data
-                    const freshData = this.$store.state.dataStore.tableRowData;
-                    console.log('ResizeObserver using fresh data from store:', freshData);
-                    this.renderGrid(freshData);
+                    // On first visible, render once and mark as mounted.
+                    this.renderGrid(data);
+                    this.hasMountedGridOnce = true;
                     break;
                 }
             }
@@ -211,7 +219,7 @@ export default class GridProStandalone extends Vue {
                 editable: true,
                 ...(key === 'metaData' ? { enabled: false } : {}),
             })),
-        };
+        } as any;
 
         if (this.gridInstance) {
             this.gridInstance.destroy();
