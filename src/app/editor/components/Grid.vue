@@ -387,4 +387,13 @@ td {
     background-color: #f8f9fa;
     font-weight: bold;
 }
+
+.se-grid-container .highcharts-datagrid-cell:focus,
+.se-grid-container td:focus,
+.se-grid-container .highcharts-datagrid-header-cell:focus {
+  outline: none;
+  border-color: transparent !important;
+  box-shadow: inset 0 0 0 2px red !important;
+}
+
 </style>
