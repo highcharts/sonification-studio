@@ -17,7 +17,7 @@ import '@highcharts/dashboards/css/datagrid.css';
         ...mapState('viewStore', ['selectedHeaderTabContent']),
     },
 })
-export default class GridProStandalone extends Vue {
+export default class Grid extends Vue {
     gridInstance: any = null;
     resizeObserver: ResizeObserver | null = null;
     isUpdatingFromGrid = false;
@@ -236,6 +236,7 @@ export default class GridProStandalone extends Vue {
                 containerHeight: '100%',
                 containerWidth: '100%',
                 rows: {
+                    virtualization: true,
                     bufferSize: 10,
                     strictHeights: false
                 },
