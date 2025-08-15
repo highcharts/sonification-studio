@@ -23,6 +23,8 @@ export default class GridProStandalone extends Vue {
     isUpdatingFromGrid = false;
     isUpdatingFromStore = false;
     hasMountedGridOnce = false;
+    pendingRebuild = false;
+    unsubscribeFromStore: null | (() => void) = null;
 
     tableRowData!: Array<Record<string, any>>;
     selectedHeaderTabContent!: string;
@@ -32,6 +34,22 @@ export default class GridProStandalone extends Vue {
         console.log('Grid component mounted');
         console.log('tableRowData in mounted:', this.tableRowData);
         console.log('Store tableRowData in mounted:', this.$store.state.dataStore.tableRowData);
+
+        // Get CSV imports to propagate immediately
+        this.unsubscribeFromStore = this.$store.subscribe((mutation, state) => {
+            if (
+                mutation.type === 'dataStore/setTableRowData' ||
+                mutation.type === 'dataStore/setTableCSV'
+            ) {
+                if (this.isUpdatingFromGrid) return; // ignore grid-originated commits
+                const onDataTab = this.$store.state.viewStore.selectedHeaderTabContent === 'dataContent';
+                if (onDataTab) {
+                    this.rebuildGridFromStore();
+                } else {
+                    this.pendingRebuild = true;
+                }
+            }
+        });
 
         // Check if there's data in the store, don't reset to placeholder if there's real data
         const storeData = this.$store.state.dataStore.tableRowData;
@@ -80,12 +98,14 @@ export default class GridProStandalone extends Vue {
                     console.log('Data tab became visible, re-rendering grid');
                     console.log('Current tableRowData:', this.tableRowData);
                     console.log('Store tableRowData:', this.$store.state.dataStore.tableRowData);
-                    // Always use the store data to ensure we have the latest
                     const currentData = this.$store.state.dataStore.tableRowData;
-                    console.log('Using data from store:', currentData);
-                    // Small delay to ensure the tab is fully visible
                     this.$nextTick(() => {
-                        this.observeAndRenderWhenVisible(currentData);
+                        if (this.pendingRebuild) {
+                            this.rebuildGridFromStore();
+                            this.pendingRebuild = false;
+                        } else {
+                            this.observeAndRenderWhenVisible(currentData);
+                        }
                     });
                 }
             }
@@ -99,6 +119,10 @@ export default class GridProStandalone extends Vue {
         }
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
+        }
+        if (this.unsubscribeFromStore) {
+            this.unsubscribeFromStore();
+            this.unsubscribeFromStore = null;
         }
     }
 
@@ -138,6 +162,22 @@ export default class GridProStandalone extends Vue {
         });
 
         this.resizeObserver.observe(container);
+    }
+
+    // helper to rebuild with latest stored data
+    private rebuildGridFromStore() {
+        const container = this.$refs.gridContainer as HTMLElement;
+        if (!container) return;
+        const latest = this.$store.state.dataStore.tableRowData;
+
+        if (this.gridInstance?.destroy) {
+            this.gridInstance.destroy();
+            this.gridInstance = null;
+        }
+        this.renderGrid(latest);
+
+        // Ensure layout after visibility changes
+        requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
     }
 
     renderGrid(data: Array<Record<string, any>>) {
@@ -388,6 +428,7 @@ td {
     font-weight: bold;
 }
 
+/* Focus ring drawn inside to avoid layout shift/clipping */
 .se-grid-container .highcharts-datagrid-cell:focus,
 .se-grid-container td:focus,
 .se-grid-container .highcharts-datagrid-header-cell:focus {
@@ -395,5 +436,4 @@ td {
   border-color: transparent !important;
   box-shadow: inset 0 0 0 2px red !important;
 }
-
 </style>
