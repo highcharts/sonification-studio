@@ -60,8 +60,6 @@
     "@highcharts/dashboards": "^3.2.0",
     "@highcharts/grid-lite": "^1.0.1",
     "@types/mathjs": "^6.0.5",
-    "ag-grid-community": "^25.3.0",
-    "ag-grid-vue": "^25.3.0",
     "highcharts": "^12.2.0",
     "highcharts-vue": "^1.4.3",
     "mathjs": "^7.1.0",
