@@ -31,10 +31,6 @@ export default class Grid extends Vue {
     $refs!: { gridContainer: HTMLElement };
 
     mounted() {
-        console.log('Grid component mounted');
-        console.log('tableRowData in mounted:', this.tableRowData);
-        console.log('Store tableRowData in mounted:', this.$store.state.dataStore.tableRowData);
-
         // Get CSV imports to propagate immediately
         this.unsubscribeFromStore = this.$store.subscribe((mutation, state) => {
             if (
@@ -56,13 +52,11 @@ export default class Grid extends Vue {
         // Check if there's data in the store, don't reset to placeholder if there's real data
         const storeData = this.$store.state.dataStore.tableRowData;
         if (!this.tableRowData?.length && !storeData?.length) {
-            console.log('No data found, setting placeholder data');
             this.$store.commit('dataStore/setToPlaceholderData');
             this.$nextTick(() => {
                 this.observeAndRenderWhenVisible(this.$store.state.dataStore.tableRowData);
             });
         } else {
-            console.log('Using existing data');
             // Use store data if available, fallback to component data
             const dataToUse = storeData?.length ? storeData : this.tableRowData;
             this.observeAndRenderWhenVisible(dataToUse);
@@ -74,7 +68,6 @@ export default class Grid extends Vue {
             (newLength, oldLength) => {
                 // Allow re-render if not currently updating from grid
                 if (newLength !== oldLength && !this.isUpdatingFromGrid) {
-                    console.log('Length changed, re-rendering grid:', newLength, oldLength);
                     this.observeAndRenderWhenVisible(this.tableRowData);
                 }
             }
@@ -86,7 +79,6 @@ export default class Grid extends Vue {
             (newData, oldData) => {
                 // Allow re-render if not currently updating from grid
                 if (newData !== oldData && !this.isUpdatingFromGrid) {
-                    console.log('Data reference changed, re-rendering grid');
                     this.observeAndRenderWhenVisible(newData);
                 }
             }
@@ -97,9 +89,6 @@ export default class Grid extends Vue {
             () => this.selectedHeaderTabContent,
             (newTab, oldTab) => {
                 if (newTab === 'dataContent' && oldTab !== 'dataContent') {
-                    console.log('Data tab became visible, re-rendering grid');
-                    console.log('Current tableRowData:', this.tableRowData);
-                    console.log('Store tableRowData:', this.$store.state.dataStore.tableRowData);
                     const currentData = this.$store.state.dataStore.tableRowData;
                     this.$nextTick(() => {
                         if (this.pendingRebuild) {
@@ -129,9 +118,6 @@ export default class Grid extends Vue {
     }
 
     observeAndRenderWhenVisible(data: Array<Record<string, any>>) {
-        console.log('observeAndRenderWhenVisible called with:', data);
-        console.log('Data passed to observe method length:', data?.length);
-
         const container = this.$refs.gridContainer as HTMLElement;
         if (!container) return;
 
@@ -183,10 +169,6 @@ export default class Grid extends Vue {
     }
 
     renderGrid(data: Array<Record<string, any>>) {
-        console.log('renderGrid called with data:', data);
-        console.log('Data length:', data?.length);
-        console.log('First row:', data?.[0]);
-
         const container = this.$refs.gridContainer as HTMLElement;
         if (!container) return;
 
@@ -202,11 +184,6 @@ export default class Grid extends Vue {
         const isHeaderRow = keysInData.every((k) => typeof data[0][k] === 'string');
         const header = isHeaderRow ? data[0] : {};
         const bodyData = isHeaderRow ? data.slice(1) : data;
-
-        console.log('Header detected:', isHeaderRow);
-        console.log('Header data:', header);
-        console.log('Body data length:', bodyData.length);
-
         const paddedData = bodyData.map((row) => {
             const newRow: Record<string, any> = {};
             columnKeys.forEach((key) => {
@@ -276,12 +253,8 @@ export default class Grid extends Vue {
         if (!this.gridInstance?.dataTable) return;
 
         if (this.isUpdatingFromGrid) {
-            console.log('Already updating from grid, skipping');
             return;
         }
-
-        console.log('Updating CSV from grid');
-
         const dataTable = this.gridInstance.dataTable;
         const rowCount = dataTable.rowCount;
         const columnIds = Object.keys(dataTable.columns || {});
@@ -304,7 +277,6 @@ export default class Grid extends Vue {
             // Reset flag after update
             this.$nextTick(() => {
                 this.isUpdatingFromGrid = false;
-                console.log('Flag reset after CSV clear');
             });
             return;
         }
@@ -335,7 +307,6 @@ export default class Grid extends Vue {
         // Reset flag after update
         this.$nextTick(() => {
             this.isUpdatingFromGrid = false;
-            console.log('Flag reset after data update');
         });
     }
 
