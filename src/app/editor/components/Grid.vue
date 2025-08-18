@@ -39,7 +39,9 @@ export default class Grid extends Vue {
         this.unsubscribeFromStore = this.$store.subscribe((mutation, state) => {
             if (
                 mutation.type === 'dataStore/setTableRowData' ||
-                mutation.type === 'dataStore/setTableCSV'
+                mutation.type === 'dataStore/setTableCSV' ||
+                mutation.type === 'dataStore/addTableRows' ||
+                mutation.type === 'dataStore/fillColumn'
             ) {
                 if (this.isUpdatingFromGrid) return; // ignore grid-originated commits
                 const onDataTab = this.$store.state.viewStore.selectedHeaderTabContent === 'dataContent';
