@@ -29,6 +29,7 @@ export default class Grid extends Vue {
     tableRowData!: Array<Record<string, any>>;
     selectedHeaderTabContent!: string;
     $refs!: { gridContainer: HTMLElement };
+    pendingScrollToBottom = false;
 
     mounted() {
         // Get CSV imports to propagate immediately
@@ -41,6 +42,12 @@ export default class Grid extends Vue {
             ) {
                 if (this.isUpdatingFromGrid) return; // ignore grid-originated commits
                 const onDataTab = this.$store.state.viewStore.selectedHeaderTabContent === 'dataContent';
+
+                // If rows were added, do scroll to bottom after the rebuild
+                if (mutation.type === 'dataStore/addTableRows') {
+                    this.pendingScrollToBottom = true;
+                }
+
                 if (onDataTab) {
                     this.rebuildGridFromStore();
                 } else {
@@ -247,6 +254,16 @@ export default class Grid extends Vue {
 
         this.gridInstance = createGrid(container, config);
         // Don't call updateCSVFromGrid() here to avoid infinite loops
+
+        if (this.pendingScrollToBottom) {
+            this.$nextTick(() => {
+                // Tiny delay lets virtualization/render finish
+                requestAnimationFrame(() => {
+                    this.scrollToLastGridRowWithData();
+                    this.pendingScrollToBottom = false;
+                });
+            });
+        }
     }
 
     updateCSVFromGrid() {
@@ -313,31 +330,42 @@ export default class Grid extends Vue {
     scrollToLastGridRowWithData() {
         if (!this.gridInstance || !this.gridInstance.dataTable) return;
 
-        const rowCount = this.gridInstance.dataTable.rowCount;
+        // Wait for DOM/virtualization to finish
+        this.$nextTick(() => {
+            requestAnimationFrame(() => {
+                const rowCount = this.gridInstance.dataTable.rowCount;
 
-        // Find the last row with content
-        let lastRowWithDataIndex = -1;
-        for (let i = rowCount - 1; i >= 0; --i) {
-            const row = this.gridInstance.dataTable.getRow(i);
-            const hasData = Object.values(row).some((val) => val !== '' && val != null);
-            if (hasData) {
-                lastRowWithDataIndex = i;
-                break;
-            }
-        }
+                // Find the last row with content
+                let lastRowWithDataIndex = -1;
+                for (let i = rowCount - 1; i >= 0; --i) {
+                    const row = this.gridInstance.dataTable.getRow(i);
+                    const hasData = Object.values(row).some((val) => val !== '' && val != null);
+                    if (hasData) {
+                        lastRowWithDataIndex = i;
+                        break;
+                    }
+                }
 
-        if (lastRowWithDataIndex === -1) return;
+                const container = this.$refs.gridContainer as HTMLElement;
+                // Prefer the real tbody; fallback to the parent of the first row if needed
+                const tbody =
+                (container.querySelector('.highcharts-datagrid-table tbody') as HTMLElement) ||
+                (container.querySelector('.highcharts-datagrid-row')?.parentElement as HTMLElement);
 
-        const container = this.$refs.gridContainer as HTMLElement;
-        const tbody = container.querySelector('.highcharts-datagrid-row')?.parentElement;
+                if (!tbody) return;
 
-        if (!tbody) return;
-
-        const targetRow = tbody.children[lastRowWithDataIndex] as HTMLElement;
-        if (targetRow) {
-            targetRow.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+                if (lastRowWithDataIndex !== -1) {
+                    const targetRow = tbody.children[lastRowWithDataIndex] as HTMLElement | undefined;
+                    if (targetRow) {
+                        tbody.scrollTo({ top: targetRow.offsetTop, behavior: 'smooth' });
+                        return;
+                    }
+                }
+                tbody.scrollTo({ top: tbody.scrollHeight, behavior: 'smooth' });
+            });
+        });
     }
+
 }
 </script>
 
