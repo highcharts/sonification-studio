@@ -306,13 +306,18 @@ export default class Grid extends Vue {
         const header = isHeaderRow ? data[0] : {};
         const bodyData = isHeaderRow ? data.slice(1) : data;
 
-        // Detect how many consecutive columns from the left are headers
-        const headerColumnCount = this.detectHeaderColumnCount(bodyData, columnKeys);
+        // Performance optimization: Only process columns that have data
+        const actualDataColumns = Object.keys(data[0] || {});
+        const maxColumns = Math.min(columnCount, actualDataColumns.length + 5); // Add some buffer
+        const optimizedColumnKeys = columnKeys.slice(0, maxColumns);
 
-        // Prepare data for Grid Pro without header row (it will be handled by the header config)
+        // Detect how many consecutive columns from the left are headers
+        const headerColumnCount = this.detectHeaderColumnCount(bodyData, optimizedColumnKeys);
+
+        // Performance optimization: Only pad with necessary columns
         const paddedData = bodyData.map((row) => {
             const newRow: Record<string, any> = {};
-            columnKeys.forEach((key) => {
+            optimizedColumnKeys.forEach((key) => {
                 newRow[key] = row[key] ?? '';
             });
             return newRow;
@@ -322,11 +327,20 @@ export default class Grid extends Vue {
         const columns: Record<string, any[]> = {};
         const columnDataTypes: Record<string, string> = {};
 
-        columnKeys.forEach((key) => {
+        // Performance optimization: Process columns in batches and use simpler detection for empty columns
+        optimizedColumnKeys.forEach((key) => {
             const columnData = paddedData.map((row) => row[key]);
 
-            // Detect the data type for this column
-            const dataType = this.detectColumnDataType(columnData);
+            // Quick check: if column is mostly empty, skip expensive detection
+            const nonEmptyCount = columnData.filter(val => val !== '' && val != null).length;
+            if (nonEmptyCount === 0) {
+                columnDataTypes[key] = 'string';
+                columns[key] = columnData;
+                return;
+            }
+
+            // Only do expensive detection for columns with data
+            const dataType = nonEmptyCount > 5 ? this.detectColumnDataType(columnData) : 'string';
             columnDataTypes[key] = dataType;
 
             // Convert the data based on detected type
@@ -335,7 +349,7 @@ export default class Grid extends Vue {
         });
 
         // Create header configuration with A, B, C as primary and CSV headers as secondary
-        const headerConfig = columnKeys.map((key) => {
+        const headerConfig = optimizedColumnKeys.map((key) => {
             const csvHeaderValue = header[key] || '';
 
             // If there's a CSV header value, create a grouped header structure
@@ -393,8 +407,8 @@ export default class Grid extends Vue {
                 containerWidth: '100%',
                 rows: {
                     virtualization: true,
-                    bufferSize: 10,
-                    strictHeights: false
+                    bufferSize: 20, // Increased buffer for smoother scrolling
+                    strictHeights: true // Enable for better virtualization performance
                 },
                 columns: {
                     distribution: 'fixed',
@@ -403,7 +417,7 @@ export default class Grid extends Vue {
                     }
                 }
             },
-            columns: columnKeys.map((key, index) => {
+            columns: optimizedColumnKeys.map((key, index) => {
                 const isHeaderColumn = index < headerColumnCount;
                 return {
                     id: key,
