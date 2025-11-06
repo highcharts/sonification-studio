@@ -159,6 +159,44 @@ export default class Grid extends Vue {
         this.resizeObserver.observe(container);
     }
 
+    // Detect how many consecutive columns from the left contain header-like data (mostly strings/text)
+    private detectHeaderColumnCount(data: Array<Record<string, any>>, columnKeys: string[]): number {
+        if (!data.length || !columnKeys.length) return 0;
+
+        const sampleSize = Math.min(10, data.length); // Check first 10 rows or all if less
+        let headerColumnCount = 0;
+
+        // Check each column from left to right
+        for (let colIndex = 0; colIndex < columnKeys.length; colIndex++) {
+            const key = columnKeys[colIndex];
+            let stringCount = 0;
+            let totalCells = 0;
+
+            // Sample cells in this column
+            for (let rowIndex = 0; rowIndex < sampleSize; rowIndex++) {
+                const value = data[rowIndex][key];
+                totalCells++;
+
+                // Check if it's a non-numeric string (likely header text)
+                if (typeof value === 'string' && value.trim() !== '' && isNaN(Number(value))) {
+                    stringCount++;
+                }
+            }
+
+            // If more than 70% of cells in this column are non-numeric strings, it's a header column
+            const isHeaderColumn = (stringCount / totalCells) > 0.7;
+
+            if (isHeaderColumn) {
+                headerColumnCount = colIndex + 1;
+            } else {
+                // Stop at first non-header column (we only want consecutive header columns from the left)
+                break;
+            }
+        }
+
+        return headerColumnCount;
+    }
+
     // helper to rebuild with latest stored data
     private rebuildGridFromStore() {
         const container = this.$refs.gridContainer as HTMLElement;
@@ -191,6 +229,11 @@ export default class Grid extends Vue {
         const isHeaderRow = keysInData.every((k) => typeof data[0][k] === 'string');
         const header = isHeaderRow ? data[0] : {};
         const bodyData = isHeaderRow ? data.slice(1) : data;
+
+        // Detect how many consecutive columns from the left are headers
+        const headerColumnCount = this.detectHeaderColumnCount(bodyData, columnKeys);
+
+        // Prepare data for Grid Pro without header row (it will be handled by the header config)
         const paddedData = bodyData.map((row) => {
             const newRow: Record<string, any> = {};
             columnKeys.forEach((key) => {
@@ -202,11 +245,38 @@ export default class Grid extends Vue {
         const columns: Record<string, any[]> = {};
         columnKeys.forEach((key) => {
             columns[key] = paddedData.map((row) => row[key]);
-            columns[key].unshift(header[key] || '');
+        });
+
+        // Create header configuration with A, B, C as primary and CSV headers as secondary
+        const headerConfig = columnKeys.map((key) => {
+            const csvHeaderValue = header[key] || '';
+
+            // If there's a CSV header value, create a grouped header structure
+            if (csvHeaderValue && csvHeaderValue.trim() !== '') {
+                return {
+                    format: key, // Primary header (A, B, C, etc.)
+                    className: 'hcg-center', // Apply center alignment to primary header
+                    columns: [{
+                        columnId: key,
+                        format: csvHeaderValue, // Secondary header (CSV header value)
+                        className: 'hcg-center' // Apply center alignment to secondary header too
+                    }]
+                };
+            } else {
+                // If no CSV header, just use the column key
+                return {
+                    columnId: key,
+                    format: key,
+                    className: 'hcg-center' // Apply center alignment to single header
+                };
+            }
         });
 
         const config = {
-            dataTable: { columns },
+            dataTable: {
+                columns
+            },
+            header: headerConfig,
             columnDefaults: {
                 width: 200,
                 cells: {
@@ -222,6 +292,9 @@ export default class Grid extends Vue {
                 },
                 header: {
                     className: 'hcg-center'
+                },
+                sorting: {
+                    sortable: true
                 }
             },
             rendering: {
@@ -240,15 +313,18 @@ export default class Grid extends Vue {
                     }
                 }
             },
-            columns: columnKeys.map((key) => ({
-                id: key,
-                title: key,
-                cells: {
-                    editMode: {
-                        enabled: true
+            columns: columnKeys.map((key, index) => {
+                const isHeaderColumn = index < headerColumnCount;
+                return {
+                    id: key,
+                    cells: {
+                        editMode: {
+                            enabled: true
+                        },
+                        className: isHeaderColumn ? 'hcg-center hcg-header-column' : 'hcg-center'
                     }
-                }
-            })),
+                };
+            }),
         } as any;
 
         if (this.gridInstance) {
@@ -440,5 +516,10 @@ td {
   outline: none;
   border-color: transparent !important;
   box-shadow: inset 0 0 0 2px red !important;
+}
+
+/* Bold styling for header columns (detected dynamically) */
+.se-grid-container .hcg-header-column {
+  font-weight: bold !important;
 }
 </style>
