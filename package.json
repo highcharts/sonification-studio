@@ -1,6 +1,6 @@
 {
   "name": "highcharts-sonification-studio",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Edit and visualize data with charts and sound",
   "private": true,
   "scripts": {
@@ -57,9 +57,11 @@
     "vue-template-compiler": "^2.6.11"
   },
   "dependencies": {
+    "@highcharts/dashboards": "^3.6.0",
+    "@highcharts/grid-lite": "^1.0.1",
     "@highcharts/grid-pro": "^2.0.1",
     "@types/mathjs": "^6.0.5",
-    "highcharts": "^12.2.0",
+    "highcharts": "^12.4.0",
     "highcharts-vue": "^1.4.3",
     "mathjs": "^7.1.0",
     "vue": "^2.6.11",
