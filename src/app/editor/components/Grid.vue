@@ -210,8 +210,15 @@ export default class Grid extends Vue {
             columnDefaults: {
                 width: 200,
                 cells: {
-                    editable: true,
-                    className: 'hcg-center'
+                    editMode: {
+                        enabled: true
+                    },
+                    className: 'hcg-center',
+                    events: {
+                        afterEdit: () => {
+                            this.updateCSVFromGrid();
+                        }
+                    }
                 },
                 header: {
                     className: 'hcg-center'
@@ -233,18 +240,14 @@ export default class Grid extends Vue {
                     }
                 }
             },
-            events: {
-                cell: {
-                    afterEdit: () => {
-                        this.updateCSVFromGrid();
-                    },
-                },
-            },
             columns: columnKeys.map((key) => ({
                 id: key,
                 title: key,
-                editable: true,
-                ...(key === 'metaData' ? { enabled: false } : {}),
+                cells: {
+                    editMode: {
+                        enabled: true
+                    }
+                }
             })),
         } as any;
 
