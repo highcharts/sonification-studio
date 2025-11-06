@@ -8,8 +8,8 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import { mapState } from 'vuex';
-import { grid as createGrid } from '@highcharts/dashboards/datagrid';
-import '@highcharts/dashboards/css/datagrid.css';
+import * as GridPro from '@highcharts/grid-pro/grid-pro';
+import '@highcharts/grid-pro/css/grid-pro.css';
 
 @Component({
     computed: {
@@ -252,7 +252,7 @@ export default class Grid extends Vue {
             this.gridInstance.destroy();
         }
 
-        this.gridInstance = createGrid(container, config);
+        this.gridInstance = GridPro.grid(container, config);
         // Don't call updateCSVFromGrid() here to avoid infinite loops
 
         if (this.pendingScrollToBottom) {

@@ -57,7 +57,7 @@
     "vue-template-compiler": "^2.6.11"
   },
   "dependencies": {
-    "@highcharts/dashboards": "^3.2.0",
+    "@highcharts/grid-pro": "^2.0.1",
     "@types/mathjs": "^6.0.5",
     "highcharts": "^12.2.0",
     "highcharts-vue": "^1.4.3",
