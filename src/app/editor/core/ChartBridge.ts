@@ -216,8 +216,13 @@ export class ChartBridge {
                 s.name = `Series ${i + 1}`;
             }
 
-            s.visible = hasData;
-            s.showInLegend = hasData;
+            // Only set defaults if user hasn't explicitly configured these settings
+            if (s.visible === undefined) {
+                s.visible = hasData;
+            }
+            if (s.showInLegend === undefined) {
+                s.showInLegend = hasData;
+            }
         });
 
         parseResult.series = mergedSeries;
