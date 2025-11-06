@@ -197,6 +197,82 @@ export default class Grid extends Vue {
         return headerColumnCount;
     }
 
+    // Detect the data type of a column for proper Grid Pro handling and sorting/filtering
+    // Otherwise, seems to detect the columns as strings only and sorting goes wrong.
+    private detectColumnDataType(columnData: any[]): string {
+        if (!columnData.length) return 'string';
+
+        // Check if values in the column are numeric
+        let numericCount = 0;
+        let dateCount = 0;
+        let booleanCount = 0;
+        let totalNonEmpty = 0;
+
+        columnData.forEach(value => {
+            if (value !== '' && value != null) {
+                totalNonEmpty++;
+
+                // Check if it's a number
+                const numValue = Number(value);
+                if (!isNaN(numValue) && isFinite(numValue)) {
+                    numericCount++;
+                }
+
+                // Check if it's a boolean
+                if (typeof value === 'boolean' || value === 'true' || value === 'false') {
+                    booleanCount++;
+                }
+
+                // Check if it's a date (basic check)
+                if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+                    dateCount++;
+                }
+            }
+        });
+
+        if (totalNonEmpty === 0) return 'string';
+
+        // Determine data type based on majority (>80% threshold)
+        const threshold = 0.8;
+        if ((numericCount / totalNonEmpty) > threshold) {
+            return 'number';
+        } else if ((booleanCount / totalNonEmpty) > threshold) {
+            return 'boolean';
+        } else if ((dateCount / totalNonEmpty) > threshold) {
+            return 'datetime';
+        }
+
+        return 'string'; // Default to string
+    }
+
+    // Convert column data to the appropriate type for Grid Pro
+    private convertColumnData(columnData: any[], dataType: string): any[] {
+        if (dataType === 'number') {
+            return columnData.map(value => {
+                if (value === '' || value == null) return value;
+                const numValue = Number(value);
+                return !isNaN(numValue) && isFinite(numValue) ? numValue : value;
+            });
+        } else if (dataType === 'boolean') {
+            return columnData.map(value => {
+                if (value === '' || value == null) return value;
+                if (typeof value === 'boolean') return value;
+                if (value === 'true') return true;
+                if (value === 'false') return false;
+                return value;
+            });
+        } else if (dataType === 'datetime') {
+            return columnData.map(value => {
+                if (value === '' || value == null) return value;
+                const dateValue = new Date(value);
+                return !isNaN(dateValue.getTime()) ? dateValue : value;
+            });
+        }
+
+        // For string type, return as-is
+        return columnData;
+    }
+
     // helper to rebuild with latest stored data
     private rebuildGridFromStore() {
         const container = this.$refs.gridContainer as HTMLElement;
@@ -242,9 +318,20 @@ export default class Grid extends Vue {
             return newRow;
         });
 
+        // Create columns data structure and detect data types for Grid Pro
         const columns: Record<string, any[]> = {};
+        const columnDataTypes: Record<string, string> = {};
+
         columnKeys.forEach((key) => {
-            columns[key] = paddedData.map((row) => row[key]);
+            const columnData = paddedData.map((row) => row[key]);
+
+            // Detect the data type for this column
+            const dataType = this.detectColumnDataType(columnData);
+            columnDataTypes[key] = dataType;
+
+            // Convert the data based on detected type
+            const convertedData = this.convertColumnData(columnData, dataType);
+            columns[key] = convertedData;
         });
 
         // Create header configuration with A, B, C as primary and CSV headers as secondary
@@ -295,6 +382,9 @@ export default class Grid extends Vue {
                 },
                 sorting: {
                     sortable: true
+                },
+                filtering: {
+                    enabled: true,
                 }
             },
             rendering: {
@@ -317,6 +407,7 @@ export default class Grid extends Vue {
                 const isHeaderColumn = index < headerColumnCount;
                 return {
                     id: key,
+                    dataType: columnDataTypes[key], // Set the detected data type
                     cells: {
                         editMode: {
                             enabled: true
