@@ -14,12 +14,8 @@
     "test": "vitest run",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "vue-tsc --noEmit",
-    "publish": "npm run lint && npm test && npm run build && node scripts/publish.mjs"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint && npm test"
-    }
+    "publish": "npm run lint && npm test && npm run build && node scripts/publish.mjs",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -44,7 +40,7 @@
     "eslint": "^10.15.0",
     "eslint-plugin-vue": "^10.12.1",
     "globals": "^17.14.0",
-    "husky": "^3.1.0",
+    "husky": "^9.1.7",
     "jsdom": "^31.0.1",
     "less": "^4.9.1",
     "typescript": "~6.0.3",
