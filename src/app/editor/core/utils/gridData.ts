@@ -10,7 +10,8 @@
     rows as text.
  */
 
-import type { Column } from '@highcharts/grid-pro/grid-pro';
+import type { Column, DataTable } from '@highcharts/grid-pro/grid-pro';
+import type { CellEvent } from '@highcharts/grid-pro/es-modules/Data/DataTable';
 
 export type GridColumnDataType = Column['dataType'];
 export type GridCellValue = string | number | boolean | null | undefined;
@@ -234,6 +235,37 @@ export function prepareGridData(rows: TableRowData[]): GridTableData {
 // Convert a grid cell value to the text stored in the store's rows.
 export function toStoreValue(value: GridCellValue): string {
     return value === null || value === void 0 ? '' : String(value);
+}
+
+// Call onEdit with each cell edited in the grid, until the returned function
+// is called. `table` is the grid's original data table (not the sorted and
+// filtered one), whose rows are the store's rows from firstDataRowIndex on.
+//
+// Grid Pro writes an edit to this table at the row's original index, then
+// sorts and filters the rows again and only then fires the cell's afterEdit
+// event, when the cell may show another row. So the edit is taken from the
+// table's afterSetCell event instead, which Grid Pro marks as coming from the
+// grid.
+export function onGridCellEdit(
+    table: DataTable,
+    firstDataRowIndex: number,
+    onEdit: (edit: CellEdit) => void
+): () => void {
+    // The event is typed here, as Grid Pro's typings resolve it to `never`
+    // for 'afterSetCell' (its CellEvent type covers 'setCell' as well).
+    const removeListener = table.on('afterSetCell', (e: CellEvent) => {
+        if (!e.detail?.fromGrid) {
+            return;
+        }
+        onEdit({
+            rowIndex: firstDataRowIndex + e.rowIndex,
+            columnId: e.columnId,
+            value: toStoreValue(e.cellValue)
+        });
+    });
+    return () => {
+        removeListener();
+    };
 }
 
 // Return the store's rows with an edited cell. Every row gets a value (or '')
