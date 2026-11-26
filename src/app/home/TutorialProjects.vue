@@ -18,13 +18,14 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import project from './tutorialImages/project.png';
 
-export default {
+export default defineComponent({
     data() {
         return { project };
     }
-};
+});
 
 </script>
 

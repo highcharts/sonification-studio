@@ -145,6 +145,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import Page from './Page.vue';
 import appThumb from './app-thumbnail.png';
 import codeIcon from './code-solid.svg';
@@ -152,7 +153,7 @@ import chartIcon from './chart-bar-regular.svg';
 import feedbackIcon from './comments-regular.svg';
 import tutorialIcon from './tutorial-icon.svg';
 
-export default {
+export default defineComponent({
     components: {
         Page
     },
@@ -162,8 +163,8 @@ export default {
     mounted() {
         // Add email after DOM loaded to prevent some spam
         setTimeout(() => {
-            (this.$refs.deferContentA as any).innerHTML = 'You can send us an email directly at ';
-            const deferredB = (this.$refs.deferContentB as any);
+            (this.$refs.deferContentA as HTMLElement).innerHTML = 'You can send us an email directly at ';
+            const deferredB = this.$refs.deferContentB as HTMLAnchorElement;
             const a = 'mail';
             const b = 'to:accessibility';
             const c = '@highsof';
@@ -173,7 +174,7 @@ export default {
             const f = '@highso';
             const g = 'ft.com';
             deferredB.innerHTML = [e, f, g].join('');
-            (this.$refs.deferContentC as any).innerHTML = ', and we will get back to you.';
+            (this.$refs.deferContentC as HTMLElement).innerHTML = ', and we will get back to you.';
         }, 800);
     },
     methods: {
@@ -181,7 +182,7 @@ export default {
             setTimeout(() => this.preload = false, 1);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

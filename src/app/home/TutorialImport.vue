@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-
+import { defineComponent } from 'vue';
 import gridAndChartBasic from './tutorialImages/gridAndChartBasic.png';
 import gridAndChartNull from './tutorialImages/gridAndChartNull.png';
 import gridTools from './tutorialImages/gridTools.png';
@@ -55,11 +55,11 @@ import gridAndChartText from './tutorialImages/gridAndChartText.png';
 import importCSV from './tutorialImages/importCSV.png';
 import googleSheet from './tutorialImages/googleSheet.png';
 
-export default {
+export default defineComponent({
     data() {
         return { gridAndChartBasic, gridAndChartNull, gridTools, gridAndChartText, importCSV, googleSheet };
     }
-};
+});
 
 </script>
 

@@ -20,13 +20,14 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import exporting from './tutorialImages/exporting.png';
 
-export default {
+export default defineComponent({
     data() {
         return { exporting };
     }
-};
+});
 
 </script>
 

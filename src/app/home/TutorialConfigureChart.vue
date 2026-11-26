@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts">
-
+import { defineComponent } from 'vue';
 import sidebar from './tutorialImages/sidebar.png';
 import commonChartTypes from './tutorialImages/commonChartTypes.png';
 import smoothedLine from './tutorialImages/smoothedLine.png';
@@ -81,11 +81,11 @@ import seriesVisible from './tutorialImages/seriesVisible.png';
 import legend from './tutorialImages/legend.png';
 import axisTypes from './tutorialImages/axisTypes.png';
 
-export default {
+export default defineComponent({
     data() {
         return { sidebar, commonChartTypes, smoothedLine, smoothedArea, area, seriesVisible, legend, axisTypes };
     }
-};
+});
 
 </script>
 
