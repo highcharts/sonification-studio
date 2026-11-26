@@ -12,21 +12,23 @@ Follow the below steps to get started developing on this project.
 
 ### Installation
 
-Clone this repository and install dependencies with `npm i`.
+The project requires Node.js 26 or newer (see `.nvmrc`; run `nvm use` if you use nvm). Clone this repository and install dependencies with `npm install`.
 
 ### Build
 
-To build the project and start a dev server, run `npm run dev`.
+To start a dev server with hot reloading, run `npm run dev`.
 
-To build for production, run `npm run build`. The build output is placed in the `dist` directory.
+To build for production, run `npm run build`. The build output is placed in the `dist` directory, with relative asset URLs so it can be served from any subdirectory. Run `npm run preview` to serve the production build locally.
 
-To lint without building, run `npm run lint`. Linting is otherwise ran automatically before each build and commit.
+To lint, run `npm run lint`. Linting is otherwise run automatically before each commit.
 
-We are using ParcelJS for bundling files. Typescript is used for transpilation, and Vue is used as a front-end framework. Eslint is used for linting, with plugins for Typescript and Vue. 
+We are using [Vite](https://vite.dev) for the dev server and bundling. TypeScript is used for transpilation, and [Vue 3](https://vuejs.org) is used as a front-end framework, with Vue Router and Vuex. ESLint is used for linting, with plugins for TypeScript and Vue, configured in `eslint.config.js` (flat config). Vite is configured in `vite.config.ts`. Static files that are copied to the build as-is (favicons, web manifest, `.nojekyll`) are in `/public`, and the HTML entry point is `/index.html`.
 
 ### Publish
 
 To build and publish to GitHub pages, ensure app version is correct in `package.json`, run `npm run publish`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
+
+`npm run publish` runs the linter and the tests, builds the app (minified, without source maps) and runs `scripts/publish.mjs`, which replaces `docs/<version>` with the contents of `dist`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`.
 
 If publishing on other platforms than GitHub, remove the `.nojekyll` files, and ensure index pages are named correctly (`index.html` vs `home.html`).
 
@@ -36,19 +38,19 @@ The contents of the `docs` directory is automatically served on the [GitHub page
 
 To run unit tests, run `npm test`.
 
-Jest is used as the test framework. The tests can be found under `/test`.
+[Vitest](https://vitest.dev) is used as the test framework, with Vue Test Utils for component tests. The tests can be found under `/test`.
 
-Tests are ran automatically before each commit.
+Tests are run automatically before each commit.
 
 ### Studies
 
-Studies are stored under `/src/app/studies`, and are copied to `/docs/studies` with their original directory structure upon building/publishing.
+Studies are stored under `/src/app/studies`, and are copied to `/docs/<version>/studies` with their original directory structure upon publishing.
 
 These studies are used for publishing demos around research efforts from Highcharts related to sonification.
 
 ### Source files
 
-Source files are found under `/src/app`, with `/src/app/editor` containing components for the editor itself, and `/src/app/home` containing components for the landing page. `/src/editor/core` contains the program logic and utilities, and `/src/editor/store` contains the Vuex data store modules with default parameters.
+Source files are found under `/src/app`, with `/src/app/public/app.ts` as the entry point, `/src/app/editor` containing components for the editor itself, and `/src/app/home` containing components for the landing page. `/src/app/editor/core` contains the program logic and utilities, and `/src/app/editor/store` contains the Vuex data store modules with default parameters.
 
 ### Notable dependencies
 

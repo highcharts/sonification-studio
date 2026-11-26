@@ -34,7 +34,6 @@
     do the conversion (see seriesOptionsMapper).
 */
 
-import Vue from 'vue';
 import { GenericObject } from '../../core/utils/objects';
 
 interface SeriesParameterOptions {
@@ -58,10 +57,10 @@ export const seriesParametersStore = {
         restoreStoreState(state: any, newState?: GenericObject) {
             const setOption = (root: GenericObject, key: string, val: any) => {
                 if (typeof val !== 'object' || val === null) {
-                    Vue.set(root, key, val);
+                    root[key] = val;
                 } else {
                     if (typeof root[key] !== 'object' || root[key] === null) {
-                        Vue.set(root, key, {});
+                        root[key] = {};
                     }
                     for (const [subKey, subVal] of Object.entries(val)) {
                         setOption(root[key], subKey, subVal);
@@ -70,7 +69,7 @@ export const seriesParametersStore = {
             };
 
             // Reset
-            Vue.set(state, 'seriesParameters', {});
+            state.seriesParameters = {};
 
             if (newState) {
                 for (const [seriesId, options] of Object.entries(newState.seriesParameters)) {
@@ -80,24 +79,24 @@ export const seriesParametersStore = {
         },
 
         clearState(state: any) {
-            Vue.set(state, 'seriesParameters', {});
+            state.seriesParameters = {};
         },
 
         setSeriesParameter(state: any, options: SeriesParameterOptions) {
             const seriesParams = state.seriesParameters;
             const id = options.seriesId;
             if (!seriesParams[id]) {
-                Vue.set(seriesParams, id, {});
+                seriesParams[id] = {};
             }
 
             const seriesOptions = seriesParams[id];
             const parent = options.nestedUnderParent;
             if (parent && !seriesOptions[parent]) {
-                Vue.set(seriesOptions, parent, {});
+                seriesOptions[parent] = {};
             }
 
             const obj = parent ? seriesOptions[parent] : seriesOptions;
-            Vue.set(obj, options.parameterName, options.parameterValue);
+            obj[options.parameterName] = options.parameterValue;
         }
     }
 };

@@ -669,7 +669,6 @@ export class ChartBridge {
         canvas.width = chartEl.offsetWidth;
         canvas.height = chartEl.offsetHeight;
 
-        // eslint-disable-next-line
         const unusedCtx = canvas.getContext('2d'); // Because of bug in firefox, must get context before capt.stream.
         const canvasStream = (canvas as any).captureStream(framerate);
         if (!canvasStream) {
@@ -905,7 +904,7 @@ export class ChartBridge {
         mutation: string,
         interval: number,
         timeoutId: string,
-        beforeTrigger?: Function
+        beforeTrigger?: () => void
     ) {
         const timeouts = this.reactivityTimeouts;
         if (!timeouts[timeoutId]) {

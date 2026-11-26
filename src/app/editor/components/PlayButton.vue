@@ -24,7 +24,8 @@ export default {
     props: {
         iconPath: { type: String, required: true },
         enabled: { type: Boolean, default: true }
-    }
+    },
+    emits: ['click', 'mouseup', 'mousedown', 'keydown', 'keyup']
 };
 </script>
 

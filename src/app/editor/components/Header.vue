@@ -16,7 +16,7 @@
                 </h1>
             </div>
 
-            {{ /* Use button element because of potential vue-router issue with #-links */ }}
+            <!-- Use button element because of potential vue-router issue with #-links -->
             <button
                 role="link"
                 class="skip-link sr-only"

@@ -3,8 +3,6 @@
     used across multiple components.
 */
 
-import Vue from 'vue';
-
 interface SelectHeaderTabPayload {
     selectedTabId: string;
     contentId: string;
@@ -86,11 +84,11 @@ export const viewStore = {
         },
 
         setExpandedSeriesAudioAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
-            Vue.set(state.expandedSeriesAudioAccordionItems, payload.itemName, payload.expanded);
+            state.expandedSeriesAudioAccordionItems[payload.itemName] = payload.expanded;
         },
 
         setExpandedChartMappingsAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
-            Vue.set(state.expandedChartMappingsAccordionItems, payload.itemName, payload.expanded);
+            state.expandedChartMappingsAccordionItems[payload.itemName] = payload.expanded;
         },
 
         setExpandedGlobalAudioBasicAccordionItem(state: any, selected: boolean) {

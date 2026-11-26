@@ -1,16 +1,18 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
+import { createApp, defineComponent, h, markRaw } from 'vue';
+import { createRouter, createWebHashHistory, RouteLocationNormalized } from 'vue-router';
 import Editor from '../editor/Editor.vue';
 import Home from '../home/Home.vue';
 import Tutorial from '../home/Tutorial.vue';
 import App from '../App.vue';
+import Highcharts from '../editor/core/highchartsSetup';
+import { ChartBridge } from '../editor/core/ChartBridge';
+import { store } from '../editor/store/store';
 import { removeFocusOutlineUnlessKeypress } from '../editor/core/utils/removeFocusOutline';
 import Announcer from '../editor/core/utils/Announcer';
 const routeAnnouncer = new Announcer();
 
-Vue.use(VueRouter);
-
-const router = new VueRouter({
+const router = createRouter({
+    history: createWebHashHistory(),
     routes: [{
         path: '/',
         component: Home,
@@ -26,11 +28,9 @@ const router = new VueRouter({
     }]
 });
 
-new Vue({
-    el: '#app',
-    router,
+const app = createApp(defineComponent({
     watch: {
-        $route: function(to) {
+        $route: function(to: RouteLocationNormalized) {
             document.body.setAttribute('aria-busy', 'true');
             this.$nextTick(() => {
                 const title = to.meta.title;
@@ -65,5 +65,20 @@ new Vue({
             console.error('No element available for routing announcements.');
         }
     },
-    render: h => h(App)
-});
+    render: () => h(App)
+}));
+
+// Editor-wide singletons, available in all components as this.$chartBridge
+// and this.$announcer (typed in src/env.d.ts).
+const chartBridge = new ChartBridge(store, Highcharts);
+const announcer = new Announcer();
+chartBridge.initAnnouncer(announcer);
+app.config.globalProperties.$chartBridge = markRaw(chartBridge);
+app.config.globalProperties.$announcer = announcer;
+
+app.use(store);
+app.use(router);
+
+// Resolve the initial route before mounting, so the $route watcher above only
+// fires on actual navigation and not on initial page load.
+router.isReady().then(() => app.mount('#app'));

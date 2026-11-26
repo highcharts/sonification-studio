@@ -1,5 +1,4 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import { createStore, Store } from 'vuex';
 
 import { dataStore } from './modules/data';
 import { viewStore } from './modules/view';
@@ -8,7 +7,14 @@ import { seriesParametersStore } from './modules/seriesParameters';
 import { globalSonifyParametersStore } from './modules/globalSonifyParameters';
 import { GenericObject } from '../core/utils/objects';
 
-Vue.use(Vuex);
+// Root state of the store: one entry per store module.
+export interface RootState {
+    chartParametersStore: GenericObject;
+    seriesParametersStore: GenericObject;
+    dataStore: GenericObject;
+    globalSonifyParametersStore: GenericObject;
+    viewStore: GenericObject;
+}
 
 // Bump this when making breaking changes to the store API. This will invalidate the
 // localStorage cache, and clear old revisions. Will also give user a warning if they
@@ -20,7 +26,7 @@ export const storageKey = 'highcharts.sonification.studio.appstate';
 
 let persistTimer: number;
 
-export const store = new Vuex.Store({
+export const store: Store<RootState> = createStore<RootState>({
     modules: {
         chartParametersStore,
         seriesParametersStore,
@@ -28,7 +34,7 @@ export const store = new Vuex.Store({
         globalSonifyParametersStore,
         viewStore
     },
-    plugins: [function persistToLocalStorage (store) {
+    plugins: [function persistToLocalStorage (store: Store<RootState>) {
         store.subscribe((mutation, state) => {
             if (mutation.type.indexOf('viewStore') < 0) {
                 clearTimeout(persistTimer);

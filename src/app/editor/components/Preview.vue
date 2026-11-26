@@ -3,11 +3,10 @@
         <div
             :class="['chart-container', { blur: loadingChart }]"
         >
-            <highcharts
+            <HighchartsChart
                 ref="chart"
                 class="chart"
                 :options="chartOptions"
-                :update-args="[true, true]"
                 :constructor-type="'stockChart'"
             />
         </div>
@@ -30,10 +29,22 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
+import { Chart } from 'highcharts-vue';
+import type { Chart as HighchartsChartInstance, Options } from 'highcharts';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
 
-export default {
+// The highcharts-vue component instance, as seen through a template ref
+interface ChartComponent {
+    chart?: HighchartsChartInstance;
+}
+
+export default defineComponent({
+    components: {
+        HighchartsChart: Chart
+    },
+
     data() {
         return {
             spinnerIcon
@@ -41,44 +52,42 @@ export default {
     },
 
     computed: {
-        ...mapState({
-            tableCSV: (state: any) => state.dataStore.tableCSV,
-            reactToParameterUpdates: (state: any) => state.viewStore.reactToParameterUpdates,
-            loadingChart: (state: any) => state.viewStore.loadingChart
-        }),
+        ...mapState('dataStore', ['tableCSV']),
+        ...mapState('viewStore', ['reactToParameterUpdates', 'loadingChart']),
 
-        chartOptions() {
-            const chartBridge = (this as any)?.$chartBridge;
-            return chartBridge
-                ?.reactiveGet('buildChartOptions', this.reactToParameterUpdates, this.tableCSV) ||
-                {};
+        chartOptions(): Options {
+            return this.$chartBridge.reactiveGet(
+                'buildChartOptions', this.reactToParameterUpdates, this.tableCSV
+            ) || {};
         }
-    },
-    watch: {
-        // Wait until <highcharts> has mounted and provided a chart
-        '$refs.chart'(val) {
-            const chart = (this.$refs.chart as any)?.chart;
-            if (chart && !(this as any).$chartBridge.chart) {
-                (this as any).$chartBridge.init(chart);
-            }
-        },
     },
 
     mounted() {
         this.$nextTick(() => {
-            const chart = (this.$refs.chart as any)?.chart;
+            const chart = (this.$refs.chart as ChartComponent | undefined)?.chart;
             if (chart) {
-                const chartBridge = (this as any).$chartBridge;
+                const chartBridge = this.$chartBridge;
                 chartBridge.init(chart);
 
                 const csv = this.$store.state.dataStore.tableCSV;
                 this.$store.dispatch('dataStore/loadFromCSV', csv); // ✅ safe to call now
             }
         });
+    },
+
+    beforeUnmount() {
+        // highcharts-vue 2.0.2 does not destroy its chart when unmounted (its
+        // beforeUnmount hook is an arrow function without access to the
+        // component), so destroy it here, as highcharts-vue 1 did on Vue 2.
+        // Clearing the reference keeps a fixed highcharts-vue from destroying
+        // it twice.
+        const chartComponent = this.$refs.chart as ChartComponent | undefined;
+        if (chartComponent?.chart) {
+            chartComponent.chart.destroy();
+            chartComponent.chart = undefined;
+        }
     }
-
-
-};
+});
 </script>
 
 <style lang="less" scoped>
@@ -107,7 +116,7 @@ export default {
     .hc-fade-enter-active, .hc-fade-leave-active {
         transition: opacity 0.1s;
     }
-    .hc-fade-enter, .hc-fade-leave-to {
+    .hc-fade-enter-from, .hc-fade-leave-to {
         will-change: opacity;
         opacity: 0;
     }
