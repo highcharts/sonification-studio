@@ -31,7 +31,13 @@ export default defineComponent({
         }
     },
     mounted() {
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', this.onDocumentKeydown);
+    },
+    beforeUnmount() {
+        document.removeEventListener('keydown', this.onDocumentKeydown);
+    },
+    methods: {
+        onDocumentKeydown(e: KeyboardEvent) {
             if (this.selectedHeaderTabId === 'Chart') {
                 if (keyPressed(Keys.Period, Modifiers.Ctrl, e)) {
                     this.volumeUp();
@@ -41,9 +47,7 @@ export default defineComponent({
                     e.preventDefault();
                 }
             }
-        });
-    },
-    methods: {
+        },
         volumeUp() {
             const newVol = Math.min(this.volume + 5, 130);
             this.$store.commit('globalSonifyParametersStore/setVolume', newVol);

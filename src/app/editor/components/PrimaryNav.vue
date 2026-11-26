@@ -81,7 +81,13 @@ export default defineComponent({
         }
     },
     mounted() {
-        document.addEventListener('keydown', e => {
+        document.addEventListener('keydown', this.onDocumentKeydown);
+    },
+    beforeUnmount() {
+        document.removeEventListener('keydown', this.onDocumentKeydown);
+    },
+    methods: {
+        onDocumentKeydown(e: KeyboardEvent) {
             if (keyPressed(Keys.Esc, Modifiers.None, e) && this.helpVisible) {
                 this.hideHelpDialog();
             } else if ((
@@ -91,9 +97,7 @@ export default defineComponent({
             ) {
                 this.onHelpClick();
             }
-        });
-    },
-    methods: {
+        },
         hideHelpDialog() {
             this.helpVisible = false;
             this.$nextTick(() => setTimeout(

@@ -162,7 +162,11 @@ export class ChartBridge {
                       },
                   }
                 : {
-                      csv: csv || 'null',
+                      // A CSV of only line breaks (a cleared grid) must not
+                      // reach the data module: it finds no columns and calls
+                      // its afterComplete hook twice, so a chart created
+                      // with it initializes twice and destroys itself.
+                      csv: csv?.trim() ? csv : 'null',
                       columns: null,
                       firstRowAsNames: true,
                       googleSpreadsheetKey: '',

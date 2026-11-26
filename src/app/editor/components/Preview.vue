@@ -76,6 +76,11 @@ export default defineComponent({
     },
 
     beforeUnmount() {
+        // Stop playback first, which also ends the chart bridge's progress
+        // polling: it would otherwise keep committing to the store after
+        // the chart is gone.
+        this.$chartBridge.stopChart();
+
         // highcharts-vue 2.0.2 does not destroy its chart when unmounted (its
         // beforeUnmount hook is an arrow function without access to the
         // component), so destroy it here, as highcharts-vue 1 did on Vue 2.
