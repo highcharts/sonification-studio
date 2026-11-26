@@ -196,6 +196,8 @@ export default defineComponent({
                             // Unless a later render has replaced it
                             if (grid === this.gridInstance) {
                                 this.watchGridEdits(grid, tableData.firstDataRowIndex);
+                                // Grid Pro 3.2 workaround, see gridProSetup.ts
+                                void grid.viewport?.syncAriaRowIndexes();
                             }
                             resolve();
                         })
