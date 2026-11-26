@@ -82,7 +82,7 @@ import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import SEInputbox from './basic/SEInputbox.vue';
 import SEControl from './basic/SEControl.vue';
-import { useDataStore } from '../store/modules/data';
+import { type TableRow, useDataStore } from '../store/modules/data';
 
 type ColumnDropdownItem = { name: string; value: string };
 
@@ -112,7 +112,7 @@ export default defineComponent({
     methods: {
         onClearDataClick() {
             if (window.confirm('This will clear all data from the grid. Proceed?')) {
-                const emptyRowData = Array.from(Array(10), () => []);
+                const emptyRowData: TableRow[] = Array.from(Array(10), () => ({}));
                 this.dataStore.setTableRowData(emptyRowData);
                 // A timeout seems to be required in order for the announcement not to be overshadowed.
                 setTimeout(() => this.$announcer.announce('Data table cleared.'), 500);
