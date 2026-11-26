@@ -148,7 +148,7 @@ export class ChartBridge {
                       googleAPIKey: this.dataStore.googleApiKey,
                       googleSpreadsheetKey: this.dataStore.googleSpreadsheetId,
                       enablePolling: this.dataStore.googleAutoUpdateEnabled,
-                      dataRefreshRate: this.dataStore.googleAutoUpdateEnabled,
+                      dataRefreshRate: this.dataStore.googleAutoUpdateFrequency,
                       error: (text: string) => {
                           const errObj = JSON.parse(text);
                           const message = errObj?.error?.message || 'Unknown error';
