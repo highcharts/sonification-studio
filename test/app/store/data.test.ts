@@ -336,6 +336,14 @@ describe('data store', () => {
             expect(store.tableColumnNamesWithData).toEqual(['A', 'C', 'D', 'E']);
         });
 
+        test('tableColumnNamesWithData lists the columns in column order, other keys last', () => {
+            const store = useDataStore();
+            store.setTableRowData([
+                { other: 'o', COL10: '10', COL2: '2', D: 'd', COL1: '1', _: '_', Z: 'z', B: 'b' }
+            ]);
+            expect(store.tableColumnNamesWithData).toEqual(['B', 'D', 'Z', 'COL1', 'COL2', 'COL10', '_', 'other']);
+        });
+
         test('column returns the values of a column, null where missing', () => {
             const store = useDataStore();
             store.setTableRowData([{ A: 'h', B: 'x' }, { A: '1' }, { A: '2', B: '' }]);

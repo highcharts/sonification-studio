@@ -215,7 +215,14 @@ export const useDataStore = defineStore('data', {
                 }
             }
 
-            return Object.keys(res).sort();
+            // In column order (A to Z, then COL1, COL2, ...), other keys
+            // after them by name
+            const getOrder = (columnName: string): number => {
+                const index = getColumnIndex(columnName);
+                return index < 0 ? Infinity : index;
+            };
+            return Object.keys(res).sort((a, b) =>
+                getOrder(a) - getOrder(b) || (a < b ? -1 : a > b ? 1 : 0));
         },
 
         column: (state): ((key: string) => Array<TableCellValue>) => {
