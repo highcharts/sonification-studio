@@ -10,7 +10,7 @@
     Menu options object form:
         options = [{
             label: 'Unique label',
-            icon: Icon object
+            icon: Icon URL,
             type: 'button'|'fileupload',
             fileTypes: '.txt,.csv' etc for file upload
             onclick: Function called on click for button items
@@ -118,8 +118,7 @@ export default defineComponent({
         buttonText: { type: String, required: true },
         buttonIcon: { type: String, required: true },
         options: { type: Array as PropType<SEDropdownMenuOption[]>, required: true },
-        heading: { type: String, default: '' },
-        fileTypes: { type: String, default: '.txt,.csv' }
+        heading: { type: String, default: '' }
     },
     data() {
         return {
