@@ -52,6 +52,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import Page from './Page.vue';
 import SEAccordionItem from '../editor/components/basic/SEAccordionItem.vue';
 import SEAccordionContainer from '../editor/components/basic/SEAccordionContainer.vue';
@@ -62,7 +63,14 @@ import TutorialExport from './TutorialExport.vue';
 import TutorialProjects from './TutorialProjects.vue';
 import arrowIcon from '../editor/assets/arrow-down.svg';
 
-export default {
+// The methods of SEAccordionItem used here
+interface AccordionItem {
+    expand(): void;
+    collapse(): void;
+    isExpanded(): boolean;
+}
+
+export default defineComponent({
     components: {
         Page, SEAccordionItem, SEAccordionContainer, TutorialImport, TutorialConfigureChart,
         TutorialConfigureAudio, TutorialExport, TutorialProjects
@@ -91,15 +99,15 @@ export default {
     },
     methods: {
         expandAll() {
-            (this.$refs.accordionComponents as Array<any>).forEach(
+            (this.$refs.accordionComponents as AccordionItem[]).forEach(
                 c => this.isAnyCollapsed ? c.expand() : c.collapse());
             this.isAnyCollapsed = !this.isAnyCollapsed;
         },
         updateIsCollapsed() {
-            this.isAnyCollapsed = (this.$refs.accordionComponents as Array<any>).some(c => !c.isExpanded());
+            this.isAnyCollapsed = (this.$refs.accordionComponents as AccordionItem[]).some(c => !c.isExpanded());
         }
     }
-};
+});
 </script>
 
 <style lang="less">

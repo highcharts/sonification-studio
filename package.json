@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint .",
-    "publish": "npm run build && node scripts/publish.mjs"
+    "publish": "npm run lint && npm test && npm run build && node scripts/publish.mjs"
   },
   "husky": {
     "hooks": {

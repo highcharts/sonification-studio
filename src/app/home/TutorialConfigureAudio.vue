@@ -76,6 +76,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import sidebarAudio from './tutorialImages/sidebarAudio.png';
 import audioEnabled from './tutorialImages/audioEnabled.png';
 import sidebarBasic from './tutorialImages/sidebarBasic.png';
@@ -83,11 +84,11 @@ import audioMapped from './tutorialImages/audioMapped.png';
 import audioFixed from './tutorialImages/audioFixed.png';
 import contexts from './tutorialImages/contexts.png';
 
-export default {
+export default defineComponent({
     data() {
         return { sidebarAudio, audioEnabled, sidebarBasic, audioMapped, audioFixed, contexts };
     }
-};
+});
 
 </script>
 
