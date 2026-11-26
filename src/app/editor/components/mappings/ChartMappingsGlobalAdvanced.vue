@@ -79,11 +79,12 @@
 
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SECheckbox,
@@ -121,31 +122,31 @@ export default {
     },
     computed: {
         chartLegendEnabled: {
-            get() { return (this as any).$store.state.chartParametersStore.legendEnabled; },
-            set(val) { return this.$store.commit('chartParametersStore/setLegendEnabled', val); }
+            get(): boolean { return this.$store.state.chartParametersStore.legendEnabled; },
+            set(val: boolean) { return this.$store.commit('chartParametersStore/setLegendEnabled', val); }
         },
         sharedTooltipEnabled: {
-            get() { return (this as any).$store.state.chartParametersStore.sharedTooltipEnabled; },
-            set(val) { return this.$store.commit('chartParametersStore/setSharedTooltipEnabled', val); }
+            get(): boolean { return this.$store.state.chartParametersStore.sharedTooltipEnabled; },
+            set(val: boolean) { return this.$store.commit('chartParametersStore/setSharedTooltipEnabled', val); }
         },
         chartInverted: {
-            get() { return (this as any).$store.state.chartParametersStore.inverted; },
-            set(val) { return this.$store.commit('chartParametersStore/setChartInverted', val); }
+            get(): boolean { return this.$store.state.chartParametersStore.inverted; },
+            set(val: boolean) { return this.$store.commit('chartParametersStore/setChartInverted', val); }
         },
         seriesLabelsEnabled: {
-            get() { return (this as any).$store.state.chartParametersStore.seriesLabelsEnabled; },
-            set(val) { return this.$store.commit('chartParametersStore/setSeriesLabelsEnabled', val); }
+            get(): boolean { return this.$store.state.chartParametersStore.seriesLabelsEnabled; },
+            set(val: boolean) { return this.$store.commit('chartParametersStore/setSeriesLabelsEnabled', val); }
         },
         zoomType: {
-            get() { return (this as any).$store.state.chartParametersStore.zoomType; },
-            set(val) { return this.$store.commit('chartParametersStore/setZoomType', val); }
+            get(): string { return this.$store.state.chartParametersStore.zoomType; },
+            set(val: string) { return this.$store.commit('chartParametersStore/setZoomType', val); }
         },
         dataGroupingType: {
-            get() { return (this as any).$store.state.chartParametersStore.dataGroupingType; },
-            set(val) { return this.$store.commit('chartParametersStore/setDataGroupingType', val); }
+            get(): string { return this.$store.state.chartParametersStore.dataGroupingType; },
+            set(val: string) { return this.$store.commit('chartParametersStore/setDataGroupingType', val); }
         }
     }
-};
+});
 </script>
 
 

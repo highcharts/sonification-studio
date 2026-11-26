@@ -19,6 +19,4 @@ import { negativeLogPlugin } from './utils/chartUtils';
 
 negativeLogPlugin(Highcharts);
 
-//window.Highcharts = Highcharts; // Expose on window for debugging
-
 export default Highcharts;

@@ -124,7 +124,7 @@
             </div>
 
             <button
-                :aria-expanded="context.showDetails"
+                :aria-expanded="context.showDetails ? 'true' : 'false'"
                 class="details-btn"
                 @click="context.showDetails = !context.showDetails"
             >
@@ -149,7 +149,7 @@
                         :id="slotProps.controlId"
                         v-model="context.instrument"
                         :options="instruments"
-                        @input="onInstrumentChange(context)"
+                        @update:model-value="onInstrumentChange(context)"
                     />
                 </SEControl>
                 <SEControl
@@ -258,6 +258,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEButton from '../basic/SEButton.vue';
 import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
@@ -267,6 +268,7 @@ import addIcon from '../../assets/plus-solid.svg';
 import removeIcon from '../../assets/xmark-solid.svg';
 import arrowDownIcon from '../../assets/arrow-down.svg';
 import { mapState } from 'vuex';
+import { GenericObject } from '../../core/utils/objects';
 
 // Get step value for a slider to fit range
 function getSliderStep(range: number, steps: number): number {
@@ -284,7 +286,7 @@ function getSliderStep(range: number, steps: number): number {
 }
 
 
-export default {
+export default defineComponent({
     components: {
         SEButton,
         SEControl,
@@ -310,27 +312,26 @@ export default {
         };
     },
     computed: {
-        instruments() {
-            return (this as any).$chartBridge.getAvailableInstruments();
+        instruments(): Array<Record<'name' | 'value', string>> {
+            return this.$chartBridge.getAvailableInstruments();
         },
-        xRange() {
+        xRange(): Record<'min' | 'max', number> {
             return this.getPropRange('x');
         },
-        yRange() {
+        yRange(): Record<'min' | 'max', number> {
             return this.getPropRange('y');
         },
-        xStep() {
+        xStep(): number {
             return getSliderStep(this.xRange.max - this.xRange.min, 200);
         },
-        yStep() {
+        yStep(): number {
             return getSliderStep(this.yRange.max - this.yRange.min, 200);
         },
-        ...mapState({
-            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates,
-            contexts: (state: any) => state.globalSonifyParametersStore.contexts,
-            selectedHeaderTabContent: (state: any) => state.viewStore.selectedHeaderTabContent,
-            xAxisIsDate: (state: any) => state.chartParametersStore.xAxisType === 'datetime'
-        })
+        ...mapState('viewStore', ['reactToDataUpdates', 'selectedHeaderTabContent']),
+        ...mapState('globalSonifyParametersStore', ['contexts']),
+        xAxisIsDate(): boolean {
+            return this.$store.state.chartParametersStore.xAxisType === 'datetime';
+        }
     },
     watch: {
         contexts: {
@@ -357,8 +358,8 @@ export default {
                 inactive
             });
         },
-        getPropRange(prop: string) {
-            const range = (this as any).$chartBridge.reactiveGet(
+        getPropRange(prop: string): Record<'min' | 'max', number> {
+            const range = this.$chartBridge.reactiveGet(
                 'getMinMaxValuesForProp', this.reactToDataUpdates, prop);
 
             // Add null checks for range and its properties
@@ -374,13 +375,13 @@ export default {
             }
             return range;
         },
-        onInstrumentChange(context) {
+        onInstrumentChange(context: GenericObject) {
             if (context.instrument && this.selectedHeaderTabContent !== 'dataContent') {
-                (this as any).$chartBridge.playAudioSample(context.instrument);
+                this.$chartBridge.playAudioSample(context.instrument);
             }
         },
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
