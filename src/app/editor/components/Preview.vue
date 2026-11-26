@@ -84,6 +84,17 @@ export default defineComponent({
         });
     },
 
+    // Highcharts throws on options it can not render (e.g. error #17 for an
+    // unknown series type). Thrown from highcharts-vue's options watcher,
+    // such an error would abort Vue's update of the editor and leave it
+    // broken, so log it, tell the user, and keep the app running. The chart
+    // recovers with the next options it can render.
+    errorCaptured(error: unknown) {
+        console.error('Could not update the chart:', error);
+        this.$announcer.announce('The chart could not be updated.');
+        return false;
+    },
+
     beforeUnmount() {
         // Stop playback first, which also ends the chart bridge's progress
         // polling: it would otherwise keep committing to the store after
