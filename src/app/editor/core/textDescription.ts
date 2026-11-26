@@ -1,7 +1,15 @@
-import { GenericObject } from './utils/objects';
+import type { TableCellValue, TableRow } from '../store/modules/data';
+import { isHeaderRow } from './utils/gridData';
 
 function removeRedundantNumberPrecision(str: string): string {
     return str.replace(/\.0+(\D)/g, '$1');
+}
+
+
+// The text of a cell, trimmed. Empty for a missing cell (the rows of an
+// imported CSV leave out empty cells) or null. Project files may hold numbers.
+function getCellText(cell: TableCellValue | undefined): string {
+    return cell === null || cell === undefined ? '' : String(cell).trim();
 }
 
 
@@ -10,10 +18,10 @@ function getNumericalColumn(columnData: Array<string>) {
     let lastValueIx = 0;
 
     for (const cell of columnData) {
-        if (cell === null || !cell.trim()) {
+        if (!cell) {
             numerical.push(null);
         } else {
-            if (isNaN(cell as any)) {
+            if (isNaN(Number(cell))) {
                 return null;
             }
             lastValueIx = numerical.push(parseFloat(cell));
@@ -29,7 +37,7 @@ function getNumericalColumn(columnData: Array<string>) {
 
 
 function describeStringColumn(columnData: Array<string>): string {
-    const rowsWithData = columnData.filter((cell): boolean => !!cell.trim());
+    const rowsWithData = columnData.filter((cell): boolean => !!cell);
     const numRows = rowsWithData.length;
 
     if (!numRows) {
@@ -66,15 +74,20 @@ function describeNumericalColumn(columnData: Array<number|null>): string {
 
 
 /**
- * Create text description for a column with data.
+ * Create a text description of the table's columns with the given ids. When
+ * the first row holds the CSV headers (as the grid and the chart take it), a
+ * column is named by its header, and the header is not described as data.
  */
-export function describeTable(table: GenericObject): string {
-    const descriptions = [];
-    for (const [columnName, columnData] of Object.entries(table)) {
+export function describeTable(rows: TableRow[], columnIds: string[]): string {
+    const hasHeaderRow = isHeaderRow(rows[0]);
+    const headerRow = hasHeaderRow ? rows[0] : {};
+    const dataRows = hasHeaderRow ? rows.slice(1) : rows;
+
+    return columnIds.map((columnId) => {
+        const columnData = dataRows.map((row) => getCellText(row[columnId]));
         const numerical = getNumericalColumn(columnData);
         const columnDesc = numerical ? describeNumericalColumn(numerical) : describeStringColumn(columnData);
-        descriptions.push(columnName + ': ' + columnDesc);
-    }
-
-    return descriptions.join('\n');
+        const columnName = getCellText(headerRow[columnId]) || columnId;
+        return columnName + ': ' + columnDesc;
+    }).join('\n');
 }

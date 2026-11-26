@@ -45,7 +45,6 @@ import { defineComponent } from 'vue';
 import { mapStores } from 'pinia';
 import SEButton from './basic/SEButton.vue';
 import SEControl from './basic/SEControl.vue';
-import { GenericObject } from '../core/utils/objects';
 import { describeTable } from '../core/textDescription';
 import { useDataStore } from '../store/modules/data';
 
@@ -72,13 +71,10 @@ export default defineComponent({
                 this.onToggleExpand();
             }
             if (!this.textDescription || window.confirm('This will replace the existing description. Continue?')) {
-                const columnsWithData = this.dataStore.tableColumnNamesWithData;
-                const columnData = columnsWithData.reduce((acc: GenericObject, columnName: string) => {
-                    acc[columnName] = this.dataStore.column(columnName);
-                    return acc;
-                }, {});
-
-                this.textDescription = describeTable(columnData);
+                this.textDescription = describeTable(
+                    this.dataStore.tableRowData,
+                    this.dataStore.tableColumnNamesWithData
+                );
 
                 const description = this.$refs.description as HTMLElement;
                 this.$nextTick(() => setTimeout(() => description.focus(), 20));
