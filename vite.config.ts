@@ -13,6 +13,12 @@ export default defineConfig({
         // in SEModalInfo's header).
         template: { compilerOptions: { whitespace: 'preserve' } }
     })],
+    optimizeDeps: {
+        // Only scan the app's entry point for dependencies to pre-bundle.
+        // By default the dev server scans every HTML file in the project,
+        // including each published version's docs/*/index.html.
+        entries: ['index.html']
+    },
     build: {
         outDir: 'dist',
         emptyOutDir: true,

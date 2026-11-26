@@ -82,11 +82,11 @@ describe('Project file handling', () => {
             });
             expect(seriesParams['se-hc-series-id-1'].seriesVisible).toBe(false);
 
-            // Global sonification parameters: the restored keys only
+            // Global sonification parameters: every key from the file
             const globalSonify = useGlobalSonifyParametersStore();
             const restoredKeys = [
-                'volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail',
-                'speed', 'order', 'contexts'
+                'volume', 'playMarkerEnabled', 'tooltipMarkerEnabled', 'minNote', 'maxNote', 'panEnabled',
+                'panWidth', 'detail', 'speed', 'order', 'contexts'
             ] as const;
             restoredKeys.forEach(key => expect(JSON.parse(JSON.stringify(globalSonify[key])))
                 .toEqual(fixtureState.globalSonifyParametersStore[key]));
@@ -96,8 +96,8 @@ describe('Project file handling', () => {
             expect(globalSonify.contexts[1]).toMatchObject({
                 valueInterval: '10', playWhenType: 'always', instrument: 'shaker', pitchNote: 72, pan: 20
             });
-            // Not in the restore list
-            expect(globalSonify.tooltipMarkerEnabled).toBe(true);
+            // The file's false replaces the true set above
+            expect(globalSonify.tooltipMarkerEnabled).toBe(false);
             // New contexts continue after the loaded ids
             globalSonify.addContext({ valueRange: null, inactive: false });
             expect(globalSonify.contexts[2].id).toBe(3);
@@ -218,8 +218,10 @@ describe('Project file handling', () => {
             useSeriesParametersStore().setSeriesParameter({
                 seriesId: 'se-hc-series-id-1', parameterName: 'min', parameterValue: 40, nestedUnderParent: 'pitchOptions'
             });
-            useDataStore().updateCellValue({ rowIndex: 2, columnName: 'B', value: '7' });
-            useDataStore().setTextDescription('Changed description');
+            // A cell edit, as the grid stores it
+            const data = useDataStore();
+            data.setTableRowData(data.tableRowData.map((row, i) => i === 2 ? { ...row, B: '7' } : row));
+            data.setTextDescription('Changed description');
             useGlobalSonifyParametersStore().removeContext(1);
 
             const contents = await download('Round trip', pinia);

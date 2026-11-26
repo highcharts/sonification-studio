@@ -5,8 +5,10 @@ import { downloadURI } from './utils/browserUtils';
 import {
     getGoogleSheetsErrorMessage,
     getSeriesId,
-    removeNonNumericYValues
+    removeNonNumericYValues,
+    seriesDataHasValues
 } from './utils/chartUtils';
+import { getGridColumnIds } from './utils/gridData';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
@@ -173,7 +175,8 @@ export class ChartBridge {
 
     /**
      * Builds the final options passed to the chart for rendering, based on
-     * mapping parameters and CSV data.
+     * mapping parameters and CSV data. The CSV is the data store's tableCSV:
+     * its rows tell which of the grid's columns get a series.
      */
     public buildChartOptions(csv?: string) {
         // chartOptions contains the current state of the chart mapping parameters
@@ -184,10 +187,17 @@ export class ChartBridge {
 
         const dataSource = this.dataStore.selectedDataSource;
         const spreadsheetSetupComplete = this.dataStore.spreadsheetSetupComplete;
+        const fromGoogleSheets = dataSource === 'googlesheets' && spreadsheetSetupComplete;
+
+        // The grid's columns that a row has a cell in, after the first row
+        // (the series names); see the data's complete handler below
+        const gridColumnsWithCells = fromGoogleSheets ? null : new Set(
+            this.dataStore.tableRowData.slice(1).flatMap((row) => Object.keys(row))
+        );
 
         /*eslint-disable indent */
         const dataSourceOptions =
-            dataSource === 'googlesheets' && spreadsheetSetupComplete
+            fromGoogleSheets
                 ? {
                       csv: void 0,
                       firstRowAsNames: true,
@@ -212,7 +222,7 @@ export class ChartBridge {
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
-    if (dataSource === 'googlesheets' && spreadsheetSetupComplete) {
+    if (fromGoogleSheets) {
         this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Success);
     }
 
@@ -223,6 +233,26 @@ export class ChartBridge {
             s.data = removeNonNumericYValues(s.data);
         }
     });
+
+    // Leave out the series of a grid column that no row has a cell in (after
+    // the first row), as master v1.1.1 did. It generated the grid's CSV from
+    // each row's cells in order, and rows loaded from a CSV (on a CSV import
+    // or project load) have no cells for their empty values, so such a
+    // column was left out of the chart. The series ids go by series index
+    // (see getSeriesId), so in projects saved after a load, the series
+    // settings of the columns after it are under the ids that leave it out.
+    // The app keeps each value in its column, so leaving out the series
+    // gives those settings to the right data. Edits in the grid give each
+    // row a cell in every column (applyCellEdit), so a column emptied there
+    // keeps its (hidden) series, and the later series their settings.
+    if (gridColumnsWithCells && parseResult.series) {
+        // Series i has the values of the CSV's column i + 1 (the first
+        // column holds the x values)
+        const columnIds = getGridColumnIds(parseResult.series.length + 1);
+        parseResult.series = parseResult.series.filter(
+            (_s: GenericObject, i: number) => gridColumnsWithCells.has(columnIds[i + 1])
+        );
+    }
 
     const chart = this.chart;
 
@@ -244,18 +274,7 @@ export class ChartBridge {
         const mergedSeries = deepMerge(parseResult.series, seriesOptions);
 
         mergedSeries.forEach((s: any, i: number) => {
-            const seriesData = s.data;
-
-            const hasData =
-                Array.isArray(seriesData) &&
-                seriesData.some((point: any) => {
-                    if (typeof point === 'number') return true;
-                    if (Array.isArray(point))
-                        return point[1] !== null && point[1] !== '';
-                    if (typeof point === 'object' && point !== null)
-                        return point.y !== null && point.y !== '';
-                    return point !== null && point !== '';
-                });
+            const hasData = seriesDataHasValues(s.data);
 
             if (!s.name) {
                 s.name = `Series ${i + 1}`;
@@ -486,7 +505,11 @@ export class ChartBridge {
 
     public getHTMLChartConfig(): string {
         const options = this.getChartOptionsForExport();
-        const optionsString = JSON.stringify(options, void 0, 2);
+        // The options go into a <script> element. Text in them (a title, a
+        // series name, a value) could end it with "</script>", so each "<"
+        // is written as its Unicode escape (backslash, u003c), which
+        // JavaScript reads back as "<" (in JSON, "<" can only be in a string).
+        const optionsString = JSON.stringify(options, void 0, 2).replace(/</g, '\\u003c');
         const playControls = this.getHTMLPlayControlsForChart();
         return `
             <!DOCTYPE html>

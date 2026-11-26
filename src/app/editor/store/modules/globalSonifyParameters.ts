@@ -133,8 +133,8 @@ export const useGlobalSonifyParametersStore = defineStore('globalSonifyParameter
         restoreStoreState(newState?: Partial<GlobalSonifyParametersState>) {
             const defaultOpts = defaultState();
             const restoredKeys: Array<keyof GlobalSonifyParametersState> = [
-                'volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail',
-                'speed', 'order', 'contexts'
+                'volume', 'playMarkerEnabled', 'tooltipMarkerEnabled', 'minNote', 'maxNote', 'panEnabled',
+                'panWidth', 'detail', 'speed', 'order', 'contexts'
             ];
             restoredKeys.forEach(
                 x => setStateValue(this.$state, x, newState ? firstDefined(newState[x], this.$state[x]) : defaultOpts[x]));

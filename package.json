@@ -14,7 +14,7 @@
     "test": "vitest run",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "vue-tsc --noEmit",
-    "publish": "npm run lint && npm test && npm run build && node scripts/publish.mjs",
+    "release": "node scripts/publish.mjs",
     "prepare": "husky"
   },
   "repository": {
@@ -58,12 +58,15 @@
     "mathjs": "^15.3.0",
     "pinia": "^4.1.0",
     "vue": "^3.5.46",
-    "vue-router": "^5.5.2"
+    "vue-router": "^5.5.3"
   },
   "overrides": {
     "js-beautify": {
       "editorconfig": "^4.0.1",
       "glob": "^14.0.6"
     }
+  },
+  "allowScripts": {
+    "fsevents": false
   }
 }

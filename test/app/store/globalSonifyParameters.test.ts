@@ -62,7 +62,7 @@ describe('globalSonifyParameters store', () => {
     });
 
     describe('restoreStoreState', () => {
-        test('Restores the listed keys, but not tooltipMarkerEnabled', () => {
+        test('Restores every key', () => {
             const store = useGlobalSonifyParametersStore();
             const contexts = [{ id: 1 } as SonifyContext];
             store.restoreStoreState({
@@ -83,7 +83,7 @@ describe('globalSonifyParameters store', () => {
                 speed: 2,
                 order: 'sequential',
                 playMarkerEnabled: false,
-                tooltipMarkerEnabled: false,
+                tooltipMarkerEnabled: true,
                 minNote: 3,
                 maxNote: 4,
                 panEnabled: false,
@@ -97,18 +97,19 @@ describe('globalSonifyParameters store', () => {
             const store = useGlobalSonifyParametersStore();
             store.setSpeed(50);
             store.setDetail(5);
+            store.setTooltipMarkerEnabled(true);
             store.restoreStoreState({ volume: 0, detail: undefined });
-            expect(store.$state).toEqual({ ...defaults, volume: 0, speed: 50, detail: 5 });
+            expect(store.$state).toEqual({ ...defaults, volume: 0, speed: 50, detail: 5, tooltipMarkerEnabled: true });
         });
 
-        test('Resets to the defaults without a new state, except tooltipMarkerEnabled', () => {
+        test('Resets to the defaults without a new state', () => {
             const store = useGlobalSonifyParametersStore();
             store.setVolume(10);
             store.setOrder('sequential');
             store.setTooltipMarkerEnabled(true);
             store.addContext({ valueRange: null, inactive: false });
             store.restoreStoreState();
-            expect(store.$state).toEqual({ ...defaults, tooltipMarkerEnabled: true });
+            expect(store.$state).toEqual(defaults);
         });
     });
 

@@ -47,8 +47,13 @@ export default defineConfig(
             'semi': ['error', 'always'],
             'no-trailing-spaces': ['error'],
             'no-multi-spaces': ['error'],
-            // The store and chart code use `any` for loosely typed option
-            // and state objects in well over 100 places.
+            // The chart code in src/app/editor/core still has 37 explicit
+            // `any`s (generic option objects, mapping table lookups,
+            // Highcharts internals): utils/objects.ts (16, including
+            // GenericObject), ChartBridge.ts (11), the option mappers (5),
+            // utils/chartUtils.ts (4) and defaultChartOptions.ts (1). The
+            // stores and components have none; test/core/utils/objects.test.ts
+            // has 3.
             '@typescript-eslint/no-explicit-any': 'off',
             // A few callbacks alias `this` (the component or ChartBridge)
             // because Highcharts or a named function rebinds `this` inside.

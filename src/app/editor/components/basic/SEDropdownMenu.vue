@@ -58,10 +58,10 @@
                             v-for="opt in options"
                             :key="opt.label"
                         >
+                            <!-- No Enter/Space handler: the browser turns those keys into a click on a native button -->
                             <button
                                 v-if="opt.type === 'button'"
                                 @click="opt.onclick"
-                                @keydown.enter="opt.onclick"
                             >
                                 <img
                                     alt=""

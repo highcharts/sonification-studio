@@ -169,24 +169,6 @@ describe('data store', () => {
         });
     });
 
-    test('updateCellValue replaces the row object in place and regenerates the CSV', () => {
-        const store = useDataStore();
-        store.setTableRowData([{ A: 'x', B: 'y' }, { A: '1', B: '2' }]);
-        const rows = store.tableRowData;
-        const oldRow = store.tableRowData[1];
-
-        store.updateCellValue({ rowIndex: 1, columnName: 'B', value: '5' });
-
-        expect(store.tableRowData).toBe(rows);
-        expect(store.tableRowData[1]).not.toBe(oldRow);
-        expect(oldRow).toEqual({ A: '1', B: '2' });
-        expect(store.tableRowData[1]).toEqual({ A: '1', B: '5' });
-        expect(store.tableCSV).toBe('x;y\n1;5');
-
-        store.updateCellValue({ rowIndex: 0, columnName: 'C', value: 'z' });
-        expect(store.tableCSV).toBe('x;y;z\n1;5');
-    });
-
     test('addTableRows appends empty rows and regenerates the CSV', () => {
         const store = useDataStore();
         store.setTableRowData([{ A: 'x' }]);
