@@ -24,7 +24,7 @@ The project requires Node.js 26 or newer (`engines` in `package.json`; `.nvmrc` 
 | `npm test` | Runs the unit tests once with Vitest |
 | `npm run lint` | Lints the project with ESLint; warnings fail it as well as errors |
 | `npm run typecheck` | Type checks the TypeScript files and the Vue components with vue-tsc |
-| `npm run release` | Release step: lints, tests, builds and copies the build into `docs` (see [Publish](#publish)) |
+| `npm run release` | Release step: lints, tests, builds and copies the build into `docs/<version>`, unless it exists already (see [Publish](#publish)) |
 | `prepare` | Run by npm after `npm install` and `npm ci`: sets up the husky git hooks |
 
 ### Build
@@ -41,7 +41,7 @@ We are using [Vite](https://vite.dev) (version 8) for the dev server and bundlin
 
 To build and publish to GitHub pages, ensure app version is correct in `package.json`, run `npm run release`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
 
-`npm run release` runs the linter and the tests, builds the app (type check, then minified, without source maps) and runs `scripts/publish.mjs`, which replaces `docs/<version>` with the contents of `dist`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`. `<version>` is the current version in `package.json`, so only run it as a manual release step, after bumping the version: with the version of an earlier release, it overwrites that release in `docs`.
+`npm run release` runs `scripts/publish.mjs`, which runs the linter and the tests, builds the app (type check, then minified, without source maps), copies the contents of `dist` to `docs/<version>`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`. It stops if any step fails. `<version>` is the current version in `package.json`, so only run it as a manual release step, after bumping the version. If `docs/<version>` exists already, it refuses to run, before the linter and the build. To replace a published version on purpose, run `npm run release -- --force` (the `--` passes `--force` to the script, not to npm).
 
 The release script is `npm run release`, not `npm publish`: the app is not an npm package, and `"private": true` in `package.json` makes npm refuse to publish it to the npm registry.
 
