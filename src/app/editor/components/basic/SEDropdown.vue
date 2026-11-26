@@ -3,7 +3,9 @@
 
     Props:
         - id: String - Element id.
-        - options: Array<{ name, value }> - Options in the dropdown.
+        - options: Array<{ name, value }> - Options in the dropdown. A null
+            value is rendered as "" (Vue 3 would drop the attribute and use
+            the option text as value).
         - [modelValue]: String - Value of the option to select.
         - [label]: String - Aria label for the dropdown.
         - [labelledby]: String - Aria labelledby for the dropdown.
@@ -26,7 +28,7 @@
             <option
                 v-for="opt in options"
                 :key="opt.name"
-                :value="opt.value"
+                :value="opt.value ?? ''"
             >
                 {{ opt.name }}
             </option>
@@ -45,7 +47,8 @@ import arrowIcon from '../../assets/arrow-down.svg';
 
 export interface SEDropdownOption {
     name: string;
-    value: string;
+    // null is rendered as ''
+    value: string | null;
 }
 
 export default defineComponent({
