@@ -80,7 +80,7 @@ export default defineComponent({
 
     beforeUnmount() {
         // Stop playback first, which also ends the chart bridge's progress
-        // polling: it would otherwise keep committing to the store after
+        // polling: it would otherwise keep updating the store after
         // the chart is gone.
         this.$chartBridge.stopChart();
 
