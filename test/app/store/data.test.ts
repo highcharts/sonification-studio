@@ -214,6 +214,15 @@ describe('data store', () => {
     });
 
     describe('loadFromCSV', () => {
+        test('Loads no rows from an empty CSV', () => {
+            const store = useDataStore();
+            // The CSV of a project saved without rows
+            store.restoreStoreState({ tableRowData: [] });
+            store.loadFromCSV(store.tableCSV, tableCSVDelimiter);
+            expect(store.tableRowData).toEqual([]);
+            expect(store.tableCSV).toBe('');
+        });
+
         test('Detects a tab delimiter first', () => {
             const store = useDataStore();
             store.loadFromCSV('a\tb;c\n1\t2,3');
