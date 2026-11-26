@@ -56,9 +56,9 @@
     "highcharts-vue": "^2.0.2",
     "lz-string": "^1.5.0",
     "mathjs": "^15.3.0",
+    "pinia": "^4.1.0",
     "vue": "^3.5.46",
-    "vue-router": "^5.5.2",
-    "vuex": "^4.1.0"
+    "vue-router": "^5.5.2"
   },
   "overrides": {
     "js-beautify": {

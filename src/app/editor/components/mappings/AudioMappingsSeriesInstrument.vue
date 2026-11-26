@@ -48,16 +48,12 @@ import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
-
-import {
-    makeSeriesParamPropertyGetMapping,
-    makeSeriesParamPropertySetMapping,
-    makeSelectedAudioMappingSeriesPropertyMapping
-} from '../../store/storeUtils';
+import { mapState } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
+import { getSeriesParameter, setSeriesParameter } from '../../store/storeUtils';
 import {
     nullFallback
 } from '../../core/utils/objects';
-import { mapState } from 'vuex';
 
 export default defineComponent({
     components: {
@@ -66,23 +62,25 @@ export default defineComponent({
         SEDropdown
     },
     computed: {
-        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
+        ...mapState(useViewStore, {
+            selectedSeries: 'selectedDataSeriesAudioMapping',
+            selectedHeaderTabContent: 'selectedHeaderTabContent'
+        }),
         sonificationEnabled: {
-            get(): boolean { return makeSeriesParamPropertyGetMapping(this, 'sonificationEnabled', true); },
-            set(val: boolean) { return makeSeriesParamPropertySetMapping(this, 'sonificationEnabled', val); },
+            get(): boolean { return getSeriesParameter(this.selectedSeries, 'sonificationEnabled', true); },
+            set(val: boolean) { setSeriesParameter(this.selectedSeries, 'sonificationEnabled', val); },
         },
         instrument: {
-            get(): string { return makeSeriesParamPropertyGetMapping(this, 'instrument', 'piano', 'instrument'); },
-            set(val: string) { return makeSeriesParamPropertySetMapping(this, 'instrument', val, 'instrument'); },
+            get(): string { return getSeriesParameter(this.selectedSeries, 'instrument', 'piano', 'instrument'); },
+            set(val: string) { setSeriesParameter(this.selectedSeries, 'instrument', val, 'instrument'); },
         },
         pitchRoundingEnabled: {
-            get(): boolean { return makeSeriesParamPropertyGetMapping(this, 'pitchRoundingEnabled', false, 'instrument'); },
-            set(val: boolean) { return makeSeriesParamPropertySetMapping(this, 'pitchRoundingEnabled', val, 'instrument'); },
+            get(): boolean { return getSeriesParameter(this.selectedSeries, 'pitchRoundingEnabled', false, 'instrument'); },
+            set(val: boolean) { setSeriesParameter(this.selectedSeries, 'pitchRoundingEnabled', val, 'instrument'); },
         },
         instruments(): Array<Record<'name' | 'value', string>> {
             return this.$chartBridge.getAvailableInstruments();
-        },
-        ...mapState('viewStore', ['selectedHeaderTabContent'])
+        }
     },
     watch: {
         selectedSeries() {

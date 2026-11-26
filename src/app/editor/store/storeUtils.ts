@@ -2,51 +2,62 @@
  * Utilities for working with the stores.
  */
 
-import { GenericObject } from '../core/utils/objects';
+import { useSeriesParametersStore } from './modules/seriesParameters';
 
 
 /**
- * Make mapping of a component's computed property to the currently selected
- * series for audio mapping controls.
+ * Get a parameter of a series, for computed properties of the series settings
+ * controls. Returns the default value if the series, the parent or the
+ * parameter is not set (null or undefined). Other falsy values (0, false, '')
+ * are returned as they are. A parent that is set to such a falsy value instead
+ * of an object is returned itself (never the case for parents set through the
+ * store).
+ *
+ * Series parameters are open-ended (see seriesParameters.ts), so their type is
+ * not checked: the type of the default value is taken as the parameter type.
+ *
+ * @param seriesId The series, normally the one selected in the controls.
+ * @param parameterName The parameter to get.
+ * @param defaultValue Returned if the parameter is not set.
+ * @param nestedUnderParent Get the parameter nested under this parent
+ * parameter instead of directly under the series.
  */
-export function makeSelectedAudioMappingSeriesPropertyMapping() {
-    return {
-        get() { return (this as any).$store.state.viewStore.selectedDataSeriesAudioMapping; },
-        set(val: any) { return (this as any).$store.commit('viewStore/setSelectedDataSeriesAudioMapping', val); }
-    };
-}
-
-
-/**
- * Return setter and getter functions for a computed property mapped to a
- * series param in seriesParametersStore. Assumes that the component has a
- * "this.selectedSeries" property that contains a string with the currently
- * selected series ID to work on.
- */
-export function makeSeriesParamPropertyGetMapping(
-    component: GenericObject,
-    param: string,
-    defaultValue: any = null,
+export function getSeriesParameter<T>(
+    seriesId: string,
+    parameterName: string,
+    defaultValue: T,
     nestedUnderParent?: string
-) {
-    const allParams = component.$store.state.seriesParametersStore.seriesParameters;
-    const seriesParams = allParams[component.selectedSeries] || {};
+): T {
+    const seriesParams = useSeriesParametersStore().seriesParameters[seriesId] || {};
     const parent = nestedUnderParent ? seriesParams[nestedUnderParent] : seriesParams;
-    return (parent && parent[param]) ?? defaultValue;
+    const value: unknown = parent && parent[parameterName];
+    // Not checked: the type of the default value is taken (see above)
+    return (value ?? defaultValue) as T;
 }
-export function makeSeriesParamPropertySetMapping(
-    component: GenericObject,
-    param: string,
-    val: unknown,
+
+
+/**
+ * Set a parameter of a series, for computed properties of the series settings
+ * controls. Does nothing without a series id, i.e. when no series is selected.
+ *
+ * @param seriesId The series, normally the one selected in the controls.
+ * @param parameterName The parameter to set.
+ * @param parameterValue The new value.
+ * @param nestedUnderParent Set the parameter nested under this parent
+ * parameter instead of directly under the series.
+ */
+export function setSeriesParameter(
+    seriesId: string,
+    parameterName: string,
+    parameterValue: unknown,
     nestedUnderParent?: string
-) {
-    const selectedSeries = component.selectedSeries;
-    if (selectedSeries) {
-        component.$store.commit('seriesParametersStore/setSeriesParameter', {
-            seriesId: selectedSeries,
-            parameterName: param,
-            nestedUnderParent: nestedUnderParent,
-            parameterValue: val
+): void {
+    if (seriesId) {
+        useSeriesParametersStore().setSeriesParameter({
+            seriesId,
+            parameterName,
+            parameterValue,
+            nestedUnderParent
         });
     }
 }

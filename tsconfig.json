@@ -20,21 +20,16 @@
         // Each file must be transpilable on its own, as Vite does
         "isolatedModules": true,
         // verbatimModuleSyntax (as in @vue/tsconfig) is left off for now:
-        // about 20 files import types (mostly GenericObject) without
-        // `import type`, most of them in the store and chart mapping code
-        // that a later phase rewrites.
+        // 17 files import types (mostly GenericObject) without
+        // `import type`, most of them in the chart option mapping code
+        // (src/app/editor/core/optionsMapper) that a later phase rewrites.
         "skipLibCheck": true,
         // Global types: only Vite's client types (import.meta.env, asset
         // imports). Tests import from 'vitest' explicitly.
         "types": ["vite/client"],
         "strict": true,
         "noUnusedLocals": true,
-        "noFallthroughCasesInSwitch": true,
-        "paths": {
-            // Vuex 4's package.json "exports" hide its type definitions from
-            // bundler resolution. Vuex is replaced by Pinia in a later phase.
-            "vuex": ["./node_modules/vuex/types/index.d.ts"]
-        }
+        "noFallthroughCasesInSwitch": true
     },
     "include": ["src/**/*.ts", "src/**/*.vue", "test/**/*.ts", "vite.config.ts"]
 }

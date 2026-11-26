@@ -101,11 +101,9 @@ import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SERadioGroup from '../basic/SERadioGroup.vue';
-import {
-    makeSeriesParamPropertyGetMapping,
-    makeSeriesParamPropertySetMapping,
-    makeSelectedAudioMappingSeriesPropertyMapping
-} from '../../store/storeUtils';
+import { mapState } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
+import { getSeriesParameter, setSeriesParameter } from '../../store/storeUtils';
 import {
     getMappingDataProps
 } from '../../core/utils/chartUtils';
@@ -159,33 +157,40 @@ export default defineComponent({
         };
     },
     computed: {
-        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
+        ...mapState(useViewStore, { selectedSeries: 'selectedDataSeriesAudioMapping' }),
+        // Defaults for when the series does not have the parameters
+        minDefault(): number {
+            return this.defaultMin ?? this.minRangeVal;
+        },
+        maxDefault(): number {
+            return this.defaultMax ?? this.maxRangeVal;
+        },
+        fixedValueDefault(): number {
+            return this.defaultVal ?? Math.round((this.maxRangeVal - this.minRangeVal) / 2);
+        },
         mappingType: {
-            get(): string { return makeSeriesParamPropertyGetMapping(this, 'mappingType', 'default', this.storeParentProp); },
-            set(val: string) { return makeSeriesParamPropertySetMapping(this, 'mappingType', val, this.storeParentProp); }
+            get(): string { return getSeriesParameter(this.selectedSeries, 'mappingType', 'default', this.storeParentProp); },
+            set(val: string) { setSeriesParameter(this.selectedSeries, 'mappingType', val, this.storeParentProp); }
         },
         mappingProp: {
-            get(): string { return makeSeriesParamPropertyGetMapping(this, 'mapTo', this.defaultMapTo, this.storeParentProp); },
-            set(val: string) { return makeSeriesParamPropertySetMapping(this, 'mapTo', val, this.storeParentProp); }
+            get(): string { return getSeriesParameter(this.selectedSeries, 'mapTo', this.defaultMapTo, this.storeParentProp); },
+            set(val: string) { setSeriesParameter(this.selectedSeries, 'mapTo', val, this.storeParentProp); }
         },
         min: {
-            get(): number { return makeSeriesParamPropertyGetMapping(this, 'min',
-                nullFallback(this.defaultMin, this.minRangeVal), this.storeParentProp); },
-            set(val: number) { return makeSeriesParamPropertySetMapping(this, 'min', val, this.storeParentProp); }
+            get(): number { return getSeriesParameter(this.selectedSeries, 'min', this.minDefault, this.storeParentProp); },
+            set(val: number) { setSeriesParameter(this.selectedSeries, 'min', val, this.storeParentProp); }
         },
         max: {
-            get(): number { return makeSeriesParamPropertyGetMapping(this, 'max',
-                nullFallback(this.defaultMax, this.maxRangeVal), this.storeParentProp); },
-            set(val: number) { return makeSeriesParamPropertySetMapping(this, 'max', val, this.storeParentProp); }
+            get(): number { return getSeriesParameter(this.selectedSeries, 'max', this.maxDefault, this.storeParentProp); },
+            set(val: number) { setSeriesParameter(this.selectedSeries, 'max', val, this.storeParentProp); }
         },
         fixedValue: {
-            get(): number { return makeSeriesParamPropertyGetMapping(this, 'fixedValue',
-                nullFallback(this.defaultVal, Math.round((this.maxRangeVal - this.minRangeVal) / 2)), this.storeParentProp); },
-            set(val: number) { return makeSeriesParamPropertySetMapping(this, 'fixedValue', val, this.storeParentProp); }
+            get(): number { return getSeriesParameter(this.selectedSeries, 'fixedValue', this.fixedValueDefault, this.storeParentProp); },
+            set(val: number) { setSeriesParameter(this.selectedSeries, 'fixedValue', val, this.storeParentProp); }
         },
         polarity: {
-            get(): string { return makeSeriesParamPropertyGetMapping(this, 'polarity', 'positive', this.storeParentProp); },
-            set(val: string) { return makeSeriesParamPropertySetMapping(this, 'polarity', val, this.storeParentProp); }
+            get(): string { return getSeriesParameter(this.selectedSeries, 'polarity', 'positive', this.storeParentProp); },
+            set(val: string) { setSeriesParameter(this.selectedSeries, 'polarity', val, this.storeParentProp); }
         },
         mappingProps() {
             return getMappingDataProps();
@@ -203,9 +208,9 @@ export default defineComponent({
         populateProps() {
             // Init so that these are always in store. Series props do not have a default store state otherwise.
             this.mappingProp = nullFallback(this.mappingProp, 'x');
-            this.min = nullFallback(this.min, nullFallback(this.defaultMin, this.minRangeVal));
-            this.max = nullFallback(this.max, nullFallback(this.defaultMax, this.maxRangeVal));
-            this.fixedValue = nullFallback(this.fixedValue, nullFallback(this.defaultVal, Math.round((this.maxRangeVal - this.minRangeVal) / 2)));
+            this.min = nullFallback(this.min, this.minDefault);
+            this.max = nullFallback(this.max, this.maxDefault);
+            this.fixedValue = nullFallback(this.fixedValue, this.fixedValueDefault);
             this.polarity = nullFallback(this.polarity, 'positive');
         }
     }
