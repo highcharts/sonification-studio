@@ -8,6 +8,7 @@ import {
     toStoreValue,
     type TableRowData
 } from '../../../src/app/editor/core/utils/gridData';
+import { dataStore } from '../../../src/app/editor/store/modules/data';
 
 function getRows(): TableRowData[] {
     return [
@@ -43,6 +44,47 @@ describe('prepareGridData', () => {
         expect(data.columns.A[0]).toEqual(0);
         expect(data.dataTypes.B).toEqual('string');
         expect(data.headerColumnCount).toEqual(0);
+    });
+});
+
+describe('Column ids', () => {
+    // The rows the store makes from an imported CSV
+    function loadFromCSV(csv: string): TableRowData[] {
+        let rows: TableRowData[] = [];
+        dataStore.actions.loadFromCSV({
+            commit: (_type: string, payload: TableRowData[]) => {
+                rows = payload;
+            }
+        }, csv);
+        return rows;
+    }
+
+    test('A-Z, then COL1, COL2, ...', () => {
+        const ids = getGridColumnIds(30);
+        expect(ids.slice(0, 3)).toEqual(['A', 'B', 'C']);
+        expect(ids.slice(25)).toEqual(['Z', 'COL1', 'COL2', 'COL3', 'COL4']);
+    });
+
+    test('Match the columns of an imported CSV with more than 26 columns', () => {
+        const values = Array.from({ length: 30 }, (_, i) => i + 1);
+        const rows = loadFromCSV(
+            values.map((i) => 'H' + i).join(',') + '\n' + values.join(',')
+        );
+        expect(Object.keys(rows[1])).toEqual(getGridColumnIds(30));
+
+        // The grid shows the values of all columns
+        const data = prepareGridData(rows);
+        expect(data.columnIds.slice(26, 30)).toEqual(['COL1', 'COL2', 'COL3', 'COL4']);
+        expect(data.headerRow.COL4).toEqual('H30');
+        expect(data.columns.COL4).toEqual(['30']);
+
+        // An edit in the 30th column changes its value in the CSV
+        const newRows = applyCellEdit(rows, {
+            rowIndex: 1, columnId: 'COL4', value: '99'
+        }, data.columnIds);
+        expect(Object.values(newRows[1]).join(',')).toEqual(
+            values.slice(0, 29).join(',') + ',99'
+        );
     });
 });
 

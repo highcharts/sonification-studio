@@ -3,10 +3,11 @@
     Grid Pro runtime so it can be unit tested.
 
     The store keeps the table as an array of row objects keyed by column id
-    (A, B, C, ...). Its first row holds the CSV headers, which the grid shows
-    as secondary column headers, not as a data row. The grid gets the other
-    rows as column arrays, with values converted to the detected column
-    types. Edits in the grid are written back to the store's rows as text.
+    (A-Z, then COL1, COL2, ...). Its first row holds the CSV headers, which
+    the grid shows as secondary column headers, not as a data row. The grid
+    gets the other rows as column arrays, with values converted to the
+    detected column types. Edits in the grid are written back to the store's
+    rows as text.
  */
 
 import type { Column } from '@highcharts/grid-pro/grid-pro';
@@ -41,13 +42,12 @@ const maxColumnCount = 50;
 // Empty columns shown after the last column with data
 const extraColumnCount = 5;
 
-// Column ids used by the grid: A-Z, then AA, BA, CA, ...
+// Column ids used by the grid: A-Z, then COL1, COL2, ..., the keys the store
+// gives the columns of an imported CSV (loadFromCSV in the data store).
 export function getGridColumnIds(count: number): string[] {
     return Array.from(
         { length: count },
-        (_, i) =>
-            String.fromCharCode(65 + (i % 26)) +
-            (i >= 26 ? String.fromCharCode(65 + Math.floor(i / 26) - 1) : '')
+        (_, i) => i < 26 ? String.fromCharCode(65 + i) : `COL${i - 25}`
     );
 }
 
