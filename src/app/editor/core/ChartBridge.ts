@@ -467,7 +467,7 @@ export class ChartBridge {
                 <script src="https://code.highcharts.com/highcharts.js"></script>
                 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
                 <script src="https://code.highcharts.com/modules/sonification.js"></script>
-                <script src="https://code.highcharts.com/themes/high-contrast-light.js"></script>
+                <script src="https://code.highcharts.com/themes/high-contrast.js"></script>
                 <style>
                     body {
                         font-family: 'Roboto', sans-serif;
@@ -549,6 +549,9 @@ export class ChartBridge {
                 <div id="container" style="max-width: 900px; max-height: 500px;"></div>
                 <script>
                     Highcharts.setOptions({
+                        palette: {
+                            colorScheme: 'light'
+                        },
                         accessibility: {
                             screenReaderSection: {
                                 beforeChartFormat: '<h2>{chartTitle}</h2>' +
