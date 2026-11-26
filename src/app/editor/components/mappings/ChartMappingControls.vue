@@ -8,7 +8,7 @@
                 @click="toggleMappingActivated"
             />
         </TabswitchWrap>
-        <div
+        <component
             :is="activeView"
             :id="activeView"
             class="activeView"
