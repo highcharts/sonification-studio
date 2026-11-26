@@ -422,6 +422,8 @@ export default defineComponent({
         .helptext-content-container {
             padding: 10px;
             padding-top: 10px;
+            // Break words too long for the popup, such as web addresses
+            overflow-wrap: break-word;
         }
 
         .helptext-title {
