@@ -1,13 +1,54 @@
-import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
+import type * as HighchartsModule from 'highcharts';
 import type Announcer from './utils/Announcer';
 import { GenericObject, deepMerge } from './utils/objects';
 import { downloadURI } from './utils/browserUtils';
-import { getSeriesId } from './utils/chartUtils';
+import {
+    getGoogleSheetsErrorMessage,
+    getSeriesId,
+    removeNonNumericYValues
+} from './utils/chartUtils';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
 import { GoogleSheetStatus } from '../store/modules/data';
 import { Store } from 'vuex';
+
+// Where exported HTML files load Highcharts from: the CDN's latest release of
+// the major version the app uses, so that a later major, which may rename or
+// remove the modules and theme they load (as 13 renamed high-contrast-light to
+// high-contrast), does not break them. Bump it with the highcharts dependency,
+// after checking that the script URLs in getHTMLChartConfig still exist.
+export const highchartsExportCDN = 'https://code.highcharts.com/13';
+
+// The event Highcharts.error() fires on the Highcharts object
+interface HighchartsErrorEvent {
+    chart?: HighchartsModule.Chart;
+    message: string;
+    preventDefault(): void;
+}
+
+// The sonification classes used to play instrument samples. Highcharts'
+// declarations type SonificationInstrument as an instance rather than a class,
+// and leave out SonificationTimeline, so they are described here.
+interface SampleTimeline {
+    addChannel(
+        type: 'instrument',
+        engine: object,
+        showPlayMarker: boolean,
+        events: HighchartsModule.SonificationTimelineEvent[]
+    ): void;
+    play(): void;
+    destroy(): void;
+}
+
+interface SonificationSampleClasses {
+    SonificationInstrument: new (
+        audioContext: AudioContext,
+        destination: AudioNode,
+        options: { synthPatch: string }
+    ) => object;
+    SonificationTimeline: new () => SampleTimeline;
+}
 
 /**
  * Interface between chart-specific logic and the rest of the
@@ -34,12 +75,13 @@ export class ChartBridge {
     private reactivityTimeouts: GenericObject = {};
     private progressTimer: number | undefined;
     private _seReactivityCounter: number | null = null;
-    private audioSampleTimeline: GenericObject | null = null;
+    private audioSampleTimeline: SampleTimeline | null = null;
 
     /**
-     * Construct the class with a Vuex store instance
+     * Construct the class with a Vuex store instance and the app's
+     * Highcharts instance (from highchartsSetup.ts).
      */
-    constructor(store: Store<any>, private Highcharts: GenericObject) {
+    constructor(store: Store<any>, private Highcharts: typeof HighchartsModule) {
         this.chartParametersStore = store.state.chartParametersStore;
         this.seriesParametersStore = store.state.seriesParametersStore;
         this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
@@ -49,6 +91,10 @@ export class ChartBridge {
             store.getters[`${storeId}/${getterId}`];
 
         store.subscribe(this.onStoreMutation.bind(this));
+
+        Highcharts.addEvent(Highcharts, 'displayError', (e: HighchartsErrorEvent) =>
+            this.onHighchartsError(e)
+        );
     }
 
     /**
@@ -151,15 +197,7 @@ export class ChartBridge {
                       googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
                       enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
                       dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-                      error: (text: string) => {
-                          const errObj = JSON.parse(text);
-                          const message = errObj?.error?.message || 'Unknown error';
-                          this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
-                          this.commitToStore(
-                              'dataStore/setGoogleSheetStatus',
-                              GoogleSheetStatus.Error
-                          );
-                      },
+                      // Failed requests are handled in onHighchartsError
                   }
                 : {
                       // A CSV of only line breaks (a cleared grid) must not
@@ -182,6 +220,14 @@ export class ChartBridge {
             GoogleSheetStatus.Success
         );
     }
+
+    // Text in a column other than the first (e.g. a label column) can not
+    // be plotted, and would make Highcharts throw
+    (parseResult.series || []).forEach((s: GenericObject) => {
+        if (Array.isArray(s.data)) {
+            s.data = removeNonNumericYValues(s.data);
+        }
+    });
 
     const chart = this.chart;
 
@@ -245,6 +291,19 @@ export class ChartBridge {
         const newOptions = Object.assign(dataOptions, chartSettings);
 
         return deepMerge(defaultOptions, newOptions);
+    }
+
+    /**
+     * Options a chart can be created from whatever the user's data and
+     * parameters are: the defaults, with the data of an empty grid. For when
+     * Highcharts throws on the options from buildChartOptions while it
+     * creates the chart. The chart has the data module set up, so it takes
+     * the data of a later update.
+     */
+    public buildFallbackChartOptions(): GenericObject {
+        const defaultOptions = deepMerge(defaultChartOptions, this.getLegendItemHookOptions());
+        // 'null' rather than '', as for an empty grid in buildChartOptions
+        return deepMerge(defaultOptions, { data: { csv: 'null' } });
     }
 
     public getDataSeries(): Array<GenericObject> {
@@ -315,25 +374,22 @@ export class ChartBridge {
 
     public playAudioSample(instrument: string) {
         const globalVolume = this.getStoreParam('globalSonifyParametersStore', 'volume');
-        const Instrument = this.Highcharts.sonification.SonificationInstrument,
-            Timeline = this.Highcharts.sonification.SonificationTimeline,
+        const { SonificationInstrument: Instrument, SonificationTimeline: Timeline } = this
+                .Highcharts.sonification as unknown as SonificationSampleClasses,
             s = this.chart?.sonification;
 
         if (!s) {
             return;
         }
 
-        let timeline = this.audioSampleTimeline;
-        if (timeline) {
-            timeline.destroy();
-        }
-        timeline = this.audioSampleTimeline = new Timeline() as GenericObject;
+        this.audioSampleTimeline?.destroy();
+        const timeline = (this.audioSampleTimeline = new Timeline());
 
         const instr = new Instrument(s.audioContext, s.audioContext.destination, {
             synthPatch: instrument,
         });
 
-        timeline.addChannel('instrument', instr, [
+        timeline.addChannel('instrument', instr, false, [
             {
                 time: 0,
                 instrumentEventOptions: {
@@ -351,8 +407,10 @@ export class ChartBridge {
         timeline.play();
     }
 
+    // Highcharts 13 keeps chart.exportChart() only as a deprecated alias of
+    // chart.exporting.exportChart()
     public downloadPNG(): void {
-        this.chart?.exportChart(
+        this.chart?.exporting?.exportChart(
             {
                 filename: this.getChartTitleForExport(),
             },
@@ -367,7 +425,7 @@ export class ChartBridge {
     }
 
     public downloadSVG(): void {
-        this.chart?.exportChart(
+        this.chart?.exporting?.exportChart(
             {
                 type: 'image/svg+xml',
                 filename: this.getChartTitleForExport(),
@@ -440,10 +498,10 @@ export class ChartBridge {
             <html>
             <head>
                 <title>${this.getChartTitleForExport()}</title>
-                <script src="https://code.highcharts.com/highcharts.js"></script>
-                <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-                <script src="https://code.highcharts.com/modules/sonification.js"></script>
-                <script src="https://code.highcharts.com/themes/high-contrast-light.js"></script>
+                <script src="${highchartsExportCDN}/highcharts.js"></script>
+                <script src="${highchartsExportCDN}/modules/accessibility.js"></script>
+                <script src="${highchartsExportCDN}/modules/sonification.js"></script>
+                <script src="${highchartsExportCDN}/themes/high-contrast.js"></script>
                 <style>
                     body {
                         font-family: 'Roboto', sans-serif;
@@ -525,6 +583,9 @@ export class ChartBridge {
                 <div id="container" style="max-width: 900px; max-height: 500px;"></div>
                 <script>
                     Highcharts.setOptions({
+                        palette: {
+                            colorScheme: 'light'
+                        },
                         accessibility: {
                             screenReaderSection: {
                                 beforeChartFormat: '<h2>{chartTitle}</h2>' +
@@ -580,7 +641,7 @@ export class ChartBridge {
     }
 
     public getAvailableInstruments(): Array<Record<'name' | 'value', string>> {
-        return Object.keys(this.Highcharts.sonification.InstrumentPresets).map((i) => ({
+        return Object.keys(this.Highcharts.sonification.InstrumentPresets || {}).map((i) => ({
             name: i[0].toUpperCase() + i.slice(1),
             value: i,
         }));
@@ -882,6 +943,25 @@ export class ChartBridge {
         return this.chart?.sonification?.isPlaying();
     }
 
+    // Since Highcharts 13, the data module reports a failed Google Sheets
+    // request with Highcharts.error() instead of calling a data.error callback.
+    private onHighchartsError(e: HighchartsErrorEvent) {
+        const message = getGoogleSheetsErrorMessage(e.message);
+        if (
+            message === null ||
+            !this.chart ||
+            e.chart !== this.chart ||
+            this.getStoreParam('dataStore', 'selectedDataSource') !== 'googlesheets'
+        ) {
+            return;
+        }
+
+        // Handled here, so Highcharts does not log it as a warning
+        e.preventDefault();
+        this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
+        this.commitToStore('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Error);
+    }
+
     private onStoreMutation(mutation: GenericObject) {
         const chartIsValid = this.chart && this.chart.options;
         if (chartIsValid && this.isParameterMutation(mutation)) {
@@ -968,7 +1048,7 @@ export class ChartBridge {
             return;
         }
 
-        const opts = this.chart?.options || Highcharts.getOptions();
+        const opts = this.chart?.options || this.Highcharts.getOptions();
         const threshold: number =
             opts?.accessibility?.series?.pointDescriptionEnabledThreshold || 8000;
 
