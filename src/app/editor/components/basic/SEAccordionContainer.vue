@@ -15,7 +15,9 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     methods: {
         getAccordionItemFromKeydownEvent(e: KeyboardEvent): HTMLElement|null {
             const btn = e.target as HTMLElement;
@@ -44,7 +46,9 @@ export default {
                 return;
             }
 
-            const sibling = selected[direction > 0 ? 'nextSibling' : 'previousSibling'];
+            // Element siblings: Vue 3 places empty text nodes (fragment
+            // anchors) around slotted and v-for items.
+            const sibling = selected[direction > 0 ? 'nextElementSibling' : 'previousElementSibling'];
             if (sibling) {
                 this.focusAccordionItem(sibling as HTMLElement);
                 e.preventDefault();
@@ -67,7 +71,7 @@ export default {
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

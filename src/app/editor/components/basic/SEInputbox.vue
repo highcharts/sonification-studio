@@ -3,32 +3,42 @@
 
     Props:
         - id: String - Input element id.
-        - [value]: String - Value to display.
+        - [type]: String - Input type, defaults to text.
+        - [modelValue]: String - Value to display.
 
     Events:
-        - input: Re-emits the input event for use with v-model.
+        - update:modelValue: Re-emits the input event for use with v-model.
         - change: Re-emits
+        - keydown: Re-emits
 -->
 <template>
     <input
         :id="id"
         class="se-inputbox"
-        :value="value"
+        :value="modelValue"
         :type="type"
-        @input="$emit('input', $event.target.value)"
+        @input="onInput"
         @change="$emit('change', $event)"
         @keydown="$emit('keydown', $event)"
     >
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         id: { type: String, required: true },
         type: { type: String, default: 'text' },
-        value: { type: String, default: '' }
+        modelValue: { type: String, default: '' }
+    },
+    emits: ['update:modelValue', 'change', 'keydown'],
+    methods: {
+        onInput(e: Event) {
+            this.$emit('update:modelValue', (e.target as HTMLInputElement).value);
+        }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

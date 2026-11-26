@@ -23,10 +23,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEButton from './SEButton.vue';
 import SEFileUpload from './SEFileUpload.vue';
 
-export default {
+export default defineComponent({
     components: {
         SEButton, SEFileUpload
     },
@@ -35,12 +36,14 @@ export default {
         wide: { type: Boolean, default: false },
         fileTypes: { type: String, default: '.txt,.csv' }
     },
+    // load: the file contents (string)
+    emits: ['load'],
     methods: {
         triggerDialog() {
-            (this.$refs as any).dialog.triggerDialog();
+            (this.$refs.dialog as InstanceType<typeof SEFileUpload>).triggerDialog();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

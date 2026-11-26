@@ -1,6 +1,6 @@
 <template>
     <div class="play-checkbox">
-        <label :class="{ checked: value }">
+        <label :class="{ checked: modelValue }">
             <img
                 alt=""
                 :src="iconPath"
@@ -11,21 +11,35 @@
             <input
                 type="checkbox"
                 class="chk"
-                :checked="value"
-                @keydown.enter="$event.target.checked = !$event.target.checked; $emit('input', $event.target.checked)"
-                @input="$emit('input', $event.target.checked)"
+                :checked="modelValue"
+                @keydown.enter="onEnter"
+                @input="onInput"
             >
         </label>
     </div>
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         iconPath: { type: String, required: true },
-        value: { type: Boolean, default: false }
+        modelValue: { type: Boolean, default: false }
+    },
+    emits: ['update:modelValue'],
+    methods: {
+        // Native checkboxes don't toggle on Enter, so we do it here
+        onEnter(e: KeyboardEvent) {
+            const chk = e.target as HTMLInputElement;
+            chk.checked = !chk.checked;
+            this.$emit('update:modelValue', chk.checked);
+        },
+        onInput(e: Event) {
+            this.$emit('update:modelValue', (e.target as HTMLInputElement).checked);
+        }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
