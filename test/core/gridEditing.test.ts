@@ -202,24 +202,61 @@ describe('Number cells', () => {
 });
 
 describe('CSV headers', () => {
-    test('Are shown as written', async () => {
-        const headers = ['Cost {USD}', 'a <b>bold</b> & c', 'R&D'];
-        const rows: TableRowData[] = [
-            { A: headers[0], B: headers[1], C: headers[2] },
-            { A: '1', B: '2', C: '3' }
-        ];
-        const headerGrid = await renderGrid(prepareGridData(rows));
+    const headers = [
+        'Cost {USD}',
+        'a <b>bold</b> & c',
+        'R&D',
+        'Fish &amp; chips',
+        '<b onclick=x>click</b>',
+        'Size style="big"'
+    ];
+    const ids = ['A', 'B', 'C', 'D', 'E', 'F'];
 
-        ['A', 'B', 'C'].forEach((id, i) => {
+    async function renderHeaderGrid(): Promise<GridPro.Grid> {
+        const rows: TableRowData[] = [
+            Object.fromEntries(ids.map((id, i) => [id, headers[i]])),
+            Object.fromEntries(ids.map((id, i) => [id, '' + i]))
+        ];
+        return renderGrid(prepareGridData(rows));
+    }
+
+    test('Are shown as written', async () => {
+        const headerGrid = await renderHeaderGrid();
+
+        ids.forEach((id, i) => {
             const headerCell = headerGrid.viewport?.getColumn(id)?.header;
-            // As shown, and in the sorting and filtering popups
             expect(headerCell?.htmlElement.textContent?.trim()).toEqual(headers[i]);
+            // What the filter and column menu popups show
             expect(headerCell?.value).toEqual(headers[i]);
             // Labelled with the column id, described by the CSV header
             expect(headerCell?.htmlElement.getAttribute('aria-label')).toEqual(id);
             expect(headerCell?.htmlElement.getAttribute('aria-description')).toEqual(headers[i]);
+            // The sort button is labelled with the header
+            const sortButton = headerCell?.htmlElement.querySelector('.hcg-header-cell-icons button');
+            expect(sortButton?.getAttribute('aria-label')).toEqual(`${headers[i]} Not sorted.`);
         });
         expect(document.querySelector('thead b')).toBeNull();
+        // Grid Pro's HTML parser found no tag or attribute to remove
+        // (Highcharts warning #33)
+        expect(vi.mocked(console.warn).mock.calls.filter(
+            (args) => String(args[0]).includes('#33')
+        )).toEqual([]);
+    });
+
+    test('Are shown as written in the filter popup', async () => {
+        const headerGrid = await renderHeaderGrid();
+
+        ids.forEach((id, i) => {
+            const headerCell = headerGrid.viewport?.getColumn(id)?.header;
+            const buttons = headerCell?.htmlElement.querySelectorAll('.hcg-header-cell-icons button');
+            // The filter button, after the sort button
+            expect(buttons).toHaveLength(2);
+            (buttons?.[1] as HTMLButtonElement).click();
+            const popupHeader = document.querySelector<HTMLElement>('.hcg-popup .hcg-menu-header-name');
+            // Grid Pro sets innerText, which jsdom only keeps as a property
+            expect(popupHeader?.innerText).toEqual(headers[i]);
+            (buttons?.[1] as HTMLButtonElement).click();
+        });
     });
 });
 

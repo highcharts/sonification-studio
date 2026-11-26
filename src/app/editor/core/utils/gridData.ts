@@ -318,6 +318,17 @@ export function getGridRebuild(actionName: string, state: GridState): 'now' | 'l
 // Grid Pro's number input, but a cleared cell stays empty instead of 0.
 export const clearableNumberInputType = 'clearableNumberInput';
 
+// Text as HTML that parses back to the text. Quotes are escaped too, as
+// Highcharts' HTML parser rewrites ' style="' in the markup it is given.
+function escapeHTML(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // The CSV header of a column, if it has one
 function getCSVHeader(headerRow: TableRowData, columnId: string): string | undefined {
     const value = headerRow[columnId];
@@ -367,15 +378,23 @@ export function getGridOptions(tableData: GridTableData, gridKey?: string): Opti
         };
 
         // The CSV header as written. As a header format, "{...}" would be
-        // taken as a template expression. Grid Pro sets a header value that
-        // contains "<" as HTML, so its text is set again after rendering.
-        // (Escaping it would not do: a value without "<" is set as text, and
-        // the filter and column menu popups show the value as text.)
+        // taken as a template expression. Grid Pro renders a header value
+        // that contains "<" as HTML, and one without as text, so the
+        // formatter gives the header escaped in a <span>: parsed as HTML,
+        // it renders as the header's text, with no tag or attribute for
+        // Grid Pro to warn about (Highcharts warning #33). The sort and
+        // column menu buttons are labelled with that text. The filter and
+        // column menu popups show the header cell's value as text, so after
+        // rendering the value is set to the CSV header, as is the text
+        // (dropping the <span>).
         if (csvHeader) {
             column.header = {
-                formatter: () => csvHeader,
+                formatter: () => '<span>' + escapeHTML(csvHeader) + '</span>',
                 events: {
                     afterRender: function () {
+                        if (this.header) {
+                            this.header.value = csvHeader;
+                        }
                         if (this.header?.headerContent) {
                             this.header.headerContent.textContent = csvHeader;
                         }
