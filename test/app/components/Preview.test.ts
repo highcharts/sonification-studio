@@ -1,37 +1,23 @@
 import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
-import { createStore } from 'vuex';
+import { createPinia } from 'pinia';
 import type { Options } from 'highcharts';
 import Highcharts from '../../../src/app/editor/core/highchartsSetup';
 import Preview from '../../../src/app/editor/components/Preview.vue';
+import { useDataStore } from '../../../src/app/editor/store/modules/data';
+import { useViewStore } from '../../../src/app/editor/store/modules/view';
 
 // Options Highcharts throws on, when it creates the chart or updates it
 const unrenderable: Options = { series: [{ type: 'nonexistent' as 'line', data: [1, 2] }] };
 const renderable: Options = { series: [{ type: 'line', data: [1, 2] }] };
 
 function mountPreview(chartOptions: Options, fallbackOptions: Options) {
-    const loadFromCSV = vi.fn();
-    const store = createStore({
-        modules: {
-            dataStore: {
-                namespaced: true,
-                state: { tableCSV: '' },
-                actions: { loadFromCSV }
-            },
-            viewStore: {
-                namespaced: true,
-                state: { reactToParameterUpdates: 0, loadingChart: false },
-                mutations: {
-                    triggerParameterReactivity(state: { reactToParameterUpdates: number }) {
-                        state.reactToParameterUpdates++;
-                    }
-                }
-            }
-        }
-    });
+    const pinia = createPinia();
+    const loadFromCSV = vi.spyOn(useDataStore(pinia), 'loadFromCSV')
+        .mockImplementation(() => undefined);
     const preview = {
         chartOptions,
-        store,
+        viewStore: useViewStore(pinia),
         loadFromCSV,
         chartBridge: {
             // A new object each time, as the chart bridge returns
@@ -47,7 +33,7 @@ function mountPreview(chartOptions: Options, fallbackOptions: Options) {
     preview.wrapper = mount(Preview, {
         attachTo: document.body,
         global: {
-            plugins: [store],
+            plugins: [pinia],
             mocks: { $chartBridge: preview.chartBridge, $announcer: preview.announcer }
         }
     });
@@ -121,9 +107,9 @@ describe('Preview.vue', () => {
         await flushPromises();
 
         preview.chartOptions = unrenderable;
-        preview.store.commit('viewStore/triggerParameterReactivity');
+        preview.viewStore.triggerParameterReactivity();
         await flushPromises();
-        preview.store.commit('viewStore/triggerParameterReactivity');
+        preview.viewStore.triggerParameterReactivity();
         await flushPromises();
 
         expect(consoleError.mock.calls.map((call) => call[0])).toEqual([

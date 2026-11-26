@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { defineComponent, markRaw, type Raw } from 'vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
 import * as GridPro from '@highcharts/grid-pro/grid-pro';
 import '@highcharts/grid-pro/css/grid-pro.css';
 import '../core/gridProSetup';
@@ -19,9 +19,10 @@ import {
     getGridRebuild,
     onGridCellEdit,
     prepareGridData,
-    type CellEdit,
-    type TableRowData
+    type CellEdit
 } from '../core/utils/gridData';
+import { useDataStore } from '../store/modules/data';
+import { useViewStore } from '../store/modules/view';
 
 // Grid Pro calls a grid's load callback only after a successful render. A
 // render that fails (Grid Pro leaves the error unhandled) is given up on after
@@ -52,29 +53,30 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapState('dataStore', ['tableRowData']),
-        ...mapState('viewStore', ['selectedHeaderTabContent']),
+        ...mapState(useDataStore, ['tableRowData']),
+        ...mapState(useViewStore, ['selectedHeaderTabContent']),
+        ...mapStores(useDataStore, useViewStore),
     },
 
     mounted() {
         // Rebuild the grid when the data changes outside it
-        this.unsubscribeFromStore = this.$store.subscribe((mutation) => {
-            const rebuild = getGridRebuild(mutation.type, {
+        this.unsubscribeFromStore = this.dataStore.$onAction(({ name, after }) => after(() => {
+            const rebuild = getGridRebuild(name, {
                 isUpdatingFromGrid: this.isUpdatingFromGrid,
                 hasRendered: this.hasMountedGridOnce,
-                onDataTab: this.$store.state.viewStore.selectedHeaderTabContent === 'dataContent'
+                onDataTab: this.viewStore.selectedHeaderTabContent === 'dataContent'
             });
             if (rebuild === 'now') {
                 this.rebuildGridFromStore();
             } else if (rebuild === 'later') {
                 this.pendingRebuild = true;
             }
-        });
+        }));
 
         // Check if there's data in the store, don't reset to placeholder if there's real data
-        const storeData = this.$store.state.dataStore.tableRowData;
+        const storeData = this.dataStore.tableRowData;
         if (!this.tableRowData?.length && !storeData?.length) {
-            this.$store.commit('dataStore/setToPlaceholderData');
+            this.dataStore.setToPlaceholderData();
             this.$nextTick(() => {
                 this.observeAndRenderWhenVisible();
             });
@@ -169,7 +171,7 @@ export default defineComponent({
             this.resizeObserver?.disconnect();
             this.hasMountedGridOnce = true;
 
-            const tableData = prepareGridData(this.$store.state.dataStore.tableRowData);
+            const tableData = prepareGridData(this.dataStore.tableRowData);
             // With the optional Grid Key, set at build time (see the README)
             const options = getGridOptions(tableData, import.meta.env.VITE_GRID_KEY);
             const renderId = ++this.renderCount;
@@ -234,15 +236,11 @@ export default defineComponent({
         // Only that cell changes: the other values are kept as they are in
         // the store, including the CSV header row the grid shows as headers.
         onGridCellEdited(edit: CellEdit) {
-            const rows = applyCellEdit(
-                this.$store.state.dataStore.tableRowData as TableRowData[],
-                edit,
-                this.gridColumnIds
-            );
+            const rows = applyCellEdit(this.dataStore.tableRowData, edit, this.gridColumnIds);
 
-            // Ignore the store notifications of this commit
+            // Ignore the store notifications of this update
             this.isUpdatingFromGrid = true;
-            this.$store.commit('dataStore/setTableRowData', rows);
+            this.dataStore.setTableRowData(rows);
             this.$nextTick(() => {
                 this.isUpdatingFromGrid = false;
             });

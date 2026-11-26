@@ -10,9 +10,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
 import SEDropdownMenu, { type SEDropdownMenuOption } from './basic/SEDropdownMenu.vue';
 import menuIcon from '../assets/bars-solid.svg';
 import csvIcon from '../assets/file-csv-solid.svg';
+import { useDataStore } from '../store/modules/data';
 
 export default defineComponent({
     components: {
@@ -25,6 +27,7 @@ export default defineComponent({
         };
     },
     computed: {
+        ...mapStores(useDataStore),
         menuOptions(): SEDropdownMenuOption[] {
             return [{
                 label: 'CSV Data',
@@ -37,7 +40,7 @@ export default defineComponent({
     methods: {
         importCSV(fileContents: string) {
             if (fileContents) {
-                this.$store.dispatch('dataStore/loadFromCSV', fileContents);
+                this.dataStore.loadFromCSV(fileContents);
                 this.$announcer.announce('Data loaded.');
             }
         }

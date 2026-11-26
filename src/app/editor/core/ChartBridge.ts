@@ -10,8 +10,12 @@ import {
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
-import { GoogleSheetStatus } from '../store/modules/data';
-import { Store } from 'vuex';
+import type { Pinia } from 'pinia';
+import { useChartParametersStore } from '../store/modules/chartParameters';
+import { useSeriesParametersStore } from '../store/modules/seriesParameters';
+import { GoogleSheetStatus, useDataStore } from '../store/modules/data';
+import { useGlobalSonifyParametersStore } from '../store/modules/globalSonifyParameters';
+import { useViewStore } from '../store/modules/view';
 
 // Where exported HTML files load Highcharts from: the CDN's latest release of
 // the major version the app uses, so that a later major, which may rename or
@@ -66,31 +70,28 @@ export class ChartBridge {
     private announcer: Announcer | null = null;
     private chartOptions: GenericObject = {};
     private chartDataOptions: GenericObject = {};
-    private chartParametersStore: GenericObject;
-    private seriesParametersStore: GenericObject;
-    private globalSonifyParametersStore: GenericObject;
-    private getStoreParam: (storeId: string, param: string) => any;
-    private commitToStore: (id: string, payload?: any) => void;
-    private storeGetter: (storeId: string, getterId: string) => any;
+    private chartParametersStore: ReturnType<typeof useChartParametersStore>;
+    private seriesParametersStore: ReturnType<typeof useSeriesParametersStore>;
+    private dataStore: ReturnType<typeof useDataStore>;
+    private globalSonifyParametersStore: ReturnType<typeof useGlobalSonifyParametersStore>;
+    private viewStore: ReturnType<typeof useViewStore>;
     private reactivityTimeouts: GenericObject = {};
     private progressTimer: number | undefined;
     private _seReactivityCounter: number | null = null;
     private audioSampleTimeline: SampleTimeline | null = null;
 
     /**
-     * Construct the class with a Vuex store instance and the app's
+     * Construct the class with the app's Pinia instance and the app's
      * Highcharts instance (from highchartsSetup.ts).
      */
-    constructor(store: Store<any>, private Highcharts: typeof HighchartsModule) {
-        this.chartParametersStore = store.state.chartParametersStore;
-        this.seriesParametersStore = store.state.seriesParametersStore;
-        this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
-        this.commitToStore = (id: string, payload?: any) => store.commit(id, payload);
-        this.getStoreParam = (storeId: string, param: string): any => store.state[storeId][param];
-        this.storeGetter = (storeId: string, getterId: string): any =>
-            store.getters[`${storeId}/${getterId}`];
+    constructor(pinia: Pinia, private Highcharts: typeof HighchartsModule) {
+        this.chartParametersStore = useChartParametersStore(pinia);
+        this.seriesParametersStore = useSeriesParametersStore(pinia);
+        this.dataStore = useDataStore(pinia);
+        this.globalSonifyParametersStore = useGlobalSonifyParametersStore(pinia);
+        this.viewStore = useViewStore(pinia);
 
-        store.subscribe(this.onStoreMutation.bind(this));
+        this.subscribeToStoreActions();
 
         Highcharts.addEvent(Highcharts, 'displayError', (e: HighchartsErrorEvent) =>
             this.onHighchartsError(e)
@@ -118,8 +119,8 @@ export class ChartBridge {
     public forceUpdate(queued = false): void {
         if (!queued) {
             this.updateChartOptions();
-            this.commitToStore('viewStore/triggerParameterReactivity');
-            this.commitToStore('viewStore/triggerDataReactivity');
+            this.viewStore.triggerParameterReactivity();
+            this.viewStore.triggerDataReactivity();
         } else {
             this.queueNewParamReactivity();
             this.queueNewDataReactivity();
@@ -141,7 +142,7 @@ export class ChartBridge {
      * functions.
      *
      * This is particularly useful for non-POD structures that contain
-     * functions, as they can not be stored in a Vuex store. For example,
+     * functions, as they can not be stored in a Pinia store. For example,
      * for components that depend on chart data series objects.
      *
      * Two reactivity counters are provided in the view store,
@@ -181,11 +182,8 @@ export class ChartBridge {
         const legendItemClickHook = this.getLegendItemHookOptions();
         const defaultOptions = deepMerge(defaultChartOptions, legendItemClickHook);
 
-        const dataSource = this.getStoreParam('dataStore', 'selectedDataSource');
-        const spreadsheetSetupComplete = this.getStoreParam(
-            'dataStore',
-            'spreadsheetSetupComplete'
-        );
+        const dataSource = this.dataStore.selectedDataSource;
+        const spreadsheetSetupComplete = this.dataStore.spreadsheetSetupComplete;
 
         /*eslint-disable indent */
         const dataSourceOptions =
@@ -193,10 +191,10 @@ export class ChartBridge {
                 ? {
                       csv: void 0,
                       firstRowAsNames: true,
-                      googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
-                      googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
-                      enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-                      dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
+                      googleAPIKey: this.dataStore.googleApiKey,
+                      googleSpreadsheetKey: this.dataStore.googleSpreadsheetId,
+                      enablePolling: this.dataStore.googleAutoUpdateEnabled,
+                      dataRefreshRate: this.dataStore.googleAutoUpdateFrequency,
                       // Failed requests are handled in onHighchartsError
                   }
                 : {
@@ -215,10 +213,7 @@ export class ChartBridge {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
     if (dataSource === 'googlesheets' && spreadsheetSetupComplete) {
-        this.commitToStore(
-            'dataStore/setGoogleSheetStatus',
-            GoogleSheetStatus.Success
-        );
+        this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Success);
     }
 
     // Text in a column other than the first (e.g. a label column) can not
@@ -373,7 +368,7 @@ export class ChartBridge {
     }
 
     public playAudioSample(instrument: string) {
-        const globalVolume = this.getStoreParam('globalSonifyParametersStore', 'volume');
+        const globalVolume = this.globalSonifyParametersStore.volume;
         const { SonificationInstrument: Instrument, SonificationTimeline: Timeline } = this
                 .Highcharts.sonification as unknown as SonificationSampleClasses,
             s = this.chart?.sonification;
@@ -927,7 +922,7 @@ export class ChartBridge {
                     events: {
                         legendItemClick: function () {
                             const series: GenericObject = this;
-                            chartBridge.commitToStore('seriesParametersStore/setSeriesParameter', {
+                            chartBridge.seriesParametersStore.setSeriesParameter({
                                 seriesId: getSeriesId(series),
                                 parameterName: 'seriesVisible',
                                 parameterValue: !series.visible,
@@ -951,41 +946,47 @@ export class ChartBridge {
             message === null ||
             !this.chart ||
             e.chart !== this.chart ||
-            this.getStoreParam('dataStore', 'selectedDataSource') !== 'googlesheets'
+            this.dataStore.selectedDataSource !== 'googlesheets'
         ) {
             return;
         }
 
         // Handled here, so Highcharts does not log it as a warning
         e.preventDefault();
-        this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
-        this.commitToStore('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Error);
+        this.dataStore.setGoogleSheetErrorMessage(message);
+        this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Error);
     }
 
-    private onStoreMutation(mutation: GenericObject) {
-        const chartIsValid = this.chart && this.chart.options;
-        if (chartIsValid && this.isParameterMutation(mutation)) {
-            this.queueNewParamReactivity();
-        } else if (chartIsValid && this.isDataMutation(mutation)) {
-            this.queueNewDataReactivity();
-        }
-    }
-
-    private isParameterMutation(mutation: GenericObject): boolean {
-        return (
-            mutation.type.startsWith('chartParameters') ||
-            mutation.type.startsWith('seriesParameters') ||
-            mutation.type.startsWith('globalSonifyParameters')
-        );
-    }
-
-    private isDataMutation(mutation: GenericObject): boolean {
-        return mutation.type.startsWith('dataStore');
+    // Queue reactivity updates after every action on the parameter stores
+    // and the data store (whether or not it changed anything). Detached: the
+    // subscriptions last as long as the app.
+    private subscribeToStoreActions() {
+        const afterParameterAction = () => {
+            if (this.chart && this.chart.options) {
+                this.queueNewParamReactivity();
+            }
+        };
+        const afterDataAction = () => {
+            if (this.chart && this.chart.options) {
+                this.queueNewDataReactivity();
+            }
+        };
+        this.chartParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
+        this.seriesParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
+        this.globalSonifyParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
+        this.dataStore.$onAction(({ name, after }) => {
+            // The text description isn't chart data, and a data update stops
+            // playback (PlayButtons), so typing a description while listening
+            // must not count as one.
+            if (name !== 'setTextDescription') {
+                after(afterDataAction);
+            }
+        }, true);
     }
 
     // Trigger a reactivity update, but only once every X milliseconds.
     private queueReactivityUpdate(
-        mutation: string,
+        trigger: () => void,
         interval: number,
         timeoutId: string,
         beforeTrigger?: () => void
@@ -997,14 +998,14 @@ export class ChartBridge {
                 if (beforeTrigger) {
                     beforeTrigger();
                 }
-                this.commitToStore(mutation);
+                trigger();
             }, interval);
         }
     }
 
     private queueNewParamReactivity() {
         this.queueReactivityUpdate(
-            'viewStore/triggerParameterReactivity',
+            () => this.viewStore.triggerParameterReactivity(),
             ChartBridge.parameterReactivityIntervalMs,
             'paramReactivityTimeout',
             () => this.updateChartOptions()
@@ -1013,7 +1014,7 @@ export class ChartBridge {
 
     private queueNewDataReactivity() {
         this.queueReactivityUpdate(
-            'viewStore/triggerDataReactivity',
+            () => this.viewStore.triggerDataReactivity(),
             ChartBridge.dataReactivityIntervalMs,
             'dataReactivityTimeout'
         );
@@ -1025,8 +1026,8 @@ export class ChartBridge {
         const chartIsValid = this.chart && this.chart.options;
         if (chartIsValid) {
             this.chartOptions = getChartOptionsFromParameters(
-                this.globalSonifyParametersStore,
-                this.chartParametersStore,
+                this.globalSonifyParametersStore.$state,
+                this.chartParametersStore.$state,
                 this.chart || {}
             );
         }
@@ -1087,6 +1088,6 @@ export class ChartBridge {
         const totalDuration = chart.options?.sonification?.duration || 1,
             curTime = chart.sonification?.timeline?.getCurrentTime() || 0,
             progressPct = Math.round((100 * curTime) / totalDuration);
-        this.commitToStore('viewStore/setPlaybackProgress', progressPct);
+        this.viewStore.setPlaybackProgress(progressPct);
     }
 }

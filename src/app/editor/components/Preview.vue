@@ -32,11 +32,13 @@
 
 <script lang="ts">
 import { defineComponent, type ComponentPublicInstance } from 'vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
 import { Chart } from 'highcharts-vue';
 import type { Chart as HighchartsChartInstance, Options } from 'highcharts';
 import Highcharts from '../core/highchartsSetup';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
+import { useDataStore } from '../store/modules/data';
+import { useViewStore } from '../store/modules/view';
 
 // The highcharts-vue component instance, as seen through a template ref
 interface ChartComponent extends ComponentPublicInstance {
@@ -71,8 +73,9 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapState('dataStore', ['tableCSV']),
-        ...mapState('viewStore', ['reactToParameterUpdates', 'loadingChart']),
+        ...mapState(useDataStore, ['tableCSV']),
+        ...mapState(useViewStore, ['reactToParameterUpdates', 'loadingChart']),
+        ...mapStores(useDataStore),
 
         chartOptions(): Options {
             return this.$chartBridge.reactiveGet(
@@ -116,7 +119,7 @@ export default defineComponent({
 
     beforeUnmount() {
         // Stop playback first, which also ends the chart bridge's progress
-        // polling: it would otherwise keep committing to the store after
+        // polling: it would otherwise keep updating the store after
         // the chart is gone.
         this.$chartBridge.stopChart();
 
@@ -158,8 +161,8 @@ export default defineComponent({
                 this.$chartBridge.forceUpdate(true);
             }
 
-            const csv = this.$store.state.dataStore.tableCSV;
-            this.$store.dispatch('dataStore/loadFromCSV', csv); // ✅ safe to call now
+            const csv = this.dataStore.tableCSV;
+            this.dataStore.loadFromCSV(csv); // ✅ safe to call now
         },
 
         // Highcharts threw while it created the chart. A chart created again

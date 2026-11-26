@@ -15,10 +15,12 @@ import type { CellEvent } from '@highcharts/grid-pro/es-modules/Data/DataTable';
 // Adds the `gridKey` option to the Grid Pro options type, which the main
 // Grid Pro typings leave out
 import type {} from '@highcharts/grid-pro/es-modules/Grid/Pro/License/LicenseValidationComposition';
+import type { TableRow } from '../../store/modules/data';
 
 export type GridColumnDataType = Column['dataType'];
 export type GridCellValue = string | number | boolean | null | undefined;
-export type TableRowData = Record<string, unknown>;
+// A row of the data store's table
+export type TableRowData = TableRow;
 
 export interface GridTableData {
     // Ids of the columns shown in the grid, in order
@@ -279,19 +281,19 @@ export function getGridDataTable(grid: Grid, presentation = false): DataTable | 
         void 0;
 }
 
-// Store mutations that change the grid's data: CSV imports, added rows,
-// filled columns, a cleared grid, a new project and a loaded project file,
-// and the grid's own edits
-const gridDataMutations = [
-    'dataStore/setTableRowData',
-    'dataStore/setTableCSV',
-    'dataStore/addTableRows',
-    'dataStore/fillColumn',
-    'dataStore/restoreStoreState'
+// Data store actions that change the grid's data: CSV imports (loadFromCSV
+// calls setTableRowData), added rows, filled columns, a cleared grid, a new
+// project and a loaded project file, and the grid's own edits
+const gridDataActions = [
+    'setTableRowData',
+    'setTableCSV',
+    'addTableRows',
+    'fillColumn',
+    'restoreStoreState'
 ];
 
 export interface GridState {
-    // The mutation is the grid's own edit
+    // The action is the grid's own edit
     isUpdatingFromGrid: boolean;
     // The grid has been rendered. Until then, it is rendered with the latest
     // data when it first becomes visible.
@@ -300,11 +302,11 @@ export interface GridState {
     onDataTab: boolean;
 }
 
-// Whether a store mutation rebuilds the grid now, when the Data tab is next
-// shown ('later'), or not at all
-export function getGridRebuild(mutationType: string, state: GridState): 'now' | 'later' | 'none' {
+// Whether a data store action (by name) rebuilds the grid now, when the Data
+// tab is next shown ('later'), or not at all
+export function getGridRebuild(actionName: string, state: GridState): 'now' | 'later' | 'none' {
     if (
-        !gridDataMutations.includes(mutationType) ||
+        !gridDataActions.includes(actionName) ||
         state.isUpdatingFromGrid ||
         !state.hasRendered
     ) {

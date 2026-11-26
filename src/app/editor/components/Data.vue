@@ -70,24 +70,27 @@ import DataGSheet from './DataGSheet.vue';
 import SEToolbarMenu from './basic/SEToolbarMenu.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import SEControl from './basic/SEControl.vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useDataStore } from '../store/modules/data';
+import { useViewStore } from '../store/modules/view';
 
 export default defineComponent({
     components: {
         Grid, GridControls, DataGSheet, SEToolbarMenu, SEDropdown, SEControl
     },
     computed: {
+        ...mapStores(useDataStore, useViewStore),
         uuid: () => getUUID('se-data-input'),
         sourceHasCustomUI(): boolean { return this.selectedDataSource === 'googlesheets'; },
         selectedDataSource: {
-            get(): string { return this.$store.state.dataStore.selectedDataSource; },
-            set(val: string) { this.$store.commit('dataStore/setSelectedDataSource', val); }
+            get(): string { return this.dataStore.selectedDataSource; },
+            set(val: string) { this.dataStore.setSelectedDataSource(val); }
         },
         showGridTools: {
-            get(): boolean { return this.$store.state.viewStore.showGridTools; },
-            set(val: boolean) { this.$store.commit('viewStore/setShowGridTools', val); }
+            get(): boolean { return this.viewStore.showGridTools; },
+            set(val: boolean) { this.viewStore.setShowGridTools(val); }
         },
-        ...mapState('dataStore', ['dataSourcesList'])
+        ...mapState(useDataStore, ['dataSourcesList'])
     },
     methods: {
         onTriggerScrollLastGridRowWithData() {

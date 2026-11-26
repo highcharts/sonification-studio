@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { createPinia } from 'pinia';
 import {
     applyCellEdit,
     clearableNumberInputType,
@@ -11,7 +12,7 @@ import {
     toStoreValue,
     type TableRowData
 } from '../../../src/app/editor/core/utils/gridData';
-import { dataStore } from '../../../src/app/editor/store/modules/data';
+import { useDataStore } from '../../../src/app/editor/store/modules/data';
 
 function getRows(): TableRowData[] {
     return [
@@ -33,7 +34,7 @@ describe('prepareGridData', () => {
     });
 
     test('Uses the columns of all rows', () => {
-        const rows = [{ A: 'x' }, { A: '1', B: '2', C: '3' }];
+        const rows: TableRowData[] = [{ A: 'x' }, { A: '1', B: '2', C: '3' }];
         expect(prepareGridData(rows).columnIds.length).toEqual(8);
     });
 
@@ -53,13 +54,9 @@ describe('prepareGridData', () => {
 describe('Column ids', () => {
     // The rows the store makes from an imported CSV
     function loadFromCSV(csv: string): TableRowData[] {
-        let rows: TableRowData[] = [];
-        dataStore.actions.loadFromCSV({
-            commit: (_type: string, payload: TableRowData[]) => {
-                rows = payload;
-            }
-        }, csv);
-        return rows;
+        const dataStore = useDataStore(createPinia());
+        dataStore.loadFromCSV(csv);
+        return dataStore.tableRowData;
     }
 
     test('A-Z, then COL1, COL2, ...', () => {
@@ -95,28 +92,50 @@ describe('getGridRebuild', () => {
     const state = { isUpdatingFromGrid: false, hasRendered: true, onDataTab: true };
 
     test('Rebuilds after data changes outside the grid', () => {
-        for (const type of [
-            'dataStore/setTableRowData',
-            'dataStore/setTableCSV',
-            'dataStore/addTableRows',
-            'dataStore/fillColumn',
-            'dataStore/restoreStoreState'
+        for (const action of [
+            'setTableRowData',
+            'setTableCSV',
+            'addTableRows',
+            'fillColumn',
+            'restoreStoreState'
         ]) {
-            expect(getGridRebuild(type, state)).toEqual('now');
+            expect(getGridRebuild(action, state)).toEqual('now');
         }
-        expect(getGridRebuild('dataStore/setTextDescription', state)).toEqual('none');
-        expect(getGridRebuild('viewStore/triggerDataReactivity', state)).toEqual('none');
+        expect(getGridRebuild('setTextDescription', state)).toEqual('none');
+        expect(getGridRebuild('setGoogleSheetStatus', state)).toEqual('none');
+    });
+
+    test('Rebuilds after the data store\'s actions that change the rows', () => {
+        const dataStore = useDataStore(createPinia());
+        // The rebuilds of each action, including the actions it calls
+        let rebuilds: string[] = [];
+        dataStore.$onAction(({ name, after }) => after(() => {
+            rebuilds.push(getGridRebuild(name, state));
+        }));
+        const rebuildsOf = (action: () => void) => {
+            rebuilds = [];
+            action();
+            return rebuilds.filter((rebuild) => rebuild !== 'none');
+        };
+
+        expect(rebuildsOf(() => dataStore.loadFromCSV('a,b\n1,2'))).toEqual(['now']);
+        expect(rebuildsOf(() => dataStore.addTableRows(2))).toEqual(['now']);
+        expect(rebuildsOf(() => dataStore.fillColumn({ columnName: 'B', equation: 'i' })))
+            .toEqual(['now']);
+        expect(rebuildsOf(() => dataStore.setTableCSV(''))).toEqual(['now']);
+        expect(rebuildsOf(() => dataStore.restoreStoreState())).toEqual(['now']);
+        expect(rebuildsOf(() => dataStore.setTextDescription('Text'))).toEqual([]);
     });
 
     test('Waits for the Data tab', () => {
-        expect(getGridRebuild('dataStore/restoreStoreState', { ...state, onDataTab: false }))
+        expect(getGridRebuild('restoreStoreState', { ...state, onDataTab: false }))
             .toEqual('later');
     });
 
     test('Ignores the grid\'s own edits, and changes before the first render', () => {
-        expect(getGridRebuild('dataStore/setTableRowData', { ...state, isUpdatingFromGrid: true }))
+        expect(getGridRebuild('setTableRowData', { ...state, isUpdatingFromGrid: true }))
             .toEqual('none');
-        expect(getGridRebuild('dataStore/setTableRowData', { ...state, hasRendered: false }))
+        expect(getGridRebuild('setTableRowData', { ...state, hasRendered: false }))
             .toEqual('none');
     });
 });
