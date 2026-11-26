@@ -24,7 +24,7 @@
                         <ol>
                             <li
                                 class="completedStep"
-                                :aria-current="currentStep === 'apikey' ? 'step' : false"
+                                :aria-current="currentStep === 'apikey' ? 'step' : undefined"
                             >
                                 <div
                                     class="stepIcon"
@@ -36,7 +36,7 @@
                             </li>
                             <li
                                 :class="{ completedStep: currentStep === 'sharesettings' || currentStep === 'sheeturl' || currentStep === 'confirmation'}"
-                                :aria-current="currentStep === 'sharesettings' ? 'step' : false"
+                                :aria-current="currentStep === 'sharesettings' ? 'step' : undefined"
                             >
                                 <div
                                     class="stepIcon"
@@ -48,7 +48,7 @@
                             </li>
                             <li
                                 :class="{ completedStep: currentStep === 'sheeturl' || currentStep === 'confirmation' }"
-                                :aria-current="currentStep === 'sheeturl' ? 'step' : false"
+                                :aria-current="currentStep === 'sheeturl' ? 'step' : undefined"
                             >
                                 <div
                                     class="stepIcon"
@@ -60,7 +60,7 @@
                             </li>
                             <li
                                 :class="{ completedStep: currentStep === 'confirmation' }"
-                                :aria-current="currentStep === 'confirmation' ? 'step' : false"
+                                :aria-current="currentStep === 'confirmation' ? 'step' : undefined"
                             >
                                 <div
                                     class="stepIcon"
@@ -148,11 +148,11 @@
                     </h4>
                     <p>
                         The Google Sheet you want to link needs to be publicly accessible in order for this to work. This is done in two steps:
-                        <ol>
-                            <li>Click the "Share" button in Google Sheets, and click "Change to anyone with the link", then click "Done".</li>
-                            <li>Go to "File > Publish to the Web" in Google Sheets, and click the "Publish" button.</li>
-                        </ol>
                     </p>
+                    <ol>
+                        <li>Click the "Share" button in Google Sheets, and click "Change to anyone with the link", then click "Done".</li>
+                        <li>Go to "File > Publish to the Web" in Google Sheets, and click the "Publish" button.</li>
+                    </ol>
                     <p>
                         When you are done, click Next below to continue the setup.
                     </p>
@@ -311,6 +311,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from './basic/SEControl.vue';
 import SEButton from './basic/SEButton.vue';
 import SEInputbox from './basic/SEInputbox.vue';
@@ -319,7 +320,7 @@ import gsheetIcon from '../assets/Google_Sheets_logo.svg';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
 import { GoogleSheetStatus } from '../store/modules/data';
 
-export default {
+export default defineComponent({
     components: {
         SEControl, SEButton, SEInputbox, SECheckbox
     },
@@ -333,26 +334,26 @@ export default {
     },
     computed: {
         spreadsheetURL: {
-            get() { return (this as any).$store.state.dataStore.googleSpreadsheetURL; },
-            set(val) { return this.$store.commit('dataStore/setGoogleSpreadsheetURL', val); }
+            get(): string { return this.$store.state.dataStore.googleSpreadsheetURL; },
+            set(val: string) { this.$store.commit('dataStore/setGoogleSpreadsheetURL', val); }
         },
         apiKey: {
-            get() { return (this as any).$store.state.dataStore.googleApiKey; },
-            set(val) { return this.$store.commit('dataStore/setGoogleApiKey', val); }
+            get(): string { return this.$store.state.dataStore.googleApiKey; },
+            set(val: string) { this.$store.commit('dataStore/setGoogleApiKey', val); }
         },
         autoUpdateEnabled: {
-            get() { return (this as any).$store.state.dataStore.googleAutoUpdateEnabled; },
-            set(val) { return this.$store.commit('dataStore/setGoogleAutoUpdateEnabled', val); }
+            get(): boolean { return this.$store.state.dataStore.googleAutoUpdateEnabled; },
+            set(val: boolean) { this.$store.commit('dataStore/setGoogleAutoUpdateEnabled', val); }
         },
         googleSheetStatus: {
-            get() { return (this as any).$store.state.dataStore.googleSheetStatus; },
-            set(val) { return this.$store.commit('dataStore/setGoogleSheetStatus', val); }
+            get(): GoogleSheetStatus { return this.$store.state.dataStore.googleSheetStatus; },
+            set(val: GoogleSheetStatus) { this.$store.commit('dataStore/setGoogleSheetStatus', val); }
         },
         googleSheetErrorMessage: {
-            get() { return (this as any).$store.state.dataStore.googleSheetErrorMessage; },
-            set(val) { return this.$store.commit('dataStore/setGoogleSheetErrorMessage', val); }
+            get(): string { return this.$store.state.dataStore.googleSheetErrorMessage; },
+            set(val: string) { this.$store.commit('dataStore/setGoogleSheetErrorMessage', val); }
         },
-        humanReadableErrorMessage() {
+        humanReadableErrorMessage(): string {
             const src = this.googleSheetErrorMessage;
             if (
                 src.indexOf('API key not valid. Please pass a valid API key') > -1 ||
@@ -370,34 +371,34 @@ export default {
         }
     },
     watch: {
-        currentStep(newStep) {
+        currentStep(newStep: string) {
             switch(newStep) {
             case 'apikey':
-                this.focusDeferred((this.$refs as any).apikeyHeading);
+                this.focusDeferred(this.$refs.apikeyHeading as HTMLElement);
                 break;
             case 'sharesettings':
-                this.focusDeferred((this.$refs as any).sharesettingsHeading);
+                this.focusDeferred(this.$refs.sharesettingsHeading as HTMLElement);
                 break;
             case 'sheeturl':
-                this.focusDeferred((this.$refs as any).sheeturlHeading);
+                this.focusDeferred(this.$refs.sheeturlHeading as HTMLElement);
                 break;
             case 'confirmation':
                 if (this.googleSheetStatus === GoogleSheetStatus.Loading) {
-                    this.focusDeferred((this.$refs as any).loadingDataText);
+                    this.focusDeferred(this.$refs.loadingDataText as HTMLElement);
                 }
                 break;
             }
         },
         googleSheetStatus(newStatus: GoogleSheetStatus) {
             if (newStatus === GoogleSheetStatus.Success) {
-                this.focusDeferred((this.$refs as any).successHeading);
+                this.focusDeferred(this.$refs.successHeading as HTMLElement);
             } else if (newStatus === GoogleSheetStatus.Error) {
-                this.focusDeferred((this.$refs as any).errorHeading);
+                this.focusDeferred(this.$refs.errorHeading as HTMLElement);
             }
         }
     },
     methods: {
-        focusDeferred(el: HTMLElement) {
+        focusDeferred(el: HTMLElement | undefined) {
             this.$nextTick(() => setTimeout(() => el?.focus(), 80));
         },
         onStartOver() {
@@ -415,7 +416,7 @@ export default {
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less">
@@ -654,7 +655,7 @@ export default {
         h4 {
             margin-bottom: 20px;
         }
-        p {
+        p, ol {
             margin-bottom: 15px;
         }
     }
