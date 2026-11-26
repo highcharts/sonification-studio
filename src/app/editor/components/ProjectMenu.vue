@@ -10,25 +10,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import SEDropdownMenu from './basic/SEDropdownMenu.vue';
+import SEDropdownMenu, { type SEDropdownMenuOption } from './basic/SEDropdownMenu.vue';
 import type { Chart } from 'highcharts';
 import Highcharts from '../core/highchartsSetup';
 import { downloadProjectFile, restoreFromProjectFile } from '../core/utils/projectFileHandling';
 import projectIcon from '../assets/file-export-solid.svg';
 import menuIcon from '../assets/bars-solid.svg';
-
-// An item in SEDropdownMenu's options format
-type MenuOption = {
-    label: string;
-    icon: string;
-} & ({
-    type: 'button';
-    onclick: () => void;
-} | {
-    type: 'fileupload';
-    fileTypes: string;
-    onload: (fileContents: string) => void;
-});
 
 export default defineComponent({
     components: {
@@ -41,7 +28,7 @@ export default defineComponent({
         };
     },
     computed: {
-        menuOptions(): MenuOption[] {
+        menuOptions(): SEDropdownMenuOption[] {
             return [{
                 label: 'New Project',
                 icon: projectIcon,

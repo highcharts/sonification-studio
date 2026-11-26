@@ -94,14 +94,20 @@ import { keyPressed, Keys, Modifiers } from '../../core/utils/keyboardUtils';
 import SEButton from './SEButton.vue';
 import SEFileUploadButton from './SEFileUploadButton.vue';
 
-export interface SEDropdownMenuOption {
+// An item in the options prop: a button, or a file upload button that
+// passes the loaded file's contents to onload
+export type SEDropdownMenuOption = {
     label: string;
     icon: string;
-    type: string;
+} & ({
+    type: 'button';
+    onclick: (e: Event) => void;
+} | {
+    type: 'fileupload';
+    // Accepted file types, defaults to '.txt,.csv'
     fileTypes?: string;
-    onclick?: (e: Event) => void;
-    onload?: (fileContents: unknown) => void;
-}
+    onload: (fileContents: string) => void;
+});
 
 export default defineComponent({
     components: {
