@@ -9,44 +9,64 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEDropdownMenu from './basic/SEDropdownMenu.vue';
+import type { Chart } from 'highcharts';
+import Highcharts from '../core/highchartsSetup';
 import { downloadProjectFile, restoreFromProjectFile } from '../core/utils/projectFileHandling';
 import projectIcon from '../assets/file-export-solid.svg';
 import menuIcon from '../assets/bars-solid.svg';
 
-export default {
+// An item in SEDropdownMenu's options format
+type MenuOption = {
+    label: string;
+    icon: string;
+} & ({
+    type: 'button';
+    onclick: () => void;
+} | {
+    type: 'fileupload';
+    fileTypes: string;
+    onload: (fileContents: string) => void;
+});
+
+export default defineComponent({
     components: {
         SEDropdownMenu
     },
     data() {
         return {
             menuIcon,
-            projectIcon,
-            menuOptions: [{
+            projectIcon
+        };
+    },
+    computed: {
+        menuOptions(): MenuOption[] {
+            return [{
                 label: 'New Project',
                 icon: projectIcon,
                 type: 'button',
-                onclick: () => (this as any).newProject()
+                onclick: () => this.newProject()
             }, {
                 label: 'Open Project',
                 icon: projectIcon,
                 type: 'fileupload',
                 fileTypes: '.hssp',
-                onload: (c: string) => (this as any).importProject(c)
+                onload: (c: string) => this.importProject(c)
             }, {
                 label: 'Save Project As',
                 icon: projectIcon,
                 type: 'button',
-                onclick: () => (this as any).dlProject()
-            }]
-        };
+                onclick: () => this.dlProject()
+            }];
+        }
     },
     methods: {
         dlProject() {
-            const projectName = (this as any).$chartBridge.getChartTitleForExport();
+            const projectName = this.$chartBridge.getChartTitleForExport();
             downloadProjectFile(projectName, this.$store);
         },
-        cleanSlateAndRecreateChart(afterRecreate: Function) {
+        cleanSlateAndRecreateChart(afterRecreate: () => void) {
             this.$store.commit('seriesParametersStore/clearState');
             // Remove chart from DOM because chart.update does not remove series options
             // - even with one-to-one parameter set.
@@ -59,8 +79,10 @@ export default {
                         this.$store.commit('viewStore/setShowChartComponent', true);
                         this.$nextTick(() => {
                             try {
-                                const charts = (this as any).$chartBridge.Highcharts.charts;
-                                (this as any).$chartBridge.init(charts[charts.length - 1]);
+                                // The chart bridge's Highcharts instance, which
+                                // also renders the chart in <Preview>
+                                const charts = Highcharts.charts;
+                                this.$chartBridge.init(charts[charts.length - 1] as Chart);
                                 afterRecreate();
                             } finally {
                                 setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 1200);
@@ -76,9 +98,9 @@ export default {
                     // After chart has been deleted and recreated, load in new options
                     try {
                         restoreFromProjectFile(fileContents, this.$store);
-                        (this as any).$announcer.announce('Project loaded.');
+                        this.$announcer.announce('Project loaded.');
                     } catch (e) {
-                        (this as any).$announcer.announce('Error loading project.');
+                        this.$announcer.announce('Error loading project.');
                         console.error('Error loading project:', e);
                     }
                 });
@@ -99,7 +121,7 @@ export default {
 
                         // Announce once the new chart will be initialized (chart logic moved to Preview.vue)
                         this.$nextTick(() => {
-                            (this as any).$announcer.announce('New project loaded.');
+                            this.$announcer.announce('New project loaded.');
                         });
                     });
                 });
@@ -107,7 +129,7 @@ export default {
         }
 
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

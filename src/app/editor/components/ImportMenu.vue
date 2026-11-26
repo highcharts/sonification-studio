@@ -9,35 +9,48 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEDropdownMenu from './basic/SEDropdownMenu.vue';
 import menuIcon from '../assets/bars-solid.svg';
 import csvIcon from '../assets/file-csv-solid.svg';
 
-export default {
+// A file upload item in SEDropdownMenu's options format
+interface MenuFileUploadOption {
+    label: string;
+    icon: string;
+    type: 'fileupload';
+    onload: (fileContents: string) => void;
+}
+
+export default defineComponent({
     components: {
         SEDropdownMenu
     },
     data() {
         return {
             menuIcon,
-            csvIcon,
-            menuOptions: [{
+            csvIcon
+        };
+    },
+    computed: {
+        menuOptions(): MenuFileUploadOption[] {
+            return [{
                 label: 'CSV Data',
                 icon: csvIcon,
                 type: 'fileupload',
-                onload: (c: string) => (this as any).importCSV(c)
-            }]
-        };
+                onload: (c: string) => this.importCSV(c)
+            }];
+        }
     },
     methods: {
         importCSV(fileContents: string) {
             if (fileContents) {
                 this.$store.dispatch('dataStore/loadFromCSV', fileContents);
-                (this as any).$announcer.announce('Data loaded.');
+                this.$announcer.announce('Data loaded.');
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
