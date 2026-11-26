@@ -104,6 +104,10 @@ export default defineComponent({
             }];
         }
     },
+    beforeUnmount() {
+        // Ends the "please wait" announcement loop of dlVideo()/dlAudio()
+        this.rendering = false;
+    },
     methods: {
         dlVideo() {
             const announcer = this.$announcer;

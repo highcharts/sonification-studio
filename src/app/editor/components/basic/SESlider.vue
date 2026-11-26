@@ -107,6 +107,9 @@ export default defineComponent({
         uuid1: () => getUUID('se-slider'),
         uuid2: () => getUUID('se-slider')
     },
+    beforeUnmount() {
+        clearTimeout(this.validityTimer);
+    },
     methods: {
         onclick(e: MouseEvent) {
             (e.target as HTMLInputElement).select();
