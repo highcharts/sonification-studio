@@ -19,7 +19,7 @@ export function firstDefined(a: any, b: any): any {
 }
 
 
-export function nullFallback<T1, T2>(a: T1, b: T2): T1|T2 {
+export function nullFallback<T1, T2>(a: T1 | null, b: T2): T1|T2 {
     return a === null ? b : a;
 }
 
