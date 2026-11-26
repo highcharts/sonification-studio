@@ -63,7 +63,13 @@ export default defineComponent({
         }
     },
     mounted() {
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', this.onDocumentKeydown);
+    },
+    beforeUnmount() {
+        document.removeEventListener('keydown', this.onDocumentKeydown);
+    },
+    methods: {
+        onDocumentKeydown(e: KeyboardEvent) {
             if (this.selectedHeaderTabId === 'Chart') {
                 if (keyPressed(Keys.K, Modifiers.Ctrl, e)) {
                     this.onPlayPauseClick();
@@ -86,9 +92,7 @@ export default defineComponent({
             if (keyPressed(Keys.Esc, Modifiers.None, e)) {
                 this.onStopClick();
             }
-        });
-    },
-    methods: {
+        },
         onPlayPauseClick() {
             this.paused = false;
             this.playPauseIcon = this.playing ? playIcon : pauseIcon;
