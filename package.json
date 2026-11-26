@@ -12,7 +12,7 @@
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "typecheck": "vue-tsc --noEmit",
     "publish": "npm run lint && npm test && npm run build && node scripts/publish.mjs"
   },
