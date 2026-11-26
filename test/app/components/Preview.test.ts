@@ -10,34 +10,48 @@ const unrenderable: Options = { series: [{ type: 'nonexistent' as 'line', data: 
 const renderable: Options = { series: [{ type: 'line', data: [1, 2] }] };
 
 function mountPreview(chartOptions: Options, fallbackOptions: Options) {
+    const loadFromCSV = vi.fn();
     const store = createStore({
         modules: {
             dataStore: {
                 namespaced: true,
                 state: { tableCSV: '' },
-                actions: { loadFromCSV: () => undefined }
+                actions: { loadFromCSV }
             },
             viewStore: {
                 namespaced: true,
-                state: { reactToParameterUpdates: 0, loadingChart: false }
+                state: { reactToParameterUpdates: 0, loadingChart: false },
+                mutations: {
+                    triggerParameterReactivity(state: { reactToParameterUpdates: number }) {
+                        state.reactToParameterUpdates++;
+                    }
+                }
             }
         }
     });
-    const chartBridge = {
-        reactiveGet: () => chartOptions,
-        buildFallbackChartOptions: () => fallbackOptions,
-        init: vi.fn(),
-        stopChart: vi.fn()
+    const preview = {
+        chartOptions,
+        store,
+        loadFromCSV,
+        chartBridge: {
+            // A new object each time, as the chart bridge returns
+            reactiveGet: () => ({ ...preview.chartOptions }),
+            buildFallbackChartOptions: () => fallbackOptions,
+            init: vi.fn(),
+            forceUpdate: vi.fn(),
+            stopChart: vi.fn()
+        },
+        announcer: { announce: vi.fn() },
+        wrapper: undefined as VueWrapper | undefined
     };
-    const announcer = { announce: vi.fn() };
-    const wrapper = mount(Preview, {
+    preview.wrapper = mount(Preview, {
         attachTo: document.body,
         global: {
             plugins: [store],
-            mocks: { $chartBridge: chartBridge, $announcer: announcer }
+            mocks: { $chartBridge: preview.chartBridge, $announcer: preview.announcer }
         }
     });
-    return { wrapper, chartBridge, announcer };
+    return preview;
 }
 
 describe('Preview.vue', () => {
@@ -61,6 +75,8 @@ describe('Preview.vue', () => {
 
         expect(preview.chartBridge.init).toHaveBeenCalledTimes(1);
         expect(preview.chartBridge.init.mock.calls[0][0].series[0].type).toBe('line');
+        expect(preview.chartBridge.forceUpdate).not.toHaveBeenCalled();
+        expect(preview.loadFromCSV).toHaveBeenCalledTimes(1);
         expect(preview.announcer.announce).not.toHaveBeenCalled();
         expect(consoleError).not.toHaveBeenCalled();
     });
@@ -79,8 +95,11 @@ describe('Preview.vue', () => {
             'Could not update the chart:'
         ]);
         expect(preview.announcer.announce.mock.calls).toEqual([
-            ['The chart could not be updated.']
+            ['The chart could not be shown with the current settings.']
         ]);
+        // Options derived from the fallback chart are refreshed
+        expect(preview.chartBridge.forceUpdate).toHaveBeenCalledWith(true);
+        expect(preview.loadFromCSV).toHaveBeenCalledTimes(1);
     });
 
     test('Announces when not even the fallback options give a chart', async () => {
@@ -89,9 +108,30 @@ describe('Preview.vue', () => {
         await flushPromises();
 
         expect(preview.chartBridge.init).not.toHaveBeenCalled();
+        expect(preview.loadFromCSV).not.toHaveBeenCalled();
         expect(Highcharts.charts.filter((c) => c)).toEqual([]);
         expect(preview.announcer.announce.mock.calls).toEqual([
             ['The chart could not be created.']
+        ]);
+    });
+
+    test('Announces an update error once when it repeats right away', async () => {
+        const preview = mountPreview(renderable, {});
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        preview.chartOptions = unrenderable;
+        preview.store.commit('viewStore/triggerParameterReactivity');
+        await flushPromises();
+        preview.store.commit('viewStore/triggerParameterReactivity');
+        await flushPromises();
+
+        expect(consoleError.mock.calls.map((call) => call[0])).toEqual([
+            'Could not update the chart:',
+            'Could not update the chart:'
+        ]);
+        expect(preview.announcer.announce.mock.calls).toEqual([
+            ['The chart could not be updated.']
         ]);
     });
 });

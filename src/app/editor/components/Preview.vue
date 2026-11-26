@@ -62,7 +62,11 @@ export default defineComponent({
             chartKey: 0,
             // Whether highcharts-vue creates the chart from fallback options,
             // after Highcharts threw on the editor's options
-            createFromFallback: false
+            createFromFallback: false,
+            // Whether the chart was created from the fallback options
+            startedFromFallback: false,
+            // The last chart error announced, and when it last occurred
+            lastChartError: { message: '', time: 0 }
         };
     },
 
@@ -99,7 +103,11 @@ export default defineComponent({
     errorCaptured(error: unknown) {
         if (this.getChart()) {
             console.error('Could not update the chart:', error);
-            this.$announcer.announce('The chart could not be updated.');
+            this.announceChartError(this.startedFromFallback ?
+                // It may never have shown the editor's settings: the user
+                // did not necessarily change anything
+                'The chart could not be shown with the current settings.' :
+                'The chart could not be updated.');
         } else {
             console.error('Could not create the chart:', error);
         }
@@ -139,8 +147,16 @@ export default defineComponent({
 
             // From now on highcharts-vue updates the chart with the
             // editor's options
+            this.startedFromFallback = this.createFromFallback;
             this.createFromFallback = false;
             this.$chartBridge.init(chart);
+            if (this.startedFromFallback) {
+                // init() derived options from the fallback chart, which has
+                // no data (e.g. no data range for the audio contexts' "too
+                // small interval" check), so derive them again once the
+                // editor's options and data have reached the chart
+                this.$chartBridge.forceUpdate(true);
+            }
 
             const csv = this.$store.state.dataStore.tableCSV;
             this.$store.dispatch('dataStore/loadFromCSV', csv); // ✅ safe to call now
@@ -159,7 +175,7 @@ export default defineComponent({
 
             if (this.createFromFallback) {
                 // Not even the fallback options gave a chart
-                this.$announcer.announce('The chart could not be created.');
+                this.announceChartError('The chart could not be created.');
                 return;
             }
 
@@ -174,6 +190,9 @@ export default defineComponent({
         destroyFailedChart() {
             // The element highcharts-vue renders the chart to
             const element = (this.$refs.chart as ChartComponent | undefined)?.$el;
+            if (!element) {
+                return;
+            }
             const failedChart = Highcharts.charts.find(
                 (chart) => chart?.container?.parentNode === element
             );
@@ -181,6 +200,21 @@ export default defineComponent({
                 failedChart?.destroy();
             } catch {
                 // A chart that threw early on may lack parts destroy() expects
+            }
+        },
+
+        // Announce a chart error, unless it repeats the last one within two
+        // seconds of its last occurrence: one change can make Highcharts
+        // throw more than once (e.g. on the options, then on the data parsed
+        // with them, then on a queued refresh), which the user needs to hear
+        // only once.
+        announceChartError(message: string) {
+            const now = Date.now();
+            const last = this.lastChartError;
+            const isRepeat = message === last.message && now - last.time < 2000;
+            this.lastChartError = { message, time: now };
+            if (!isRepeat) {
+                this.$announcer.announce(message);
             }
         }
     }
