@@ -20,9 +20,9 @@
         // Each file must be transpilable on its own, as Vite does
         "isolatedModules": true,
         // verbatimModuleSyntax (as in @vue/tsconfig) is left off for now:
-        // about 20 files import types (mostly GenericObject) without
-        // `import type`, most of them in the store and chart mapping code
-        // that a later phase rewrites.
+        // 17 files import types (mostly GenericObject) without
+        // `import type`, most of them in the chart option mapping code
+        // (src/app/editor/core/optionsMapper) that a later phase rewrites.
         "skipLibCheck": true,
         // Global types: only Vite's client types (import.meta.env, asset
         // imports). Tests import from 'vitest' explicitly.
