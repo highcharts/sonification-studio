@@ -375,8 +375,10 @@ export class ChartBridge {
         timeline.play();
     }
 
+    // Highcharts 13 keeps chart.exportChart() only as a deprecated alias of
+    // chart.exporting.exportChart()
     public downloadPNG(): void {
-        this.chart?.exportChart(
+        this.chart?.exporting?.exportChart(
             {
                 filename: this.getChartTitleForExport(),
             },
@@ -391,7 +393,7 @@ export class ChartBridge {
     }
 
     public downloadSVG(): void {
-        this.chart?.exportChart(
+        this.chart?.exporting?.exportChart(
             {
                 type: 'image/svg+xml',
                 filename: this.getChartTitleForExport(),
