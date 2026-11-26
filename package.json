@@ -9,10 +9,11 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run typecheck && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint .",
+    "typecheck": "vue-tsc --noEmit",
     "publish": "npm run lint && npm test && npm run build && node scripts/publish.mjs"
   },
   "husky": {
@@ -50,7 +51,8 @@
     "typescript-eslint": "^8.74.0",
     "vite": "^8.4.0",
     "vitest": "^5.1.2",
-    "vue-eslint-parser": "^10.4.2"
+    "vue-eslint-parser": "^10.4.2",
+    "vue-tsc": "^3.3.14"
   },
   "dependencies": {
     "@highcharts/grid-pro": "^2.0.1",
