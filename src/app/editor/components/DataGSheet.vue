@@ -146,7 +146,7 @@
                     >
                         Prepare your Google Sheet
                     </h4>
-                    <p>
+                    <p class="list-intro">
                         The Google Sheet you want to link needs to be publicly accessible in order for this to work. This is done in two steps:
                     </p>
                     <ol>
@@ -657,6 +657,11 @@ export default defineComponent({
         }
         p, ol {
             margin-bottom: 15px;
+        }
+        // The list continues this sentence, so only the list's own 10px top
+        // margin separates them
+        .list-intro {
+            margin-bottom: 0;
         }
     }
 
