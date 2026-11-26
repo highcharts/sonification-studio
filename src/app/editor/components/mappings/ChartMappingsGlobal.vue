@@ -28,16 +28,16 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEAccordionContainer from '../basic/SEAccordionContainer.vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
 import ChartMappingsGlobalBasic from './ChartMappingsGlobalBasic.vue';
 import ChartMappingsGlobalAdvanced from './ChartMappingsGlobalAdvanced.vue';
 import ChartMappingsGlobalAxis from './ChartMappingsGlobalAxis.vue';
 
-import { mapState } from 'vuex';
 import { GenericObject } from '../../core/utils/objects';
 
-export default {
+export default defineComponent({
     components: {
         SEAccordionContainer,
         SEAccordionItem,
@@ -66,9 +66,11 @@ export default {
             }]
         };
     },
-    computed: mapState({
-        expandedAccordionItems: (state: any) => state.viewStore.expandedChartMappingsAccordionItems
-    }),
+    computed: {
+        expandedAccordionItems(): GenericObject {
+            return this.$store.state.viewStore.expandedChartMappingsAccordionItems;
+        }
+    },
     methods: {
         onAccordionItemClick(e: Event, item: GenericObject, isSelected: boolean) {
             this.$store.commit('viewStore/setExpandedChartMappingsAccordionItem', {
@@ -77,7 +79,7 @@ export default {
             });
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

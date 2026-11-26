@@ -3,27 +3,35 @@
 
     Props:
         - id: String - Input element id.
-        - [value]: String - Value to display.
+        - [modelValue]: String - Value to display.
 
     Events:
-        - input: Re-emits the input event for use with v-model.
+        - update:modelValue: Re-emits the input event for use with v-model.
 -->
 <template>
     <input
         :id="id"
         type="color"
-        :value="value"
-        @input="$emit('input', $event.target.value)"
+        :value="modelValue"
+        @input="onInput"
     >
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         id: { type: String, required: true },
-        value: { type: String, default: '#ffffff' }
+        modelValue: { type: String, default: '#ffffff' }
+    },
+    emits: ['update:modelValue'],
+    methods: {
+        onInput(e: Event) {
+            this.$emit('update:modelValue', (e.target as HTMLInputElement).value);
+        }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

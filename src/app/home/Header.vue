@@ -32,14 +32,15 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import highchartsLogo from './highcharts-logo.svg';
 import gtLogo from './gt-logo.svg';
 
-export default {
+export default defineComponent({
     data() {
         return { highchartsLogo, gtLogo };
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

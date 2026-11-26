@@ -11,7 +11,7 @@
                 :id="slotProps.controlId"
                 v-model="instrument"
                 :options="instruments"
-                @input="onInstrumentChange"
+                @update:model-value="onInstrumentChange"
             />
         </SEControl>
 
@@ -44,6 +44,7 @@
 
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
@@ -58,7 +59,7 @@ import {
 } from '../../core/utils/objects';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SECheckbox,
@@ -67,19 +68,19 @@ export default {
     computed: {
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
         sonificationEnabled: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'sonificationEnabled', true); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'sonificationEnabled', val); },
+            get(): boolean { return makeSeriesParamPropertyGetMapping(this, 'sonificationEnabled', true); },
+            set(val: boolean) { return makeSeriesParamPropertySetMapping(this, 'sonificationEnabled', val); },
         },
         instrument: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'instrument', 'piano', 'instrument'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'instrument', val, 'instrument'); },
+            get(): string { return makeSeriesParamPropertyGetMapping(this, 'instrument', 'piano', 'instrument'); },
+            set(val: string) { return makeSeriesParamPropertySetMapping(this, 'instrument', val, 'instrument'); },
         },
         pitchRoundingEnabled: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'pitchRoundingEnabled', false, 'instrument'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'pitchRoundingEnabled', val, 'instrument'); },
+            get(): boolean { return makeSeriesParamPropertyGetMapping(this, 'pitchRoundingEnabled', false, 'instrument'); },
+            set(val: boolean) { return makeSeriesParamPropertySetMapping(this, 'pitchRoundingEnabled', val, 'instrument'); },
         },
-        instruments() {
-            return (this as any).$chartBridge.getAvailableInstruments();
+        instruments(): Array<Record<'name' | 'value', string>> {
+            return this.$chartBridge.getAvailableInstruments();
         },
         ...mapState('viewStore', ['selectedHeaderTabContent'])
     },
@@ -94,7 +95,7 @@ export default {
     methods: {
         onInstrumentChange() {
             if (this.instrument && this.selectedHeaderTabContent !== 'dataContent') {
-                (this as any).$chartBridge.playAudioSample(this.instrument);
+                this.$chartBridge.playAudioSample(this.instrument);
             }
         },
         populateProps() {
@@ -102,7 +103,7 @@ export default {
             this.instrument = nullFallback(this.instrument, 'piano');
         }
     }
-};
+});
 </script>
 
 

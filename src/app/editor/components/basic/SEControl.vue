@@ -57,8 +57,8 @@
             class="se-control-content-container"
         >
             <slot
-                :labelId="labelUUID"
-                :controlId="controlUUID"
+                :label-id="labelUUID"
+                :control-id="controlUUID"
             />
         </div>
         <div class="se-control-help-container">
@@ -128,11 +128,12 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import closeIcon from '../../assets/times-solid.svg';
 import { getUUID, GenericObject } from '../../core/utils/objects';
 import { Keys, keyPressed, Modifiers } from '../../core/utils/keyboardUtils';
 
-export default {
+export default defineComponent({
     props: {
         label: { type: String, default: '' },
         helptext: { type: String, default: '' },
@@ -163,31 +164,38 @@ export default {
         }
     },
     mounted() {
-        document.addEventListener('click', (e: MouseEvent) => {
+        document.addEventListener('click', this.onDocumentClick);
+        document.addEventListener('keyup', this.onDocumentKeyup);
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this.onDocumentClick);
+        document.removeEventListener('keyup', this.onDocumentKeyup);
+    },
+    methods: {
+        onDocumentClick(e: MouseEvent) {
+            const target = e.target as Node;
             if (
                 this.helptextActive &&
-                !(this.$refs as any).contentSlot.contains(e.target as any) &&
-                !(this.$refs as any).helptextPopupContainer.contains(e.target as any) &&
-                !(this.$refs as any).helptextBtn.contains(e.target as any)
+                !(this.$refs.contentSlot as HTMLElement).contains(target) &&
+                !(this.$refs.helptextPopupContainer as HTMLElement).contains(target) &&
+                !(this.$refs.helptextBtn as HTMLButtonElement).contains(target)
             ) {
                 this.helptextActive = false;
             }
-        });
-        document.addEventListener('keyup', (e: KeyboardEvent) => {
+        },
+        onDocumentKeyup(e: KeyboardEvent) {
             if (this.helptextActive && keyPressed(Keys.Esc, Modifiers.None, e)) {
                 e.preventDefault();
-                if (e.target === (this.$refs as any).helptextPopupContainer) {
-                    this.$nextTick(() => setTimeout(() => (this.$refs as any).helptextBtn.focus(), 20));
+                if (e.target === this.$refs.helptextPopupContainer) {
+                    this.$nextTick(() => setTimeout(() => (this.$refs.helptextBtn as HTMLButtonElement).focus(), 20));
                 }
                 this.helptextActive = false;
             }
-        });
-    },
-    methods: {
+        },
         onHelptextBtnClick() {
             this.helptextActive = !this.helptextActive;
             this.$nextTick(() => setTimeout(() => {
-                const container = (this.$refs as any).helptextPopupContainer;
+                const container = this.$refs.helptextPopupContainer as HTMLElement | undefined;
                 if (container && container.focus) {
                     container.focus();
                 }
@@ -201,10 +209,10 @@ export default {
         },
         hideDialog() {
             this.helptextActive = false;
-            this.$nextTick(() => (this.$refs as any).helptextBtn.focus());
+            this.$nextTick(() => (this.$refs.helptextBtn as HTMLButtonElement).focus());
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

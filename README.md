@@ -28,7 +28,7 @@ We are using [Vite](https://vite.dev) for the dev server and bundling. TypeScrip
 
 To build and publish to GitHub pages, ensure app version is correct in `package.json`, run `npm run publish`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
 
-`npm run publish` builds the app and runs `scripts/publish.mjs`, which replaces `docs/<version>` with the contents of `dist`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`.
+`npm run publish` runs the linter and the tests, builds the app (minified, without source maps) and runs `scripts/publish.mjs`, which replaces `docs/<version>` with the contents of `dist`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`.
 
 If publishing on other platforms than GitHub, remove the `.nojekyll` files, and ensure index pages are named correctly (`index.html` vs `home.html`).
 

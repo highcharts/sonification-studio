@@ -38,12 +38,13 @@
 
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEInputbox from '../basic/SEInputbox.vue';
 import { seriesTypes } from '../../core/utils/chartUtils';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SEDropdown,
@@ -53,7 +54,7 @@ export default {
         return { seriesTypes };
     },
     computed: {
-        filteredSeriesTypes() {
+        filteredSeriesTypes(): typeof seriesTypes {
             const numRows = this.$store.getters['dataStore/numRows'];
             const numCols = this.$store.getters['dataStore/numCols'];
             if (numRows > 50 || numCols >= 3) {
@@ -63,19 +64,19 @@ export default {
             return seriesTypes;
         },
         chartType: {
-            get() { return (this as any).$store.state.chartParametersStore.type; },
-            set(val) { return this.$store.commit('chartParametersStore/setType', val); }
+            get(): string { return this.$store.state.chartParametersStore.type; },
+            set(val: string) { return this.$store.commit('chartParametersStore/setType', val); }
         },
         chartTitle: {
-            get() { return (this as any).$store.state.chartParametersStore.title; },
-            set(val) { return this.$store.commit('chartParametersStore/setTitle', val); }
+            get(): string { return this.$store.state.chartParametersStore.title; },
+            set(val: string) { return this.$store.commit('chartParametersStore/setTitle', val); }
         },
         chartSubtitle: {
-            get() { return (this as any).$store.state.chartParametersStore.subtitle; },
-            set(val) { return this.$store.commit('chartParametersStore/setSubtitle', val); }
+            get(): string { return this.$store.state.chartParametersStore.subtitle; },
+            set(val: string) { return this.$store.commit('chartParametersStore/setSubtitle', val); }
         }
     }
-};
+});
 </script>
 
 

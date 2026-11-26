@@ -89,11 +89,21 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, type ComponentPublicInstance, type PropType } from 'vue';
 import { keyPressed, Keys, Modifiers } from '../../core/utils/keyboardUtils';
 import SEButton from './SEButton.vue';
 import SEFileUploadButton from './SEFileUploadButton.vue';
 
-export default {
+export interface SEDropdownMenuOption {
+    label: string;
+    icon: string;
+    type: string;
+    fileTypes?: string;
+    onclick?: (e: Event) => void;
+    onload?: (fileContents: unknown) => void;
+}
+
+export default defineComponent({
     components: {
         SEButton,
         SEFileUploadButton
@@ -101,7 +111,7 @@ export default {
     props: {
         buttonText: { type: String, required: true },
         buttonIcon: { type: String, required: true },
-        options: { type: Array, required: true },
+        options: { type: Array as PropType<SEDropdownMenuOption[]>, required: true },
         heading: { type: String, default: '' },
         fileTypes: { type: String, default: '.txt,.csv' }
     },
@@ -111,21 +121,31 @@ export default {
         };
     },
     mounted() {
-        document.addEventListener('click', (e: MouseEvent) => {
-            if (!this.$el.contains(e.target as any)) {
-                this.popupVisible = false;
-            }
-        });
-        document.addEventListener('keydown', e => {
-            if (keyPressed(Keys.Esc, Modifiers.None, e) && this.popupVisible) {
-                this.popupVisible = false;
-                if (this.$el.contains(e.target as HTMLElement)) {
-                    this.$nextTick(() => setTimeout(() => (this as any).$refs.menuBtn.$el.focus(), 20));
-                }
-            }
-        });
+        document.addEventListener('click', this.onDocumentClick);
+        document.addEventListener('keydown', this.onDocumentKeydown);
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this.onDocumentClick);
+        document.removeEventListener('keydown', this.onDocumentKeydown);
     },
     methods: {
+        onDocumentClick(e: MouseEvent) {
+            if (!(this.$el as HTMLElement).contains(e.target as Node)) {
+                this.popupVisible = false;
+            }
+        },
+
+        onDocumentKeydown(e: KeyboardEvent) {
+            if (keyPressed(Keys.Esc, Modifiers.None, e) && this.popupVisible) {
+                this.popupVisible = false;
+                if ((this.$el as HTMLElement).contains(e.target as Node)) {
+                    this.$nextTick(() => setTimeout(
+                        () => (this.$refs.menuBtn as ComponentPublicInstance).$el.focus(), 20
+                    ));
+                }
+            }
+        },
+
         startSlide(el: HTMLElement) {
             el.style.height = el.scrollHeight + 'px';
         },
@@ -134,7 +154,7 @@ export default {
             el.style.height = '';
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
@@ -163,7 +183,7 @@ export default {
         }
     }
 
-    .popup-slide-enter, .popup-slide-leave-to {
+    .popup-slide-enter-from, .popup-slide-leave-to {
         opacity: 0;
         height: 0 !important;
     }

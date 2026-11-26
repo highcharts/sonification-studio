@@ -32,6 +32,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, type PropType } from 'vue';
 import SETablist from './SETablist.vue';
 
 export interface SETabDefinition {
@@ -40,21 +41,23 @@ export interface SETabDefinition {
     selected?: boolean;
 }
 
-export default {
+export default defineComponent({
     components: {
         SETablist
     },
     props: {
-        options: { type: Array, required: true },
+        options: { type: Array as PropType<SETabDefinition[]>, required: true },
         arialabel: { type: String, required: true }
     },
+    // click: the controls ID of the selected tab (also emitted on creation)
+    emits: ['click'],
     data() {
         return {
             selectedButton: ''
         };
     },
     created(): void {
-        const defs = this.options as Array<SETabDefinition>;
+        const defs = this.options;
         const defWithSelection = defs.find(def => def.selected) || defs[0];
         this.selectedButton = defWithSelection.name;
         this.$emit('click', defWithSelection.controls);
@@ -65,7 +68,7 @@ export default {
             this.$emit('click', button.controls);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

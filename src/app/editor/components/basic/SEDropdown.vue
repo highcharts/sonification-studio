@@ -3,28 +3,32 @@
 
     Props:
         - id: String - Element id.
-        - options: Array<{ name, value }> - Options in the dropdown.
-        - [value]: String - Value of the option to select.
+        - options: Array<{ name, value }> - Options in the dropdown. A null
+            value is rendered as "" (Vue 3 would drop the attribute and use
+            the option text as value).
+        - [modelValue]: String - Value of the option to select.
         - [label]: String - Aria label for the dropdown.
         - [labelledby]: String - Aria labelledby for the dropdown.
 
     Events:
-        - input: Re-emits the change event for use with v-model.
+        - update:modelValue: Re-emits the change event for use with v-model.
+            Also emitted after every update with the selected value, and before
+            mount with the first option's value if no value is given.
 -->
 <template>
     <div class="se-dropdown sedropdown-container">
         <select
             :id="id"
             ref="SEDropdown_select"
-            :value="value"
+            :value="modelValue"
             :aria-label="label"
             :aria-labelledby="labelledby"
-            @change="$emit('input', $event.target.value)"
+            @change="onChange"
         >
             <option
                 v-for="opt in options"
                 :key="opt.name"
-                :value="opt.value"
+                :value="opt.value ?? ''"
             >
                 {{ opt.name }}
             </option>
@@ -38,16 +42,24 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, type PropType } from 'vue';
 import arrowIcon from '../../assets/arrow-down.svg';
 
-export default {
+export interface SEDropdownOption {
+    name: string;
+    // null is rendered as ''
+    value: string | null;
+}
+
+export default defineComponent({
     props: {
         id: { type: String, required: true },
-        options: { type: Array, required: true },
-        value: { type: String, default: '' },
+        options: { type: Array as PropType<SEDropdownOption[]>, required: true },
+        modelValue: { type: String, default: '' },
         label: { type: String, default: null },
         labelledby: { type: String, default: null }
     },
+    emits: ['update:modelValue'],
     data() {
         return {
             arrowIcon
@@ -56,7 +68,7 @@ export default {
     updated() {
         const sel = this.$refs.SEDropdown_select as HTMLSelectElement;
         const newVal = sel.value;
-        this.$emit('input', newVal);
+        this.$emit('update:modelValue', newVal);
     },
     beforeMount() {
         if (!this.options.length) {
@@ -64,12 +76,17 @@ export default {
         }
 
         // If no option is selected, we select the first one
-        if (!this.value) {
-            const firstOption = (this.options as any)[0];
-            this.$emit('input', firstOption.value);
+        if (!this.modelValue) {
+            const firstOption = this.options[0];
+            this.$emit('update:modelValue', firstOption.value);
+        }
+    },
+    methods: {
+        onChange(e: Event) {
+            this.$emit('update:modelValue', (e.target as HTMLSelectElement).value);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

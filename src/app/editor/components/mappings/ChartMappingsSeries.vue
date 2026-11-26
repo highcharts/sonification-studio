@@ -123,6 +123,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEInputbox from '../basic/SEInputbox.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
@@ -137,7 +138,7 @@ import {
 } from '../../store/storeUtils';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SEInputbox,
@@ -150,8 +151,8 @@ export default {
         return {
             seriesTypes: [{
                 name: 'Default',
-                value: null
-            }].concat(seriesTypes as any),
+                value: null as string | null
+            }].concat(seriesTypes),
             dashStyles: [{
                 name: 'Solid',
                 value: null
@@ -177,15 +178,13 @@ export default {
         };
     },
     computed: {
-        ...mapState({
-            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates
-        }),
+        ...mapState('viewStore', ['reactToDataUpdates']),
         selectedSeries: {
-            get() { return (this as any).$store.state.viewStore.selectedDataSeriesChartMapping; },
-            set(val) { return this.$store.commit('viewStore/setSelectedDataSeriesChartMapping', val); }
+            get(): string { return this.$store.state.viewStore.selectedDataSeriesChartMapping; },
+            set(val: string) { return this.$store.commit('viewStore/setSelectedDataSeriesChartMapping', val); }
         },
-        dataSeries() {
-            const chartBridge = (this as any).$chartBridge;
+        dataSeries(): Array<{ name: string; value: string }> {
+            const chartBridge = this.$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
 
             return series.map((s: GenericObject) => ({
@@ -194,36 +193,36 @@ export default {
             }));
         },
         seriesName: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesName'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesName', val); }
+            get(): string | null { return makeSeriesParamPropertyGetMapping(this, 'seriesName'); },
+            set(val: string | null) { return makeSeriesParamPropertySetMapping(this, 'seriesName', val); }
         },
         seriesColor: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesColor', '#ffffff'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesColor', val); }
+            get(): string { return makeSeriesParamPropertyGetMapping(this, 'seriesColor', '#ffffff'); },
+            set(val: string) { return makeSeriesParamPropertySetMapping(this, 'seriesColor', val); }
         },
         seriesOpacity: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesOpacity', 100); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesOpacity', val); }
+            get(): number { return makeSeriesParamPropertyGetMapping(this, 'seriesOpacity', 100); },
+            set(val: number) { return makeSeriesParamPropertySetMapping(this, 'seriesOpacity', val); }
         },
         dashStyle: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'dashStyle'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'dashStyle', val); }
+            get(): string | null { return makeSeriesParamPropertyGetMapping(this, 'dashStyle'); },
+            set(val: string | null) { return makeSeriesParamPropertySetMapping(this, 'dashStyle', val); }
         },
         dataLabelsEnabled: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'dataLabelsEnabled'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'dataLabelsEnabled', val); }
+            get(): boolean | null { return makeSeriesParamPropertyGetMapping(this, 'dataLabelsEnabled'); },
+            set(val: boolean | null) { return makeSeriesParamPropertySetMapping(this, 'dataLabelsEnabled', val); }
         },
         seriesVisible: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesVisible', true); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesVisible', val); }
+            get(): boolean { return makeSeriesParamPropertyGetMapping(this, 'seriesVisible', true); },
+            set(val: boolean) { return makeSeriesParamPropertySetMapping(this, 'seriesVisible', val); }
         },
         seriesShowInLegend: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesShowInLegend', true); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesShowInLegend', val); }
+            get(): boolean { return makeSeriesParamPropertyGetMapping(this, 'seriesShowInLegend', true); },
+            set(val: boolean) { return makeSeriesParamPropertySetMapping(this, 'seriesShowInLegend', val); }
         },
         seriesType: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesType'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesType', val); }
+            get(): string | null { return makeSeriesParamPropertyGetMapping(this, 'seriesType'); },
+            set(val: string | null) { return makeSeriesParamPropertySetMapping(this, 'seriesType', val); }
         }
     },
     watch: {
@@ -234,7 +233,7 @@ export default {
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
