@@ -6,7 +6,13 @@ import vue from '@vitejs/plugin-vue';
 // (docs/<version>/), so all asset URLs in the build are relative.
 export default defineConfig({
     base: './',
-    plugins: [vue()],
+    plugins: [vue({
+        // Keep the whitespace between elements, as the Vue 2 build did.
+        // Vue 3's default ('condense') drops it where it holds a line break,
+        // which moves inline elements together (e.g. the logo and the title
+        // in SEModalInfo's header).
+        template: { compilerOptions: { whitespace: 'preserve' } }
+    })],
     build: {
         outDir: 'dist',
         emptyOutDir: true,
