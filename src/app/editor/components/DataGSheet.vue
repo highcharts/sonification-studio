@@ -412,7 +412,9 @@ export default defineComponent({
             this.dataStore.setSpreadsheetSetupComplete(true);
             this.currentStep = 'confirmation';
 
-            if (!this.spreadsheetURL) {
+            // No URL, or not a Google Sheets URL: there is no spreadsheet to
+            // fetch, so the chart would neither load data nor report an error.
+            if (!this.dataStore.googleSpreadsheetId) {
                 this.dataStore.setGoogleSheetErrorMessage('Requested entity was not found');
                 this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Error);
             }
