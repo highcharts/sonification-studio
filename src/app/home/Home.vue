@@ -158,11 +158,14 @@ export default defineComponent({
         Page
     },
     data() {
-        return { appThumb, codeIcon, feedbackIcon, chartIcon, tutorialIcon, preload: true };
+        return {
+            appThumb, codeIcon, feedbackIcon, chartIcon, tutorialIcon, preload: true,
+            deferContentTimeout: 0
+        };
     },
     mounted() {
         // Add email after DOM loaded to prevent some spam
-        setTimeout(() => {
+        this.deferContentTimeout = window.setTimeout(() => {
             (this.$refs.deferContentA as HTMLElement).innerHTML = 'You can send us an email directly at ';
             const deferredB = this.$refs.deferContentB as HTMLAnchorElement;
             const a = 'mail';
@@ -176,6 +179,10 @@ export default defineComponent({
             deferredB.innerHTML = [e, f, g].join('');
             (this.$refs.deferContentC as HTMLElement).innerHTML = ', and we will get back to you.';
         }, 800);
+    },
+    beforeUnmount() {
+        // Leaving the page within 800 ms would otherwise write to removed refs
+        window.clearTimeout(this.deferContentTimeout);
     },
     methods: {
         onimgload() {
