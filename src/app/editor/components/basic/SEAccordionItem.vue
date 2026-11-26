@@ -64,11 +64,17 @@ export default defineComponent({
         this.isSelected = this.selected;
     },
     methods: {
-        startFold(el: HTMLElement) {
-            el.style.height = el.scrollHeight + 'px';
+        // Transition hooks get an Element; the transitioned element is the
+        // content wrapper <div>.
+        startFold(el: Element) {
+            if (el instanceof HTMLElement) {
+                el.style.height = el.scrollHeight + 'px';
+            }
         },
-        endFold(el: HTMLElement) {
-            el.style.height = '';
+        endFold(el: Element) {
+            if (el instanceof HTMLElement) {
+                el.style.height = '';
+            }
         },
         onclick(e: Event) {
             this.isSelected = !this.isSelected;

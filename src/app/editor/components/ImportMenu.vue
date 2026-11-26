@@ -11,18 +11,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapStores } from 'pinia';
-import SEDropdownMenu from './basic/SEDropdownMenu.vue';
+import SEDropdownMenu, { type SEDropdownMenuOption } from './basic/SEDropdownMenu.vue';
 import menuIcon from '../assets/bars-solid.svg';
 import csvIcon from '../assets/file-csv-solid.svg';
 import { useDataStore } from '../store/modules/data';
-
-// A file upload item in SEDropdownMenu's options format
-interface MenuFileUploadOption {
-    label: string;
-    icon: string;
-    type: 'fileupload';
-    onload: (fileContents: string) => void;
-}
 
 export default defineComponent({
     components: {
@@ -36,7 +28,7 @@ export default defineComponent({
     },
     computed: {
         ...mapStores(useDataStore),
-        menuOptions(): MenuFileUploadOption[] {
+        menuOptions(): SEDropdownMenuOption[] {
             return [{
                 label: 'CSV Data',
                 icon: csvIcon,
