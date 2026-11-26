@@ -237,6 +237,14 @@ describe('data store', () => {
             expect(store.googleSpreadsheetId).toBe('abc');
         });
 
+        test('googleSpreadsheetId is empty for a URL that is not a spreadsheet URL', () => {
+            const store = useDataStore();
+            ['https://example.com/sheet', 'docs.google.com/spreadsheets/d/', 'abc'].forEach(url => {
+                store.setGoogleSpreadsheetURL(url);
+                expect(store.googleSpreadsheetId).toBe('');
+            });
+        });
+
         test('tableCSVDataURI encodes the CSV as a data URI', () => {
             const store = useDataStore();
             expect(store.tableCSVDataURI).toBe('');
