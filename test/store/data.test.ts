@@ -9,7 +9,8 @@ function fillColumn(rows: Row[], columnName: string, equation: string) {
     return state;
 }
 
-// Rows as the grid stores them: a header row, then string cell values.
+// A header row, then string cell values, with '' for empty cells (the grid
+// can also omit empty cells, see loadFromCSV).
 function getRows(): Row[] {
     return [
         { A: 'Index', B: 'Value', C: '' },
@@ -31,7 +32,7 @@ describe('dataStore fillColumn (equations)', () => {
         expect(state.tableRowData.map((row) => row.C)).toEqual(['', '3', '-3', '10']);
     });
 
-    test('Treats empty cells as zero', () => {
+    test('Treats empty string cells as zero', () => {
         const state = fillColumn(getRows(), 'D', 'C + 1');
         expect(state.tableRowData.slice(1).map((row) => row.D)).toEqual(['1', '1', '1']);
     });
