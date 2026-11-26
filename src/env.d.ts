@@ -16,6 +16,15 @@ declare module 'vue' {
     }
 }
 
+// Build-time environment variables (Vite exposes those prefixed VITE_ as
+// import.meta.env.*). This file is a module, so they are declared globally.
+declare global {
+    interface ImportMetaEnv {
+        // Highcharts Grid Key for the data grid, optional (see the README)
+        readonly VITE_GRID_KEY?: string;
+    }
+}
+
 declare module 'vue-router' {
     interface RouteMeta {
         // Document title, also announced to screen readers on navigation
