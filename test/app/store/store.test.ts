@@ -13,6 +13,8 @@ import { useSeriesParametersStore } from '../../../src/app/editor/store/modules/
 import { useDataStore } from '../../../src/app/editor/store/modules/data';
 import { useGlobalSonifyParametersStore } from '../../../src/app/editor/store/modules/globalSonifyParameters';
 import { useViewStore } from '../../../src/app/editor/store/modules/view';
+// localStorage app state saved by master v1.1.1 after a set of UI changes
+import masterLocalStorageJSON from '../../fixtures/localstorage-v1.1.1.json?raw';
 
 describe('App state', () => {
     let pinia: Pinia;
@@ -77,7 +79,11 @@ describe('App state', () => {
                     { name: 'Google Sheets', value: 'googlesheets' }
                 ]
             });
-            expect(Object.keys(json.dataStore)).toEqual(Object.keys(useDataStore().$state));
+            expect(Object.keys(json.dataStore)).toEqual([
+                'tableCSV', 'tableRowData', 'tableHeaders', 'textDescription', 'selectedDataSource',
+                'spreadsheetSetupComplete', 'googleSpreadsheetURL', 'googleApiKey', 'googleAutoUpdateEnabled',
+                'googleAutoUpdateFrequency', 'googleSheetStatus', 'googleSheetErrorMessage', 'dataSourcesList'
+            ]);
             expect(Object.keys(json.globalSonifyParametersStore)).toEqual([
                 'volume', 'speed', 'order', 'playMarkerEnabled', 'tooltipMarkerEnabled', 'minNote',
                 'maxNote', 'panEnabled', 'panWidth', 'detail', 'contexts'
@@ -169,6 +175,81 @@ describe('App state', () => {
             // The other pinia is left alone
             expect(useChartParametersStore(pinia).title).toBe('Saved');
             expect(useViewStore(pinia).selectedSidebarTabId).toBe('Audio');
+        });
+    });
+
+    describe('Compatibility with the localStorage state of master v1.1.1', () => {
+        // Parsed like the app does, so the master values keep their types
+        // (e.g. a context interval saved as the string "10")
+        const masterState = () => JSON.parse(masterLocalStorageJSON);
+        // Version keys that master leaked into later saves; restore ignores them
+        const versionKeys = ['appVersion', 'storeVersion'];
+
+        test('Restores the stores per the restore rules', () => {
+            const saved = masterState();
+            // tooltipMarkerEnabled is not restored, so a changed value stays
+            useGlobalSonifyParametersStore(pinia).setTooltipMarkerEnabled(true);
+            const viewDefaults = JSON.parse(JSON.stringify(useViewStore(pinia).$state));
+
+            restoreAppState(saved, pinia);
+
+            expect(useChartParametersStore(pinia).$state).toEqual(saved.chartParametersStore);
+            expect(useChartParametersStore(pinia).title).toBe('Fixture Chart Title');
+
+            const seriesParams = useSeriesParametersStore(pinia).seriesParameters;
+            expect(seriesParams).toEqual(saved.seriesParametersStore.seriesParameters);
+            expect(seriesParams['se-hc-series-id-0'].instrument).toEqual({ pitchRoundingEnabled: true, instrument: 'flute' });
+            expect(seriesParams['se-hc-series-id-0']).not.toBe(saved.seriesParametersStore.seriesParameters['se-hc-series-id-0']);
+
+            const globalSonify = useGlobalSonifyParametersStore(pinia);
+            expect(globalSonify.$state).toEqual({ ...saved.globalSonifyParametersStore, tooltipMarkerEnabled: true });
+            expect(globalSonify.contexts.map(c => [c.id, c.valueInterval])).toEqual([[1, 1], [2, '10']]);
+            globalSonify.addContext({ valueRange: null, inactive: false });
+            expect(globalSonify.contexts[2].id).toBe(3);
+
+            const data = useDataStore(pinia);
+            expect(data.tableRowData).toEqual(saved.dataStore.tableRowData);
+            expect(data.tableRowData).toHaveLength(199);
+            expect(data.tableRowData[1]).toEqual({ A: 1, B: 42.5, C: 58.8, D: '', E: '', F: '', G: '' });
+            expect(data.tableRowData[4].C).toBe(-12);
+            expect(data.textDescription).toBe('Fixture description: two series, sensor and cosine.');
+            // Regenerated from the rows, the same as master's
+            expect(data.tableCSV).toBe(saved.dataStore.tableCSV);
+
+            // The view store is not restored
+            expect(useViewStore(pinia).$state).toEqual(viewDefaults);
+        });
+
+        test('Serializes with the same keys, in the same order, as master', () => {
+            const saved = masterState();
+            // Restoring ignores the version keys master leaked into later saves
+            restoreAppState({ ...saved, appVersion: '1.1.1', storeVersion: 4 }, pinia);
+            const serialized = JSON.parse(JSON.stringify(getAppState(pinia)));
+
+            const savedKeys = Object.keys(saved).filter(key => !versionKeys.includes(key));
+            expect(Object.keys(serialized)).toEqual(savedKeys);
+            savedKeys.forEach(key => {
+                expect(Object.keys(serialized[key])).toEqual(Object.keys(saved[key]));
+            });
+
+            // Apart from the view store, which is not restored, the state
+            // serializes exactly as master saved it
+            const withoutView = (state: Record<string, unknown>) => JSON.stringify(
+                Object.fromEntries(Object.entries(state).filter(
+                    ([key]) => key !== 'viewStore' && !versionKeys.includes(key))));
+            expect(withoutView(serialized)).toBe(withoutView(saved));
+        });
+
+        test('Round-trips through getAppState and restoreAppState unchanged', () => {
+            restoreAppState(masterState(), pinia);
+            const first = JSON.stringify(getAppState(pinia));
+
+            const fresh = createPinia();
+            restoreAppState(JSON.parse(first), fresh);
+            expect(JSON.stringify(getAppState(fresh))).toBe(first);
+
+            restoreAppState(JSON.parse(first), pinia);
+            expect(JSON.stringify(getAppState(pinia))).toBe(first);
         });
     });
 
