@@ -42,7 +42,7 @@ export default defineComponent({
                 name === 'addTableRows' ||
                 name === 'fillColumn'
             ) {
-                if (this.isUpdatingFromGrid) return; // ignore grid-originated commits
+                if (this.isUpdatingFromGrid) return; // ignore grid-originated updates
                 const onDataTab = this.viewStore.selectedHeaderTabContent === 'dataContent';
 
                 // If rows were added, do scroll to bottom after the rebuild
