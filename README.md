@@ -25,33 +25,28 @@ The project requires Node.js 26 or newer (`engines` in `package.json`; `.nvmrc` 
 | `npm run lint` | Lints the project with ESLint; warnings fail it as well as errors |
 | `npm run typecheck` | Type checks the TypeScript files and the Vue components with vue-tsc |
 | `npm run release` | Release step: lints, tests, builds and copies the build into `docs/<version>`, unless it exists already (see [Publish](#publish)) |
-| `prepare` | Run by npm after `npm install` and `npm ci`: sets up the husky git hooks |
 
 ### Build
 
-To start a dev server with hot reloading, run `npm run dev`, and open http://localhost:5173/ (Vite's default port; if it is taken, Vite takes the next free one and prints the URL). The app uses hash routing: the editor is at `#/app` and the tutorial at `#/tutorial`. In development, the editor always starts with the placeholder data, instead of restoring the previous session from localStorage as the production build does.
+If port 5173 is taken, the dev server takes the next free one and prints the URL. The app uses hash routing: the editor is at `#/app` and the tutorial at `#/tutorial`. In development, the editor always starts with the placeholder data, instead of restoring the previous session from localStorage as the production build does.
 
-To build for production, run `npm run build`. It runs the type check first, and stops if it fails. The build output (minified, without source maps) is placed in the `dist` directory, with relative asset URLs so it can be served from any subdirectory. Run `npm run preview` to serve the production build locally.
+The production build is minified, without source maps, and uses relative asset URLs, so it can be served from any subdirectory.
 
-To lint, run `npm run lint`; warnings fail it as well as errors. To type check the TypeScript files and the Vue components, run `npm run typecheck`. Both also run before each commit.
-
-We are using [Vite](https://vite.dev) (version 8) for the dev server and bundling, configured in `vite.config.ts`. The source is written in TypeScript (6.0), which Vite transpiles without type checking; [vue-tsc](https://github.com/vuejs/language-tools) does the type checking, configured in `tsconfig.json` (one project for the app, the tests and `vite.config.ts`). [Vue](https://vuejs.org) 3.5 is used as a front-end framework, with [Vue Router](https://router.vuejs.org) (version 5, with hash history, so the app works on GitHub Pages without server-side routing) and [Pinia](https://pinia.vuejs.org) for state. The components are single-file components with `<script lang="ts">` (the linter requires it, so the type check covers all of them) and Less styles. ESLint is used for linting, with plugins for TypeScript (typescript-eslint) and Vue (eslint-plugin-vue), configured in `eslint.config.js` (flat config). Static files that are copied to the build as-is (favicons, web manifest, `.nojekyll`) are in `/public`, and the HTML entry point is `/index.html`.
+We are using [Vite](https://vite.dev) (version 8) for the dev server and bundling, configured in `vite.config.ts`. The source is written in TypeScript (6.0), which Vite transpiles without type checking; [vue-tsc](https://github.com/vuejs/language-tools) does the type checking, configured in `tsconfig.json` (one project for the app, the tests and `vite.config.ts`). [Vue](https://vuejs.org) 3.5 is used as a front-end framework, with [Vue Router](https://router.vuejs.org) (version 5, with hash history, so the app works on GitHub Pages without server-side routing) and [Pinia](https://pinia.vuejs.org) for state. The components are single-file components with `<script lang="ts">` (the linter requires it, so the type check covers all of them) and Less styles (except Grid.vue). ESLint is used for linting, with plugins for TypeScript (typescript-eslint) and Vue (eslint-plugin-vue), configured in `eslint.config.js` (flat config). Static files that are copied to the build as-is (favicons, web manifest, `.nojekyll`) are in `/public`, and the HTML entry point is `/index.html`.
 
 ### Publish
 
-To build and publish to GitHub pages, ensure app version is correct in `package.json`, run `npm run release`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
+To build and publish to GitHub Pages, ensure app version is correct in `package.json`, set the Grid Key in `VITE_GRID_KEY` (see the data grid under [Notable dependencies](#notable-dependencies); without it, the grid logs an error on GitHub Pages), run `npm run release`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
 
-`npm run release` runs `scripts/publish.mjs`, which runs the linter and the tests, builds the app (type check, then minified, without source maps), copies the contents of `dist` to `docs/<version>`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`. It stops if any step fails. `<version>` is the current version in `package.json`, so only run it as a manual release step, after bumping the version. If `docs/<version>` exists already, it refuses to run, before the linter and the build. To replace a published version on purpose, run `npm run release -- --force` (the `--` passes `--force` to the script, not to npm).
+`npm run release` runs `scripts/publish.mjs`, which runs the linter and the tests, builds the app (`npm run build`), copies the contents of `dist` to `docs/<version>`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`. It stops if any step fails. `<version>` is the current version in `package.json`, so only run it as a manual release step, after bumping the version. If `docs/<version>` exists already, it refuses to run, before the linter and the build. To replace a published version on purpose, run `npm run release -- --force` (the `--` passes `--force` to the script, not to npm).
 
 The release script is `npm run release`, not `npm publish`: the app is not an npm package, and `"private": true` in `package.json` makes npm refuse to publish it to the npm registry.
 
-If publishing on other platforms than GitHub, remove the `.nojekyll` files.
+If publishing on platforms other than GitHub, remove the `.nojekyll` files.
 
-The contents of the `docs` directory is automatically served on the [GitHub pages site](https://highcharts.github.io/sonification-studio/). The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
+The contents of the `docs` directory are automatically served on the [GitHub Pages site](https://highcharts.github.io/sonification-studio/). The app releases are versioned in `docs` in order to allow for user testing different versions, and avoiding confusion around which version is being tested.
 
 ### Tests
-
-To run unit tests, run `npm test`.
 
 [Vitest](https://vitest.dev) is used as the test framework, with [Vue Test Utils](https://test-utils.vuejs.org) for component tests, in a jsdom environment (configured under `test` in `vite.config.ts`). The tests can be found under `/test` (`*.test.ts`), and `/test/fixtures` holds a project file and a localStorage session saved with version 1.1.1, to test that they still load.
 
