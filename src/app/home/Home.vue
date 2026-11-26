@@ -21,7 +21,7 @@
                     href="#"
                     class="overlay"
                     @click="navigate"
-                    @keydown.space="navigate"
+                    @keydown.space="onGoLinkSpace($event, navigate)"
                 >
                     <div class="go-btn">
                         Go to app
@@ -187,6 +187,13 @@ export default defineComponent({
     methods: {
         onimgload() {
             setTimeout(() => this.preload = false, 1);
+        },
+        // Space follows the "Go to app" link, like Enter. vue-router types
+        // navigate() for mouse events only, but it treats any event alike: it
+        // prevents the default action (no page scroll) and ignores presses
+        // with modifier keys.
+        onGoLinkSpace(e: KeyboardEvent, navigate: (e?: MouseEvent) => Promise<unknown>) {
+            navigate(e as Event as MouseEvent);
         }
     }
 });
