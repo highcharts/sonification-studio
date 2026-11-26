@@ -12,6 +12,7 @@ import { useGlobalSonifyParametersStore } from '../../src/app/editor/store/modul
 import { useViewStore } from '../../src/app/editor/store/modules/view';
 import { restoreAppState } from '../../src/app/editor/store/store';
 import { restoreFromProjectFile } from '../../src/app/editor/core/utils/projectFileHandling';
+import { applyCellEdit, getGridColumnIds } from '../../src/app/editor/core/utils/gridData';
 import type { GenericObject } from '../../src/app/editor/core/utils/objects';
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 import fixtureContents from '../fixtures/project-v1.1.1.hssp?raw';
@@ -136,6 +137,9 @@ describe('ChartBridge legend clicks', () => {
     beforeEach(() => {
         pinia = createPinia();
         bridge = new ChartBridge(pinia, Highcharts);
+        // The data store's CSV, as the editor charts it
+        useDataStore(pinia).loadFromCSV(csv, tableCSVDelimiter);
+        expect(useDataStore(pinia).tableCSV).toBe(csv);
         container = document.createElement('div');
         document.body.appendChild(container);
         // The legend is enabled by a chart parameter, which this file does
@@ -246,15 +250,11 @@ describe('ChartBridge series of the data\'s columns', () => {
         y: ((s.options as GenericObject).data as unknown[][]).map((point) => point[1])
     }));
 
-    const setSeriesName = (index: number, name: string) =>
-        useSeriesParametersStore(pinia).setSeriesParameter({
-            seriesId: `se-hc-series-id-${index}`, parameterName: 'seriesName', parameterValue: name
-        });
-
     test('An old project with an empty middle column gives its saved settings to the right data', () => {
-        // Master v1.1.1 dropped the empty column B from the CSV each time it
-        // loaded it, so the series of column C was its first series. Rows
-        // loaded from a CSV leave out their empty cells.
+        // Master v1.1.1 left the empty column B out of the chart after it
+        // loaded the project, so the series of column C was its first series
+        // and has the settings of series 0. Rows loaded from a CSV have no
+        // cells for empty values.
         const fixture = JSON.parse(decompressFromUTF16(fixtureContents));
         loadProject(masterProjectFile({
             ...fixture,
@@ -311,64 +311,103 @@ describe('ChartBridge series of the data\'s columns', () => {
         expect(describeSeries(showData())).toEqual(expectedSeries);
     });
 
-    test('Data typed into the grid with an empty middle column has no hidden series', () => {
-        // The grid writes every column up to the last one in use
-        useDataStore(pinia).setTableRowData([
-            { A: 'Index', B: '', C: 'Cos' },
-            { A: '0', B: '', C: '10' },
-            { A: '1', B: '', C: '8' }
-        ]);
-        setSeriesName(0, 'Custom C');
+    // Set series settings as the series settings panel does
+    const setSeriesSettings = (index: number, name: string, color: string, instrument: string) => {
+        const seriesParameters = useSeriesParametersStore(pinia);
+        const seriesId = `se-hc-series-id-${index}`;
+        seriesParameters.setSeriesParameter({ seriesId, parameterName: 'seriesName', parameterValue: name });
+        seriesParameters.setSeriesParameter({ seriesId, parameterName: 'seriesColor', parameterValue: color });
+        seriesParameters.setSeriesParameter({
+            seriesId, parameterName: 'instrument', parameterValue: instrument, nestedUnderParent: 'instrument'
+        });
+    };
 
-        expect(describeSeries(showData())).toEqual([
-            { name: 'Custom C', visible: true, y: [10, 8] }
+    // Name, color and instrument of each series, and whether it is shown
+    const describeSettings = (shownChart: Chart) => shownChart.series.map((s) => [
+        s.name,
+        s.color,
+        (s.options as GenericObject).sonification?.tracks?.[0]?.instrument,
+        s.visible
+    ]);
+
+    test('A column emptied in the grid keeps its hidden series, and the later series their settings', () => {
+        const data = useDataStore(pinia);
+        data.loadFromCSV([
+            'X,First,Second', '0,1,10', '1,2,8', '2,3,6', '3,4,4', '4,5,2', '5,6,0', '6,7,-2'
+        ].join('\n'));
+        setSeriesSettings(0, 'Custom B', '#ff0000', 'flute');
+        setSeriesSettings(1, 'Custom C', '#00ff00', 'piano');
+        const parametersBefore = JSON.stringify(useSeriesParametersStore(pinia).seriesParameters);
+        const valuesOfC = [10, 8, 6, 4, 2, 0, -2];
+        expect(describeSettings(showData())).toEqual([
+            ['Custom B', '#ff0000', 'flute', true], ['Custom C', '#00ff00', 'piano', true]
         ]);
+
+        // Clear each cell of column B, as the grid writes its edits
+        // (Grid.vue): every row gets every column up to the last one in use
+        const editColumnB = (value: (rowIndex: number) => string) => {
+            for (let rowIndex = 1; rowIndex < data.tableRowData.length; rowIndex++) {
+                data.setTableRowData(applyCellEdit(data.tableRowData, {
+                    rowIndex, columnId: 'B', value: value(rowIndex)
+                }, getGridColumnIds(8)));
+            }
+        };
+        editColumnB(() => '');
+        let shownChart = showData();
+        expect(describeSettings(shownChart)).toEqual([
+            ['Custom B', '#ff0000', 'flute', false], ['Custom C', '#00ff00', 'piano', true]
+        ]);
+        expect(describeSeries(shownChart)[1].y).toEqual(valuesOfC);
+        // Not in the legend, as in master v1.1.1
+        expect(shownChart.series[0].options.showInLegend).toBe(false);
+
+        editColumnB((rowIndex) => '' + rowIndex);
+        shownChart = showData();
+        expect(describeSettings(shownChart)).toEqual([
+            ['Custom B', '#ff0000', 'flute', true], ['Custom C', '#00ff00', 'piano', true]
+        ]);
+        expect(describeSeries(shownChart).map((series) => series.y)).toEqual([
+            [1, 2, 3, 4, 5, 6, 7], valuesOfC
+        ]);
+        expect(JSON.stringify(useSeriesParametersStore(pinia).seriesParameters)).toBe(parametersBefore);
     });
 
-    test('A column of text only has no series', () => {
-        useDataStore(pinia).setTableRowData([
-            { A: 'Index', B: 'Label', C: 'Value' },
-            { A: '0', B: 'first', C: '10' },
-            { A: '1', B: 'second', C: '8' }
+    test('A CSV imported with an empty middle column gives the settings of series 0 to its next column', () => {
+        // Rows loaded from a CSV have no cells for empty values, so no row
+        // has a cell in column B, which master v1.1.1 left out of the chart
+        useDataStore(pinia).loadFromCSV('Index,,Cos\n0,,10\n1,,8');
+        setSeriesSettings(0, 'Custom C', '#00ff00', 'piano');
+
+        const shownChart = showData();
+        expect(describeSettings(shownChart)).toEqual([['Custom C', '#00ff00', 'piano', true]]);
+        expect(describeSeries(shownChart)[0].y).toEqual([10, 8]);
+    });
+
+    test('Columns of text only or a header only do not throw', () => {
+        const data = useDataStore(pinia);
+        // A column of text keeps its series (hidden, it has no values to
+        // plot), as master v1.1.1 numbered the series
+        data.loadFromCSV('Index,Label,Value\n0,first,10\n1,second,8');
+        expect(describeSeries(showData())).toEqual([
+            { name: 'Label', visible: false, y: [null, null] },
+            { name: 'Value', visible: true, y: [10, 8] }
         ]);
 
+        // No row after the first has a cell in a column of a header only,
+        // which master v1.1.1 left out
+        data.loadFromCSV('Index,Header only,Value\n0,,10\n1,,8');
         expect(describeSeries(showData())).toEqual([
             { name: 'Value', visible: true, y: [10, 8] }
         ]);
+
+        // And header rows only
+        data.loadFromCSV('Index,Label,Value');
+        expect(describeSeries(showData())).toEqual([]);
     });
 
     test('A cleared grid gives a chart without series', () => {
         useDataStore(pinia).setTableRowData([{}, {}, {}]);
         expect(describeSeries(showData())).toEqual([]);
-    });
-
-    test('A column emptied and filled again gets its settings back', () => {
-        const data = useDataStore(pinia);
-        const rows = (b: string[]) => [
-            { A: 'Index', B: b[0], C: 'Second' },
-            { A: '0', B: b[1], C: '10' },
-            { A: '1', B: b[2], C: '8' }
-        ];
-        data.setTableRowData(rows(['First', '1', '2']));
-        setSeriesName(0, 'Custom first');
-        setSeriesName(1, 'Custom second');
-        const parametersBefore = JSON.stringify(useSeriesParametersStore(pinia).seriesParameters);
-        expect(describeSeries(showData()).map((s) => [s.name, s.y])).toEqual([
-            ['Custom first', [1, 2]], ['Custom second', [10, 8]]
-        ]);
-
-        // While column B is empty, column C has the first series, and so
-        // the settings of series 0, as after a load in v1.1.1
-        data.setTableRowData(rows(['', '', '']));
-        expect(describeSeries(showData()).map((s) => [s.name, s.y])).toEqual([
-            ['Custom first', [10, 8]]
-        ]);
-
-        data.setTableRowData(rows(['First', '1', '2']));
-        expect(describeSeries(showData()).map((s) => [s.name, s.y])).toEqual([
-            ['Custom first', [1, 2]], ['Custom second', [10, 8]]
-        ]);
-        expect(JSON.stringify(useSeriesParametersStore(pinia).seriesParameters)).toBe(parametersBefore);
     });
 
     test('Google Sheets data keeps a hidden series for an empty column', () => {
