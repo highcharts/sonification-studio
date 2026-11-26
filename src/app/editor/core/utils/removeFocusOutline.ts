@@ -7,9 +7,11 @@ export function removeFocusOutlineUnlessKeypress(): void {
     const styleElement = document.createElement('style'),
         head = document.getElementsByTagName('head')[0],
         setCss = (cssText: string) => {
-            (styleElement as any).styleSheet ?
-                (styleElement as any).styleSheet.cssText = cssText :
+            if ((styleElement as any).styleSheet) {
+                (styleElement as any).styleSheet.cssText = cssText;
+            } else {
                 styleElement.innerHTML = cssText;
+            }
         };
 
     head.appendChild(styleElement);

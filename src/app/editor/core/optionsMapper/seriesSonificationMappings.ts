@@ -67,7 +67,7 @@ export class SeriesSonificationMappings {
         mappingKey: string,
         parentKey: string|null,
         options: GenericObject,
-        valueTransform?: Function
+        valueTransform?: (value: number) => number
     ): GenericObject {
         const mapped = options.mappingType === 'mapped';
         const fixed = options.mappingType === 'fixed';

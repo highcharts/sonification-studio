@@ -22,7 +22,7 @@ export function parseCSV (strData: string, strDelimiter = ';'): Array<Array<stri
 
     // Create an array to hold our individual pattern
     // matching groups.
-    let arrMatches = null;
+    let arrMatches: RegExpExecArray | null;
 
     // Keep looping over the regular expression matches
     // until we can no longer find a match.
