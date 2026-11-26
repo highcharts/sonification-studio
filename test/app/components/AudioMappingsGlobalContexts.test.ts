@@ -115,6 +115,16 @@ describe('AudioMappingsGlobalContexts.vue', () => {
         expect(cards[1].find('.details-btn').attributes('aria-expanded')).toBe('false');
     });
 
+    test('Has unique ids, and a named Play when select in each card', async () => {
+        await wrapper.find('.add-btn').trigger('click');
+        expect(wrapper.findAll('.context-card')).toHaveLength(2);
+
+        const ids = wrapper.findAll('[id]').map(el => el.attributes('id'));
+        expect(ids.length).toBeGreaterThan(0);
+        expect(new Set(ids).size).toBe(ids.length);
+        expect(wrapper.findAll('.context-card select[aria-label="Play when"]')).toHaveLength(2);
+    });
+
     test('Sets the instrument through the store action, then plays a sample of it', async () => {
         await wrapper.find('.details .se-dropdown select').setValue('flute');
         expect(context().instrument).toBe('flute');

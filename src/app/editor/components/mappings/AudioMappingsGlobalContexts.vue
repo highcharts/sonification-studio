@@ -54,7 +54,6 @@
                     :compact-content="true"
                 >
                     <select
-                        id="playwhen-select"
                         v-model="contextParameter(context, 'playWhenType').value"
                         aria-label="Play when"
                     >
