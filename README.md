@@ -54,4 +54,4 @@ Source files are found under `/src/app`, with `/src/app/public/app.ts` as the en
 
 ### Notable dependencies
 
-The project has a dependency on the open source Javacsript library [mathJS](https://mathjs.org). This library is used for the "Fill equation" functionality on the data page.
+The project has a dependency on the open source JavaScript library [mathJS](https://mathjs.org) (version 15). Its expression parser (`evaluate`) is used for the "Fill column from equation" tool under "Grid tools" on the data page.
