@@ -110,6 +110,12 @@ describe('AudioMappingsGlobalContexts.vue', () => {
         expect(context().showDetails).toBe(true);
     });
 
+    test('Adds cues that play, while the placeholder cue added on mount does not', async () => {
+        expect(context().playWhenType).toBe('never');
+        await wrapper.find('.add-btn').trigger('click');
+        expect(store().contexts.map(c => [c.id, c.playWhenType])).toEqual([[1, 'never'], [2, 'always']]);
+    });
+
     test('Adds and removes context cues through the store', async () => {
         await wrapper.find('.add-btn').trigger('click');
         expect(store().contexts.map(c => c.id)).toEqual([1, 2]);
