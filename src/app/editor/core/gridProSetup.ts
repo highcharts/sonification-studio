@@ -67,6 +67,14 @@ GridPro.CellRendererRegistry.registerRenderer(clearableNumberInputType, Clearabl
     rows of the body sections after them from the end of the table. Grid
     Pro's numbers for the sections before the main body are right, and once
     it numbers all rows right, this gives the same numbers.
+
+    Grid Pro 3.2 also sets the table's aria-rowcount two ways: when it renders
+    the grid, to the number of body rows only (2000), and in
+    syncAriaRowIndexes(), which runs only once the rows are rendered again
+    (after a scroll), to the number including the header rows (2002), as
+    aria-rowindex counts them. So Grid.vue calls syncAriaRowIndexes() once
+    each grid has rendered (check, when removing this: the count is 2002 both
+    before and after a scroll).
 */
 
 // Grid Pro's typings mark the table's body sections private

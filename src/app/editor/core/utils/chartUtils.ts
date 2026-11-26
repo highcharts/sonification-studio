@@ -104,6 +104,24 @@ export function removeNonNumericYValues(data: unknown[]): unknown[] {
     });
 }
 
+/**
+ * Whether series data has a y value to plot: data from an empty column, or
+ * from a column of text after removeNonNumericYValues(), has none.
+ */
+export function seriesDataHasValues(data: unknown): boolean {
+    const hasValue = (y: unknown) => y !== null && y !== void 0 && y !== '';
+    return Array.isArray(data) && data.some((point) => {
+        if (Array.isArray(point)) {
+            // [y] or [x, y]
+            return hasValue(point[point.length > 1 ? 1 : 0]);
+        }
+        if (point && typeof point === 'object') {
+            return hasValue((point as { y?: unknown }).y);
+        }
+        return hasValue(point);
+    });
+}
+
 // An axis with the internals and custom option the negative log plugin uses,
 // which are not part of Highcharts' declarations
 type NegativeLogAxis = HighchartsModule.Axis & {
