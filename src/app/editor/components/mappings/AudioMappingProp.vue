@@ -169,19 +169,19 @@ export default defineComponent({
             set(val: string) { return makeSeriesParamPropertySetMapping(this, 'mapTo', val, this.storeParentProp); }
         },
         min: {
-            get(): number | null { return makeSeriesParamPropertyGetMapping(this, 'min',
+            get(): number { return makeSeriesParamPropertyGetMapping(this, 'min',
                 nullFallback(this.defaultMin, this.minRangeVal), this.storeParentProp); },
-            set(val: number | null) { return makeSeriesParamPropertySetMapping(this, 'min', val, this.storeParentProp); }
+            set(val: number) { return makeSeriesParamPropertySetMapping(this, 'min', val, this.storeParentProp); }
         },
         max: {
-            get(): number | null { return makeSeriesParamPropertyGetMapping(this, 'max',
+            get(): number { return makeSeriesParamPropertyGetMapping(this, 'max',
                 nullFallback(this.defaultMax, this.maxRangeVal), this.storeParentProp); },
-            set(val: number | null) { return makeSeriesParamPropertySetMapping(this, 'max', val, this.storeParentProp); }
+            set(val: number) { return makeSeriesParamPropertySetMapping(this, 'max', val, this.storeParentProp); }
         },
         fixedValue: {
-            get(): number | null { return makeSeriesParamPropertyGetMapping(this, 'fixedValue',
+            get(): number { return makeSeriesParamPropertyGetMapping(this, 'fixedValue',
                 nullFallback(this.defaultVal, Math.round((this.maxRangeVal - this.minRangeVal) / 2)), this.storeParentProp); },
-            set(val: number | null) { return makeSeriesParamPropertySetMapping(this, 'fixedValue', val, this.storeParentProp); }
+            set(val: number) { return makeSeriesParamPropertySetMapping(this, 'fixedValue', val, this.storeParentProp); }
         },
         polarity: {
             get(): string { return makeSeriesParamPropertyGetMapping(this, 'polarity', 'positive', this.storeParentProp); },
