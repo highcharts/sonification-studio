@@ -12,23 +12,23 @@ Follow the below steps to get started developing on this project.
 
 ### Installation
 
-The project requires Node.js 26 or newer (see `.nvmrc`; run `nvm use` if you use nvm). Clone this repository and install dependencies with `npm install`.
+The project requires Node.js 26 or newer (see `.nvmrc`; run `nvm use` if you use nvm). Clone this repository and install dependencies with `npm install`. This also sets up the git pre-commit hook (with [husky](https://typicode.github.io/husky/)), which runs the linter, the type check and the tests before each commit (see `.husky/pre-commit`).
 
 ### Build
 
 To start a dev server with hot reloading, run `npm run dev`.
 
-To build for production, run `npm run build`. The build output is placed in the `dist` directory, with relative asset URLs so it can be served from any subdirectory. Run `npm run preview` to serve the production build locally.
+To build for production, run `npm run build`. It runs the type check first, and stops if it fails. The build output is placed in the `dist` directory, with relative asset URLs so it can be served from any subdirectory. Run `npm run preview` to serve the production build locally.
 
-To lint, run `npm run lint`. Linting is otherwise run automatically before each commit.
+To lint, run `npm run lint`; warnings fail it as well as errors. To type check the TypeScript files and the Vue components, run `npm run typecheck`. Both also run before each commit.
 
-We are using [Vite](https://vite.dev) for the dev server and bundling. TypeScript is used for transpilation, and [Vue 3](https://vuejs.org) is used as a front-end framework, with Vue Router and Vuex. ESLint is used for linting, with plugins for TypeScript and Vue, configured in `eslint.config.js` (flat config). Vite is configured in `vite.config.ts`. Static files that are copied to the build as-is (favicons, web manifest, `.nojekyll`) are in `/public`, and the HTML entry point is `/index.html`.
+We are using [Vite](https://vite.dev) for the dev server and bundling. The source is written in TypeScript, which Vite transpiles without type checking; [vue-tsc](https://github.com/vuejs/language-tools) does the type checking, configured in `tsconfig.json`. [Vue 3](https://vuejs.org) is used as a front-end framework, with Vue Router and Vuex. ESLint is used for linting, with plugins for TypeScript and Vue, configured in `eslint.config.js` (flat config). Vite is configured in `vite.config.ts`. Static files that are copied to the build as-is (favicons, web manifest, `.nojekyll`) are in `/public`, and the HTML entry point is `/index.html`.
 
 ### Publish
 
 To build and publish to GitHub pages, ensure app version is correct in `package.json`, run `npm run publish`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
 
-`npm run publish` runs the linter and the tests, builds the app (minified, without source maps) and runs `scripts/publish.mjs`, which replaces `docs/<version>` with the contents of `dist`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`.
+`npm run publish` runs the linter and the tests, builds the app (type check, then minified, without source maps) and runs `scripts/publish.mjs`, which replaces `docs/<version>` with the contents of `dist`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`.
 
 If publishing on other platforms than GitHub, remove the `.nojekyll` files, and ensure index pages are named correctly (`index.html` vs `home.html`).
 
@@ -54,4 +54,4 @@ Source files are found under `/src/app`, with `/src/app/public/app.ts` as the en
 
 ### Notable dependencies
 
-The project has a dependency on the open source Javacsript library [mathJS](https://mathjs.org). This library is used for the "Fill equation" functionality on the data page.
+The project has a dependency on the open source JavaScript library [mathJS](https://mathjs.org) (version 15). Its expression parser (`evaluate`) is used for the "Fill column from equation" tool under "Grid tools" on the data page.

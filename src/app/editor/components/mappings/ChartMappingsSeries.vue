@@ -193,8 +193,8 @@ export default defineComponent({
             }));
         },
         seriesName: {
-            get(): string | null { return makeSeriesParamPropertyGetMapping(this, 'seriesName'); },
-            set(val: string | null) { return makeSeriesParamPropertySetMapping(this, 'seriesName', val); }
+            get(): string { return makeSeriesParamPropertyGetMapping(this, 'seriesName', ''); },
+            set(val: string) { return makeSeriesParamPropertySetMapping(this, 'seriesName', val); }
         },
         seriesColor: {
             get(): string { return makeSeriesParamPropertyGetMapping(this, 'seriesColor', '#ffffff'); },
@@ -209,8 +209,8 @@ export default defineComponent({
             set(val: string | null) { return makeSeriesParamPropertySetMapping(this, 'dashStyle', val); }
         },
         dataLabelsEnabled: {
-            get(): boolean | null { return makeSeriesParamPropertyGetMapping(this, 'dataLabelsEnabled'); },
-            set(val: boolean | null) { return makeSeriesParamPropertySetMapping(this, 'dataLabelsEnabled', val); }
+            get(): boolean { return makeSeriesParamPropertyGetMapping(this, 'dataLabelsEnabled', false); },
+            set(val: boolean) { return makeSeriesParamPropertySetMapping(this, 'dataLabelsEnabled', val); }
         },
         seriesVisible: {
             get(): boolean { return makeSeriesParamPropertyGetMapping(this, 'seriesVisible', true); },
