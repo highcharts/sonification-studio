@@ -1,4 +1,4 @@
-import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
+import type * as HighchartsModule from 'highcharts';
 import type Announcer from './utils/Announcer';
 import { GenericObject, deepMerge } from './utils/objects';
 import { downloadURI } from './utils/browserUtils';
@@ -8,6 +8,29 @@ import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMappe
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
 import { GoogleSheetStatus } from '../store/modules/data';
 import { Store } from 'vuex';
+
+// The sonification classes used to play instrument samples. Highcharts'
+// declarations type SonificationInstrument as an instance rather than a class,
+// and leave out SonificationTimeline, so they are described here.
+interface SampleTimeline {
+    addChannel(
+        type: 'instrument',
+        engine: object,
+        showPlayMarker: boolean,
+        events: HighchartsModule.SonificationTimelineEvent[]
+    ): void;
+    play(): void;
+    destroy(): void;
+}
+
+interface SonificationSampleClasses {
+    SonificationInstrument: new (
+        audioContext: AudioContext,
+        destination: AudioNode,
+        options: { synthPatch: string }
+    ) => object;
+    SonificationTimeline: new () => SampleTimeline;
+}
 
 /**
  * Interface between chart-specific logic and the rest of the
@@ -34,12 +57,13 @@ export class ChartBridge {
     private reactivityTimeouts: GenericObject = {};
     private progressTimer: number | undefined;
     private _seReactivityCounter: number | null = null;
-    private audioSampleTimeline: GenericObject | null = null;
+    private audioSampleTimeline: SampleTimeline | null = null;
 
     /**
-     * Construct the class with a Vuex store instance
+     * Construct the class with a Vuex store instance and the app's
+     * Highcharts instance (from highchartsSetup.ts).
      */
-    constructor(store: Store<any>, private Highcharts: GenericObject) {
+    constructor(store: Store<any>, private Highcharts: typeof HighchartsModule) {
         this.chartParametersStore = store.state.chartParametersStore;
         this.seriesParametersStore = store.state.seriesParametersStore;
         this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
@@ -315,19 +339,16 @@ export class ChartBridge {
 
     public playAudioSample(instrument: string) {
         const globalVolume = this.getStoreParam('globalSonifyParametersStore', 'volume');
-        const Instrument = this.Highcharts.sonification.SonificationInstrument,
-            Timeline = this.Highcharts.sonification.SonificationTimeline,
+        const { SonificationInstrument: Instrument, SonificationTimeline: Timeline } = this
+                .Highcharts.sonification as unknown as SonificationSampleClasses,
             s = this.chart?.sonification;
 
         if (!s) {
             return;
         }
 
-        let timeline = this.audioSampleTimeline;
-        if (timeline) {
-            timeline.destroy();
-        }
-        timeline = this.audioSampleTimeline = new Timeline() as GenericObject;
+        this.audioSampleTimeline?.destroy();
+        const timeline = (this.audioSampleTimeline = new Timeline());
 
         const instr = new Instrument(s.audioContext, s.audioContext.destination, {
             synthPatch: instrument,
@@ -580,7 +601,7 @@ export class ChartBridge {
     }
 
     public getAvailableInstruments(): Array<Record<'name' | 'value', string>> {
-        return Object.keys(this.Highcharts.sonification.InstrumentPresets).map((i) => ({
+        return Object.keys(this.Highcharts.sonification.InstrumentPresets || {}).map((i) => ({
             name: i[0].toUpperCase() + i.slice(1),
             value: i,
         }));
@@ -968,7 +989,7 @@ export class ChartBridge {
             return;
         }
 
-        const opts = this.chart?.options || Highcharts.getOptions();
+        const opts = this.chart?.options || this.Highcharts.getOptions();
         const threshold: number =
             opts?.accessibility?.series?.pointDescriptionEnabledThreshold || 8000;
 

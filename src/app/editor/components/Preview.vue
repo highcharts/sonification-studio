@@ -6,6 +6,7 @@
             <HighchartsChart
                 ref="chart"
                 class="chart"
+                :highcharts="Highcharts"
                 :options="chartOptions"
                 :constructor-type="'stockChart'"
             />
@@ -33,6 +34,7 @@ import { defineComponent } from 'vue';
 import { mapState } from 'vuex';
 import { Chart } from 'highcharts-vue';
 import type { Chart as HighchartsChartInstance, Options } from 'highcharts';
+import Highcharts from '../core/highchartsSetup';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
 
 // The highcharts-vue component instance, as seen through a template ref
@@ -43,6 +45,13 @@ interface ChartComponent {
 export default defineComponent({
     components: {
         HighchartsChart: Chart
+    },
+
+    setup() {
+        // The app's Highcharts instance, with its modules, for highcharts-vue
+        // to create the chart with. Returned from setup so that Vue does not
+        // make it reactive.
+        return { Highcharts };
     },
 
     data() {
