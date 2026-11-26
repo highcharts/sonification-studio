@@ -130,10 +130,12 @@ export const tableCSVDelimiter = ';';
 // break is quoted, with its quotes doubled, so that it stays one value when
 // the CSV is parsed by loadFromCSV. The chart's data module (Highcharts
 // 13.1.1) reads them too, except values with a line break, or with a quote
-// at their start or (when a value follows) their end.
+// at their start or (when a value follows) their end. The data module also
+// skips lines that start with "#" (after blanks) as comments, so a value
+// starting with "#" is quoted too (only a line's first value needs it).
 function toCSVValue(value: TableCellValue | undefined): string {
     const text = value === undefined || value === null ? '' : String(value);
-    const needsQuotes = text.includes(tableCSVDelimiter) || /["\r\n]/.test(text);
+    const needsQuotes = text.includes(tableCSVDelimiter) || /["\r\n]|^\s*#/.test(text);
     return needsQuotes ? '"' + text.replace(/"/g, '""') + '"' : text;
 }
 

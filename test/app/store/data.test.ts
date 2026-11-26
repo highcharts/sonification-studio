@@ -119,13 +119,10 @@ describe('data store', () => {
             expect(store.tableCSV).toBe(csv);
         });
 
-        test('Are read by the chart\'s data module', () => {
+        // The series the chart's data module reads from the store's CSV
+        function readSeries(rows: TableRow[]): Options['series'] {
             const store = useDataStore();
-            store.setTableRowData([
-                { A: 'Index', B: 'Temp; C', C: 'Say "hi" there' },
-                { A: '1', B: '2', C: '3' },
-                { A: '2', B: '4', C: '5' }
-            ]);
+            store.setTableRowData(rows);
             let series: Options['series'];
             new Highcharts.Data({
                 ...defaultChartOptions.data,
@@ -135,10 +132,39 @@ describe('data store', () => {
                     series = options.series;
                 }
             });
+            return series;
+        }
+
+        test('Are read by the chart\'s data module', () => {
+            const series = readSeries([
+                { A: 'Index', B: 'Temp; C', C: 'Say "hi" there' },
+                { A: '1', B: '2', C: '3' },
+                { A: '2', B: '4', C: '5' }
+            ]);
             expect(series?.map((s) => s.name)).toEqual(['Temp; C', 'Say "hi" there']);
             expect(series?.map((s) => 'data' in s && s.data)).toEqual([
                 [[1, 2], [2, 4]],
                 [[1, 3], [2, 5]]
+            ]);
+        });
+
+        test('Starting with "#" are quoted, so the chart\'s data module keeps their rows', () => {
+            const store = useDataStore();
+            // The data module skips the lines that start with "#" (comments)
+            const rows = [
+                { A: '# of items', B: 'Sales' },
+                { A: '#a', B: '10' },
+                { A: ' #b', B: '20' },
+                { A: 'c', B: '#30' }
+            ];
+            store.setTableRowData(rows);
+            expect(store.tableCSV).toBe('"# of items";Sales\n"#a";10\n" #b";20\nc;"#30"');
+
+            const series = readSeries(rows);
+            expect(series?.map((s) => s.name)).toEqual(['Sales']);
+            // (The data module trims text values)
+            expect(series?.map((s) => 'data' in s && s.data)).toEqual([
+                [['#a', 10], ['#b', 20], ['c', '#30']]
             ]);
         });
     });
