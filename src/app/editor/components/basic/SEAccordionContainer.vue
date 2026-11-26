@@ -55,18 +55,31 @@ export default defineComponent({
             }
         },
 
+        // The accordion items of this container, if the event is on the
+        // header of one of them. Otherwise none: Home and End keep their use
+        // in the items' content (text boxes, sliders), and a nested
+        // container handles its own items.
+        getItemsForHeaderKeydown(e: KeyboardEvent): HTMLElement[] {
+            const container = this.$refs.container as HTMLElement;
+            const selected = this.getAccordionItemFromKeydownEvent(e);
+            if (!selected || selected.parentElement !== container) {
+                return [];
+            }
+            return Array.from(container.querySelectorAll<HTMLElement>(':scope > .se-accordion-item'));
+        },
+
         onmovehome(e: KeyboardEvent) {
-            const items = (this.$refs.container as HTMLElement).querySelectorAll('se-accordion-item');
+            const items = this.getItemsForHeaderKeydown(e);
             if (items.length) {
-                this.focusAccordionItem(items[0] as HTMLElement);
+                this.focusAccordionItem(items[0]);
                 e.preventDefault();
             }
         },
 
         onmoveend(e: KeyboardEvent) {
-            const items = (this.$refs.container as HTMLElement).querySelectorAll('se-accordion-item');
+            const items = this.getItemsForHeaderKeydown(e);
             if (items.length) {
-                this.focusAccordionItem(items[items.length - 1] as HTMLElement);
+                this.focusAccordionItem(items[items.length - 1]);
                 e.preventDefault();
             }
         }
