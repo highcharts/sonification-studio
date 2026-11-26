@@ -19,17 +19,18 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import PlayButtons from './PlayButtons.vue';
 import PlaybackSlider from './PlaybackSlider.vue';
 import VolumeSlider from './VolumeSlider.vue';
 
-export default {
+export default defineComponent({
     components: {
         PlayButtons,
         PlaybackSlider,
         VolumeSlider
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

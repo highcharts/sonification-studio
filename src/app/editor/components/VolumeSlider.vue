@@ -14,19 +14,20 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { keyPressed, Modifiers, Keys } from '../core/utils/keyboardUtils';
 import { mapState } from 'vuex';
 import SESlider from './basic/SESlider.vue';
 
-export default {
+export default defineComponent({
     components: {
         SESlider
     },
     computed: {
         ...mapState('viewStore', ['selectedHeaderTabId']),
         volume: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.volume; },
-            set(vol) { return this.$store.commit('globalSonifyParametersStore/setVolume', vol); }
+            get(): number { return this.$store.state.globalSonifyParametersStore.volume; },
+            set(vol: number) { this.$store.commit('globalSonifyParametersStore/setVolume', vol); }
         }
     },
     mounted() {
@@ -44,19 +45,19 @@ export default {
     },
     methods: {
         volumeUp() {
-            const newVol = Math.min((this.volume as number) + 5, 130);
+            const newVol = Math.min(this.volume + 5, 130);
             this.$store.commit('globalSonifyParametersStore/setVolume', newVol);
             this.volume = newVol;
-            (this as any).$announcer.announce('Volume up. ' + newVol + '%');
+            this.$announcer.announce('Volume up. ' + newVol + '%');
         },
         volumeDown() {
-            const newVol = Math.max((this.volume as number) - 5, 0);
+            const newVol = Math.max(this.volume - 5, 0);
             this.$store.commit('globalSonifyParametersStore/setVolume', newVol);
             this.volume = newVol;
-            (this as any).$announcer.announce('Volume down. ' + newVol + '%');
+            this.$announcer.announce('Volume down. ' + newVol + '%');
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

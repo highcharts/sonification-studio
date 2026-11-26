@@ -42,7 +42,7 @@
         <GridControls
             v-show="!sourceHasCustomUI && showGridTools"
             class="grid-toolbar-container"
-            @triggerScrollLastGridRowWithData="onTriggerScrollLastGridRowWithData()"
+            @trigger-scroll-last-grid-row-with-data="onTriggerScrollLastGridRowWithData()"
         />
         <div
             v-show="!sourceHasCustomUI"
@@ -62,6 +62,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { getUUID } from '../core/utils/objects';
 import Grid from './Grid.vue';
 import GridControls from './GridControls.vue';
@@ -71,29 +72,29 @@ import SEDropdown from './basic/SEDropdown.vue';
 import SEControl from './basic/SEControl.vue';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         Grid, GridControls, DataGSheet, SEToolbarMenu, SEDropdown, SEControl
     },
     computed: {
         uuid: () => getUUID('se-data-input'),
-        sourceHasCustomUI() { return this.selectedDataSource === 'googlesheets'; },
+        sourceHasCustomUI(): boolean { return this.selectedDataSource === 'googlesheets'; },
         selectedDataSource: {
-            get() { return (this as any).$store.state.dataStore.selectedDataSource; },
-            set(val) { return this.$store.commit('dataStore/setSelectedDataSource', val); }
+            get(): string { return this.$store.state.dataStore.selectedDataSource; },
+            set(val: string) { this.$store.commit('dataStore/setSelectedDataSource', val); }
         },
         showGridTools: {
-            get() { return (this as any).$store.state.viewStore.showGridTools; },
-            set(val) { return this.$store.commit('viewStore/setShowGridTools', val); }
+            get(): boolean { return this.$store.state.viewStore.showGridTools; },
+            set(val: boolean) { this.$store.commit('viewStore/setShowGridTools', val); }
         },
         ...mapState('dataStore', ['dataSourcesList'])
     },
     methods: {
         onTriggerScrollLastGridRowWithData() {
-            (this.$refs.grid as any).scrollToLastGridRowWithData();
+            (this.$refs.grid as { scrollToLastGridRowWithData: () => void }).scrollToLastGridRowWithData();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

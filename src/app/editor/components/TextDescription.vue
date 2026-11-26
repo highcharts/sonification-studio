@@ -4,7 +4,7 @@
             <div class="textdesc-left">
                 <button
                     aria-label="Show text description"
-                    :aria-expanded="showTextarea"
+                    :aria-expanded="showTextarea ? 'true' : 'false'"
                     @click="onToggleExpand"
                 >
                     <div
@@ -41,12 +41,13 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEButton from './basic/SEButton.vue';
 import SEControl from './basic/SEControl.vue';
 import { GenericObject } from '../core/utils/objects';
 import { describeTable } from '../core/textDescription';
 
-export default {
+export default defineComponent({
     components: {
         SEButton,
         SEControl
@@ -58,8 +59,8 @@ export default {
     },
     computed: {
         textDescription: {
-            get() { return (this as any).$store.state.dataStore.textDescription; },
-            set(desc) { return this.$store.commit('dataStore/setTextDescription', desc); }
+            get(): string { return this.$store.state.dataStore.textDescription; },
+            set(desc: string) { this.$store.commit('dataStore/setTextDescription', desc); }
         }
     },
     methods: {
@@ -82,10 +83,10 @@ export default {
         },
         onToggleExpand() {
             this.showTextarea = !this.showTextarea;
-            (this as any).$chartBridge.reflowChart();
+            this.$chartBridge.reflowChart();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

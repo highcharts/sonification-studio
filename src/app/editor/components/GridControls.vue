@@ -76,6 +76,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import SEInputbox from './basic/SEInputbox.vue';
@@ -83,15 +84,16 @@ import SEControl from './basic/SEControl.vue';
 
 type ColumnDropdownItem = { name: string; value: string };
 
-export default {
+export default defineComponent({
     components: {
         SEButton, SEDropdown, SEControl, SEInputbox
     },
+    emits: ['triggerScrollLastGridRowWithData'],
     data() {
         return {
             fillDropdownList: [
                 { name: 'A', value: 'A' }
-            ],
+            ] as ColumnDropdownItem[],
             rowsToAdd: 10,
             fillEquation: '',
             fillEquationColumn: '',
@@ -108,7 +110,7 @@ export default {
                 const emptyRowData = Array.from(Array(10), () => []);
                 this.$store.commit('dataStore/setTableRowData', emptyRowData);
                 // A timeout seems to be required in order for the announcement not to be overshadowed.
-                setTimeout(() => (this as any).$announcer.announce('Data table cleared.'), 500);
+                setTimeout(() => this.$announcer.announce('Data table cleared.'), 500);
             }
         },
 
@@ -116,7 +118,7 @@ export default {
             const numRows = this.rowsToAdd;
             if (numRows) {
                 this.$store.commit('dataStore/addTableRows', numRows);
-                (this as any).$announcer.announce('Rows added. Total number of rows: ' + this.$store.getters['dataStore/numRows']);
+                this.$announcer.announce('Rows added. Total number of rows: ' + this.$store.getters['dataStore/numRows']);
 
                 // Scroll after row adding has been processed.
                 setTimeout(() => this.$emit('triggerScrollLastGridRowWithData'), 0);
@@ -148,14 +150,14 @@ export default {
                         announcement += '.';
                     }
 
-                    (this as any).$announcer.announce(announcement);
+                    this.$announcer.announce(announcement);
                 } catch (e) {
-                    alert('Error filling column: ' + e.message);
+                    alert('Error filling column: ' + (e as Error).message);
                 }
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
@@ -199,7 +201,7 @@ export default {
         padding-right: 1.6rem;
     }
 
-    input[type="number"], /deep/ .se-control-content input {
+    input[type="number"], :deep(.se-control-content input) {
         display: block;
         font-family: inherit;
         font-size: 0.8125rem;
@@ -237,7 +239,7 @@ export default {
         margin: 0 40px;
     }
 
-    .control-label, /deep/ .se-control-label {
+    .control-label, :deep(.se-control-label) {
         font-size: 0.8125rem;
     }
 
