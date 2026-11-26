@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, test } from 'vitest';
+import { computed } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { useSeriesParametersStore } from '../../../src/app/editor/store/modules/seriesParameters';
+import { useViewStore } from '../../../src/app/editor/store/modules/view';
 import { getSeriesParameter, setSeriesParameter } from '../../../src/app/editor/store/storeUtils';
 
 describe('storeUtils', () => {
@@ -71,6 +73,38 @@ describe('storeUtils', () => {
             expect(getSeriesParameter('s', 'a', 'default')).toBe('new');
             store.clearState();
             expect(getSeriesParameter('s', 'a', 'default')).toBe('default');
+        });
+
+        test('Is tracked by computed properties, like in the series controls', () => {
+            const store = useSeriesParametersStore();
+            const view = useViewStore();
+            const selectedSeries = computed(() => view.selectedDataSeriesAudioMapping);
+            const min = computed(() => getSeriesParameter(selectedSeries.value, 'min', 10, 'pitchOptions'));
+            const color = computed(() => getSeriesParameter(selectedSeries.value, 'seriesColor', '#fff'));
+            expect([min.value, color.value]).toEqual([10, '#fff']);
+
+            // Set
+            view.setSelectedDataSeriesAudioMapping('s1');
+            store.setSeriesParameter({ seriesId: 's1', parameterName: 'min', parameterValue: 0, nestedUnderParent: 'pitchOptions' });
+            store.setSeriesParameter({ seriesId: 's1', parameterName: 'seriesColor', parameterValue: '#f00' });
+            expect([min.value, color.value]).toEqual([0, '#f00']);
+
+            // Restore
+            store.restoreStoreState({
+                seriesParameters: {
+                    s1: { pitchOptions: { min: 20 }, seriesColor: '#0f0' },
+                    s2: { pitchOptions: { min: 30 } }
+                }
+            });
+            expect([min.value, color.value]).toEqual([20, '#0f0']);
+
+            // Selection change
+            view.setSelectedDataSeriesAudioMapping('s2');
+            expect([min.value, color.value]).toEqual([30, '#fff']);
+
+            // Clear
+            store.clearState();
+            expect([min.value, color.value]).toEqual([10, '#fff']);
         });
     });
 

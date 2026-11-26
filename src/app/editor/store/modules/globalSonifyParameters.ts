@@ -82,9 +82,12 @@ const makeDefaultContext = (valueMultiplier: number, valueMultiplierName: string
     showDetails: true
 });
 
+// Context ids restored from sessions and project files are not checked
+const isValidContextId = (id: unknown): id is number => typeof id === 'number' && Number.isFinite(id);
+
 // The id after the highest context id (1 without contexts)
 const nextContextId = (contexts: SonifyContext[]): number =>
-    contexts.reduce((max, context) => typeof context.id === 'number' && context.id > max ? context.id : max, 0) + 1;
+    contexts.reduce((max, context) => isValidContextId(context.id) && context.id > max ? context.id : max, 0) + 1;
 
 
 const defaultState = (): GlobalSonifyParametersState => ({
@@ -135,10 +138,22 @@ export const useGlobalSonifyParametersStore = defineStore('globalSonifyParameter
             ];
             restoredKeys.forEach(
                 x => setStateValue(this.$state, x, newState ? firstDefined(newState[x], this.$state[x]) : defaultOpts[x]));
-            // Restored contexts keep their ids, so continue numbering after the
-            // highest one: ids must stay unique, as they are shown to the user,
-            // used as v-for keys and to remove contexts.
-            idCounter = nextContextId(this.contexts);
+            // Context ids must be unique: they are shown to the user, used as
+            // v-for keys, and to find the context to edit or remove. Restored
+            // contexts keep their ids, and numbering continues after the
+            // highest one. Master v1.1.1 restarted numbering at 1 after a
+            // restore, so its sessions and project files can have duplicate
+            // ids: later duplicates, and contexts without a valid id, get new
+            // ids.
+            let nextId = nextContextId(this.contexts);
+            const usedIds = new Set<number>();
+            for (const context of this.contexts) {
+                if (!isValidContextId(context.id) || usedIds.has(context.id)) {
+                    context.id = nextId++;
+                }
+                usedIds.add(context.id);
+            }
+            idCounter = nextId;
         },
 
         setVolume(volume: number) {

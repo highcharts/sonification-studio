@@ -90,6 +90,31 @@ describe('AudioMappingsGlobalContexts.vue', () => {
         expect(chartBridge.forceUpdate).toHaveBeenCalledWith(true);
     });
 
+    test('Edits only the cue of the card', async () => {
+        await wrapper.find('.add-btn').trigger('click');
+        const first = { ...store().contexts[0] };
+        const second = { ...store().contexts[1] };
+        const cards = wrapper.findAll('.context-card');
+        expect(cards).toHaveLength(2);
+
+        await cards[1].find('input[aria-label="Context interval"]').setValue('4');
+        await cards[1].find('select[aria-label="Value property"]').setValue('y');
+        await cards[1].findAll('.details input[type="range"]')[0].setValue('20');
+        await cards[1].find('.details .se-dropdown select').setValue('flute');
+        await cards[1].find('.details-btn').trigger('click');
+
+        expect(store().contexts).toEqual([first, {
+            ...second,
+            valueInterval: 4,
+            valueProp: 'y',
+            volume: 20,
+            instrument: 'flute',
+            showDetails: false
+        }]);
+        expect(cards[0].find('.details-btn').attributes('aria-expanded')).toBe('true');
+        expect(cards[1].find('.details-btn').attributes('aria-expanded')).toBe('false');
+    });
+
     test('Sets the instrument through the store action, then plays a sample of it', async () => {
         await wrapper.find('.details .se-dropdown select').setValue('flute');
         expect(context().instrument).toBe('flute');
@@ -108,6 +133,12 @@ describe('AudioMappingsGlobalContexts.vue', () => {
 
         await button.trigger('click');
         expect(context().showDetails).toBe(true);
+    });
+
+    test('Adds cues that play, while the placeholder cue added on mount does not', async () => {
+        expect(context().playWhenType).toBe('never');
+        await wrapper.find('.add-btn').trigger('click');
+        expect(store().contexts.map(c => [c.id, c.playWhenType])).toEqual([[1, 'never'], [2, 'always']]);
     });
 
     test('Adds and removes context cues through the store', async () => {

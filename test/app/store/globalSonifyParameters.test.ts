@@ -201,6 +201,42 @@ describe('globalSonifyParameters store', () => {
         expect(store.contexts.map(c => c.id)).toEqual([3, 1, 4]);
     });
 
+    test('Gives restored contexts with duplicate or invalid ids new ids', () => {
+        // As saved by master v1.1.1 after a restore and adding a context
+        const store = useGlobalSonifyParametersStore();
+        const contexts = [
+            { id: 1, volume: 10 },
+            { id: 1, volume: 20 },
+            { id: 2, volume: 30 },
+            { volume: 40 },
+            { id: '3', volume: 50 },
+            { id: NaN, volume: 60 },
+            { id: 2, volume: 70 }
+        ] as unknown as SonifyContext[];
+        store.restoreStoreState({ contexts });
+        // The first context with an id keeps it, later ones are numbered after the highest
+        expect(store.contexts.map(c => [c.id, c.volume])).toEqual([
+            [1, 10], [3, 20], [2, 30], [4, 40], [5, 50], [6, 60], [7, 70]
+        ]);
+
+        store.addContext({ valueRange: null, inactive: false });
+        expect(store.contexts[7].id).toBe(8);
+    });
+
+    test('Edits and removes the second of duplicate restored contexts by its new id', () => {
+        const store = useGlobalSonifyParametersStore();
+        store.restoreStoreState({
+            contexts: [{ id: 1, volume: 10 }, { id: 1, volume: 20 }] as SonifyContext[]
+        });
+        expect(store.contexts.map(c => c.id)).toEqual([1, 2]);
+
+        store.setContextParameter({ id: 2, parameterName: 'volume', value: 25 });
+        expect(store.contexts.map(c => c.volume)).toEqual([10, 25]);
+
+        store.removeContext(2);
+        expect(store.contexts.map(c => [c.id, c.volume])).toEqual([[1, 10]]);
+    });
+
     test('removeContext removes the context with the id, and ignores unknown ids', () => {
         const store = useGlobalSonifyParametersStore();
         store.addContext({ valueRange: null, inactive: false });

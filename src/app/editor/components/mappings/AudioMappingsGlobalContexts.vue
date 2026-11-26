@@ -247,7 +247,7 @@
 
         <SEButton
             class="add-btn"
-            @click="addContext"
+            @click="addContext()"
         >
             <img
                 alt=""
