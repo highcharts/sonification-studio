@@ -133,7 +133,8 @@ export const tableCSVDelimiter = ';';
 // at their start or (when a value follows) their end.
 function toCSVValue(value: TableCellValue | undefined): string {
     const text = value === undefined || value === null ? '' : String(value);
-    return /[;"\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    const needsQuotes = text.includes(tableCSVDelimiter) || /["\r\n]/.test(text);
+    return needsQuotes ? '"' + text.replace(/"/g, '""') + '"' : text;
 }
 
 // A row's values in a CSV line, each in its column. A row may lack the
