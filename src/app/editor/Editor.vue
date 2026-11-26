@@ -1,60 +1,35 @@
 <!--
-    Editor component is the root container for the app. See the "./public" directory for usage.
+    Editor component is the root container for the editor. See src/app/public/app.ts for usage.
 -->
 <template>
     <div class="editor-container">
-        <Header @skipToContent="onSkipToContent" />
+        <EditorHeader @skip-to-content="onSkipToContent" />
         <MainContentView
             id="mainContentView"
             ref="mainContentView"
         />
-        <Footer />
+        <EditorFooter />
         <div ref="announcePolite" />
         <div ref="announceAssertive" />
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-
-import HighchartsVue from 'highcharts-vue';
-import Highcharts from 'highcharts';
-import 'highcharts/highcharts-more';
-import 'highcharts/modules/stock';
-import 'highcharts/modules/data';
-import 'highcharts/modules/exporting';
-import 'highcharts/modules/offline-exporting';
-import 'highcharts/modules/series-label';
-import 'highcharts/modules/no-data-to-display';
-import 'highcharts/modules/sonification';
-import 'highcharts/modules/accessibility';
-import 'highcharts/themes/high-contrast-light';
-import { negativeLogPlugin } from './core/utils/chartUtils';
-negativeLogPlugin(Highcharts);
-
-//window.Highcharts = Highcharts; // Expose on window for debugging
-Vue.use(HighchartsVue);
-
+import { defineComponent } from 'vue';
 import Header from './components/Header.vue';
 import MainContentView from './components/MainContentView.vue';
 import Footer from './components/Footer.vue';
-import Announcer from './core/utils/Announcer';
-import { store, storageKey, storageRevision } from './store/store';
-import { ChartBridge } from './core/ChartBridge';
+import { storageKey, storageRevision } from './store/store';
 
-Vue.prototype.$chartBridge = new ChartBridge(store, Highcharts);
-const announcer = (Vue.prototype.$announcer = new Announcer());
-Vue.prototype.$chartBridge.initAnnouncer(announcer);
-
-export default {
-    store,
+export default defineComponent({
     components: {
-        Header,
+        // Registered under other names, as <header> and <footer> are HTML elements
+        EditorHeader: Header,
         MainContentView,
-        Footer,
+        EditorFooter: Footer,
     },
     mounted() {
-        announcer.init(
+        this.$announcer.init(
             this.$refs.announcePolite as HTMLElement,
             this.$refs.announceAssertive as HTMLElement
         );
@@ -65,7 +40,7 @@ export default {
         initStore() {
             this.clearOldStorageRevisions();
             const stateJSON = window.localStorage.getItem(storageKey + '-' + storageRevision);
-            const isDev = Vue.config.devtools;
+            const isDev = import.meta.env.DEV;
 
             if (isDev) {
                 console.log('Development mode: Skipped loading local storage app state.');
@@ -77,7 +52,7 @@ export default {
             } else {
                 this.$store.commit('dataStore/setToPlaceholderData');
                 this.$nextTick(() => {
-                    const rowData = this.$store.state.dataStore.tableRowData;
+                    const rowData: Array<Record<string, unknown>> = this.$store.state.dataStore.tableRowData;
                     this.$store.commit(
                         'dataStore/setTableCSV',
                         rowData.map((row) => Object.values(row).join(';')).join('\n')
@@ -95,10 +70,10 @@ export default {
         },
 
         onSkipToContent() {
-            (this.$refs.mainContentView as any).skipToContent();
+            (this.$refs.mainContentView as { skipToContent: () => void }).skipToContent();
         },
     },
-};
+});
 </script>
 
 <style lang="less" scoped>

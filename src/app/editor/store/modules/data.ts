@@ -11,7 +11,6 @@
     so that the source data always mirrors the data the grid is working with.
  */
 
-import Vue from 'vue';
 import { parseCSV } from '../../core/utils/csvParser';
 import { GenericObject } from '../../core/utils/objects';
 import { evaluate } from 'mathjs';
@@ -152,7 +151,7 @@ export const dataStore = {
 
     mutations: {
         restoreStoreState(state: any, newState?: GenericObject) {
-            Vue.set(state, 'tableRowData', newState ? newState.tableRowData : getPlaceholderData());
+            state.tableRowData = newState ? newState.tableRowData : getPlaceholderData();
             state.textDescription = newState ? newState.textDescription || '' : '';
             state.tableCSV = generateCSV(state.tableRowData);
         },
@@ -190,7 +189,7 @@ export const dataStore = {
         },
 
         setTableRowData(state: any, data: Array<unknown>) {
-            Vue.set(state, 'tableRowData', data);
+            state.tableRowData = data;
             const csv = generateCSV(state.tableRowData);
             state.tableCSV = csv;
         },
@@ -208,7 +207,7 @@ export const dataStore = {
                 newRows.push(newRow);
             });
 
-            Vue.set(state, 'tableRowData', newRows);
+            state.tableRowData = newRows;
             state.tableCSV = generateCSV(state.tableRowData);
         },
 
@@ -236,7 +235,7 @@ export const dataStore = {
         },
 
         setToPlaceholderData(state: any) {
-            Vue.set(state, 'tableRowData', getPlaceholderData());
+            state.tableRowData = getPlaceholderData();
             state.tableCSV = generateCSV(state.tableRowData);
         },
 
