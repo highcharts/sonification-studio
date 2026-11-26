@@ -22,6 +22,10 @@ import {
     type TableRowData
 } from '../core/utils/gridData';
 
+// Adds the `gridKey` option to the Grid Pro options type, which the main
+// Grid Pro typings leave out
+import type {} from '@highcharts/grid-pro/es-modules/Grid/Pro/License/LicenseValidationComposition';
+
 type GridHeaderOptions = NonNullable<GridPro.Options['header']>;
 type GridColumnOptions = NonNullable<GridPro.Options['columns']>;
 
@@ -305,6 +309,8 @@ export default defineComponent({
             });
 
             return {
+                // Optional Grid Key, set at build time (see the README)
+                gridKey: import.meta.env.VITE_GRID_KEY,
                 data: {
                     columns: tableData.columns
                 },
