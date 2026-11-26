@@ -5,14 +5,23 @@ import tseslint from 'typescript-eslint';
 import pluginVue from 'eslint-plugin-vue';
 
 export default defineConfig(
-    // Like ESLint 6 before, also skip dotfiles and dot-directories
-    // (e.g. .worktrees/).
-    globalIgnores(['dist/', 'docs/', 'vendor/', '**/.*']),
+    globalIgnores([
+        'dist/',
+        'docs/',
+        'vendor/',
+        // Standalone study pages with vendored Highcharts bundles
+        'src/app/studies/',
+        // Like ESLint 6 before, also skip dotfiles and dot-directories
+        // (e.g. .worktrees/).
+        '**/.*'
+    ]),
     {
         files: ['**/*.{js,mjs,ts,vue}']
     },
     js.configs.recommended,
+    // Parses all files (including .js) with the TypeScript parser
     tseslint.configs.recommended,
+    // Vue 3 rules; parses .vue files with vue-eslint-parser
     pluginVue.configs['flat/recommended'],
     {
         // All SFCs use <script lang="ts">: parse them with the TypeScript
@@ -24,12 +33,13 @@ export default defineConfig(
                 parser: tseslint.parser
             }
         },
-        rules: tseslint.configs.eslintRecommended.rules
+        rules: {
+            ...tseslint.configs.eslintRecommended.rules,
+            // Keep every SFC in the type check (vue-tsc)
+            'vue/block-lang': ['error', { script: { lang: 'ts' } }]
+        }
     },
     {
-        languageOptions: {
-            globals: globals.browser
-        },
         rules: {
             // Core formatting rules are deprecated, but available until ESLint 11
             'indent': ['error', 4],
@@ -37,14 +47,23 @@ export default defineConfig(
             'semi': ['error', 'always'],
             'no-trailing-spaces': ['error'],
             'no-multi-spaces': ['error'],
-            '@typescript-eslint/explicit-function-return-type': 'off',
+            // The store and chart code use `any` for loosely typed option
+            // and state objects in well over 100 places.
             '@typescript-eslint/no-explicit-any': 'off',
-            '@typescript-eslint/no-use-before-define': 'off',
+            // A few callbacks alias `this` (the component or ChartBridge)
+            // because Highcharts or a named function rebinds `this` inside.
             '@typescript-eslint/no-this-alias': 'off',
             'vue/html-indent': ['error', 4],
             // Single-word component names (Header, Grid, Preview, ...) are
             // used throughout the app.
             'vue/multi-word-component-names': 'off'
+        }
+    },
+    {
+        // The app and its tests (Vitest runs them in jsdom)
+        files: ['src/**', 'test/**'],
+        languageOptions: {
+            globals: globals.browser
         }
     },
     {

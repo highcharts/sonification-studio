@@ -6,7 +6,8 @@
         - options: Array<{ name, value }> - Options in the dropdown. A null
             value is rendered as "" (Vue 3 would drop the attribute and use
             the option text as value).
-        - [modelValue]: String - Value of the option to select.
+        - [modelValue]: String or null - Value of the option to select
+            (null selects the option with a null value).
         - [label]: String - Aria label for the dropdown.
         - [labelledby]: String - Aria labelledby for the dropdown.
 
@@ -55,7 +56,7 @@ export default defineComponent({
     props: {
         id: { type: String, required: true },
         options: { type: Array as PropType<SEDropdownOption[]>, required: true },
-        modelValue: { type: String, default: '' },
+        modelValue: { type: String as PropType<string | null>, default: '' },
         label: { type: String, default: null },
         labelledby: { type: String, default: null }
     },
