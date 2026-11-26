@@ -187,7 +187,7 @@ describe('App state', () => {
 
         test('Restores the stores per the restore rules', () => {
             const saved = masterState();
-            // tooltipMarkerEnabled is not restored, so a changed value stays
+            // Restored like the other keys: the saved false replaces it
             useGlobalSonifyParametersStore(pinia).setTooltipMarkerEnabled(true);
             const viewDefaults = JSON.parse(JSON.stringify(useViewStore(pinia).$state));
 
@@ -202,7 +202,8 @@ describe('App state', () => {
             expect(seriesParams['se-hc-series-id-0']).not.toBe(saved.seriesParametersStore.seriesParameters['se-hc-series-id-0']);
 
             const globalSonify = useGlobalSonifyParametersStore(pinia);
-            expect(globalSonify.$state).toEqual({ ...saved.globalSonifyParametersStore, tooltipMarkerEnabled: true });
+            expect(saved.globalSonifyParametersStore.tooltipMarkerEnabled).toBe(false);
+            expect(globalSonify.$state).toEqual(saved.globalSonifyParametersStore);
             expect(globalSonify.contexts.map(c => [c.id, c.valueInterval])).toEqual([[1, 1], [2, '10']]);
             globalSonify.addContext({ valueRange: null, inactive: false });
             expect(globalSonify.contexts[2].id).toBe(3);

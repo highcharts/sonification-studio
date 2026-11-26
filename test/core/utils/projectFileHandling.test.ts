@@ -82,11 +82,11 @@ describe('Project file handling', () => {
             });
             expect(seriesParams['se-hc-series-id-1'].seriesVisible).toBe(false);
 
-            // Global sonification parameters: the restored keys only
+            // Global sonification parameters: every key from the file
             const globalSonify = useGlobalSonifyParametersStore();
             const restoredKeys = [
-                'volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail',
-                'speed', 'order', 'contexts'
+                'volume', 'playMarkerEnabled', 'tooltipMarkerEnabled', 'minNote', 'maxNote', 'panEnabled',
+                'panWidth', 'detail', 'speed', 'order', 'contexts'
             ] as const;
             restoredKeys.forEach(key => expect(JSON.parse(JSON.stringify(globalSonify[key])))
                 .toEqual(fixtureState.globalSonifyParametersStore[key]));
@@ -96,8 +96,8 @@ describe('Project file handling', () => {
             expect(globalSonify.contexts[1]).toMatchObject({
                 valueInterval: '10', playWhenType: 'always', instrument: 'shaker', pitchNote: 72, pan: 20
             });
-            // Not in the restore list
-            expect(globalSonify.tooltipMarkerEnabled).toBe(true);
+            // The file's false replaces the true set above
+            expect(globalSonify.tooltipMarkerEnabled).toBe(false);
             // New contexts continue after the loaded ids
             globalSonify.addContext({ valueRange: null, inactive: false });
             expect(globalSonify.contexts[2].id).toBe(3);
