@@ -24,7 +24,7 @@ The project requires Node.js 26 or newer (`engines` in `package.json`; `.nvmrc` 
 | `npm test` | Runs the unit tests once with Vitest |
 | `npm run lint` | Lints the project with ESLint; warnings fail it as well as errors |
 | `npm run typecheck` | Type checks the TypeScript files and the Vue components with vue-tsc |
-| `npm run publish` | Release step: lints, tests, builds and copies the build into `docs` (see [Publish](#publish)) |
+| `npm run release` | Release step: lints, tests, builds and copies the build into `docs` (see [Publish](#publish)) |
 | `prepare` | Run by npm after `npm install` and `npm ci`: sets up the husky git hooks |
 
 ### Build
@@ -39,11 +39,11 @@ We are using [Vite](https://vite.dev) (version 8) for the dev server and bundlin
 
 ### Publish
 
-To build and publish to GitHub pages, ensure app version is correct in `package.json`, run `npm run publish`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
+To build and publish to GitHub pages, ensure app version is correct in `package.json`, run `npm run release`, commit, and push. Commit message should be `Release vX.X.X.`. After pushing, add a new release on GitHub, with a tag corresponding to the release version (`vX.X.X`), and name corresponding to the version number (`X.X.X`).
 
-`npm run publish` runs the linter and the tests, builds the app (type check, then minified, without source maps) and runs `scripts/publish.mjs`, which replaces `docs/<version>` with the contents of `dist`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`. `<version>` is the current version in `package.json`, so only run it as a manual release step, after bumping the version: with the version of an earlier release, it overwrites that release in `docs`.
+`npm run release` runs the linter and the tests, builds the app (type check, then minified, without source maps) and runs `scripts/publish.mjs`, which replaces `docs/<version>` with the contents of `dist`, copies the studies to `docs/<version>/studies`, and copies the project landing page from `src/project_lander` to `docs`. `<version>` is the current version in `package.json`, so only run it as a manual release step, after bumping the version: with the version of an earlier release, it overwrites that release in `docs`.
 
-`npm run publish` is the release script; `npm publish` is refused, as the package is private (`"private": true` in `package.json`). Don't run `npm publish --dry-run` either: npm still runs the `publish` script in a dry run, so it overwrites `docs/<version>`.
+The release script is `npm run release`, not `npm publish`: the app is not an npm package, and `"private": true` in `package.json` makes npm refuse to publish it to the npm registry.
 
 If publishing on other platforms than GitHub, remove the `.nojekyll` files.
 
@@ -75,4 +75,4 @@ The project has a dependency on the open source JavaScript library [mathJS](http
 
 Project files are compressed with [lz-string](https://github.com/pieroxy/lz-string) (`src/app/editor/core/utils/projectFileHandling.ts`).
 
-The data grid is [Highcharts Grid Pro](https://www.highcharts.com/products/grid/) (version 3; `src/app/editor/components/Grid.vue`, with its options and data handling in `src/app/editor/core/utils/gridData.ts`, and additions to Grid Pro in `src/app/editor/core/gridProSetup.ts`: an edit renderer that lets a cleared number cell stay empty, and a workaround for Grid Pro 3.2.0 numbering the rows by their position on screen in `aria-rowindex` after a scroll, to remove once Grid Pro is fixed). Grid Pro 3 checks for a [Grid Key](https://www.highcharts.com/docs/grid/grid-key) on pages outside highcharts.com: without one it logs a warning on localhost and an error elsewhere, for example on the GitHub Pages site. No key is committed to this repository. To build with one, set it in the `VITE_GRID_KEY` environment variable, either for one command (`VITE_GRID_KEY=... npm run build`, or the same with `npm run publish`) or in a `.env.local` file in the project root (`VITE_GRID_KEY=...`), which git ignores. Vite reads it at build time and puts it in the bundle.
+The data grid is [Highcharts Grid Pro](https://www.highcharts.com/products/grid/) (version 3; `src/app/editor/components/Grid.vue`, with its options and data handling in `src/app/editor/core/utils/gridData.ts`, and additions to Grid Pro in `src/app/editor/core/gridProSetup.ts`: an edit renderer that lets a cleared number cell stay empty, and a workaround for Grid Pro 3.2.0 numbering the rows by their position on screen in `aria-rowindex` after a scroll, to remove once Grid Pro is fixed). Grid Pro 3 checks for a [Grid Key](https://www.highcharts.com/docs/grid/grid-key) on pages outside highcharts.com: without one it logs a warning on localhost and an error elsewhere, for example on the GitHub Pages site. No key is committed to this repository. To build with one, set it in the `VITE_GRID_KEY` environment variable, either for one command (`VITE_GRID_KEY=... npm run build`, or the same with `npm run release`) or in a `.env.local` file in the project root (`VITE_GRID_KEY=...`), which git ignores. Vite reads it at build time and puts it in the bundle.

@@ -5,7 +5,7 @@
     - src/app/studies/**   -> docs/<version>/studies/
     - src/project_lander/* -> docs/
 
-    Run through `npm run publish`, which builds first. Dotfiles in the source
+    Run through `npm run release`, which builds first. Dotfiles in the source
     directories are skipped, except .nojekyll.
 */
 
