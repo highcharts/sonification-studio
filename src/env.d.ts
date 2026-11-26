@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 import type { Store } from 'vuex';
 import type { ChartBridge } from './app/editor/core/ChartBridge';
 import type Announcer from './app/editor/core/utils/Announcer';

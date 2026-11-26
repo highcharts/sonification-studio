@@ -1,16 +1,35 @@
+// Type checking only: `npm run typecheck` runs vue-tsc on this project, and
+// Vite (Oxc) transpiles each file on its own without type checking.
+//
+// One project covers the app (src/), the tests (test/, which Vitest runs in
+// jsdom, so they need the same DOM types) and vite.config.ts. The app /
+// Node / tests project references that create-vue sets up would only differ
+// for vite.config.ts, which uses no Node APIs, so they aren't worth three
+// more configs here.
 {
     "compilerOptions": {
+        // Vite's default browser targets (Baseline Widely Available) support
+        // ES2022 but not all of ES2023 (e.g. toSorted() in Firefox 114), and
+        // Vite doesn't polyfill
         "target": "ES2022",
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "strict": true,
         "noEmit": true,
-        "esModuleInterop": true,
         "resolveJsonModule": true,
+        // Each file must be transpilable on its own, as Vite does
         "isolatedModules": true,
+        // verbatimModuleSyntax (as in @vue/tsconfig) is left off for now:
+        // about 20 files import types (mostly GenericObject) without
+        // `import type`, most of them in the store and chart mapping code
+        // that a later phase rewrites.
         "skipLibCheck": true,
+        // Global types: only Vite's client types (import.meta.env, asset
+        // imports). Tests import from 'vitest' explicitly.
         "types": ["vite/client"],
+        "strict": true,
+        "noUnusedLocals": true,
+        "noFallthroughCasesInSwitch": true,
         "paths": {
             // Vuex 4's package.json "exports" hide its type definitions from
             // bundler resolution. Vuex is replaced by Pinia in a later phase.
