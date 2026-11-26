@@ -305,6 +305,19 @@ describe('App state', () => {
             });
         });
 
+        test('Saves after an edit of a context cue', () => {
+            const globalSonify = useGlobalSonifyParametersStore(pinia);
+            globalSonify.addContext({ valueRange: null, inactive: false });
+            const id = globalSonify.contexts[0].id;
+            stop = startLocalStoragePersistence(pinia);
+
+            globalSonify.setContextParameter({ id, parameterName: 'volume', value: 30 });
+            vi.advanceTimersByTime(2000);
+            expect(setItem).toHaveBeenCalledTimes(1);
+            const saved = JSON.parse(window.localStorage.getItem(key) as string);
+            expect(saved.globalSonifyParametersStore.contexts[0].volume).toBe(30);
+        });
+
         test('Saves the state as it is when the timer fires', () => {
             stop = startLocalStoragePersistence(pinia);
             useChartParametersStore(pinia).setTitle('A');

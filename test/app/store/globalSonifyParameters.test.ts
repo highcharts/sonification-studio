@@ -213,4 +213,45 @@ describe('globalSonifyParameters store', () => {
         store.addContext({ valueRange: null, inactive: false });
         expect(store.contexts.map(c => c.id)).toEqual([1, 3, 4]);
     });
+
+    describe('setContextParameter', () => {
+        test('Sets the parameter of the context with the id only', () => {
+            const store = useGlobalSonifyParametersStore();
+            store.addContext({ valueRange: null, inactive: false });
+            store.addContext({ valueRange: null, inactive: false });
+            const [first, second] = store.contexts.map(c => ({ ...c }));
+
+            store.setContextParameter({ id: 2, parameterName: 'volume', value: 30 });
+            store.setContextParameter({ id: 2, parameterName: 'instrument', value: 'flute' });
+            store.setContextParameter({ id: 2, parameterName: 'showDetails', value: false });
+            expect(store.contexts).toEqual([
+                first,
+                { ...second, volume: 30, instrument: 'flute', showDetails: false }
+            ]);
+        });
+
+        test('Sets parameters missing in restored contexts', () => {
+            const store = useGlobalSonifyParametersStore();
+            store.restoreStoreState({ contexts: [{ id: 5 } as SonifyContext] });
+            store.setContextParameter({ id: 5, parameterName: 'valueMultiplierName', value: 'days' });
+            expect(store.contexts).toEqual([{ id: 5, valueMultiplierName: 'days' }]);
+        });
+
+        test('Ignores unknown ids', () => {
+            const store = useGlobalSonifyParametersStore();
+            store.addContext({ valueRange: null, inactive: false });
+            const context = { ...store.contexts[0] };
+            store.setContextParameter({ id: 2, parameterName: 'volume', value: 30 });
+            expect(store.contexts).toEqual([context]);
+        });
+
+        test('Is an action, so persistence and chart updates see the edit', () => {
+            const store = useGlobalSonifyParametersStore();
+            store.addContext({ valueRange: null, inactive: false });
+            const actions: string[] = [];
+            store.$onAction(({ name, after }) => after(() => actions.push(name)));
+            store.setContextParameter({ id: 1, parameterName: 'pan', value: 10 });
+            expect(actions).toEqual(['setContextParameter']);
+        });
+    });
 });
