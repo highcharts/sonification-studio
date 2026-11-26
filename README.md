@@ -55,3 +55,5 @@ Source files are found under `/src/app`, with `/src/app/public/app.ts` as the en
 ### Notable dependencies
 
 The project has a dependency on the open source Javacsript library [mathJS](https://mathjs.org). This library is used for the "Fill equation" functionality on the data page.
+
+The data grid is [Highcharts Grid Pro](https://www.highcharts.com/products/grid/) (`src/app/editor/components/Grid.vue`). Grid Pro 3 checks for a [Grid Key](https://www.highcharts.com/docs/grid/grid-key) on pages outside highcharts.com: without one it logs a warning on localhost and an error elsewhere, for example on the GitHub Pages site.
