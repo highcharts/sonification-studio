@@ -1,25 +1,27 @@
 <template>
     <div class="page-container">
-        <Header />
+        <PageHeader />
         <main>
             <div class="main-content">
                 <slot />
             </div>
         </main>
         <div class="spacer" />
-        <Footer />
+        <PageFooter />
     </div>
 </template>
 
 <script lang="ts">
-import Header from './Header.vue';
-import Footer from './Footer.vue';
+import { defineComponent } from 'vue';
+// Registered with a prefix: <header> and <footer> are HTML elements
+import PageHeader from './Header.vue';
+import PageFooter from './Footer.vue';
 
-export default {
+export default defineComponent({
     components: {
-        Header, Footer
+        PageHeader, PageFooter
     }
-};
+});
 </script>
 
 <style lang="less">
