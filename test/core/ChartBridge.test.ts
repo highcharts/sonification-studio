@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Chart } from 'highcharts';
 import type { Store } from 'vuex';
+import highchartsPackage from 'highcharts/package.json';
 import Highcharts from '../../src/app/editor/core/highchartsSetup';
-import { ChartBridge } from '../../src/app/editor/core/ChartBridge';
+import { ChartBridge, highchartsExportCDN } from '../../src/app/editor/core/ChartBridge';
 import { GoogleSheetStatus } from '../../src/app/editor/store/modules/data';
 
 // What the chart bridge reads from and writes to the Vuex store
@@ -89,5 +90,14 @@ describe('ChartBridge Google Sheets errors', () => {
 
         expect(store.commit).not.toHaveBeenCalled();
         expect(warn).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('ChartBridge HTML export', () => {
+    // Fails when the highcharts dependency moves to another major version:
+    // bump highchartsExportCDN with it, see the comment there.
+    test('Loads Highcharts from the CDN for the app\'s major version', () => {
+        const major = highchartsPackage.version.split('.')[0];
+        expect(highchartsExportCDN).toBe(`https://code.highcharts.com/${major}`);
     });
 });

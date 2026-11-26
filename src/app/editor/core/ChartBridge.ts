@@ -13,6 +13,13 @@ import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMap
 import { GoogleSheetStatus } from '../store/modules/data';
 import { Store } from 'vuex';
 
+// Where exported HTML files load Highcharts from: the CDN's latest release of
+// the major version the app uses, so that a later major, which may rename or
+// remove the modules and theme they load (as 13 renamed high-contrast-light to
+// high-contrast), does not break them. Bump it with the highcharts dependency,
+// after checking that the script URLs in getHTMLChartConfig still exist.
+export const highchartsExportCDN = 'https://code.highcharts.com/13';
+
 // The event Highcharts.error() fires on the Highcharts object
 interface HighchartsErrorEvent {
     chart?: HighchartsModule.Chart;
@@ -478,10 +485,10 @@ export class ChartBridge {
             <html>
             <head>
                 <title>${this.getChartTitleForExport()}</title>
-                <script src="https://code.highcharts.com/highcharts.js"></script>
-                <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-                <script src="https://code.highcharts.com/modules/sonification.js"></script>
-                <script src="https://code.highcharts.com/themes/high-contrast.js"></script>
+                <script src="${highchartsExportCDN}/highcharts.js"></script>
+                <script src="${highchartsExportCDN}/modules/accessibility.js"></script>
+                <script src="${highchartsExportCDN}/modules/sonification.js"></script>
+                <script src="${highchartsExportCDN}/themes/high-contrast.js"></script>
                 <style>
                     body {
                         font-family: 'Roboto', sans-serif;
