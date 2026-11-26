@@ -1,6 +1,6 @@
 /*
-    Data handling for the data grid (Grid.vue), kept free of Vue and the
-    Grid Pro runtime so it can be unit tested.
+    Data handling and options for the data grid (Grid.vue), kept free of Vue
+    and the Grid Pro runtime so it can be unit tested.
 
     The store keeps the table as an array of row objects keyed by column id
     (A-Z, then COL1, COL2, ...). Its first row holds the CSV headers, which
@@ -10,8 +10,11 @@
     rows as text.
  */
 
-import type { Column, DataTable } from '@highcharts/grid-pro/grid-pro';
+import type { Column, DataTable, Grid, Options } from '@highcharts/grid-pro/grid-pro';
 import type { CellEvent } from '@highcharts/grid-pro/es-modules/Data/DataTable';
+// Adds the `gridKey` option to the Grid Pro options type, which the main
+// Grid Pro typings leave out
+import type {} from '@highcharts/grid-pro/es-modules/Grid/Pro/License/LicenseValidationComposition';
 
 export type GridColumnDataType = Column['dataType'];
 export type GridCellValue = string | number | boolean | null | undefined;
@@ -263,8 +266,185 @@ export function onGridCellEdit(
             value: toStoreValue(e.cellValue)
         });
     });
-    return () => {
-        removeListener();
+    // Grid Pro types the returned remover as Function
+    return removeListener as () => void;
+}
+
+// A grid's data table: the original one, or with `presentation`, the rows as
+// shown, after sorting and filtering.
+export function getGridDataTable(grid: Grid, presentation = false): DataTable | undefined {
+    const dataProvider = grid.dataProvider;
+    return dataProvider && 'getDataTable' in dataProvider ?
+        dataProvider.getDataTable(presentation) :
+        void 0;
+}
+
+// Store mutations that change the grid's data: CSV imports, added rows,
+// filled columns, a cleared grid, a new project and a loaded project file,
+// and the grid's own edits
+const gridDataMutations = [
+    'dataStore/setTableRowData',
+    'dataStore/setTableCSV',
+    'dataStore/addTableRows',
+    'dataStore/fillColumn',
+    'dataStore/restoreStoreState'
+];
+
+export interface GridState {
+    // The mutation is the grid's own edit
+    isUpdatingFromGrid: boolean;
+    // The grid has been rendered. Until then, it is rendered with the latest
+    // data when it first becomes visible.
+    hasRendered: boolean;
+    // The Data tab is shown
+    onDataTab: boolean;
+}
+
+// Whether a store mutation rebuilds the grid now, when the Data tab is next
+// shown ('later'), or not at all
+export function getGridRebuild(mutationType: string, state: GridState): 'now' | 'later' | 'none' {
+    if (
+        !gridDataMutations.includes(mutationType) ||
+        state.isUpdatingFromGrid ||
+        !state.hasRendered
+    ) {
+        return 'none';
+    }
+    return state.onDataTab ? 'now' : 'later';
+}
+
+// The edit mode renderer of number columns, registered by gridProSetup.ts:
+// Grid Pro's number input, but a cleared cell stays empty instead of 0.
+export const clearableNumberInputType = 'clearableNumberInput';
+
+// The CSV header of a column, if it has one
+function getCSVHeader(headerRow: TableRowData, columnId: string): string | undefined {
+    const value = headerRow[columnId];
+    return typeof value === 'string' && value.trim() !== '' ? value : void 0;
+}
+
+// The grid's options for the data. `gridKey` is the optional Grid Key.
+export function getGridOptions(tableData: GridTableData, gridKey?: string): Options {
+    const { columnIds, dataTypes, headerColumnCount, headerRow } = tableData;
+
+    // A, B, C, ... as primary headers, and the CSV headers as secondary
+    // headers below them
+    const header: NonNullable<Options['header']> = columnIds.map((id) => {
+        const csvHeader = getCSVHeader(headerRow, id);
+
+        if (csvHeader) {
+            return {
+                format: id,
+                className: 'hcg-center',
+                columns: [{
+                    // The text is set by the column's header options
+                    columnId: id,
+                    className: 'hcg-center',
+                    // Grid Pro labels the cell with the column id only, so
+                    // screen readers get the CSV header as its description.
+                    accessibility: { description: csvHeader }
+                }]
+            };
+        }
+        return {
+            columnId: id,
+            format: id,
+            className: 'hcg-center'
+        };
+    });
+
+    const columns: NonNullable<Options['columns']> = columnIds.map((id, index) => {
+        const csvHeader = getCSVHeader(headerRow, id);
+        const column: NonNullable<Options['columns']>[number] = {
+            id,
+            dataType: dataTypes[id],
+            cells: {
+                className: index < headerColumnCount ?
+                    'hcg-center hcg-header-column' :
+                    'hcg-center'
+            }
+        };
+
+        // The CSV header as written. As a header format, "{...}" would be
+        // taken as a template expression. Grid Pro sets a header value that
+        // contains "<" as HTML, so its text is set again after rendering.
+        // (Escaping it would not do: a value without "<" is set as text, and
+        // the filter and column menu popups show the value as text.)
+        if (csvHeader) {
+            column.header = {
+                formatter: () => csvHeader,
+                events: {
+                    afterRender: function () {
+                        if (this.header?.headerContent) {
+                            this.header.headerContent.textContent = csvHeader;
+                        }
+                    }
+                }
+            };
+        }
+
+        if (dataTypes[id] === 'number') {
+            column.cells = {
+                ...column.cells,
+                editMode: { renderer: { type: clearableNumberInputType } }
+            };
+        }
+
+        // Dates are shown as written in the CSV, and sorted by date
+        if (dataTypes[id] === 'datetime') {
+            column.dataType = 'string';
+            column.sorting = { compare: compareDates };
+        }
+        return column;
+    });
+
+    return {
+        gridKey,
+        data: {
+            columns: tableData.columns
+        },
+        header,
+        columnDefaults: {
+            width: 200,
+            cells: {
+                editMode: {
+                    enabled: true
+                },
+                className: 'hcg-center',
+                // Show values as they are, as Grid Pro 2 did (Grid Pro 3 adds
+                // thousands separators to numbers)
+                format: '{value}'
+            },
+            header: {
+                className: 'hcg-center'
+            },
+            sorting: {
+                enabled: true
+            },
+            filtering: {
+                enabled: true
+            }
+        },
+        rendering: {
+            theme: 'hcg-theme-default',
+            rows: {
+                virtualization: true,
+                bufferSize: 20, // Increased buffer for smoother scrolling
+                strictHeights: true // Enable for better virtualization performance
+            },
+            columns: {
+                // Keep all columns (at most 50) in the DOM, as Grid Pro 2
+                // did. Grid Pro 3 virtualizes from 20 columns.
+                virtualization: false,
+                resizing: {
+                    // Resizing a column changes only its width, so the table
+                    // scrolls horizontally instead of squeezing the other
+                    // columns.
+                    mode: 'independent'
+                }
+            }
+        },
+        columns
     };
 }
 

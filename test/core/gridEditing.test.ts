@@ -1,6 +1,7 @@
 /*
-    Cell edits in a Grid Pro grid rendered in jsdom, written back to the
-    store's rows as Grid.vue does.
+    The data grid's options in a Grid Pro grid rendered in jsdom: cell edits
+    written back to the store's rows as Grid.vue does, number cells and CSV
+    headers.
 */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -8,12 +9,17 @@ import * as GridPro from '@highcharts/grid-pro/grid-pro';
 import '../../src/app/editor/core/gridProSetup';
 import {
     applyCellEdit,
+    clearableNumberInputType,
+    getGridDataTable,
+    getGridOptions,
     onGridCellEdit,
     prepareGridData,
     type CellEdit,
     type GridTableData,
     type TableRowData
 } from '../../src/app/editor/core/utils/gridData';
+
+type ColumnOptions = NonNullable<GridPro.Options['columns']>[number];
 
 // A CSV header row, then 8 rows, so that both columns are detected as numbers
 function getRows(): TableRowData[] {
@@ -26,27 +32,33 @@ function getRows(): TableRowData[] {
 
 let grid: GridPro.Grid | undefined;
 
+// Render a grid with the app's options for the data, with changes to some
+// columns' options
 async function renderGrid(
     data: GridTableData,
-    columns: GridPro.Options['columns']
+    columnChanges: Record<string, Partial<ColumnOptions>> = {}
 ): Promise<GridPro.Grid> {
+    const options = getGridOptions(data);
+    options.columns = options.columns?.map((column) => ({
+        ...column,
+        ...columnChanges[column.id]
+    }));
+    // jsdom has no layout, so with row virtualization only one row would be
+    // rendered
+    options.rendering = {
+        ...options.rendering,
+        rows: { ...options.rendering?.rows, virtualization: false }
+    };
     const container = document.createElement('div');
     document.body.appendChild(container);
     return new Promise((resolve) => {
-        grid = new GridPro.Grid(container, {
-            data: { columns: data.columns },
-            columnDefaults: { cells: { editMode: { enabled: true } } },
-            columns: columns ?? data.columnIds.map((id) => ({ id, dataType: data.dataTypes[id] }))
-        }, resolve);
+        grid = new GridPro.Grid(container, options, resolve);
     });
 }
 
 // The grid's original (not sorted or filtered) data table
 function getDataTable(gridWithTable: GridPro.Grid): GridPro.DataTable {
-    const dataProvider = gridWithTable.dataProvider;
-    const dataTable = dataProvider && 'getDataTable' in dataProvider ?
-        dataProvider.getDataTable() :
-        void 0;
+    const dataTable = getGridDataTable(gridWithTable);
     if (!dataTable) {
         throw new Error('No data table');
     }
@@ -62,7 +74,7 @@ function watchEdits(gridToWatch: GridPro.Grid, data: GridTableData): CellEdit[] 
 
 // The cell of a column in the nth row shown
 function getShownCell(gridWithCell: GridPro.Grid, rowIndex: number, columnId: string): GridPro.TableCell {
-    const cell = gridWithCell.viewport?.rows[rowIndex]?.cells
+    const cell = gridWithCell.viewport?.rows.find((row) => row.index === rowIndex)?.cells
         .find((rowCell) => rowCell.column?.id === columnId);
     if (!cell) {
         throw new Error('No cell');
@@ -112,10 +124,9 @@ describe('Edits in a sorted or filtered grid', () => {
     test('Go to the edited row while sorted', async () => {
         const rows = getRows();
         const data = prepareGridData(rows);
-        const sortedGrid = await renderGrid(data, [
-            { id: 'A', dataType: 'number' },
-            { id: 'B', dataType: 'number', sorting: { order: 'desc' } }
-        ]);
+        const sortedGrid = await renderGrid(data, {
+            B: { sorting: { enabled: true, order: 'desc' } }
+        });
         const edits = watchEdits(sortedGrid, data);
 
         // The first row shown is the one with the highest value, 40, which
@@ -133,10 +144,9 @@ describe('Edits in a sorted or filtered grid', () => {
 
     test('Go to the edited row while filtered', async () => {
         const data = prepareGridData(getRows());
-        const filteredGrid = await renderGrid(data, [
-            { id: 'A', dataType: 'number', filtering: { condition: 'greaterThan', value: 5 } },
-            { id: 'B', dataType: 'number' }
-        ]);
+        const filteredGrid = await renderGrid(data, {
+            A: { filtering: { enabled: true, condition: 'greaterThan', value: 5 } }
+        });
         const edits = watchEdits(filteredGrid, data);
 
         // Rows 6 and 7 are shown; row 6 is filtered out by the edit
@@ -149,7 +159,7 @@ describe('Edits in a sorted or filtered grid', () => {
 
     test('Ignore changes that are not edits in the grid', async () => {
         const data = prepareGridData(getRows());
-        const dataTable = getDataTable(await renderGrid(data, void 0));
+        const dataTable = getDataTable(await renderGrid(data));
         const edits: CellEdit[] = [];
         const stop = onGridCellEdit(dataTable, 1, (edit) => edits.push(edit));
 
@@ -164,17 +174,49 @@ describe('Number cells', () => {
     test('Stay empty when cleared', async () => {
         const data = prepareGridData(getRows());
         expect(data.dataTypes.B).toEqual('number');
-        const numberGrid = await renderGrid(data, void 0);
+        const numberGrid = await renderGrid(data);
         const edits = watchEdits(numberGrid, data);
 
         await typeInCell(numberGrid, getShownCell(numberGrid, 1, 'B'), '');
         await typeInCell(numberGrid, getShownCell(numberGrid, 2, 'B'), '0');
+        await typeInCell(numberGrid, getShownCell(numberGrid, 3, 'B'), '-2.5');
 
         expect(edits).toEqual([
             { rowIndex: 2, columnId: 'B', value: '' },
-            { rowIndex: 3, columnId: 'B', value: '0' }
+            { rowIndex: 3, columnId: 'B', value: '0' },
+            { rowIndex: 4, columnId: 'B', value: '-2.5' }
         ]);
         expect(getShownCell(numberGrid, 1, 'B').value).toEqual('');
         expect(getShownCell(numberGrid, 2, 'B').value).toEqual(0);
+    });
+
+    test('Leave Grid Pro\'s own number input as it is', () => {
+        const { types, registerRenderer } = GridPro.CellRendererRegistry;
+        expect(types[clearableNumberInputType]).toBeDefined();
+        expect(types.numberInput).not.toBe(types[clearableNumberInputType]);
+        // A second registration (on a hot reload) does nothing
+        expect(registerRenderer(clearableNumberInputType, types[clearableNumberInputType])).toBe(false);
+    });
+});
+
+describe('CSV headers', () => {
+    test('Are shown as written', async () => {
+        const headers = ['Cost {USD}', 'a <b>bold</b> & c', 'R&D'];
+        const rows: TableRowData[] = [
+            { A: headers[0], B: headers[1], C: headers[2] },
+            { A: '1', B: '2', C: '3' }
+        ];
+        const headerGrid = await renderGrid(prepareGridData(rows));
+
+        ['A', 'B', 'C'].forEach((id, i) => {
+            const headerCell = headerGrid.viewport?.getColumn(id)?.header;
+            // As shown, and in the sorting and filtering popups
+            expect(headerCell?.htmlElement.textContent?.trim()).toEqual(headers[i]);
+            expect(headerCell?.value).toEqual(headers[i]);
+            // Labelled with the column id, described by the CSV header
+            expect(headerCell?.htmlElement.getAttribute('aria-label')).toEqual(id);
+            expect(headerCell?.htmlElement.getAttribute('aria-description')).toEqual(headers[i]);
+        });
+        expect(document.querySelector('thead b')).toBeNull();
     });
 });

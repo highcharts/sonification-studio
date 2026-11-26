@@ -14,20 +14,14 @@ import '@highcharts/grid-pro/css/grid-pro.css';
 import '../core/gridProSetup';
 import {
     applyCellEdit,
-    compareDates,
+    getGridDataTable,
+    getGridOptions,
+    getGridRebuild,
     onGridCellEdit,
     prepareGridData,
     type CellEdit,
-    type GridTableData,
     type TableRowData
 } from '../core/utils/gridData';
-
-// Adds the `gridKey` option to the Grid Pro options type, which the main
-// Grid Pro typings leave out
-import type {} from '@highcharts/grid-pro/es-modules/Grid/Pro/License/LicenseValidationComposition';
-
-type GridHeaderOptions = NonNullable<GridPro.Options['header']>;
-type GridColumnOptions = NonNullable<GridPro.Options['columns']>;
 
 // Grid Pro calls a grid's load callback only after a successful render. A
 // render that fails (Grid Pro leaves the error unhandled) is given up on after
@@ -63,26 +57,17 @@ export default defineComponent({
     },
 
     mounted() {
-        // Rebuild the grid when the data changes outside it: CSV imports,
-        // added rows, filled columns, a cleared grid, a new project or a
-        // loaded project file. Until the grid has first been rendered, it is
-        // rendered with the latest data when it first becomes visible.
+        // Rebuild the grid when the data changes outside it
         this.unsubscribeFromStore = this.$store.subscribe((mutation) => {
-            if (
-                mutation.type === 'dataStore/setTableRowData' ||
-                mutation.type === 'dataStore/setTableCSV' ||
-                mutation.type === 'dataStore/addTableRows' ||
-                mutation.type === 'dataStore/fillColumn' ||
-                mutation.type === 'dataStore/restoreStoreState'
-            ) {
-                if (this.isUpdatingFromGrid || !this.hasMountedGridOnce) return;
-                const onDataTab = this.$store.state.viewStore.selectedHeaderTabContent === 'dataContent';
-
-                if (onDataTab) {
-                    this.rebuildGridFromStore();
-                } else {
-                    this.pendingRebuild = true;
-                }
+            const rebuild = getGridRebuild(mutation.type, {
+                isUpdatingFromGrid: this.isUpdatingFromGrid,
+                hasRendered: this.hasMountedGridOnce,
+                onDataTab: this.$store.state.viewStore.selectedHeaderTabContent === 'dataContent'
+            });
+            if (rebuild === 'now') {
+                this.rebuildGridFromStore();
+            } else if (rebuild === 'later') {
+                this.pendingRebuild = true;
             }
         });
 
@@ -185,7 +170,8 @@ export default defineComponent({
             this.hasMountedGridOnce = true;
 
             const tableData = prepareGridData(this.$store.state.dataStore.tableRowData);
-            const options = this.getGridOptions(tableData);
+            // With the optional Grid Key, set at build time (see the README)
+            const options = getGridOptions(tableData, import.meta.env.VITE_GRID_KEY);
             const renderId = ++this.renderCount;
 
             this.gridRendered = this.gridRendered.then(() => {
@@ -234,10 +220,7 @@ export default defineComponent({
 
         // Write the grid's cell edits to the store
         watchGridEdits(grid: GridPro.Grid, firstDataRowIndex: number) {
-            const dataProvider = grid.dataProvider;
-            const dataTable = dataProvider && 'getDataTable' in dataProvider ?
-                dataProvider.getDataTable() :
-                void 0;
+            const dataTable = getGridDataTable(grid);
             if (dataTable) {
                 this.stopWatchingGridEdits = onGridCellEdit(
                     dataTable,
@@ -245,118 +228,6 @@ export default defineComponent({
                     this.onGridCellEdited
                 );
             }
-        },
-
-        getGridOptions(tableData: GridTableData): GridPro.Options {
-            const { columnIds, dataTypes, headerColumnCount, headerRow } = tableData;
-            const getCSVHeader = (id: string): string | undefined => {
-                const value = headerRow[id];
-                return typeof value === 'string' && value.trim() !== '' ? value : void 0;
-            };
-
-            // A, B, C, ... as primary headers, and the CSV headers as
-            // secondary headers below them
-            const header: GridHeaderOptions = columnIds.map((id) => {
-                const csvHeader = getCSVHeader(id);
-
-                if (csvHeader) {
-                    return {
-                        format: id,
-                        className: 'hcg-center',
-                        columns: [{
-                            // The text is set by the column's header
-                            // formatter
-                            columnId: id,
-                            className: 'hcg-center',
-                            // Grid Pro labels the cell with the column id
-                            // only, so screen readers get the CSV header as
-                            // its description.
-                            accessibility: { description: csvHeader }
-                        }]
-                    };
-                }
-                return {
-                    columnId: id,
-                    format: id,
-                    className: 'hcg-center'
-                };
-            });
-
-            const columns: GridColumnOptions = columnIds.map((id, index) => {
-                const csvHeader = getCSVHeader(id);
-                const column: GridColumnOptions[number] = {
-                    id,
-                    dataType: dataTypes[id],
-                    cells: {
-                        className: index < headerColumnCount ?
-                            'hcg-center hcg-header-column' :
-                            'hcg-center'
-                    }
-                };
-
-                // The CSV header as written: as a header format, "{...}"
-                // would be taken as a template expression.
-                if (csvHeader) {
-                    column.header = { formatter: () => csvHeader };
-                }
-
-                // Dates are shown as written in the CSV, and sorted by date
-                if (dataTypes[id] === 'datetime') {
-                    column.dataType = 'string';
-                    column.sorting = { compare: compareDates };
-                }
-                return column;
-            });
-
-            return {
-                // Optional Grid Key, set at build time (see the README)
-                gridKey: import.meta.env.VITE_GRID_KEY,
-                data: {
-                    columns: tableData.columns
-                },
-                header,
-                columnDefaults: {
-                    width: 200,
-                    cells: {
-                        editMode: {
-                            enabled: true
-                        },
-                        className: 'hcg-center',
-                        // Show values as they are, as Grid Pro 2 did (Grid
-                        // Pro 3 adds thousands separators to numbers)
-                        format: '{value}'
-                    },
-                    header: {
-                        className: 'hcg-center'
-                    },
-                    sorting: {
-                        enabled: true
-                    },
-                    filtering: {
-                        enabled: true
-                    }
-                },
-                rendering: {
-                    theme: 'hcg-theme-default',
-                    rows: {
-                        virtualization: true,
-                        bufferSize: 20, // Increased buffer for smoother scrolling
-                        strictHeights: true // Enable for better virtualization performance
-                    },
-                    columns: {
-                        // Keep all columns (at most 50) in the DOM, as Grid
-                        // Pro 2 did. Grid Pro 3 virtualizes from 20 columns.
-                        virtualization: false,
-                        resizing: {
-                            // Resizing a column changes only its width, so
-                            // the table scrolls horizontally instead of
-                            // squeezing the other columns.
-                            mode: 'independent'
-                        }
-                    }
-                },
-                columns
-            };
         },
 
         // Write an edited cell back to the store, which updates the chart.
@@ -382,13 +253,9 @@ export default defineComponent({
         scrollToLastGridRowWithData() {
             void this.gridRendered.then(() => {
                 const grid = this.gridInstance;
-                const dataProvider = grid?.dataProvider;
-                if (!grid?.viewport || !dataProvider || !('getDataTable' in dataProvider)) {
-                    return;
-                }
                 // The rows as shown, after sorting and filtering
-                const dataTable = dataProvider.getDataTable(true);
-                if (!dataTable) {
+                const dataTable = grid && getGridDataTable(grid, true);
+                if (!grid?.viewport || !dataTable) {
                     return;
                 }
 

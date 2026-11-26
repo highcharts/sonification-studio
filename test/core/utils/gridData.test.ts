@@ -1,9 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import {
     applyCellEdit,
+    clearableNumberInputType,
     compareDates,
     detectColumnDataType,
     getGridColumnIds,
+    getGridOptions,
+    getGridRebuild,
     prepareGridData,
     toStoreValue,
     type TableRowData
@@ -85,6 +88,80 @@ describe('Column ids', () => {
         expect(Object.values(newRows[1]).join(',')).toEqual(
             values.slice(0, 29).join(',') + ',99'
         );
+    });
+});
+
+describe('getGridRebuild', () => {
+    const state = { isUpdatingFromGrid: false, hasRendered: true, onDataTab: true };
+
+    test('Rebuilds after data changes outside the grid', () => {
+        for (const type of [
+            'dataStore/setTableRowData',
+            'dataStore/setTableCSV',
+            'dataStore/addTableRows',
+            'dataStore/fillColumn',
+            'dataStore/restoreStoreState'
+        ]) {
+            expect(getGridRebuild(type, state)).toEqual('now');
+        }
+        expect(getGridRebuild('dataStore/setTextDescription', state)).toEqual('none');
+        expect(getGridRebuild('viewStore/triggerDataReactivity', state)).toEqual('none');
+    });
+
+    test('Waits for the Data tab', () => {
+        expect(getGridRebuild('dataStore/restoreStoreState', { ...state, onDataTab: false }))
+            .toEqual('later');
+    });
+
+    test('Ignores the grid\'s own edits, and changes before the first render', () => {
+        expect(getGridRebuild('dataStore/setTableRowData', { ...state, isUpdatingFromGrid: true }))
+            .toEqual('none');
+        expect(getGridRebuild('dataStore/setTableRowData', { ...state, hasRendered: false }))
+            .toEqual('none');
+    });
+});
+
+describe('getGridOptions', () => {
+    function getColumn(options: ReturnType<typeof getGridOptions>, id: string) {
+        return options.columns?.find((column) => column.id === id);
+    }
+
+    test('Column types and editing', () => {
+        const rows: TableRowData[] = [{ A: 'label', B: 'n', C: 'date' }];
+        for (let i = 0; i < 10; i++) {
+            rows.push({ A: 'Item ' + i, B: '' + i, C: `2024-01-${10 + i}` });
+        }
+        const options = getGridOptions(prepareGridData(rows), 'key');
+
+        expect(options.gridKey).toEqual('key');
+        expect(getGridOptions(prepareGridData(rows)).gridKey).toBeUndefined();
+
+        // The leftmost text columns are header columns
+        expect(getColumn(options, 'A')?.cells?.className).toEqual('hcg-center hcg-header-column');
+        expect(getColumn(options, 'B')?.cells?.className).toEqual('hcg-center');
+        // Number cells are edited in the clearable number input
+        expect(getColumn(options, 'B')?.dataType).toEqual('number');
+        expect(getColumn(options, 'B')?.cells?.editMode?.renderer?.type)
+            .toEqual(clearableNumberInputType);
+        // Dates are shown as written, and sorted by date
+        expect(getColumn(options, 'C')?.dataType).toEqual('string');
+        expect(getColumn(options, 'C')?.sorting?.compare).toBe(compareDates);
+        expect(getColumn(options, 'C')?.cells?.editMode).toBeUndefined();
+    });
+
+    test('CSV headers', () => {
+        const rows: TableRowData[] = [{ A: 'Cost {USD}', B: '' }, { A: '1', B: '2' }];
+        const options = getGridOptions(prepareGridData(rows));
+
+        // The column id above the CSV header, which describes the column
+        expect(options.header?.[0]).toMatchObject({
+            format: 'A',
+            columns: [{ columnId: 'A', accessibility: { description: 'Cost {USD}' } }]
+        });
+        expect(getColumn(options, 'A')?.header?.format).toBeUndefined();
+        // No CSV header: the column id only
+        expect(options.header?.[1]).toEqual({ columnId: 'B', format: 'B', className: 'hcg-center' });
+        expect(getColumn(options, 'B')?.header).toBeUndefined();
     });
 });
 
