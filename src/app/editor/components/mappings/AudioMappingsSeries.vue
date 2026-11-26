@@ -40,6 +40,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
@@ -58,7 +59,7 @@ import { makeSelectedAudioMappingSeriesPropertyMapping } from '../../store/store
 import { getSeriesId } from '../../core/utils/chartUtils';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SEDropdown,
@@ -107,13 +108,13 @@ export default {
         };
     },
     computed: {
-        ...mapState({
-            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates,
-            expandedAccordionItems: (state: any) => state.viewStore.expandedSeriesAudioAccordionItems
-        }),
+        ...mapState('viewStore', ['reactToDataUpdates']),
+        expandedAccordionItems(): GenericObject {
+            return this.$store.state.viewStore.expandedSeriesAudioAccordionItems;
+        },
         selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
-        dataSeries() {
-            const chartBridge = (this as any).$chartBridge;
+        dataSeries(): Array<{ name: string; value: string }> {
+            const chartBridge = this.$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
 
             return series.map((s: GenericObject) => ({
@@ -130,7 +131,7 @@ export default {
             });
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

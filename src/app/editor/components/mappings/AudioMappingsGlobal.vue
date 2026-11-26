@@ -45,6 +45,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
 import SEAccordionContainer from '../basic/SEAccordionContainer.vue';
 import AudioMappingsGlobalBasic from './AudioMappingsGlobalBasic.vue';
@@ -52,7 +53,7 @@ import AudioMappingsGlobalDefaults from './AudioMappingsGlobalDefaults.vue';
 import AudioMappingsGlobalContexts from './AudioMappingsGlobalContexts.vue';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         SEAccordionContainer,
         AudioMappingsGlobalBasic,
@@ -76,7 +77,7 @@ export default {
             this.$store.commit('viewStore/setExpandedGlobalAudioContextsAccordionItem', isSelected);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

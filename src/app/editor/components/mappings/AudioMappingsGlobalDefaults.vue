@@ -57,11 +57,12 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SESlider,
@@ -69,23 +70,23 @@ export default {
     },
     computed: {
         minNote: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.minNote; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setMinNote', val); }
+            get(): number { return this.$store.state.globalSonifyParametersStore.minNote; },
+            set(val: number) { return this.$store.commit('globalSonifyParametersStore/setMinNote', val); }
         },
         maxNote: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.maxNote; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setMaxNote', val); }
+            get(): number { return this.$store.state.globalSonifyParametersStore.maxNote; },
+            set(val: number) { return this.$store.commit('globalSonifyParametersStore/setMaxNote', val); }
         },
         panEnabled: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.panEnabled; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setPanEnabled', val); }
+            get(): boolean { return this.$store.state.globalSonifyParametersStore.panEnabled; },
+            set(val: boolean) { return this.$store.commit('globalSonifyParametersStore/setPanEnabled', val); }
         },
         panWidth: {
-            get() { return (this as any).$store.state.globalSonifyParametersStore.panWidth; },
-            set(val) { return this.$store.commit('globalSonifyParametersStore/setPanWidth', val); }
+            get(): number { return this.$store.state.globalSonifyParametersStore.panWidth; },
+            set(val: number) { return this.$store.commit('globalSonifyParametersStore/setPanWidth', val); }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
