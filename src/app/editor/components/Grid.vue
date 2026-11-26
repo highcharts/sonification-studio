@@ -5,17 +5,37 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, markRaw } from 'vue';
+import { defineComponent, markRaw, type Raw } from 'vue';
 import { mapState } from 'vuex';
 import * as GridPro from '@highcharts/grid-pro/grid-pro';
 import '@highcharts/grid-pro/css/grid-pro.css';
+import {
+    applyCellEdit,
+    compareDates,
+    prepareGridData,
+    toStoreValue,
+    type GridTableData,
+    type TableRowData
+} from '../core/utils/gridData';
+
+type GridHeaderOptions = NonNullable<GridPro.Options['header']>;
+type GridColumnOptions = NonNullable<GridPro.Options['columns']>;
 
 export default defineComponent({
     data() {
         return {
             // The Grid Pro instance is stored with markRaw(), so Vue never
             // wraps it in a reactive proxy.
-            gridInstance: null as GridPro.Grid | null,
+            gridInstance: null as Raw<GridPro.Grid> | null,
+            // Grid Pro renders asynchronously, and a grid destroyed while it
+            // renders breaks, so renders are queued. This resolves when the
+            // last queued render has finished.
+            gridRendered: Promise.resolve() as Promise<void>,
+            renderCount: 0,
+            // Column ids and the store index of the first grid row, for the
+            // grid currently shown
+            gridColumnIds: [] as string[],
+            firstDataRowIndex: 0,
             resizeObserver: null as ResizeObserver | null,
             isUpdatingFromGrid: false,
             hasMountedGridOnce: false,
@@ -60,12 +80,10 @@ export default defineComponent({
         if (!this.tableRowData?.length && !storeData?.length) {
             this.$store.commit('dataStore/setToPlaceholderData');
             this.$nextTick(() => {
-                this.observeAndRenderWhenVisible(this.$store.state.dataStore.tableRowData);
+                this.observeAndRenderWhenVisible();
             });
         } else {
-            // Use store data if available, fallback to component data
-            const dataToUse = storeData?.length ? storeData : this.tableRowData;
-            this.observeAndRenderWhenVisible(dataToUse);
+            this.observeAndRenderWhenVisible();
         }
 
         // Watch for changes in row count to trigger grid re-render (adding or removing rows)
@@ -74,7 +92,7 @@ export default defineComponent({
             (newLength, oldLength) => {
                 // Allow re-render if not currently updating from grid
                 if (newLength !== oldLength && !this.isUpdatingFromGrid) {
-                    this.observeAndRenderWhenVisible(this.tableRowData);
+                    this.observeAndRenderWhenVisible();
                 }
             }
         );
@@ -85,7 +103,7 @@ export default defineComponent({
             (newData, oldData) => {
                 // Allow re-render if not currently updating from grid
                 if (newData !== oldData && !this.isUpdatingFromGrid) {
-                    this.observeAndRenderWhenVisible(newData);
+                    this.observeAndRenderWhenVisible();
                 }
             }
         );
@@ -95,13 +113,12 @@ export default defineComponent({
             () => this.selectedHeaderTabContent,
             (newTab, oldTab) => {
                 if (newTab === 'dataContent' && oldTab !== 'dataContent') {
-                    const currentData = this.$store.state.dataStore.tableRowData;
                     this.$nextTick(() => {
                         if (this.pendingRebuild) {
                             this.rebuildGridFromStore();
                             this.pendingRebuild = false;
                         } else {
-                            this.observeAndRenderWhenVisible(currentData);
+                            this.observeAndRenderWhenVisible();
                         }
                     });
                 }
@@ -111,9 +128,12 @@ export default defineComponent({
     },
 
     beforeUnmount() {
-        if (this.gridInstance?.destroy) {
-            this.gridInstance.destroy();
-        }
+        // Drop queued renders, and destroy the grid once it has rendered
+        this.renderCount++;
+        void this.gridRendered.then(() => {
+            this.gridInstance?.destroy();
+            this.gridInstance = null;
+        });
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
         }
@@ -124,33 +144,31 @@ export default defineComponent({
     },
 
     methods: {
-        observeAndRenderWhenVisible(data: Array<Record<string, any>>) {
-            const container = this.$refs.gridContainer as HTMLElement;
+        // Render the grid the first time its container is visible (it is
+        // mounted while the Data tab is hidden).
+        observeAndRenderWhenVisible() {
+            const container = this.$refs.gridContainer as HTMLElement | undefined;
             if (!container) return;
 
-            // If grid already buildt once, skip rebuilding.
-            if (this.gridInstance && this.hasMountedGridOnce) {
+            // If grid already built once, skip rebuilding.
+            if (this.hasMountedGridOnce) {
                 return;
             }
 
             if (typeof ResizeObserver === 'undefined') {
-                this.renderGrid(data);
-                this.hasMountedGridOnce = true;
+                this.renderGrid();
                 return;
             }
 
-            // Do NOT destroy here, we are preparing the first mount only.
             // If there was a previous observer, disconnect it before setting a new one.
             this.resizeObserver?.disconnect();
 
             this.resizeObserver = new ResizeObserver((entries) => {
                 for (const entry of entries) {
                     const { width, height } = entry.contentRect;
-                    if (width > 50 && height > 50) {
-                        this.resizeObserver?.disconnect();
-                        // On first visible, render once and mark as mounted.
-                        this.renderGrid(data);
-                        this.hasMountedGridOnce = true;
+                    if (width > 50 && height > 50 && !this.hasMountedGridOnce) {
+                        // On first visible, render once.
+                        this.renderGrid();
                         break;
                     }
                 }
@@ -159,227 +177,108 @@ export default defineComponent({
             this.resizeObserver.observe(container);
         },
 
-        // Detect how many consecutive columns from the left contain header-like data (mostly strings/text)
-        detectHeaderColumnCount(data: Array<Record<string, any>>, columnKeys: string[]): number {
-            if (!data.length || !columnKeys.length) return 0;
-
-            const sampleSize = Math.min(10, data.length); // Check first 10 rows or all if less
-            let headerColumnCount = 0;
-
-            // Check each column from left to right
-            for (let colIndex = 0; colIndex < columnKeys.length; colIndex++) {
-                const key = columnKeys[colIndex];
-                let stringCount = 0;
-                let totalCells = 0;
-
-                // Sample cells in this column
-                for (let rowIndex = 0; rowIndex < sampleSize; rowIndex++) {
-                    const value = data[rowIndex][key];
-                    totalCells++;
-
-                    // Check if it's a non-numeric string (likely header text)
-                    if (typeof value === 'string' && value.trim() !== '' && isNaN(Number(value))) {
-                        stringCount++;
-                    }
-                }
-
-                // If more than 70% of cells in this column are non-numeric strings, it's a header column
-                const isHeaderColumn = (stringCount / totalCells) > 0.7;
-
-                if (isHeaderColumn) {
-                    headerColumnCount = colIndex + 1;
-                } else {
-                    // Stop at first non-header column (we only want consecutive header columns from the left)
-                    break;
-                }
-            }
-
-            return headerColumnCount;
-        },
-
-        // Detect the data type of a column for proper Grid Pro handling and sorting/filtering
-        // Otherwise, seems to detect the columns as strings only and sorting goes wrong.
-        detectColumnDataType(columnData: any[]): string {
-            if (!columnData.length) return 'string';
-
-            // Check if values in the column are numeric
-            let numericCount = 0;
-            let dateCount = 0;
-            let booleanCount = 0;
-            let totalNonEmpty = 0;
-
-            columnData.forEach(value => {
-                if (value !== '' && value != null) {
-                    totalNonEmpty++;
-
-                    // Check if it's a number
-                    const numValue = Number(value);
-                    if (!isNaN(numValue) && isFinite(numValue)) {
-                        numericCount++;
-                    }
-
-                    // Check if it's a boolean
-                    if (typeof value === 'boolean' || value === 'true' || value === 'false') {
-                        booleanCount++;
-                    }
-
-                    // Check if it's a date (basic check)
-                    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
-                        dateCount++;
-                    }
-                }
-            });
-
-            if (totalNonEmpty === 0) return 'string';
-
-            // Determine data type based on majority (>80% threshold)
-            const threshold = 0.8;
-            if ((numericCount / totalNonEmpty) > threshold) {
-                return 'number';
-            } else if ((booleanCount / totalNonEmpty) > threshold) {
-                return 'boolean';
-            } else if ((dateCount / totalNonEmpty) > threshold) {
-                return 'datetime';
-            }
-
-            return 'string'; // Default to string
-        },
-
-        // Convert column data to the appropriate type for Grid Pro
-        convertColumnData(columnData: any[], dataType: string): any[] {
-            if (dataType === 'number') {
-                return columnData.map(value => {
-                    if (value === '' || value == null) return value;
-                    const numValue = Number(value);
-                    return !isNaN(numValue) && isFinite(numValue) ? numValue : value;
-                });
-            } else if (dataType === 'boolean') {
-                return columnData.map(value => {
-                    if (value === '' || value == null) return value;
-                    if (typeof value === 'boolean') return value;
-                    if (value === 'true') return true;
-                    if (value === 'false') return false;
-                    return value;
-                });
-            } else if (dataType === 'datetime') {
-                return columnData.map(value => {
-                    if (value === '' || value == null) return value;
-                    const dateValue = new Date(value);
-                    return !isNaN(dateValue.getTime()) ? dateValue : value;
-                });
-            }
-
-            // For string type, return as-is
-            return columnData;
-        },
-
         // helper to rebuild with latest stored data
         rebuildGridFromStore() {
-            const container = this.$refs.gridContainer as HTMLElement;
-            if (!container) return;
-            const latest = this.$store.state.dataStore.tableRowData;
-
-            if (this.gridInstance?.destroy) {
-                this.gridInstance.destroy();
-                this.gridInstance = null;
-            }
-            this.renderGrid(latest);
+            this.renderGrid();
 
             // Ensure layout after visibility changes
-            requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+            void this.gridRendered.then(() => {
+                requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+            });
         },
 
-        renderGrid(data: Array<Record<string, any>>) {
-            const container = this.$refs.gridContainer as HTMLElement;
+        // Render the grid with the data in the store
+        renderGrid() {
+            const container = this.$refs.gridContainer as HTMLElement | undefined;
             if (!container) return;
 
-            const columnCount = 50;
-            const columnKeys = Array.from(
-                { length: columnCount },
-                (_, i) =>
-                    String.fromCharCode(65 + (i % 26)) +
-                    (i >= 26 ? String.fromCharCode(65 + Math.floor(i / 26) - 1) : '')
-            );
+            // Rendering now, so the render on first visibility is not needed
+            this.resizeObserver?.disconnect();
+            this.hasMountedGridOnce = true;
 
-            const keysInData = Object.keys(data[0] || {});
-            const isHeaderRow = keysInData.every((k) => typeof data[0][k] === 'string');
-            const header = isHeaderRow ? data[0] : {};
-            const bodyData = isHeaderRow ? data.slice(1) : data;
+            const tableData = prepareGridData(this.$store.state.dataStore.tableRowData);
+            const options = this.getGridOptions(tableData);
+            const renderId = ++this.renderCount;
 
-            // Performance optimization: Only process columns that have data
-            const actualDataColumns = Object.keys(data[0] || {});
-            const maxColumns = Math.min(columnCount, actualDataColumns.length + 5); // Add some buffer
-            const optimizedColumnKeys = columnKeys.slice(0, maxColumns);
-
-            // Detect how many consecutive columns from the left are headers
-            const headerColumnCount = this.detectHeaderColumnCount(bodyData, optimizedColumnKeys);
-
-            // Performance optimization: Only pad with necessary columns
-            const paddedData = bodyData.map((row) => {
-                const newRow: Record<string, any> = {};
-                optimizedColumnKeys.forEach((key) => {
-                    newRow[key] = row[key] ?? '';
-                });
-                return newRow;
-            });
-
-            // Create columns data structure and detect data types for Grid Pro
-            const columns: Record<string, any[]> = {};
-            const columnDataTypes: Record<string, string> = {};
-
-            // Performance optimization: Process columns in batches and use simpler detection for empty columns
-            optimizedColumnKeys.forEach((key) => {
-                const columnData = paddedData.map((row) => row[key]);
-
-                // Quick check: if column is mostly empty, skip expensive detection
-                const nonEmptyCount = columnData.filter(val => val !== '' && val != null).length;
-                if (nonEmptyCount === 0) {
-                    columnDataTypes[key] = 'string';
-                    columns[key] = columnData;
+            this.gridRendered = this.gridRendered.then(() => {
+                // Skip a render that a later one replaces
+                if (renderId !== this.renderCount) {
                     return;
                 }
+                this.gridInstance?.destroy();
+                this.gridColumnIds = tableData.columnIds;
+                this.firstDataRowIndex = tableData.firstDataRowIndex;
 
-                // Only do expensive detection for columns with data
-                const dataType = nonEmptyCount > 5 ? this.detectColumnDataType(columnData) : 'string';
-                columnDataTypes[key] = dataType;
-
-                // Convert the data based on detected type
-                const convertedData = this.convertColumnData(columnData, dataType);
-                columns[key] = convertedData;
+                return new Promise<void>((resolve) => {
+                    this.gridInstance = markRaw(
+                        new GridPro.Grid(container, options, () => resolve())
+                    );
+                });
             });
 
-            // Create header configuration with A, B, C as primary and CSV headers as secondary
-            const headerConfig = optimizedColumnKeys.map((key) => {
-                const csvHeaderValue = header[key] || '';
+            if (this.pendingScrollToBottom) {
+                this.pendingScrollToBottom = false;
+                this.scrollToLastGridRowWithData();
+            }
+        },
 
-                // If there's a CSV header value, create a grouped header structure
-                if (csvHeaderValue && csvHeaderValue.trim() !== '') {
+        getGridOptions(tableData: GridTableData): GridPro.Options {
+            const { columnIds, dataTypes, headerColumnCount, headerRow } = tableData;
+            const onCellEdited = this.onCellEdited;
+
+            // A, B, C, ... as primary headers, and the CSV headers as
+            // secondary headers below them
+            const header: GridHeaderOptions = columnIds.map((id) => {
+                const csvHeaderValue = headerRow[id];
+
+                if (typeof csvHeaderValue === 'string' && csvHeaderValue.trim() !== '') {
                     return {
-                        format: key, // Primary header (A, B, C, etc.)
-                        className: 'hcg-center', // Apply center alignment to primary header
+                        format: id,
+                        className: 'hcg-center',
                         columns: [{
-                            columnId: key,
-                            format: csvHeaderValue, // Secondary header (CSV header value)
-                            className: 'hcg-center' // Apply center alignment to secondary header too
+                            columnId: id,
+                            format: csvHeaderValue,
+                            className: 'hcg-center',
+                            // Grid Pro labels the cell with the column id
+                            // only, so screen readers get the CSV header as
+                            // its description.
+                            accessibility: { description: csvHeaderValue }
                         }]
                     };
-                } else {
-                    // If no CSV header, just use the column key
-                    return {
-                        columnId: key,
-                        format: key,
-                        className: 'hcg-center' // Apply center alignment to single header
-                    };
                 }
+                return {
+                    columnId: id,
+                    format: id,
+                    className: 'hcg-center'
+                };
             });
 
-            // Not typed as Grid Pro options: 'distribution' and resizing mode
-            // 'fixed' are not Grid Pro 2 options (to be fixed separately).
-            const config = {
-                dataTable: {
-                    columns
+            const columns: GridColumnOptions = columnIds.map((id, index) => {
+                const className = index < headerColumnCount ?
+                    'hcg-center hcg-header-column' :
+                    'hcg-center';
+
+                // Dates are shown as written in the CSV, and sorted by date
+                if (dataTypes[id] === 'datetime') {
+                    return {
+                        id,
+                        dataType: 'string',
+                        sorting: { compare: compareDates },
+                        cells: { className }
+                    };
+                }
+                return {
+                    id,
+                    dataType: dataTypes[id],
+                    cells: { className }
+                };
+            });
+
+            return {
+                data: {
+                    columns: tableData.columns
                 },
-                header: headerConfig,
+                header,
                 columnDefaults: {
                     width: 200,
                     cells: {
@@ -387,9 +286,12 @@ export default defineComponent({
                             enabled: true
                         },
                         className: 'hcg-center',
+                        // Show values as they are, as Grid Pro 2 did (Grid
+                        // Pro 3 adds thousands separators to numbers)
+                        format: '{value}',
                         events: {
-                            afterEdit: () => {
-                                this.updateCSVFromGrid();
+                            afterEdit: function () {
+                                onCellEdited(this);
                             }
                         }
                     },
@@ -397,160 +299,88 @@ export default defineComponent({
                         className: 'hcg-center'
                     },
                     sorting: {
-                        sortable: true
+                        enabled: true
                     },
                     filtering: {
-                        enabled: true,
+                        enabled: true
                     }
                 },
                 rendering: {
                     theme: 'hcg-theme-default',
-                    containerHeight: '100%',
-                    containerWidth: '100%',
                     rows: {
                         virtualization: true,
                         bufferSize: 20, // Increased buffer for smoother scrolling
                         strictHeights: true // Enable for better virtualization performance
                     },
                     columns: {
-                        distribution: 'fixed',
+                        // Keep all columns (at most 50) in the DOM, as Grid
+                        // Pro 2 did. Grid Pro 3 virtualizes from 20 columns.
+                        virtualization: false,
                         resizing: {
-                            mode: 'fixed'
+                            // Resizing a column changes only its width, so
+                            // the table scrolls horizontally instead of
+                            // squeezing the other columns.
+                            mode: 'independent'
                         }
                     }
                 },
-                columns: optimizedColumnKeys.map((key, index) => {
-                    const isHeaderColumn = index < headerColumnCount;
-                    return {
-                        id: key,
-                        dataType: columnDataTypes[key], // Set the detected data type
-                        cells: {
-                            editMode: {
-                                enabled: true
-                            },
-                            className: isHeaderColumn ? 'hcg-center hcg-header-column' : 'hcg-center'
-                        }
-                    };
-                }),
-            } as any;
-
-            if (this.gridInstance) {
-                this.gridInstance.destroy();
-            }
-
-            this.gridInstance = markRaw(GridPro.grid(container, config));
-            // Don't call updateCSVFromGrid() here to avoid infinite loops
-
-            if (this.pendingScrollToBottom) {
-                this.$nextTick(() => {
-                    // Tiny delay lets virtualization/render finish
-                    requestAnimationFrame(() => {
-                        this.scrollToLastGridRowWithData();
-                        this.pendingScrollToBottom = false;
-                    });
-                });
-            }
+                columns
+            };
         },
 
-        updateCSVFromGrid() {
-            if (!this.gridInstance?.dataTable) return;
-
-            if (this.isUpdatingFromGrid) {
+        // Write an edited cell back to the store, which updates the chart.
+        // Only that cell changes: the other values are kept as they are in
+        // the store, including the CSV header row the grid shows as headers.
+        onCellEdited(cell: GridPro.TableCell) {
+            const rowId = cell.row.id;
+            if (typeof rowId !== 'number') {
                 return;
             }
-            const dataTable = this.gridInstance.dataTable;
-            const rowCount = dataTable.rowCount;
-            const columnIds = Object.keys(dataTable.columns || {});
 
-            const nonEmptyCols = columnIds.filter((colId) => {
-                for (let i = 1; i < rowCount; i++) {
-                    const value = dataTable.getCell(colId, i);
-                    if (value !== '' && value != null) {
-                        return true;
-                    }
-                }
-                return false;
-            });
+            const rows = applyCellEdit(
+                this.$store.state.dataStore.tableRowData as TableRowData[],
+                {
+                    rowIndex: this.firstDataRowIndex + rowId,
+                    columnId: cell.column.id,
+                    value: toStoreValue(cell.value)
+                },
+                this.gridColumnIds
+            );
 
-            // Set flag before any store updates
+            // Ignore the store notifications of this commit
             this.isUpdatingFromGrid = true;
-
-            if (nonEmptyCols.length === 0) {
-                this.$store.commit('dataStore/setTableCSV', '');
-                // Reset flag after update
-                this.$nextTick(() => {
-                    this.isUpdatingFromGrid = false;
-                });
-                return;
-            }
-
-            // Update tableRowData to match the grid data
-            const updatedRowData: Array<Record<string, any>> = [];
-
-            // Header row
-            const headerRow: Record<string, any> = {};
-            columnIds.forEach((colId) => {
-                headerRow[colId] = dataTable.getCell(colId, 0) || '';
-            });
-
-            updatedRowData.push(headerRow);
-
-            // Data rows
-            for (let i = 1; i < rowCount; i++) {
-                const row: Record<string, any> = {};
-                columnIds.forEach((colId) => {
-                    row[colId] = dataTable.getCell(colId, i) || '';
-                });
-                updatedRowData.push(row);
-            }
-
-            // Update the store with the new data - this will update both tableRowData and CSV
-            this.$store.commit('dataStore/setTableRowData', updatedRowData);
-
-            // Reset flag after update
+            this.$store.commit('dataStore/setTableRowData', rows);
             this.$nextTick(() => {
                 this.isUpdatingFromGrid = false;
             });
         },
 
+        // Scroll the grid to the last row with data, so that rows added below
+        // it are in view.
         scrollToLastGridRowWithData() {
-            if (!this.gridInstance || !this.gridInstance.dataTable) return;
+            void this.gridRendered.then(() => {
+                const grid = this.gridInstance;
+                const dataProvider = grid?.dataProvider;
+                if (!grid?.viewport || !dataProvider || !('getDataTable' in dataProvider)) {
+                    return;
+                }
+                // The rows as shown, after sorting and filtering
+                const dataTable = dataProvider.getDataTable(true);
+                if (!dataTable) {
+                    return;
+                }
 
-            // Wait for DOM/virtualization to finish
-            this.$nextTick(() => {
-                requestAnimationFrame(() => {
-                    const dataTable = this.gridInstance?.dataTable;
-                    if (!dataTable) return;
-                    const rowCount = dataTable.rowCount;
-
-                    // Find the last row with content
-                    let lastRowWithDataIndex = -1;
-                    for (let i = rowCount - 1; i >= 0; --i) {
-                        const row = dataTable.getRow(i);
-                        const hasData = !!row && Object.values(row).some((val) => val !== '' && val != null);
-                        if (hasData) {
-                            lastRowWithDataIndex = i;
-                            break;
-                        }
+                const rowCount = dataTable.getRowCount();
+                let lastRowWithDataIndex = rowCount - 1;
+                for (let i = rowCount - 1; i >= 0; --i) {
+                    const row = dataTable.getRowObject(i);
+                    if (row && Object.values(row).some((val) => val !== '' && val != null)) {
+                        lastRowWithDataIndex = i;
+                        break;
                     }
+                }
 
-                    const container = this.$refs.gridContainer as HTMLElement;
-                    // Prefer the real tbody; fallback to the parent of the first row if needed
-                    const tbody =
-                    (container.querySelector('.highcharts-datagrid-table tbody') as HTMLElement) ||
-                    (container.querySelector('.highcharts-datagrid-row')?.parentElement as HTMLElement);
-
-                    if (!tbody) return;
-
-                    if (lastRowWithDataIndex !== -1) {
-                        const targetRow = tbody.children[lastRowWithDataIndex] as HTMLElement | undefined;
-                        if (targetRow) {
-                            tbody.scrollTo({ top: targetRow.offsetTop, behavior: 'smooth' });
-                            return;
-                        }
-                    }
-                    tbody.scrollTo({ top: tbody.scrollHeight, behavior: 'smooth' });
-                });
+                grid.viewport.scrollToRow(Math.max(0, lastRowWithDataIndex));
             });
         },
     },
