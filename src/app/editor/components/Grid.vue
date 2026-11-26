@@ -1,5 +1,7 @@
 <template>
-    <div class="se-grid-container">
+    <div class="se-grid-container highcharts-light">
+        <!-- highcharts-light: the app has no dark mode, so the grid keeps
+             its light colors when the system uses a dark color scheme -->
         <div ref="gridContainer" />
     </div>
 </template>
@@ -401,8 +403,8 @@ export default defineComponent({
     min-height: 300px;
 }
 
-.se-grid-container .highcharts-datagrid-header-cell,
-.se-grid-container .highcharts-datagrid-header-cell-content,
+.se-grid-container .hcg-header-cell,
+.se-grid-container .hcg-header-cell-content,
 .se-grid-container td {
     text-align: center !important;
 }
@@ -411,47 +413,28 @@ td {
     font-size: 0.8rem !important;
 }
 
-/* Make CSV header bold*/
-.se-grid-container .highcharts-datagrid-row[data-row-index="0"] td {
-    font-weight: bold;
-}
-
-.se-grid-container .highcharts-datagrid-container {
-    width: 100%;
-    height: 100%;
-}
-
-/* Excel-style borders */
-.se-grid-container {
+/* Excel-style borders and bold headers. The Grid theme sets its defaults
+   on its own element, so they are overridden there. */
+.se-grid-container .hcg-theme-default {
     --hcg-border-width: 1px;
     --hcg-border-color: #ccc;
     --hcg-row-border-width: 1px;
     --hcg-column-border-width: 1px;
     --hcg-header-background: #f8f9fa;
-    --hcg-padding: 8px;
+    --hcg-header-font-weight: bold;
 }
 
-.se-grid-container .highcharts-datagrid-table th,
-.se-grid-container .highcharts-datagrid-table td {
-    border-left: 0.5px solid #ccc;
-    border-right: 0.5px solid #ccc;
-    box-sizing: border-box;
-}
-
-.se-grid-container .highcharts-datagrid-table th,
-.se-grid-container .highcharts-datagrid-table td {
-    padding: 6px 10px;
-}
-
-.se-grid-container .highcharts-datagrid-header-cell {
-    background-color: #f8f9fa;
-    font-weight: bold;
+/* Grid Pro measures the row height on a mock row, which has no bottom border
+   as the last row in the table, so it is 1px lower than the other rows. The
+   grid then corrects the row height but leaves the last row where the first
+   height put it, and a long table cannot be scrolled to its end in one go. */
+.se-grid-container .hcg-table tbody tr.hcg-mocked-row > td {
+    border-bottom: var(--hcg-row-border-width) solid var(--hcg-border-color);
 }
 
 /* Focus ring drawn inside to avoid layout shift/clipping */
-.se-grid-container .highcharts-datagrid-cell:focus,
 .se-grid-container td:focus,
-.se-grid-container .highcharts-datagrid-header-cell:focus {
+.se-grid-container .hcg-header-cell:focus {
   outline: none;
   border-color: transparent !important;
   box-shadow: inset 0 0 0 2px red !important;
