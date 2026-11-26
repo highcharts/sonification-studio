@@ -218,8 +218,10 @@ describe('Project file handling', () => {
             useSeriesParametersStore().setSeriesParameter({
                 seriesId: 'se-hc-series-id-1', parameterName: 'min', parameterValue: 40, nestedUnderParent: 'pitchOptions'
             });
-            useDataStore().updateCellValue({ rowIndex: 2, columnName: 'B', value: '7' });
-            useDataStore().setTextDescription('Changed description');
+            // A cell edit, as the grid stores it
+            const data = useDataStore();
+            data.setTableRowData(data.tableRowData.map((row, i) => i === 2 ? { ...row, B: '7' } : row));
+            data.setTextDescription('Changed description');
             useGlobalSonifyParametersStore().removeContext(1);
 
             const contents = await download('Round trip', pinia);
