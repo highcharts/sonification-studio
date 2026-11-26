@@ -436,6 +436,40 @@ describe('ChartBridge HTML export', () => {
         const major = highchartsPackage.version.split('.')[0];
         expect(highchartsExportCDN).toBe(`https://code.highcharts.com/${major}`);
     });
+
+    test('Keeps text in the options from ending the script element', () => {
+        const name = '</script><script>window.x=1</script>';
+        const pinia = createPinia();
+        const bridge = new ChartBridge(pinia, Highcharts);
+        const csv = 'Index;Value\n0;1\n1;2';
+        useDataStore(pinia).loadFromCSV(csv, tableCSVDelimiter);
+        useSeriesParametersStore(pinia).setSeriesParameter({
+            seriesId: 'se-hc-series-id-0', parameterName: 'seriesName', parameterValue: name
+        });
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        const chart = Highcharts.stockChart(container, bridge.buildChartOptions(csv));
+        bridge.init(chart);
+        chart.update(bridge.buildChartOptions(csv));
+
+        const html = bridge.getHTMLChartConfig();
+        chart.destroy();
+        container.remove();
+
+        // The page's own script element is the last one, and holds the options
+        const optionsStart = html.indexOf('const options = ');
+        const scriptStart = html.lastIndexOf('<script>', optionsStart);
+        expect(scriptStart).toBeGreaterThan(-1);
+        expect(html.indexOf('</script>', scriptStart)).toBe(html.lastIndexOf('</script>'));
+        expect(html).toContain('\\u003c/script>');
+
+        // The options hold the name as it is
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const scripts = doc.querySelectorAll('script');
+        expect(scripts).toHaveLength(5);
+        const optionsJSON = /const options = ([\s\S]*?);\n\s*const chart = /.exec(scripts[4].textContent || '')?.[1];
+        expect(JSON.parse(optionsJSON || 'null').series[0].name).toBe(name);
+    });
 });
 
 describe('ChartBridge store wiring', () => {

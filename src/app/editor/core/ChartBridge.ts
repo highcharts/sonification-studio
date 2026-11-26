@@ -505,7 +505,11 @@ export class ChartBridge {
 
     public getHTMLChartConfig(): string {
         const options = this.getChartOptionsForExport();
-        const optionsString = JSON.stringify(options, void 0, 2);
+        // The options go into a <script> element. Text in them (a title, a
+        // series name, a value) could end it with "</script>", so each "<"
+        // is written as its Unicode escape (backslash, u003c), which
+        // JavaScript reads back as "<" (in JSON, "<" can only be in a string).
+        const optionsString = JSON.stringify(options, void 0, 2).replace(/</g, '\\u003c');
         const playControls = this.getHTMLPlayControlsForChart();
         return `
             <!DOCTYPE html>
