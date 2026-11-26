@@ -22,7 +22,7 @@ To build for production, run `npm run build`. The build output is placed in the 
 
 To lint, run `npm run lint`. Linting is otherwise run automatically before each commit.
 
-We are using [Vite](https://vite.dev) for the dev server and bundling. TypeScript is used for transpilation, and [Vue 3](https://vuejs.org) is used as a front-end framework, with Vue Router and Vuex. ESLint is used for linting, with plugins for TypeScript and Vue, configured in `eslint.config.js` (flat config). Vite is configured in `vite.config.ts`. Static files that are copied to the build as-is (favicons, web manifest, `.nojekyll`) are in `/public`, and the HTML entry point is `/index.html`.
+We are using [Vite](https://vite.dev) for the dev server and bundling. TypeScript is used for transpilation, and [Vue 3](https://vuejs.org) is used as a front-end framework, with Vue Router and [Pinia](https://pinia.vuejs.org) for state. ESLint is used for linting, with plugins for TypeScript and Vue, configured in `eslint.config.js` (flat config). Vite is configured in `vite.config.ts`. Static files that are copied to the build as-is (favicons, web manifest, `.nojekyll`) are in `/public`, and the HTML entry point is `/index.html`.
 
 ### Publish
 
@@ -50,7 +50,7 @@ These studies are used for publishing demos around research efforts from Highcha
 
 ### Source files
 
-Source files are found under `/src/app`, with `/src/app/public/app.ts` as the entry point, `/src/app/editor` containing components for the editor itself, and `/src/app/home` containing components for the landing page. `/src/app/editor/core` contains the program logic and utilities, and `/src/app/editor/store` contains the Vuex data store modules with default parameters.
+Source files are found under `/src/app`, with `/src/app/public/app.ts` as the entry point, `/src/app/editor` containing components for the editor itself, and `/src/app/home` containing components for the landing page. `/src/app/editor/core` contains the program logic and utilities, and `/src/app/editor/store` contains the Pinia stores (`modules/`, one per area, with default parameters) and the app state module (`store.ts`), which gathers the state of all stores for localStorage sessions and project files, and restores it.
 
 ### Notable dependencies
 
