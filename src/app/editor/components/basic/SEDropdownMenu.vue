@@ -52,7 +52,7 @@
                     >
                         {{ heading }}
                     </p>
-                    {{/* Webkit doesn't think this is a real list, so we override heuristics with ARIA */}}
+                    <!-- Webkit doesn't think this is a real list, so we override heuristics with ARIA -->
                     <ul role="list">
                         <li
                             v-for="opt in options"
