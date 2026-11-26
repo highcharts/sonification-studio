@@ -30,7 +30,9 @@ export function getSeriesParameter<T>(
 ): T {
     const seriesParams = useSeriesParametersStore().seriesParameters[seriesId] || {};
     const parent = nestedUnderParent ? seriesParams[nestedUnderParent] : seriesParams;
-    return (parent && parent[parameterName]) ?? defaultValue;
+    const value: unknown = parent && parent[parameterName];
+    // Not checked: the type of the default value is taken (see above)
+    return (value ?? defaultValue) as T;
 }
 
 
