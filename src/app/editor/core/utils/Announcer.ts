@@ -29,10 +29,13 @@ export default class Announcer {
         Object.assign(cP.style, hiddenStyle);
     }
 
+    // The message is text: it can hold user data (cell values, series names),
+    // which must not be parsed as HTML. Setting the text replaces the text
+    // node even for the same message, so screen readers announce it again.
     public announce(message: string, assertive = false): void {
         const container = assertive ? this.containerAssertive : this.containerPolite;
         if (container) {
-            container.innerHTML = message;
+            container.textContent = message;
         }
 
         // Delete contents after a little while to avoid user finding the live
@@ -42,7 +45,7 @@ export default class Announcer {
         }
         this.clearAnnouncementRegionTimer = setTimeout((): void => {
             if (container) {
-                container.innerHTML = '';
+                container.textContent = '';
             }
             delete this.clearAnnouncementRegionTimer;
         }, 5000);
