@@ -7,9 +7,15 @@ import { ChartBridge, highchartsExportCDN } from '../../src/app/editor/core/Char
 import { getChartOptionsFromParameters } from '../../src/app/editor/core/optionsMapper/chartOptionsMapper';
 import { useChartParametersStore } from '../../src/app/editor/store/modules/chartParameters';
 import { useSeriesParametersStore } from '../../src/app/editor/store/modules/seriesParameters';
-import { GoogleSheetStatus, useDataStore } from '../../src/app/editor/store/modules/data';
+import { GoogleSheetStatus, tableCSVDelimiter, useDataStore, type TableRow } from '../../src/app/editor/store/modules/data';
 import { useGlobalSonifyParametersStore } from '../../src/app/editor/store/modules/globalSonifyParameters';
 import { useViewStore } from '../../src/app/editor/store/modules/view';
+import { restoreAppState } from '../../src/app/editor/store/store';
+import { restoreFromProjectFile } from '../../src/app/editor/core/utils/projectFileHandling';
+import type { GenericObject } from '../../src/app/editor/core/utils/objects';
+import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
+import fixtureContents from '../fixtures/project-v1.1.1.hssp?raw';
+import masterLocalStorageJSON from '../fixtures/localstorage-v1.1.1.json?raw';
 
 // The chart options mapping needs a real chart; the store wiring tests below
 // give the bridge a stand-in.
@@ -180,6 +186,207 @@ describe('ChartBridge legend clicks', () => {
         updateChart();
         expect(chart.series.map((s) => s.visible)).toEqual([true, true]);
         expect(seriesVisibleParameter(0)).toBeUndefined();
+    });
+});
+
+describe('ChartBridge series of the data\'s columns', () => {
+    let container: HTMLElement;
+    let chart: Chart | undefined;
+    let pinia: Pinia;
+    let bridge: ChartBridge;
+
+    beforeEach(() => {
+        pinia = createPinia();
+        setActivePinia(pinia);
+        bridge = new ChartBridge(pinia, Highcharts);
+        container = document.createElement('div');
+        document.body.appendChild(container);
+        vi.spyOn(window, 'alert').mockImplementation(() => undefined);
+        vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+        chart?.destroy();
+        chart = void 0;
+        container.remove();
+        vi.restoreAllMocks();
+    });
+
+    // Show the data store's data, as the editor does: create the chart, hand
+    // it to the bridge, then update it with options that have the series
+    // parameters. Later calls update the chart, as a data change does.
+    function showData(): Chart {
+        const options = bridge.buildChartOptions(useDataStore(pinia).tableCSV);
+        if (!chart) {
+            chart = Highcharts.stockChart(container, options);
+            bridge.init(chart);
+        }
+        chart.update(bridge.buildChartOptions(useDataStore(pinia).tableCSV), true, true);
+        return chart;
+    }
+
+    // Load a project file, then load its data from the CSV, as the chart
+    // created again after a project is loaded does (Preview.vue)
+    function loadProject(fileContents: string) {
+        restoreFromProjectFile(fileContents, pinia);
+        const data = useDataStore(pinia);
+        data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
+    }
+
+    // A project file as master v1.1.1 saved it
+    const masterProjectFile = (state: object) => compressToUTF16(JSON.stringify({
+        ...state, appVersion: '1.1.1', storeVersion: 4
+    }));
+
+    // The chart's series and their y values (also of hidden series, which
+    // have no points)
+    const describeSeries = (shownChart: Chart) => shownChart.series.map((s) => ({
+        name: s.name,
+        visible: s.visible,
+        y: ((s.options as GenericObject).data as unknown[][]).map((point) => point[1])
+    }));
+
+    const setSeriesName = (index: number, name: string) =>
+        useSeriesParametersStore(pinia).setSeriesParameter({
+            seriesId: `se-hc-series-id-${index}`, parameterName: 'seriesName', parameterValue: name
+        });
+
+    test('An old project with an empty middle column gives its saved settings to the right data', () => {
+        // Master v1.1.1 dropped the empty column B from the CSV each time it
+        // loaded it, so the series of column C was its first series. Rows
+        // loaded from a CSV leave out their empty cells.
+        const fixture = JSON.parse(decompressFromUTF16(fixtureContents));
+        loadProject(masterProjectFile({
+            ...fixture,
+            dataStore: {
+                ...fixture.dataStore,
+                tableRowData: [{ A: 'Index', C: 'Cos' }, { A: '0', C: '10' }, { A: '1', C: '8' }],
+                tableCSV: 'Index;Cos\n0;10\n1;8'
+            },
+            seriesParametersStore: {
+                seriesParameters: {
+                    'se-hc-series-id-0': { seriesName: 'Custom C', seriesType: 'line' }
+                }
+            }
+        }));
+
+        // The data keeps its columns (no column shift on load)
+        const data = useDataStore(pinia);
+        expect(data.tableRowData).toEqual([{ A: 'Index', C: 'Cos' }, { A: '0', C: '10' }, { A: '1', C: '8' }]);
+        expect(data.tableCSV).toBe('Index;;Cos\n0;;10\n1;;8');
+
+        // No series for the empty column
+        const shownChart = showData();
+        expect(describeSeries(shownChart)).toEqual([
+            { name: 'Custom C', visible: true, y: [10, 8] }
+        ]);
+        expect(shownChart.series[0].type).toBe('line');
+    });
+
+    test('The v1.1.1 project file and session give the series they gave in v1.1.1', () => {
+        const fixture = JSON.parse(decompressFromUTF16(fixtureContents));
+        // The first row holds the series names
+        const expectedSeries = [{
+            name: 'Sensor', visible: true,
+            y: fixture.dataStore.tableRowData.slice(1).map((row: TableRow) => row.B)
+        }, {
+            name: 'Cosine', visible: false,
+            y: fixture.dataStore.tableRowData.slice(1).map((row: TableRow) => row.C)
+        }];
+
+        loadProject(fixtureContents);
+        const shownChart = showData();
+        expect(describeSeries(shownChart)).toEqual(expectedSeries);
+        expect(shownChart.series[0].type).toBe('line');
+        expect(shownChart.series[0].color).toBe('#d9480f');
+
+        chart?.destroy();
+        chart = void 0;
+        setActivePinia(pinia = createPinia());
+        bridge = new ChartBridge(pinia, Highcharts);
+        restoreAppState(JSON.parse(masterLocalStorageJSON), pinia);
+        // The chart loads the data from the CSV (Preview.vue)
+        const data = useDataStore(pinia);
+        data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
+        expect(describeSeries(showData())).toEqual(expectedSeries);
+    });
+
+    test('Data typed into the grid with an empty middle column has no hidden series', () => {
+        // The grid writes every column up to the last one in use
+        useDataStore(pinia).setTableRowData([
+            { A: 'Index', B: '', C: 'Cos' },
+            { A: '0', B: '', C: '10' },
+            { A: '1', B: '', C: '8' }
+        ]);
+        setSeriesName(0, 'Custom C');
+
+        expect(describeSeries(showData())).toEqual([
+            { name: 'Custom C', visible: true, y: [10, 8] }
+        ]);
+    });
+
+    test('A column of text only has no series', () => {
+        useDataStore(pinia).setTableRowData([
+            { A: 'Index', B: 'Label', C: 'Value' },
+            { A: '0', B: 'first', C: '10' },
+            { A: '1', B: 'second', C: '8' }
+        ]);
+
+        expect(describeSeries(showData())).toEqual([
+            { name: 'Value', visible: true, y: [10, 8] }
+        ]);
+    });
+
+    test('A cleared grid gives a chart without series', () => {
+        useDataStore(pinia).setTableRowData([{}, {}, {}]);
+        expect(describeSeries(showData())).toEqual([]);
+    });
+
+    test('A column emptied and filled again gets its settings back', () => {
+        const data = useDataStore(pinia);
+        const rows = (b: string[]) => [
+            { A: 'Index', B: b[0], C: 'Second' },
+            { A: '0', B: b[1], C: '10' },
+            { A: '1', B: b[2], C: '8' }
+        ];
+        data.setTableRowData(rows(['First', '1', '2']));
+        setSeriesName(0, 'Custom first');
+        setSeriesName(1, 'Custom second');
+        const parametersBefore = JSON.stringify(useSeriesParametersStore(pinia).seriesParameters);
+        expect(describeSeries(showData()).map((s) => [s.name, s.y])).toEqual([
+            ['Custom first', [1, 2]], ['Custom second', [10, 8]]
+        ]);
+
+        // While column B is empty, column C has the first series, and so
+        // the settings of series 0, as after a load in v1.1.1
+        data.setTableRowData(rows(['', '', '']));
+        expect(describeSeries(showData()).map((s) => [s.name, s.y])).toEqual([
+            ['Custom first', [10, 8]]
+        ]);
+
+        data.setTableRowData(rows(['First', '1', '2']));
+        expect(describeSeries(showData()).map((s) => [s.name, s.y])).toEqual([
+            ['Custom first', [1, 2]], ['Custom second', [10, 8]]
+        ]);
+        expect(JSON.stringify(useSeriesParametersStore(pinia).seriesParameters)).toBe(parametersBefore);
+    });
+
+    test('Google Sheets data keeps a hidden series for an empty column', () => {
+        const data = useDataStore(pinia);
+        data.setSelectedDataSource('googlesheets');
+        data.setSpreadsheetSetupComplete(true);
+        bridge.init({ options: {}, series: [] });
+        const parseResult = {
+            series: [
+                { name: 'Empty', data: [[0, null], [1, null]] },
+                { name: 'Values', data: [[0, 10], [1, 8]] }
+            ]
+        };
+
+        bridge.buildChartOptions().data.complete(parseResult);
+
+        expect(parseResult.series.map((s: GenericObject) => [s.name, s.visible, s.showInLegend]))
+            .toEqual([['Empty', false, false], ['Values', true, true]]);
     });
 });
 

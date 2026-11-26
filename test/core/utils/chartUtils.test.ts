@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import {
     getGoogleSheetsErrorMessage,
-    removeNonNumericYValues
+    removeNonNumericYValues,
+    seriesDataHasValues
 } from '../../../src/app/editor/core/utils/chartUtils';
 
 describe('removeNonNumericYValues tests', () => {
@@ -20,6 +21,22 @@ describe('removeNonNumericYValues tests', () => {
             .toEqual([4, null, null, [6], [null]]);
         expect(removeNonNumericYValues([{ x: 1, y: 'text' }, { x: 2, y: 3 }]))
             .toEqual([{ x: 1, y: null }, { x: 2, y: 3 }]);
+    });
+});
+
+describe('seriesDataHasValues tests', () => {
+    test('Finds a y value to plot', () => {
+        expect(seriesDataHasValues([[0, null], [1, 0]])).toBe(true);
+        expect(seriesDataHasValues([null, 3])).toBe(true);
+        expect(seriesDataHasValues([[5]])).toBe(true);
+        expect(seriesDataHasValues([{ x: 1, y: 2 }])).toBe(true);
+    });
+
+    test('Finds none in empty data or data of gaps', () => {
+        expect(seriesDataHasValues([])).toBe(false);
+        expect(seriesDataHasValues(undefined)).toBe(false);
+        expect(seriesDataHasValues([[0, null], ['Item', null], [2, '']])).toBe(false);
+        expect(seriesDataHasValues([null, '', [null], { x: 1 }, { x: 2, y: null }])).toBe(false);
     });
 });
 

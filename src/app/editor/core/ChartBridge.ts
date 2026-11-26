@@ -5,7 +5,8 @@ import { downloadURI } from './utils/browserUtils';
 import {
     getGoogleSheetsErrorMessage,
     getSeriesId,
-    removeNonNumericYValues
+    removeNonNumericYValues,
+    seriesDataHasValues
 } from './utils/chartUtils';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
@@ -224,6 +225,20 @@ export class ChartBridge {
         }
     });
 
+    // A column without values to plot (empty, or of text only) gives no
+    // series when the data comes from the grid, so that the series ids (by
+    // index, see getSeriesId) count only the columns with data. v1.1.1
+    // numbered them so after each project load and CSV import, as it dropped
+    // the empty columns from the grid's CSV (the app now keeps the columns in
+    // place), so the series settings of its projects apply to the right
+    // data. Google Sheets data went straight to the chart, so its empty
+    // columns keep their (hidden) series.
+    if (!(dataSource === 'googlesheets' && spreadsheetSetupComplete) && parseResult.series) {
+        parseResult.series = parseResult.series.filter(
+            (s: GenericObject) => seriesDataHasValues(s.data)
+        );
+    }
+
     const chart = this.chart;
 
                     if (chart) {
@@ -244,18 +259,8 @@ export class ChartBridge {
         const mergedSeries = deepMerge(parseResult.series, seriesOptions);
 
         mergedSeries.forEach((s: any, i: number) => {
-            const seriesData = s.data;
-
-            const hasData =
-                Array.isArray(seriesData) &&
-                seriesData.some((point: any) => {
-                    if (typeof point === 'number') return true;
-                    if (Array.isArray(point))
-                        return point[1] !== null && point[1] !== '';
-                    if (typeof point === 'object' && point !== null)
-                        return point.y !== null && point.y !== '';
-                    return point !== null && point !== '';
-                });
+            // Only Google Sheets data has series without data here
+            const hasData = seriesDataHasValues(s.data);
 
             if (!s.name) {
                 s.name = `Series ${i + 1}`;
