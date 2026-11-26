@@ -23,12 +23,6 @@ export type TableCellValue = string | number | boolean | null;
 // Row 0 holds the column headers.
 export type TableRow = Record<string, TableCellValue>;
 
-export interface UpdateCellDataProps {
-    rowIndex: number;
-    columnName: string;
-    value: TableCellValue;
-}
-
 export interface FillColumnProps {
     columnName: string;
     equation: string;
@@ -303,21 +297,6 @@ export const useDataStore = defineStore('data', {
 
             this.tableRowData = newRows;
             this.tableCSV = generateCSV(this.tableRowData);
-        },
-
-        updateCellValue(cellData: UpdateCellDataProps) {
-            const rowData = this.tableRowData;
-            const row = rowData[cellData.rowIndex];
-            const column = cellData.columnName;
-
-            const newRow = { ...row };
-            newRow[column] = cellData.value;
-
-            rowData.splice(cellData.rowIndex, 1, newRow);
-
-            const newCSV = generateCSV(this.tableRowData);
-
-            this.tableCSV = newCSV;
         },
 
         addTableRows(numRows: number) {
