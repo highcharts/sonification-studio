@@ -1,12 +1,13 @@
 import { createApp, defineComponent, h, markRaw } from 'vue';
 import { createRouter, createWebHashHistory, RouteLocationNormalized } from 'vue-router';
+import { createPinia } from 'pinia';
 import Editor from '../editor/Editor.vue';
 import Home from '../home/Home.vue';
 import Tutorial from '../home/Tutorial.vue';
 import App from '../App.vue';
 import Highcharts from '../editor/core/highchartsSetup';
 import { ChartBridge } from '../editor/core/ChartBridge';
-import { store } from '../editor/store/store';
+import { startLocalStoragePersistence } from '../editor/store/store';
 import { removeFocusOutlineUnlessKeypress } from '../editor/core/utils/removeFocusOutline';
 import Announcer from '../editor/core/utils/Announcer';
 const routeAnnouncer = new Announcer();
@@ -68,15 +69,19 @@ const app = createApp(defineComponent({
     render: () => h(App)
 }));
 
+// The editor's stores. Code outside components is handed this instance.
+const pinia = createPinia();
+app.use(pinia);
+startLocalStoragePersistence(pinia);
+
 // Editor-wide singletons, available in all components as this.$chartBridge
 // and this.$announcer (typed in src/env.d.ts).
-const chartBridge = new ChartBridge(store, Highcharts);
+const chartBridge = new ChartBridge(pinia, Highcharts);
 const announcer = new Announcer();
 chartBridge.initAnnouncer(announcer);
 app.config.globalProperties.$chartBridge = markRaw(chartBridge);
 app.config.globalProperties.$announcer = announcer;
 
-app.use(store);
 app.use(router);
 
 // Resolve the initial route before mounting, so the $route watcher above only
