@@ -1,14 +1,21 @@
 {
     "compilerOptions": {
-      "target": "ES6",
-      "lib": ["es2017", "dom"],
-      "module": "commonjs",
-      "moduleResolution": "node",
-      "strict": true,
-      "outDir": "./dist",
-      "rootDir": "./",
-      "esModuleInterop": true
+        "target": "ES2022",
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "noEmit": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "skipLibCheck": true,
+        "types": ["vite/client"],
+        "paths": {
+            // Vuex 4's package.json "exports" hide its type definitions from
+            // bundler resolution. Vuex is replaced by Pinia in a later phase.
+            "vuex": ["./node_modules/vuex/types/index.d.ts"]
+        }
     },
-    "include": ["src/**/*.ts", "src/**/*.vue", "test/**/*.ts"],
-    "files": ["src/ts-vue-shim.d.ts"]
+    "include": ["src/**/*.ts", "src/**/*.vue", "test/**/*.ts", "vite.config.ts"]
 }
