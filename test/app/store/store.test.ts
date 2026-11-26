@@ -295,7 +295,7 @@ describe('App state', () => {
             const actions = [
                 () => useChartParametersStore(pinia).setTitle('A'),
                 () => useSeriesParametersStore(pinia).clearState(),
-                () => useDataStore(pinia).setTableCSV(''),
+                () => useDataStore(pinia).setTextDescription('A'),
                 () => useGlobalSonifyParametersStore(pinia).setVolume(1)
             ];
             actions.forEach((action, i) => {

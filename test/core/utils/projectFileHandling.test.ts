@@ -9,7 +9,7 @@ import { downloadURI } from '../../../src/app/editor/core/utils/browserUtils';
 import { getAppState } from '../../../src/app/editor/store/store';
 import { useChartParametersStore } from '../../../src/app/editor/store/modules/chartParameters';
 import { useSeriesParametersStore } from '../../../src/app/editor/store/modules/seriesParameters';
-import { useDataStore } from '../../../src/app/editor/store/modules/data';
+import { tableCSVDelimiter, useDataStore } from '../../../src/app/editor/store/modules/data';
 import { useGlobalSonifyParametersStore } from '../../../src/app/editor/store/modules/globalSonifyParameters';
 import { useViewStore } from '../../../src/app/editor/store/modules/view';
 import { version } from '../../../package.json';
@@ -238,6 +238,47 @@ describe('Project file handling', () => {
             expect(restored.dataStore.tableCSV).toBe(original.dataStore.tableCSV);
             expect(restored.dataStore.textDescription).toBe('Changed description');
             expect(restored.seriesParametersStore.seriesParameters['se-hc-series-id-1'].pitchOptions.min).toBe(40);
+        });
+
+        test('Keeps the data in its columns over repeated saves and loads', async () => {
+            const data = useDataStore();
+            // Empty cells before values: a blank header cell over the row
+            // labels, a cleared cell in the first data row, a gap. Values
+            // with the CSV delimiter and quotes.
+            data.setTableRowData([
+                { A: '', B: 'Temp; C', C: 'Say "hi"' },
+                { A: '', B: '0.5', C: '7' },
+                { A: '1', B: '', C: '8;9' }
+            ]);
+            const csv = ';"Temp; C";"Say ""hi"""\n;0.5;7\n1;;"8;9"';
+            expect(data.tableCSV).toBe(csv);
+
+            for (let i = 0; i < 3; i++) {
+                restoreFromProjectFile(await download('Round trip'));
+                // The chart, created again after a project is loaded, loads
+                // the data from the CSV (Preview.vue)
+                data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
+
+                expect(data.tableCSV).toBe(csv);
+                // Empty cells are left out of the rows
+                expect(data.tableRowData).toEqual([
+                    { B: 'Temp; C', C: 'Say "hi"' },
+                    { B: '0.5', C: '7' },
+                    { A: '1', C: '8;9' }
+                ]);
+            }
+        });
+
+        test('Keeps a single column of data over saves and loads', async () => {
+            const data = useDataStore();
+            const rows = [{ A: 'Value' }, { A: '1,5' }, { A: '2,5' }];
+            data.setTableRowData(rows);
+
+            for (let i = 0; i < 2; i++) {
+                restoreFromProjectFile(await download('Single column'));
+                data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
+                expect(data.tableRowData).toEqual(rows);
+            }
         });
     });
 });

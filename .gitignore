@@ -3,3 +3,5 @@ node_modules
 dist
 vendor
 .prettierrc
+# Local Vite environment files, e.g. .env.local with the Grid Key (see README)
+*.local

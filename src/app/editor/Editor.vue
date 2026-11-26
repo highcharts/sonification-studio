@@ -56,12 +56,9 @@ export default defineComponent({
                 const restoredState = JSON.parse(stateJSON);
                 restoreAppState(restoredState, this.$pinia);
             } else {
+                // Also sets the CSV of the placeholder rows
                 this.dataStore.setToPlaceholderData();
                 this.$nextTick(() => {
-                    const rowData = this.dataStore.tableRowData;
-                    this.dataStore.setTableCSV(
-                        rowData.map((row) => Object.values(row).join(';')).join('\n')
-                    );
                     this.viewStore.triggerDataReactivity();
                 });
             }

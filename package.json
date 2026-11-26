@@ -51,8 +51,8 @@
     "vue-tsc": "^3.3.14"
   },
   "dependencies": {
-    "@highcharts/grid-pro": "^2.0.1",
-    "highcharts": "^12.4.0",
+    "@highcharts/grid-pro": "^3.2.0",
+    "highcharts": "^13.1.1",
     "highcharts-vue": "^2.0.2",
     "lz-string": "^1.5.0",
     "mathjs": "^15.3.0",

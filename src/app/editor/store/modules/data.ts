@@ -113,8 +113,60 @@ function getPlaceholderData(): Array<Record<string, string>> {
     return data;
 }
 
+// Index of a column name ('A' is 0, 'Z' 25, 'COL1' 26, ...), or -1 for
+// another key
+function getColumnIndex(columnName: string): number {
+    if (/^[A-Z]$/.test(columnName)) {
+        return columnName.charCodeAt(0) - 65;
+    }
+    const match = /^COL([1-9]\d*)$/.exec(columnName);
+    return match ? 25 + Number(match[1]) : -1;
+}
+
+// Delimiter of the values in the store's CSV (tableCSV)
+export const tableCSVDelimiter = ';';
+
+// A value in the store's CSV. A value with the delimiter, a quote or a line
+// break is quoted, with its quotes doubled, so that it stays one value when
+// the CSV is parsed by loadFromCSV. The chart's data module (Highcharts
+// 13.1.1) reads them too, except values with a line break, or with a quote
+// at their start or (when a value follows) their end. The data module also
+// skips lines that start with "#" (after blanks) as comments, so a value
+// starting with "#" is quoted too (only a line's first value needs it).
+function toCSVValue(value: TableCellValue | undefined): string {
+    const text = value === undefined || value === null ? '' : String(value);
+    const needsQuotes = text.includes(tableCSVDelimiter) || /["\r\n]|^\s*#/.test(text);
+    return needsQuotes ? '"' + text.replace(/"/g, '""') + '"' : text;
+}
+
+// A row's values in a CSV line, each in its column. A row may lack the
+// columns between its values (loadFromCSV leaves out empty cells), which get
+// empty values, so that the values keep their columns when the CSV is
+// parsed again (as when a project is loaded). Values under other keys follow.
+function rowToCSV(row: TableRow): string {
+    const values: TableCellValue[] = [];
+    const otherValues: TableCellValue[] = [];
+    for (const [key, value] of Object.entries(row)) {
+        const index = getColumnIndex(key);
+        if (index < 0) {
+            otherValues.push(value);
+        } else {
+            values[index] = value;
+        }
+    }
+    // Array.from() gives the missing columns as undefined
+    return Array.from(values).concat(otherValues).map(toCSVValue).join(tableCSVDelimiter);
+}
+
+// The delimiter of a CSV file: a tab if there is one, else a semicolon, else
+// a comma. Quoted values (which may hold any of them) are left out.
+function detectCSVDelimiter(csv: string): string {
+    const unquoted = csv.replace(/"[^"]*"/g, '');
+    return unquoted.includes('\t') ? '\t' : unquoted.includes(';') ? ';' : ',';
+}
+
 function generateCSV(rowData: TableRow[]): string {
-    return rowData.map((row) => Object.values(row).join(';')).join('\n');
+    return rowData.map(rowToCSV).join('\n');
 }
 
 export const useDataStore = defineStore('data', {
@@ -163,7 +215,14 @@ export const useDataStore = defineStore('data', {
                 }
             }
 
-            return Object.keys(res).sort();
+            // In column order (A to Z, then COL1, COL2, ...), other keys
+            // after them by name
+            const getOrder = (columnName: string): number => {
+                const index = getColumnIndex(columnName);
+                return index < 0 ? Infinity : index;
+            };
+            return Object.keys(res).sort((a, b) =>
+                getOrder(a) - getOrder(b) || (a < b ? -1 : a > b ? 1 : 0));
         },
 
         column: (state): ((key: string) => Array<TableCellValue>) => {
@@ -179,8 +238,12 @@ export const useDataStore = defineStore('data', {
             return match ? match[1] : '';
         },
 
+        // The CSV is encoded as a URI component: encodeURI() leaves "#" as
+        // it is, which would end the data at the first "#"
         tableCSVDataURI: (state): string => {
-            return state.tableCSV ? encodeURI(`data:text/csv;charset=utf-8,${state.tableCSV}`) : '';
+            return state.tableCSV ?
+                'data:text/csv;charset=utf-8,' + encodeURIComponent(state.tableCSV) :
+                '';
         },
     },
 
@@ -189,10 +252,6 @@ export const useDataStore = defineStore('data', {
             this.tableRowData = newState ? newState.tableRowData : getPlaceholderData();
             this.textDescription = newState ? newState.textDescription || '' : '';
             this.tableCSV = generateCSV(this.tableRowData);
-        },
-
-        setTableCSV(csv: string) {
-            this.tableCSV = csv;
         },
 
         setSelectedDataSource(source: string) {
@@ -278,11 +337,11 @@ export const useDataStore = defineStore('data', {
             this.textDescription = description;
         },
 
-        loadFromCSV(csv: string) {
-            const hasTab = csv.indexOf('\t') > -1;
-            const hasSemicolon = csv.indexOf(';') > -1;
-            const delim = hasTab ? '\t' : hasSemicolon ? ';' : ',';
-            const arr = parseCSV(csv, delim);
+        // Load the rows from a CSV. The delimiter is detected, unless given:
+        // the app's own CSV (tableCSV) is loaded with tableCSVDelimiter, as
+        // it has none to detect with a single column.
+        loadFromCSV(csv: string, delimiter = detectCSVDelimiter(csv)) {
+            const arr = parseCSV(csv, delimiter);
             const maxRowLen = arr.reduce((len: number, row): number => {
                 return Math.max(len, row.length);
             }, 0);

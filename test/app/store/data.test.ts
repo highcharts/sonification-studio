@@ -1,6 +1,14 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { GoogleSheetStatus, useDataStore } from '../../../src/app/editor/store/modules/data';
+import type { Options } from 'highcharts';
+import Highcharts from '../../../src/app/editor/core/highchartsSetup';
+import { defaultChartOptions } from '../../../src/app/editor/core/defaultChartOptions';
+import {
+    GoogleSheetStatus,
+    tableCSVDelimiter,
+    useDataStore,
+    type TableRow
+} from '../../../src/app/editor/store/modules/data';
 
 const toCSV = (rows: Array<Record<string, unknown>>) =>
     rows.map(row => Object.values(row).join(';')).join('\n');
@@ -79,12 +87,86 @@ describe('data store', () => {
         expect(store.tableCSV).toBe('a;b;\n1;true\n');
     });
 
-    test('setTableCSV only sets the CSV', () => {
+    test('The CSV has each value in its column', () => {
         const store = useDataStore();
-        store.setTableRowData([{ A: 'a' }]);
-        store.setTableCSV('');
-        expect(store.tableCSV).toBe('');
-        expect(store.tableRowData).toEqual([{ A: 'a' }]);
+        store.setTableRowData([{ C: 'c', A: 'a', other: 'x' }, { B: '2' }, { COL2: 'z', A: 0 }]);
+        expect(store.tableCSV).toBe(
+            'a;;c;x\n;2\n0' + ';'.repeat(27) + 'z'
+        );
+    });
+
+    describe('Values with the delimiter, quotes or line breaks', () => {
+        const rows: TableRow[] = [
+            { A: 'Index', B: 'Temp; C', C: 'Say "hi"', D: '"Quoted"' },
+            { A: '1', B: '2;5', C: 'Line\nbreak', D: '"' },
+            { A: '2', B: 'Plain', C: 'Windows\r\nline break' }
+        ];
+        const csv = 'Index;"Temp; C";"Say ""hi""";"""Quoted"""\n' +
+            '1;"2;5";"Line\nbreak";""""\n' +
+            '2;Plain;"Windows\r\nline break"';
+
+        test('Are quoted in the CSV, with their quotes doubled', () => {
+            const store = useDataStore();
+            store.setTableRowData(rows);
+            expect(store.tableCSV).toBe(csv);
+        });
+
+        test('Keep their columns when the CSV is loaded again', () => {
+            const store = useDataStore();
+            store.setTableRowData(rows);
+            store.loadFromCSV(store.tableCSV, tableCSVDelimiter);
+            expect(store.tableRowData).toEqual(rows);
+            expect(store.tableCSV).toBe(csv);
+        });
+
+        // The series the chart's data module reads from the store's CSV
+        function readSeries(rows: TableRow[]): Options['series'] {
+            const store = useDataStore();
+            store.setTableRowData(rows);
+            let series: Options['series'];
+            new Highcharts.Data({
+                ...defaultChartOptions.data,
+                csv: store.tableCSV,
+                firstRowAsNames: true,
+                complete: (options) => {
+                    series = options.series;
+                }
+            });
+            return series;
+        }
+
+        test('Are read by the chart\'s data module', () => {
+            const series = readSeries([
+                { A: 'Index', B: 'Temp; C', C: 'Say "hi" there' },
+                { A: '1', B: '2', C: '3' },
+                { A: '2', B: '4', C: '5' }
+            ]);
+            expect(series?.map((s) => s.name)).toEqual(['Temp; C', 'Say "hi" there']);
+            expect(series?.map((s) => 'data' in s && s.data)).toEqual([
+                [[1, 2], [2, 4]],
+                [[1, 3], [2, 5]]
+            ]);
+        });
+
+        test('Starting with "#" are quoted, so the chart\'s data module keeps their rows', () => {
+            const store = useDataStore();
+            // The data module skips the lines that start with "#" (comments)
+            const rows = [
+                { A: '# of items', B: 'Sales' },
+                { A: '#a', B: '10' },
+                { A: ' #b', B: '20' },
+                { A: 'c', B: '#30' }
+            ];
+            store.setTableRowData(rows);
+            expect(store.tableCSV).toBe('"# of items";Sales\n"#a";10\n" #b";20\nc;"#30"');
+
+            const series = readSeries(rows);
+            expect(series?.map((s) => s.name)).toEqual(['Sales']);
+            // (The data module trims text values)
+            expect(series?.map((s) => 'data' in s && s.data)).toEqual([
+                [['#a', 10], ['#b', 20], ['c', '#30']]
+            ]);
+        });
     });
 
     test('updateCellValue replaces the row object in place and regenerates the CSV', () => {
@@ -150,6 +232,15 @@ describe('data store', () => {
     });
 
     describe('loadFromCSV', () => {
+        test('Loads no rows from an empty CSV', () => {
+            const store = useDataStore();
+            // The CSV of a project saved without rows
+            store.restoreStoreState({ tableRowData: [] });
+            store.loadFromCSV(store.tableCSV, tableCSVDelimiter);
+            expect(store.tableRowData).toEqual([]);
+            expect(store.tableCSV).toBe('');
+        });
+
         test('Detects a tab delimiter first', () => {
             const store = useDataStore();
             store.loadFromCSV('a\tb;c\n1\t2,3');
@@ -169,10 +260,36 @@ describe('data store', () => {
             expect(store.tableCSV).toBe('a;b\n1;2');
         });
 
+        test('Leaves out quoted values when detecting the delimiter', () => {
+            const store = useDataStore();
+            store.loadFromCSV('"Temp; C",b\n1,"2\t3"');
+            expect(store.tableRowData).toEqual([{ A: 'Temp; C', B: 'b' }, { A: '1', B: '2\t3' }]);
+        });
+
+        test('Uses the delimiter given', () => {
+            const store = useDataStore();
+            // A single column of the app's own CSV has no delimiter to detect
+            store.setTableRowData([{ A: 'Value' }, { A: '1,5' }, { A: '2\t5' }]);
+            expect(store.tableCSV).toBe('Value\n1,5\n2\t5');
+            store.loadFromCSV(store.tableCSV, tableCSVDelimiter);
+            expect(store.tableRowData).toEqual([{ A: 'Value' }, { A: '1,5' }, { A: '2\t5' }]);
+            expect(store.tableCSV).toBe('Value\n1,5\n2\t5');
+        });
+
         test('Drops empty cells', () => {
             const store = useDataStore();
             store.loadFromCSV('a,,c\n,2,');
             expect(store.tableRowData).toEqual([{ A: 'a', C: 'c' }, { B: '2' }]);
+            // The CSV keeps the values in their columns
+            expect(store.tableCSV).toBe('a;;c\n;2');
+        });
+
+        test('Keeps an empty first cell of the first row', () => {
+            const store = useDataStore();
+            store.loadFromCSV(';b;c\n1;2;3');
+            expect(store.tableRowData).toEqual([{ B: 'b', C: 'c' }, { A: '1', B: '2', C: '3' }]);
+            store.loadFromCSV(',b');
+            expect(store.tableRowData).toEqual([{ B: 'b' }]);
         });
 
         test('Names columns past Z COL1, COL2, ...', () => {
@@ -217,6 +334,14 @@ describe('data store', () => {
                 { A: false }
             ]);
             expect(store.tableColumnNamesWithData).toEqual(['A', 'C', 'D', 'E']);
+        });
+
+        test('tableColumnNamesWithData lists the columns in column order, other keys last', () => {
+            const store = useDataStore();
+            store.setTableRowData([
+                { other: 'o', COL10: '10', COL2: '2', D: 'd', COL1: '1', _: '_', Z: 'z', B: 'b' }
+            ]);
+            expect(store.tableColumnNamesWithData).toEqual(['B', 'D', 'Z', 'COL1', 'COL2', 'COL10', '_', 'other']);
         });
 
         test('column returns the values of a column, null where missing', () => {
@@ -266,7 +391,18 @@ describe('data store', () => {
             const store = useDataStore();
             expect(store.tableCSVDataURI).toBe('');
             store.setTableRowData([{ A: 'a b', B: 'ø' }, { A: '1', B: '2' }]);
-            expect(store.tableCSVDataURI).toBe('data:text/csv;charset=utf-8,a%20b;%C3%B8%0A1;2');
+            expect(store.tableCSVDataURI).toBe('data:text/csv;charset=utf-8,a%20b%3B%C3%B8%0A1%3B2');
+        });
+
+        test('tableCSVDataURI gives the CSV when read, including "#"', async () => {
+            const store = useDataStore();
+            store.setTableRowData([
+                { A: 'Index (X value)', B: 'Sensor Data (Y value)', C: '# of items' },
+                { A: '0', B: '-0.5', C: 'a; "b"' },
+                { A: '1', B: '2#3', C: 'ø, é/?&=+$@:%' }
+            ]);
+            const response = await fetch(store.tableCSVDataURI);
+            expect(await response.text()).toBe(store.tableCSV);
         });
     });
 
