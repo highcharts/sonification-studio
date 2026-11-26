@@ -10,7 +10,7 @@
     Menu options object form:
         options = [{
             label: 'Unique label',
-            icon: Icon object
+            icon: Icon URL,
             type: 'button'|'fileupload',
             fileTypes: '.txt,.csv' etc for file upload
             onclick: Function called on click for button items
@@ -94,14 +94,20 @@ import { keyPressed, Keys, Modifiers } from '../../core/utils/keyboardUtils';
 import SEButton from './SEButton.vue';
 import SEFileUploadButton from './SEFileUploadButton.vue';
 
-export interface SEDropdownMenuOption {
+// An item in the options prop: a button, or a file upload button that
+// passes the loaded file's contents to onload
+export type SEDropdownMenuOption = {
     label: string;
     icon: string;
-    type: string;
+} & ({
+    type: 'button';
+    onclick: (e: Event) => void;
+} | {
+    type: 'fileupload';
+    // Accepted file types, defaults to '.txt,.csv'
     fileTypes?: string;
-    onclick?: (e: Event) => void;
-    onload?: (fileContents: unknown) => void;
-}
+    onload: (fileContents: string) => void;
+});
 
 export default defineComponent({
     components: {
@@ -112,8 +118,7 @@ export default defineComponent({
         buttonText: { type: String, required: true },
         buttonIcon: { type: String, required: true },
         options: { type: Array as PropType<SEDropdownMenuOption[]>, required: true },
-        heading: { type: String, default: '' },
-        fileTypes: { type: String, default: '.txt,.csv' }
+        heading: { type: String, default: '' }
     },
     data() {
         return {
@@ -146,12 +151,18 @@ export default defineComponent({
             }
         },
 
-        startSlide(el: HTMLElement) {
-            el.style.height = el.scrollHeight + 'px';
+        // Transition hooks get an Element; the transitioned element is the
+        // popup <div>.
+        startSlide(el: Element) {
+            if (el instanceof HTMLElement) {
+                el.style.height = el.scrollHeight + 'px';
+            }
         },
 
-        endSlide(el: HTMLElement) {
-            el.style.height = '';
+        endSlide(el: Element) {
+            if (el instanceof HTMLElement) {
+                el.style.height = '';
+            }
         }
     }
 });
