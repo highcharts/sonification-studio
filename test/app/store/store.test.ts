@@ -1,0 +1,292 @@
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
+import { effectScope } from 'vue';
+import { createPinia, setActivePinia, type Pinia } from 'pinia';
+import {
+    getAppState,
+    restoreAppState,
+    startLocalStoragePersistence,
+    storageKey,
+    storageRevision
+} from '../../../src/app/editor/store/store';
+import { useChartParametersStore } from '../../../src/app/editor/store/modules/chartParameters';
+import { useSeriesParametersStore } from '../../../src/app/editor/store/modules/seriesParameters';
+import { useDataStore } from '../../../src/app/editor/store/modules/data';
+import { useGlobalSonifyParametersStore } from '../../../src/app/editor/store/modules/globalSonifyParameters';
+import { useViewStore } from '../../../src/app/editor/store/modules/view';
+
+describe('App state', () => {
+    let pinia: Pinia;
+
+    beforeEach(() => {
+        pinia = createPinia();
+        setActivePinia(pinia);
+    });
+
+    test('Keeps the storage key and revision', () => {
+        expect(storageKey).toBe('highcharts.sonification.studio.appstate');
+        expect(storageRevision).toBe(4);
+    });
+
+    describe('getAppState', () => {
+        test('Returns the state of each store under its former Vuex module name, in order', () => {
+            const appState = getAppState();
+            expect(Object.keys(appState)).toEqual([
+                'chartParametersStore',
+                'seriesParametersStore',
+                'dataStore',
+                'globalSonifyParametersStore',
+                'viewStore'
+            ]);
+            expect(appState.chartParametersStore).toBe(useChartParametersStore().$state);
+            expect(appState.seriesParametersStore).toBe(useSeriesParametersStore().$state);
+            expect(appState.dataStore).toBe(useDataStore().$state);
+            expect(appState.globalSonifyParametersStore).toBe(useGlobalSonifyParametersStore().$state);
+            expect(appState.viewStore).toBe(useViewStore().$state);
+        });
+
+        test('Serializes to the same JSON shape as the Vuex root state', () => {
+            useChartParametersStore().setTitle('Title');
+            useSeriesParametersStore().setSeriesParameter({ seriesId: 's', parameterName: 'a', parameterValue: 1 });
+            useDataStore().setTableRowData([{ A: 'x' }, { A: '1' }]);
+
+            const json = JSON.parse(JSON.stringify(getAppState()));
+
+            expect(Object.keys(json.chartParametersStore)).toEqual([
+                'type', 'legendEnabled', 'inverted', 'title', 'subtitle', 'xAxisTitle', 'xAxisType',
+                'xAxisVisible', 'xAxisMin', 'xAxisMax', 'yAxisTitle', 'yAxisType', 'yAxisVisible',
+                'yAxisMin', 'yAxisMax', 'seriesLabelsEnabled', 'sharedTooltipEnabled', 'zoomType',
+                'dataGroupingType'
+            ]);
+            expect(json.chartParametersStore.title).toBe('Title');
+            expect(json.seriesParametersStore).toEqual({ seriesParameters: { s: { a: 1 } } });
+            expect(json.dataStore).toEqual({
+                tableCSV: 'x\n1',
+                tableRowData: [{ A: 'x' }, { A: '1' }],
+                tableHeaders: [],
+                textDescription: '',
+                selectedDataSource: 'table',
+                spreadsheetSetupComplete: false,
+                googleSpreadsheetURL: '',
+                googleApiKey: '',
+                googleAutoUpdateEnabled: false,
+                googleAutoUpdateFrequency: 10,
+                googleSheetStatus: 0,
+                googleSheetErrorMessage: '',
+                dataSourcesList: [
+                    { name: 'Grid', value: 'table' },
+                    { name: 'Google Sheets', value: 'googlesheets' }
+                ]
+            });
+            expect(Object.keys(json.dataStore)).toEqual(Object.keys(useDataStore().$state));
+            expect(Object.keys(json.globalSonifyParametersStore)).toEqual([
+                'volume', 'speed', 'order', 'playMarkerEnabled', 'tooltipMarkerEnabled', 'minNote',
+                'maxNote', 'panEnabled', 'panWidth', 'detail', 'contexts'
+            ]);
+            expect(Object.keys(json.viewStore)).toEqual([
+                'reactToParameterUpdates', 'reactToDataUpdates', 'showChartComponent', 'loadingChart',
+                'selectedHeaderTabContent', 'selectedHeaderTabId', 'selectedSidebarTabId', 'sidebarVisible',
+                'showGridTools', 'playbackProgress', 'selectedDataSeriesChartMapping',
+                'selectedDataSeriesAudioMapping', 'expandedGlobalAudioBasicAccordionItem',
+                'expandedGlobalAudioDefaultsAccordionItem', 'expandedGlobalAudioContextsAccordionItem',
+                'expandedSeriesAudioAccordionItems', 'expandedChartMappingsAccordionItems'
+            ]);
+        });
+
+        test('Uses the given pinia instead of the active one', () => {
+            const other = createPinia();
+            useChartParametersStore(other).setTitle('Other');
+            // Using a store makes its pinia the active one
+            setActivePinia(pinia);
+            expect(getAppState().chartParametersStore.title).toBe('Test chart');
+            expect(getAppState(other).chartParametersStore.title).toBe('Other');
+        });
+    });
+
+    describe('restoreAppState', () => {
+        const recordRestoreCalls = (p: Pinia) => {
+            const calls: string[] = [];
+            const record = (id: string) => ({ name }: { name: string }) => {
+                if (name === 'restoreStoreState') {
+                    calls.push(id);
+                }
+            };
+            useChartParametersStore(p).$onAction(record('chartParameters'));
+            useSeriesParametersStore(p).$onAction(record('seriesParameters'));
+            useDataStore(p).$onAction(record('data'));
+            useGlobalSonifyParametersStore(p).$onAction(record('globalSonifyParameters'));
+            useViewStore(p).$onAction(record('view'));
+            return calls;
+        };
+
+        test('Restores the stores in the old order, but not the view store', () => {
+            const calls = recordRestoreCalls(pinia);
+            restoreAppState({});
+            expect(calls).toEqual(['chartParameters', 'globalSonifyParameters', 'data', 'seriesParameters']);
+        });
+
+        test('Restores defaults and placeholder data without a new state', () => {
+            useChartParametersStore().setTitle('Changed');
+            useGlobalSonifyParametersStore().setVolume(1);
+            useSeriesParametersStore().setSeriesParameter({ seriesId: 's', parameterName: 'a', parameterValue: 1 });
+            useViewStore().selectSidebarTab('Audio');
+
+            restoreAppState();
+
+            expect(useChartParametersStore().title).toBe('Test chart');
+            expect(useGlobalSonifyParametersStore().volume).toBe(70);
+            expect(useSeriesParametersStore().seriesParameters).toEqual({});
+            expect(useDataStore().tableRowData).toHaveLength(200);
+            expect(useViewStore().selectedSidebarTabId).toBe('Audio');
+        });
+
+        test('Restores a saved app state into fresh stores', () => {
+            const chartParams = useChartParametersStore();
+            chartParams.setTitle('Saved');
+            chartParams.setType('line');
+            useGlobalSonifyParametersStore().setSpeed(10);
+            useGlobalSonifyParametersStore().addContext({ valueRange: null, inactive: true });
+            useSeriesParametersStore().setSeriesParameter({
+                seriesId: 's', parameterName: 'instrument', parameterValue: 'flute', nestedUnderParent: 'instrument'
+            });
+            useDataStore().setTableRowData([{ A: 'x', B: 'y' }, { A: '1', B: '2' }]);
+            useDataStore().setTextDescription('Saved description');
+            useViewStore().selectSidebarTab('Audio');
+
+            const saved = JSON.parse(JSON.stringify(getAppState()));
+
+            const fresh = createPinia();
+            restoreAppState(saved, fresh);
+            const restored = JSON.parse(JSON.stringify(getAppState(fresh)));
+
+            expect(restored.chartParametersStore).toEqual(saved.chartParametersStore);
+            expect(restored.globalSonifyParametersStore).toEqual(saved.globalSonifyParametersStore);
+            expect(restored.seriesParametersStore).toEqual(saved.seriesParametersStore);
+            expect(restored.dataStore.tableRowData).toEqual(saved.dataStore.tableRowData);
+            expect(restored.dataStore.tableCSV).toBe('x;y\n1;2');
+            expect(restored.dataStore.textDescription).toBe('Saved description');
+            // The view store is not restored
+            expect(restored.viewStore.selectedSidebarTabId).toBe('Visual');
+            // The other pinia is left alone
+            expect(useChartParametersStore(pinia).title).toBe('Saved');
+            expect(useViewStore(pinia).selectedSidebarTabId).toBe('Audio');
+        });
+    });
+
+    describe('startLocalStoragePersistence', () => {
+        const key = 'highcharts.sonification.studio.appstate-4';
+        let stop: (() => void) | undefined;
+        let setItem: MockInstance<Storage['setItem']>;
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            setItem = vi.spyOn(Storage.prototype, 'setItem');
+            window.localStorage.clear();
+        });
+
+        afterEach(() => {
+            stop?.();
+            stop = undefined;
+            vi.useRealTimers();
+            vi.restoreAllMocks();
+        });
+
+        test('Saves the app state 2 seconds after the last non-view action', () => {
+            stop = startLocalStoragePersistence(pinia);
+            const chartParams = useChartParametersStore(pinia);
+
+            chartParams.setTitle('First');
+            vi.advanceTimersByTime(1999);
+            expect(setItem).not.toHaveBeenCalled();
+
+            // Another action restarts the wait
+            chartParams.setTitle('Second');
+            vi.advanceTimersByTime(1999);
+            expect(setItem).not.toHaveBeenCalled();
+
+            vi.advanceTimersByTime(1);
+            expect(setItem).toHaveBeenCalledTimes(1);
+            expect(setItem).toHaveBeenCalledWith(key, JSON.stringify(getAppState(pinia)));
+            expect(JSON.parse(window.localStorage.getItem(key) as string).chartParametersStore.title).toBe('Second');
+        });
+
+        test('Saves after actions on each non-view store', () => {
+            stop = startLocalStoragePersistence(pinia);
+            const actions = [
+                () => useChartParametersStore(pinia).setTitle('A'),
+                () => useSeriesParametersStore(pinia).clearState(),
+                () => useDataStore(pinia).setTableCSV(''),
+                () => useGlobalSonifyParametersStore(pinia).setVolume(1)
+            ];
+            actions.forEach((action, i) => {
+                action();
+                vi.advanceTimersByTime(2000);
+                expect(setItem).toHaveBeenCalledTimes(i + 1);
+            });
+        });
+
+        test('Saves the state as it is when the timer fires', () => {
+            stop = startLocalStoragePersistence(pinia);
+            useChartParametersStore(pinia).setTitle('A');
+            vi.advanceTimersByTime(1000);
+            // View changes do not restart the wait, but are saved with the rest
+            useViewStore(pinia).selectSidebarTab('Audio');
+            vi.advanceTimersByTime(1000);
+            expect(setItem).toHaveBeenCalledTimes(1);
+            expect(JSON.parse(window.localStorage.getItem(key) as string).viewStore.selectedSidebarTabId).toBe('Audio');
+        });
+
+        test('Does not save after view-only actions', () => {
+            stop = startLocalStoragePersistence(pinia);
+            const view = useViewStore(pinia);
+            view.triggerDataReactivity();
+            view.triggerParameterReactivity();
+            view.setPlaybackProgress(50);
+            vi.advanceTimersByTime(10000);
+            expect(setItem).not.toHaveBeenCalled();
+        });
+
+        test('Logs an error when saving fails', () => {
+            const error = new Error('Quota exceeded');
+            setItem.mockImplementation(() => {
+                throw error;
+            });
+            const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+            stop = startLocalStoragePersistence(pinia);
+
+            useDataStore(pinia).setToPlaceholderData();
+            vi.advanceTimersByTime(2000);
+
+            expect(setItem).toHaveBeenCalledTimes(1);
+            expect(consoleError).toHaveBeenCalledWith('Error attempting to store app state:', error);
+        });
+
+        test('Keeps saving after the scope it was started in is disposed', () => {
+            const scope = effectScope();
+            scope.run(() => {
+                stop = startLocalStoragePersistence(pinia);
+            });
+            scope.stop();
+
+            useChartParametersStore(pinia).setTitle('A');
+            vi.advanceTimersByTime(2000);
+            expect(setItem).toHaveBeenCalledTimes(1);
+        });
+
+        test('Stops saving, and drops a pending save, when stopped', () => {
+            const stopPersistence = startLocalStoragePersistence(pinia);
+            useChartParametersStore(pinia).setTitle('A');
+            stopPersistence();
+            vi.advanceTimersByTime(2000);
+            useChartParametersStore(pinia).setTitle('B');
+            vi.advanceTimersByTime(2000);
+            expect(setItem).not.toHaveBeenCalled();
+        });
+
+        test('Only watches the given pinia', () => {
+            stop = startLocalStoragePersistence(pinia);
+            useChartParametersStore(createPinia()).setTitle('A');
+            vi.advanceTimersByTime(2000);
+            expect(setItem).not.toHaveBeenCalled();
+        });
+    });
+});
