@@ -23,7 +23,7 @@
 
             <div class="context-conditions">
                 Play every <input
-                    v-model="context.valueInterval"
+                    v-model="contextParameter(context, 'valueInterval').value"
                     type="number"
                     aria-label="Context interval"
                     :min="0"
@@ -31,7 +31,7 @@
                 when
                 <select
                     v-show="variableValueProp"
-                    v-model="context.valueProp"
+                    v-model="contextParameter(context, 'valueProp').value"
                     aria-label="Value property"
                 >
                     <option
@@ -55,7 +55,7 @@
                 >
                     <select
                         id="playwhen-select"
-                        v-model="context.playWhenType"
+                        v-model="contextParameter(context, 'playWhenType').value"
                         aria-label="Play when"
                     >
                         <option
@@ -78,7 +78,7 @@
                 >
                     <SESlider
                         :id="slotProps.controlId"
-                        v-model.number="context.playWhenThreshold"
+                        v-model.number="contextParameter(context, 'playWhenThreshold').value"
                         :labelledby="slotProps.labelId"
                         :min="context.valueProp === 'x' ? xRange.min : yRange.min"
                         :max="context.valueProp === 'x' ? xRange.max : yRange.max"
@@ -96,7 +96,7 @@
                 >
                     <SESlider
                         :id="slotProps.controlId"
-                        v-model.number="context.playWhenMin"
+                        v-model.number="contextParameter(context, 'playWhenMin').value"
                         :labelledby="slotProps.labelId"
                         :min="context.valueProp === 'x' ? xRange.min : yRange.min"
                         :max="context.valueProp === 'x' ? xRange.max : yRange.max"
@@ -114,7 +114,7 @@
                 >
                     <SESlider
                         :id="slotProps.controlId"
-                        v-model.number="context.playWhenMax"
+                        v-model.number="contextParameter(context, 'playWhenMax').value"
                         :labelledby="slotProps.labelId"
                         :min="context.valueProp === 'x' ? xRange.min : yRange.min"
                         :max="context.valueProp === 'x' ? xRange.max : yRange.max"
@@ -126,7 +126,7 @@
             <button
                 :aria-expanded="context.showDetails ? 'true' : 'false'"
                 class="details-btn"
-                @click="context.showDetails = !context.showDetails"
+                @click="onToggleDetails(context)"
             >
                 <img
                     alt=""
@@ -147,7 +147,7 @@
                 >
                     <SEDropdown
                         :id="slotProps.controlId"
-                        v-model="context.instrument"
+                        v-model="contextParameter(context, 'instrument').value"
                         :options="instruments"
                         @update:model-value="onInstrumentChange(context)"
                     />
@@ -161,7 +161,7 @@
                 >
                     <SESlider
                         :id="slotProps.controlId"
-                        v-model.number="context.volume"
+                        v-model.number="contextParameter(context, 'volume').value"
                         :labelledby="slotProps.labelId"
                     />
                 </SEControl>
@@ -175,7 +175,7 @@
                     >
                         <SERadioGroup
                             :id="slotProps.controlId"
-                            v-model="context.pitchType"
+                            v-model="contextParameter(context, 'pitchType').value"
                             :options="pitchTypeOptions"
                         />
                     </SEControl>
@@ -189,7 +189,7 @@
                     >
                         <SESlider
                             :id="slotProps.controlId"
-                            v-model.number="context.pitchNote"
+                            v-model.number="contextParameter(context, 'pitchNote').value"
                             :labelledby="slotProps.labelId"
                             :max="110"
                             :min="0"
@@ -205,7 +205,7 @@
                     >
                         <SESlider
                             :id="slotProps.controlId"
-                            v-model.number="context.pitchMappingValue"
+                            v-model.number="contextParameter(context, 'pitchMappingValue').value"
                             :labelledby="slotProps.labelId"
                             :max="yRange.max"
                             :min="yRange.min"
@@ -222,7 +222,7 @@
                 >
                     <SESlider
                         :id="slotProps.controlId"
-                        v-model.number="context.noteDuration"
+                        v-model.number="contextParameter(context, 'noteDuration').value"
                         :labelledby="slotProps.labelId"
                         :max="3000"
                         :min="15"
@@ -238,7 +238,7 @@
                 >
                     <SESlider
                         :id="slotProps.controlId"
-                        v-model.number="context.pan"
+                        v-model.number="contextParameter(context, 'pan').value"
                         :labelledby="slotProps.labelId"
                     />
                 </SEControl>
@@ -267,8 +267,19 @@ import SERadioGroup from '../basic/SERadioGroup.vue';
 import addIcon from '../../assets/plus-solid.svg';
 import removeIcon from '../../assets/xmark-solid.svg';
 import arrowDownIcon from '../../assets/arrow-down.svg';
-import { mapState } from 'vuex';
-import { GenericObject } from '../../core/utils/objects';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
+import { useChartParametersStore } from '../../store/modules/chartParameters';
+import {
+    useGlobalSonifyParametersStore,
+    type SonifyContext,
+    type SonifyContextParameterName
+} from '../../store/modules/globalSonifyParameters';
+
+// A two-way binding to a parameter of a context cue, for v-model
+interface ContextParameterBinding<K extends SonifyContextParameterName> {
+    value: SonifyContext[K];
+}
 
 // Get step value for a slider to fit range
 function getSliderStep(range: number, steps: number): number {
@@ -327,11 +338,12 @@ export default defineComponent({
         yStep(): number {
             return getSliderStep(this.yRange.max - this.yRange.min, 200);
         },
-        ...mapState('viewStore', ['reactToDataUpdates', 'selectedHeaderTabContent']),
-        ...mapState('globalSonifyParametersStore', ['contexts']),
-        xAxisIsDate(): boolean {
-            return this.$store.state.chartParametersStore.xAxisType === 'datetime';
-        }
+        ...mapStores(useGlobalSonifyParametersStore),
+        ...mapState(useViewStore, ['reactToDataUpdates', 'selectedHeaderTabContent']),
+        ...mapState(useGlobalSonifyParametersStore, ['contexts']),
+        ...mapState(useChartParametersStore, {
+            xAxisIsDate: store => store.xAxisType === 'datetime'
+        })
     },
     watch: {
         contexts: {
@@ -349,11 +361,11 @@ export default defineComponent({
     },
     methods: {
         onRemoveContext(id: number) {
-            this.$store.commit('globalSonifyParametersStore/removeContext', id);
+            this.globalSonifyParametersStore.removeContext(id);
         },
         addContext(inactive = false) {
             const range = this.xRange.max - this.xRange.min;
-            this.$store.commit('globalSonifyParametersStore/addContext', {
+            this.globalSonifyParametersStore.addContext({
                 valueRange: this.xAxisIsDate ? range : null,
                 inactive
             });
@@ -375,7 +387,30 @@ export default defineComponent({
             }
             return range;
         },
-        onInstrumentChange(context: GenericObject) {
+        // Bind a parameter of a context cue with v-model: reads the parameter
+        // of the cue in the store, and sets it through the store action.
+        contextParameter<K extends SonifyContextParameterName>(
+            context: SonifyContext,
+            parameterName: K
+        ): ContextParameterBinding<K> {
+            const store = this.globalSonifyParametersStore;
+            return {
+                get value() {
+                    return context[parameterName];
+                },
+                set value(value) {
+                    store.setContextParameter({ id: context.id, parameterName, value });
+                }
+            };
+        },
+        onToggleDetails(context: SonifyContext) {
+            this.globalSonifyParametersStore.setContextParameter({
+                id: context.id,
+                parameterName: 'showDetails',
+                value: !context.showDetails
+            });
+        },
+        onInstrumentChange(context: SonifyContext) {
             if (context.instrument && this.selectedHeaderTabContent !== 'dataContent') {
                 this.$chartBridge.playAudioSample(context.instrument);
             }
