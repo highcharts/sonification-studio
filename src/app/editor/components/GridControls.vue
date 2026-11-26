@@ -100,7 +100,7 @@ export default defineComponent({
             fillEquation: '',
             fillEquationColumn: '',
             // Plain text: SEControl renders it as text, with a paragraph for each <br>
-            fillHelptext: 'Fill each row in a column with the results from an equation.<br>Refer to values in other columns by the column name. Example: Filling column C with the equation "2 * B" will result in each row in column C having twice the value as in column B.<br>Use "i" to refer to the row number. Example: "2 * i" will fill in the values 2, 4, 6, 8 etc.<br>Advanced expressions are supported, similar to functionality found on typical graphing calculators. See "Expression syntax" in the mathjs.org documentation for details.'
+            fillHelptext: 'Fill each row in a column with the results from an equation.<br>Refer to values in other columns by the column name. Example: Filling column C with the equation "2 * B" will result in each row in column C having twice the value as in column B.<br>Use "i" to refer to the row number. Example: "2 * i" will fill in the values 2, 4, 6, 8 etc.<br>Advanced expressions are supported, similar to functionality found on typical graphing calculators. See "Expression syntax" (mathjs.org/docs/expressions/syntax.html) in the mathJS documentation for details.'
         };
     },
     computed: {

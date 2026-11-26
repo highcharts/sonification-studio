@@ -70,6 +70,7 @@ describe('GridControls.vue', () => {
             expect(paragraphs).toHaveLength(4);
             paragraphs.forEach(text => expect(text).not.toMatch(/[<>&]/));
             expect(paragraphs[2]).toBe('Use "i" to refer to the row number. Example: "2 * i" will fill in the values 2, 4, 6, 8 etc.');
+            expect(paragraphs[3]).toContain('"Expression syntax" (mathjs.org/docs/expressions/syntax.html)');
         });
 
         test('Announces the first filled values, not the empty header row', async () => {
