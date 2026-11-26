@@ -18,7 +18,6 @@ export default defineComponent({
             gridInstance: null as GridPro.Grid | null,
             resizeObserver: null as ResizeObserver | null,
             isUpdatingFromGrid: false,
-            isUpdatingFromStore: false,
             hasMountedGridOnce: false,
             pendingRebuild: false,
             unsubscribeFromStore: null as null | (() => void),
