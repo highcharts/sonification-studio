@@ -120,6 +120,69 @@ describe('ChartBridge fallback chart options', () => {
     });
 });
 
+describe('ChartBridge legend clicks', () => {
+    const csv = 'Index;First;Second\n0;1;2\n1;3;4\n2;5;6';
+    let container: HTMLElement;
+    let chart: Chart;
+    let pinia: Pinia;
+    let bridge: ChartBridge;
+
+    beforeEach(() => {
+        pinia = createPinia();
+        bridge = new ChartBridge(pinia, Highcharts);
+        container = document.createElement('div');
+        document.body.appendChild(container);
+        // The legend is enabled by a chart parameter, which this file does
+        // not map to options
+        const options = bridge.buildChartOptions(csv);
+        chart = Highcharts.stockChart(container, {
+            ...options,
+            legend: { ...options.legend, enabled: true }
+        });
+        bridge.init(chart);
+    });
+
+    afterEach(() => {
+        chart.destroy();
+        container.remove();
+    });
+
+    // What the editor does after a parameter change: update the chart with
+    // options built from the parameters
+    const updateChart = () => chart.update(bridge.buildChartOptions(csv));
+
+    const seriesVisibleParameter = (index: number) =>
+        useSeriesParametersStore(pinia).seriesParameters[`se-hc-series-id-${index}`]
+            ?.seriesVisible;
+
+    // A click on the legend item's label. The accessibility module clicks
+    // the label for keyboard users too, but can not be run in jsdom here (it
+    // creates its MouseEvent with a view jsdom rejects).
+    const clickLegendItem = (index: number) => {
+        const element = chart.series[index].legendItem?.label?.element;
+        expect(element).toBeDefined();
+        element?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    };
+
+    test('Hide and show the series, and keep it so after the next update', () => {
+        updateChart();
+        expect(chart.series.map((s) => s.visible)).toEqual([true, true]);
+
+        clickLegendItem(1);
+        expect(chart.series[1].visible).toBe(false);
+        expect(seriesVisibleParameter(1)).toBe(false);
+        updateChart();
+        expect(chart.series.map((s) => s.visible)).toEqual([true, false]);
+
+        clickLegendItem(1);
+        expect(chart.series[1].visible).toBe(true);
+        expect(seriesVisibleParameter(1)).toBe(true);
+        updateChart();
+        expect(chart.series.map((s) => s.visible)).toEqual([true, true]);
+        expect(seriesVisibleParameter(0)).toBeUndefined();
+    });
+});
+
 describe('ChartBridge HTML export', () => {
     // Fails when the highcharts dependency moves to another major version:
     // bump highchartsExportCDN with it, see the comment there.

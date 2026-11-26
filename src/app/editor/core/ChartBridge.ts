@@ -914,20 +914,29 @@ export class ChartBridge {
         );
     }
 
+    // Keep the series' visible parameter in sync with the legend, which hides
+    // and shows a series when its legend item is clicked (also from the
+    // keyboard, which the accessibility module turns into a click). Without
+    // it, the next chart update would apply the old visibility again.
+    //
+    // This uses the legend's itemClick event, which fires before its default
+    // action toggles the series' visibility. The series' legendItemClick event
+    // fires only after that, since Highcharts 11, so the series' visible
+    // property no longer tells which way it is toggled.
     private getLegendItemHookOptions(): GenericObject {
-        const chartBridge = this;
         return {
-            plotOptions: {
-                series: {
-                    events: {
-                        legendItemClick: function () {
-                            const series: GenericObject = this;
-                            chartBridge.seriesParametersStore.setSeriesParameter({
-                                seriesId: getSeriesId(series),
+            legend: {
+                events: {
+                    itemClick: (e: HighchartsModule.LegendItemClickEventObject) => {
+                        const item = e.legendItem;
+                        // Pie charts have points as legend items
+                        if (item instanceof this.Highcharts.Series) {
+                            this.seriesParametersStore.setSeriesParameter({
+                                seriesId: getSeriesId(item),
                                 parameterName: 'seriesVisible',
-                                parameterValue: !series.visible,
+                                parameterValue: !item.visible,
                             });
-                        },
+                        }
                     },
                 },
             },
