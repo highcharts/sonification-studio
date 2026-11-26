@@ -4,15 +4,52 @@
     and avoid having to re-render chart when updates are made to these parameters.
  */
 
-import { GenericObject, firstDefined } from '../../core/utils/objects';
+import { defineStore } from 'pinia';
+import { firstDefined } from '../../core/utils/objects';
 
-interface AddContextPayload {
+export interface AddContextPayload {
     valueRange: number|null;
     inactive: boolean;
 }
 
+// A global audio context cue
+export interface SonifyContext {
+    valueInterval: number;
+    valueMultiplier: number;
+    valueMultiplierName: string;
+    valueProp: string;
+    playWhenType: string;
+    playWhenThreshold: number;
+    playWhenMin: number;
+    playWhenMax: number;
+    instrument: string;
+    pitchType: string;
+    pitchMappingProp: string;
+    pitchMappingValue: number;
+    pitchNote: number;
+    volume: number;
+    noteDuration: number;
+    pan: number;
+    id: number;
+    showDetails: boolean;
+}
+
+export interface GlobalSonifyParametersState {
+    volume: number;
+    speed: number;
+    order: string;
+    playMarkerEnabled: boolean;
+    tooltipMarkerEnabled: boolean;
+    minNote: number;
+    maxNote: number;
+    panEnabled: boolean;
+    panWidth: number;
+    detail: number;
+    contexts: SonifyContext[];
+}
+
 let idCounter = 1;
-const makeDefaultContext = (valueMultiplier: number, valueMultiplierName: string): GenericObject => ({
+const makeDefaultContext = (valueMultiplier: number, valueMultiplierName: string): SonifyContext => ({
     valueInterval: 1,
     valueMultiplier,
     valueMultiplierName,
@@ -34,7 +71,7 @@ const makeDefaultContext = (valueMultiplier: number, valueMultiplierName: string
 });
 
 
-const defaultState = () => ({
+const defaultState = (): GlobalSonifyParametersState => ({
     volume: 70,
     speed: 79,
     order: 'simultaneous',
@@ -48,88 +85,99 @@ const defaultState = () => ({
     contexts: []
 });
 
-export const globalSonifyParametersStore = {
-    namespaced: true,
+// Set one state value, keeping the value type of the key when looping over keys.
+function setStateValue<K extends keyof GlobalSonifyParametersState>(
+    state: GlobalSonifyParametersState,
+    key: K,
+    value: GlobalSonifyParametersState[K]
+): void {
+    state[key] = value;
+}
 
-    state: defaultState(),
+// Time bins for context intervals on datetime axes: [milliseconds, name]
+const contextTimeBins: Array<[number, string]> = [
+    [1000 * 60 * 60 * 24 * 365, 'years'],
+    [1000 * 60 * 60 * 24 * 30.42, 'months'],
+    [1000 * 60 * 60 * 24, 'days'],
+    [1000 * 60 * 60, 'hours'],
+    [1000 * 60, 'minutes'],
+    [1000, 'seconds']
+];
 
-    mutations: {
+export const useGlobalSonifyParametersStore = defineStore('globalSonifyParameters', {
+    state: defaultState,
+
+    actions: {
         // Apply state or restore to defaults if no state is provided.
         // Add items here if they are to be restored from opening project files
         // or localStorage session restore. Keep backwards compatibility in mind.
-        restoreStoreState(state: any, newState?: GenericObject) {
+        restoreStoreState(newState?: Partial<GlobalSonifyParametersState>) {
             idCounter = 1;
-            const defaultOpts: GenericObject = defaultState();
-            [
+            const defaultOpts = defaultState();
+            const restoredKeys: Array<keyof GlobalSonifyParametersState> = [
                 'volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail',
                 'speed', 'order', 'contexts'
-            ].forEach(
-                x => state[x] = newState ? firstDefined(newState[x], state[x]) : defaultOpts[x]);
+            ];
+            restoredKeys.forEach(
+                x => setStateValue(this.$state, x, newState ? firstDefined(newState[x], this.$state[x]) : defaultOpts[x]));
         },
 
-        setVolume(state: any, volume: number) {
-            state.volume = volume;
+        setVolume(volume: number) {
+            this.volume = volume;
         },
 
-        setDetail(state: any, detail: number) {
-            state.detail = detail;
+        setDetail(detail: number) {
+            this.detail = detail;
         },
 
-        setSpeed(state: any, speed: number) {
-            state.speed = speed;
+        setSpeed(speed: number) {
+            this.speed = speed;
         },
 
-        setPlayMarkerEnabled(state: any, enabled: boolean) {
-            state.playMarkerEnabled = enabled;
+        setPlayMarkerEnabled(enabled: boolean) {
+            this.playMarkerEnabled = enabled;
         },
 
-        setTooltipMarkerEnabled(state: any, enabled: boolean) {
-            state.tooltipMarkerEnabled = enabled;
+        setTooltipMarkerEnabled(enabled: boolean) {
+            this.tooltipMarkerEnabled = enabled;
         },
 
-        setOrder(state: any, order: string) {
-            state.order = order;
+        setOrder(order: string) {
+            this.order = order;
         },
 
-        setMinNote(state: any, note: number) {
-            state.minNote = note;
+        setMinNote(note: number) {
+            this.minNote = note;
         },
 
-        setMaxNote(state: any, note: number) {
-            state.maxNote = note;
+        setMaxNote(note: number) {
+            this.maxNote = note;
         },
 
-        setPanEnabled(state: any, pan: boolean) {
-            state.panEnabled = pan;
+        setPanEnabled(pan: boolean) {
+            this.panEnabled = pan;
         },
 
-        setPanWidth(state: any, panWidth: number) {
-            state.panWidth = panWidth;
+        setPanWidth(panWidth: number) {
+            this.panWidth = panWidth;
         },
 
-        removeContext(state: any, id: number) {
-            const ix = state.contexts.findIndex((c: GenericObject) => c.id === id);
+        removeContext(id: number) {
+            const ix = this.contexts.findIndex(c => c.id === id);
             if (ix > -1) {
-                state.contexts.splice(ix, 1);
+                this.contexts.splice(ix, 1);
             }
         },
 
-        addContext(state: any, payload: AddContextPayload) {
-            const bin = [
-                [1000 * 60 * 60 * 24 * 365, 'years'],
-                [1000 * 60 * 60 * 24 * 30.42, 'months'],
-                [1000 * 60 * 60 * 24, 'days'],
-                [1000 * 60 * 60, 'hours'],
-                [1000 * 60, 'minutes'],
-                [1000, 'seconds']
-            ].find(([val]) => val as number * 3 < (payload.valueRange || -Infinity));
+        addContext(payload: AddContextPayload) {
+            const bin = contextTimeBins.find(([val]) => val * 3 < (payload.valueRange || -Infinity));
 
-            state.contexts.push(Object.assign(
+            this.contexts.push(Object.assign(
                 bin ?
-                    makeDefaultContext(bin[0] as number, bin[1] as string) :
+                    makeDefaultContext(bin[0], bin[1]) :
                     makeDefaultContext(1, 'milliseconds'),
                 payload.inactive ? { playWhenType: 'never' } : {}
             ));
         }
     }
-};
+});
