@@ -37,7 +37,7 @@ import { Chart } from 'highcharts-vue';
 import type { Chart as HighchartsChartInstance, Options } from 'highcharts';
 import Highcharts from '../core/highchartsSetup';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
-import { useDataStore } from '../store/modules/data';
+import { tableCSVDelimiter, useDataStore } from '../store/modules/data';
 import { useViewStore } from '../store/modules/view';
 
 // The highcharts-vue component instance, as seen through a template ref
@@ -162,7 +162,7 @@ export default defineComponent({
             }
 
             const csv = this.dataStore.tableCSV;
-            this.dataStore.loadFromCSV(csv); // ✅ safe to call now
+            this.dataStore.loadFromCSV(csv, tableCSVDelimiter); // ✅ safe to call now
         },
 
         // Highcharts threw while it created the chart. A chart created again

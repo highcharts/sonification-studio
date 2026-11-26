@@ -1,6 +1,14 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { GoogleSheetStatus, useDataStore } from '../../../src/app/editor/store/modules/data';
+import type { Options } from 'highcharts';
+import Highcharts from '../../../src/app/editor/core/highchartsSetup';
+import { defaultChartOptions } from '../../../src/app/editor/core/defaultChartOptions';
+import {
+    GoogleSheetStatus,
+    tableCSVDelimiter,
+    useDataStore,
+    type TableRow
+} from '../../../src/app/editor/store/modules/data';
 
 const toCSV = (rows: Array<Record<string, unknown>>) =>
     rows.map(row => Object.values(row).join(';')).join('\n');
@@ -85,6 +93,54 @@ describe('data store', () => {
         expect(store.tableCSV).toBe(
             'a;;c;x\n;2\n0' + ';'.repeat(27) + 'z'
         );
+    });
+
+    describe('Values with the delimiter, quotes or line breaks', () => {
+        const rows: TableRow[] = [
+            { A: 'Index', B: 'Temp; C', C: 'Say "hi"', D: '"Quoted"' },
+            { A: '1', B: '2;5', C: 'Line\nbreak', D: '"' },
+            { A: '2', B: 'Plain', C: 'Windows\r\nline break' }
+        ];
+        const csv = 'Index;"Temp; C";"Say ""hi""";"""Quoted"""\n' +
+            '1;"2;5";"Line\nbreak";""""\n' +
+            '2;Plain;"Windows\r\nline break"';
+
+        test('Are quoted in the CSV, with their quotes doubled', () => {
+            const store = useDataStore();
+            store.setTableRowData(rows);
+            expect(store.tableCSV).toBe(csv);
+        });
+
+        test('Keep their columns when the CSV is loaded again', () => {
+            const store = useDataStore();
+            store.setTableRowData(rows);
+            store.loadFromCSV(store.tableCSV, tableCSVDelimiter);
+            expect(store.tableRowData).toEqual(rows);
+            expect(store.tableCSV).toBe(csv);
+        });
+
+        test('Are read by the chart\'s data module', () => {
+            const store = useDataStore();
+            store.setTableRowData([
+                { A: 'Index', B: 'Temp; C', C: 'Say "hi" there' },
+                { A: '1', B: '2', C: '3' },
+                { A: '2', B: '4', C: '5' }
+            ]);
+            let series: Options['series'];
+            new Highcharts.Data({
+                ...defaultChartOptions.data,
+                csv: store.tableCSV,
+                firstRowAsNames: true,
+                complete: (options) => {
+                    series = options.series;
+                }
+            });
+            expect(series?.map((s) => s.name)).toEqual(['Temp; C', 'Say "hi" there']);
+            expect(series?.map((s) => 'data' in s && s.data)).toEqual([
+                [[1, 2], [2, 4]],
+                [[1, 3], [2, 5]]
+            ]);
+        });
     });
 
     test('setTableCSV only sets the CSV', () => {
@@ -175,6 +231,22 @@ describe('data store', () => {
             store.loadFromCSV('a,b\n1,2');
             expect(store.tableRowData).toEqual([{ A: 'a', B: 'b' }, { A: '1', B: '2' }]);
             expect(store.tableCSV).toBe('a;b\n1;2');
+        });
+
+        test('Leaves out quoted values when detecting the delimiter', () => {
+            const store = useDataStore();
+            store.loadFromCSV('"Temp; C",b\n1,"2\t3"');
+            expect(store.tableRowData).toEqual([{ A: 'Temp; C', B: 'b' }, { A: '1', B: '2\t3' }]);
+        });
+
+        test('Uses the delimiter given', () => {
+            const store = useDataStore();
+            // A single column of the app's own CSV has no delimiter to detect
+            store.setTableRowData([{ A: 'Value' }, { A: '1,5' }, { A: '2\t5' }]);
+            expect(store.tableCSV).toBe('Value\n1,5\n2\t5');
+            store.loadFromCSV(store.tableCSV, tableCSVDelimiter);
+            expect(store.tableRowData).toEqual([{ A: 'Value' }, { A: '1,5' }, { A: '2\t5' }]);
+            expect(store.tableCSV).toBe('Value\n1,5\n2\t5');
         });
 
         test('Drops empty cells', () => {

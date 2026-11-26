@@ -63,6 +63,8 @@ describe('Preview.vue', () => {
         expect(preview.chartBridge.init.mock.calls[0][0].series[0].type).toBe('line');
         expect(preview.chartBridge.forceUpdate).not.toHaveBeenCalled();
         expect(preview.loadFromCSV).toHaveBeenCalledTimes(1);
+        // The app's own CSV, whose delimiter is known
+        expect(preview.loadFromCSV).toHaveBeenCalledWith('', ';');
         expect(preview.announcer.announce).not.toHaveBeenCalled();
         expect(consoleError).not.toHaveBeenCalled();
     });

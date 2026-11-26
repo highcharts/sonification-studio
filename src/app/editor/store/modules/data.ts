@@ -123,6 +123,19 @@ function getColumnIndex(columnName: string): number {
     return match ? 25 + Number(match[1]) : -1;
 }
 
+// Delimiter of the values in the store's CSV (tableCSV)
+export const tableCSVDelimiter = ';';
+
+// A value in the store's CSV. A value with the delimiter, a quote or a line
+// break is quoted, with its quotes doubled, so that it stays one value when
+// the CSV is parsed by loadFromCSV. The chart's data module (Highcharts
+// 13.1.1) reads them too, except values with a line break, or with a quote
+// at their start or (when a value follows) their end.
+function toCSVValue(value: TableCellValue | undefined): string {
+    const text = value === undefined || value === null ? '' : String(value);
+    return /[;"\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+}
+
 // A row's values in a CSV line, each in its column. A row may lack the
 // columns between its values (loadFromCSV leaves out empty cells), which get
 // empty values, so that the values keep their columns when the CSV is
@@ -138,9 +151,15 @@ function rowToCSV(row: TableRow): string {
             values[index] = value;
         }
     }
-    // Array.from() gives the missing columns as undefined, and join() writes
-    // undefined and null as empty values
-    return Array.from(values).concat(otherValues).join(';');
+    // Array.from() gives the missing columns as undefined
+    return Array.from(values).concat(otherValues).map(toCSVValue).join(tableCSVDelimiter);
+}
+
+// The delimiter of a CSV file: a tab if there is one, else a semicolon, else
+// a comma. Quoted values (which may hold any of them) are left out.
+function detectCSVDelimiter(csv: string): string {
+    const unquoted = csv.replace(/"[^"]*"/g, '');
+    return unquoted.includes('\t') ? '\t' : unquoted.includes(';') ? ';' : ',';
 }
 
 function generateCSV(rowData: TableRow[]): string {
@@ -308,11 +327,11 @@ export const useDataStore = defineStore('data', {
             this.textDescription = description;
         },
 
-        loadFromCSV(csv: string) {
-            const hasTab = csv.indexOf('\t') > -1;
-            const hasSemicolon = csv.indexOf(';') > -1;
-            const delim = hasTab ? '\t' : hasSemicolon ? ';' : ',';
-            const arr = parseCSV(csv, delim);
+        // Load the rows from a CSV. The delimiter is detected, unless given:
+        // the app's own CSV (tableCSV) is loaded with tableCSVDelimiter, as
+        // it has none to detect with a single column.
+        loadFromCSV(csv: string, delimiter = detectCSVDelimiter(csv)) {
+            const arr = parseCSV(csv, delimiter);
             const maxRowLen = arr.reduce((len: number, row): number => {
                 return Math.max(len, row.length);
             }, 0);
