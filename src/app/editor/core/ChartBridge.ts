@@ -2,7 +2,11 @@ import type * as HighchartsModule from 'highcharts';
 import type Announcer from './utils/Announcer';
 import { GenericObject, deepMerge } from './utils/objects';
 import { downloadURI } from './utils/browserUtils';
-import { getGoogleSheetsErrorMessage, getSeriesId } from './utils/chartUtils';
+import {
+    getGoogleSheetsErrorMessage,
+    getSeriesId,
+    removeNonNumericYValues
+} from './utils/chartUtils';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
@@ -209,6 +213,14 @@ export class ChartBridge {
             GoogleSheetStatus.Success
         );
     }
+
+    // Text in a column other than the first (e.g. a label column) can not
+    // be plotted, and would make Highcharts throw
+    (parseResult.series || []).forEach((s: GenericObject) => {
+        if (Array.isArray(s.data)) {
+            s.data = removeNonNumericYValues(s.data);
+        }
+    });
 
     const chart = this.chart;
 

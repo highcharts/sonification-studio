@@ -83,6 +83,27 @@ export function getGoogleSheetsErrorMessage(highchartsErrorMessage: string): str
     }
 }
 
+/**
+ * Replace the y values Highcharts cannot plot, such as the text of a label
+ * column, with null, so they show as gaps. Highcharts throws error #14 when the
+ * first y value of a series is a string. Text x values are kept, the data
+ * module uses them as point names.
+ */
+export function removeNonNumericYValues(data: unknown[]): unknown[] {
+    const toY = (y: unknown) => (typeof y === 'string' ? null : y);
+    return data.map((point) => {
+        if (Array.isArray(point)) {
+            // [y] or [x, y]
+            const yIndex = point.length > 1 ? 1 : 0;
+            return point.map((value, i) => (i === yIndex ? toY(value) : value));
+        }
+        if (point && typeof point === 'object' && 'y' in point) {
+            return { ...point, y: toY(point.y) };
+        }
+        return toY(point);
+    });
+}
+
 // An axis with the internals and custom option the negative log plugin uses,
 // which are not part of Highcharts' declarations
 type NegativeLogAxis = HighchartsModule.Axis & {

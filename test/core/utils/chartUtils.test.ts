@@ -1,5 +1,27 @@
 import { describe, expect, test } from 'vitest';
-import { getGoogleSheetsErrorMessage } from '../../../src/app/editor/core/utils/chartUtils';
+import {
+    getGoogleSheetsErrorMessage,
+    removeNonNumericYValues
+} from '../../../src/app/editor/core/utils/chartUtils';
+
+describe('removeNonNumericYValues tests', () => {
+    test('Replaces text y values with null', () => {
+        expect(removeNonNumericYValues([[1, 'Item 1'], [2, 5], [3, 'n/a']]))
+            .toEqual([[1, null], [2, 5], [3, null]]);
+    });
+
+    test('Keeps text x values, which become point names', () => {
+        expect(removeNonNumericYValues([['Item 1', 5], ['Item 2', null]]))
+            .toEqual([['Item 1', 5], ['Item 2', null]]);
+    });
+
+    test('Handles single values and point objects', () => {
+        expect(removeNonNumericYValues([4, 'text', null, [6], ['text']]))
+            .toEqual([4, null, null, [6], [null]]);
+        expect(removeNonNumericYValues([{ x: 1, y: 'text' }, { x: 2, y: 3 }]))
+            .toEqual([{ x: 1, y: null }, { x: 2, y: 3 }]);
+    });
+});
 
 describe('getGoogleSheetsErrorMessage tests', () => {
     test('Returns the Google Sheets API message of a failed request', () => {
