@@ -174,7 +174,7 @@ export const useDataStore = defineStore('data', {
 
         // Empty if the URL is not a spreadsheet URL. The URL is user input.
         googleSpreadsheetId: (state): string => {
-            const regex = /docs\.google\.com\/spreadsheets\/d\/([-_.~a-zA-Z0-9]+)(\/|$)/;
+            const regex = /docs\.google\.com\/spreadsheets\/d\/([-_.~a-zA-Z0-9]+)([/?#]|$)/;
             const match = state.googleSpreadsheetURL.match(regex);
             return match ? match[1] : '';
         },

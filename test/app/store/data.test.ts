@@ -237,9 +237,26 @@ describe('data store', () => {
             expect(store.googleSpreadsheetId).toBe('abc');
         });
 
+        test('googleSpreadsheetId accepts a query or fragment right after the id', () => {
+            const store = useDataStore();
+            [
+                'https://docs.google.com/spreadsheets/d/1a-B_c.~9?usp=sharing',
+                'https://docs.google.com/spreadsheets/d/1a-B_c.~9#gid=0',
+                'https://docs.google.com/spreadsheets/d/1a-B_c.~9/edit?usp=sharing#gid=0'
+            ].forEach(url => {
+                store.setGoogleSpreadsheetURL(url);
+                expect(store.googleSpreadsheetId).toBe('1a-B_c.~9');
+            });
+        });
+
         test('googleSpreadsheetId is empty for a URL that is not a spreadsheet URL', () => {
             const store = useDataStore();
-            ['https://example.com/sheet', 'docs.google.com/spreadsheets/d/', 'abc'].forEach(url => {
+            [
+                'https://example.com/sheet',
+                'docs.google.com/spreadsheets/d/',
+                'https://docs.google.com/spreadsheets/d/abc def',
+                'abc'
+            ].forEach(url => {
                 store.setGoogleSpreadsheetURL(url);
                 expect(store.googleSpreadsheetId).toBe('');
             });
