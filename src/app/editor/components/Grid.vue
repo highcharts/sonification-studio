@@ -197,7 +197,9 @@ export default defineComponent({
                             if (grid === this.gridInstance) {
                                 this.watchGridEdits(grid, tableData.firstDataRowIndex);
                                 // Grid Pro 3.2 workaround, see gridProSetup.ts
-                                void grid.viewport?.syncAriaRowIndexes();
+                                grid.viewport?.syncAriaRowIndexes().catch((error: unknown) => {
+                                    console.error('The data grid rows could not be numbered:', error);
+                                });
                             }
                             resolve();
                         })
