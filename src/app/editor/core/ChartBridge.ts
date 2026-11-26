@@ -2,12 +2,19 @@ import type * as HighchartsModule from 'highcharts';
 import type Announcer from './utils/Announcer';
 import { GenericObject, deepMerge } from './utils/objects';
 import { downloadURI } from './utils/browserUtils';
-import { getSeriesId } from './utils/chartUtils';
+import { getGoogleSheetsErrorMessage, getSeriesId } from './utils/chartUtils';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
 import { GoogleSheetStatus } from '../store/modules/data';
 import { Store } from 'vuex';
+
+// The event Highcharts.error() fires on the Highcharts object
+interface HighchartsErrorEvent {
+    chart?: HighchartsModule.Chart;
+    message: string;
+    preventDefault(): void;
+}
 
 // The sonification classes used to play instrument samples. Highcharts'
 // declarations type SonificationInstrument as an instance rather than a class,
@@ -73,6 +80,10 @@ export class ChartBridge {
             store.getters[`${storeId}/${getterId}`];
 
         store.subscribe(this.onStoreMutation.bind(this));
+
+        Highcharts.addEvent(Highcharts, 'displayError', (e: HighchartsErrorEvent) =>
+            this.onHighchartsError(e)
+        );
     }
 
     /**
@@ -175,15 +186,7 @@ export class ChartBridge {
                       googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
                       enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
                       dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-                      error: (text: string) => {
-                          const errObj = JSON.parse(text);
-                          const message = errObj?.error?.message || 'Unknown error';
-                          this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
-                          this.commitToStore(
-                              'dataStore/setGoogleSheetStatus',
-                              GoogleSheetStatus.Error
-                          );
-                      },
+                      // Failed requests are handled in onHighchartsError
                   }
                 : {
                       // A CSV of only line breaks (a cleared grid) must not
@@ -901,6 +904,25 @@ export class ChartBridge {
 
     private isPlaying(): boolean {
         return this.chart?.sonification?.isPlaying();
+    }
+
+    // Since Highcharts 13, the data module reports a failed Google Sheets
+    // request with Highcharts.error() instead of calling a data.error callback.
+    private onHighchartsError(e: HighchartsErrorEvent) {
+        const message = getGoogleSheetsErrorMessage(e.message);
+        if (
+            message === null ||
+            !this.chart ||
+            e.chart !== this.chart ||
+            this.getStoreParam('dataStore', 'selectedDataSource') !== 'googlesheets'
+        ) {
+            return;
+        }
+
+        // Handled here, so Highcharts does not log it as a warning
+        e.preventDefault();
+        this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
+        this.commitToStore('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Error);
     }
 
     private onStoreMutation(mutation: GenericObject) {

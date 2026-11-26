@@ -64,6 +64,25 @@ export function getChartStatistics(chart: Highcharts.Chart): string {
     return desc;
 }
 
+/**
+ * Get the Google Sheets API's message from a Highcharts error message for a
+ * failed Google Sheets request, e.g. 'API key not valid. Please pass a valid
+ * API key.'. The data module formats these as "Request failed - <HTTP status>
+ * \n<response body>". Returns null for other Highcharts errors.
+ */
+export function getGoogleSheetsErrorMessage(highchartsErrorMessage: string): string | null {
+    const prefix = /^Request failed - \d+ \n/.exec(highchartsErrorMessage);
+    if (!prefix) {
+        return null;
+    }
+    try {
+        const response = JSON.parse(highchartsErrorMessage.slice(prefix[0].length));
+        return response?.error?.message || 'Unknown error';
+    } catch {
+        return 'Unknown error';
+    }
+}
+
 // An axis with the internals and custom option the negative log plugin uses,
 // which are not part of Highcharts' declarations
 type NegativeLogAxis = HighchartsModule.Axis & {
