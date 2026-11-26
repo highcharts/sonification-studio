@@ -146,12 +146,18 @@ export default defineComponent({
             }
         },
 
-        startSlide(el: HTMLElement) {
-            el.style.height = el.scrollHeight + 'px';
+        // Transition hooks get an Element; the transitioned element is the
+        // popup <div>.
+        startSlide(el: Element) {
+            if (el instanceof HTMLElement) {
+                el.style.height = el.scrollHeight + 'px';
+            }
         },
 
-        endSlide(el: HTMLElement) {
-            el.style.height = '';
+        endSlide(el: Element) {
+            if (el instanceof HTMLElement) {
+                el.style.height = '';
+            }
         }
     }
 });
