@@ -36,6 +36,8 @@ import ChartMappingsGlobalAdvanced from './ChartMappingsGlobalAdvanced.vue';
 import ChartMappingsGlobalAxis from './ChartMappingsGlobalAxis.vue';
 
 import { GenericObject } from '../../core/utils/objects';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
 
 export default defineComponent({
     components: {
@@ -67,13 +69,12 @@ export default defineComponent({
         };
     },
     computed: {
-        expandedAccordionItems(): GenericObject {
-            return this.$store.state.viewStore.expandedChartMappingsAccordionItems;
-        }
+        ...mapStores(useViewStore),
+        ...mapState(useViewStore, { expandedAccordionItems: 'expandedChartMappingsAccordionItems' })
     },
     methods: {
         onAccordionItemClick(e: Event, item: GenericObject, isSelected: boolean) {
-            this.$store.commit('viewStore/setExpandedChartMappingsAccordionItem', {
+            this.viewStore.setExpandedChartMappingsAccordionItem({
                 itemName: item.heading,
                 expanded: isSelected
             });

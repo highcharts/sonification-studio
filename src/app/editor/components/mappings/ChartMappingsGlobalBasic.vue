@@ -43,6 +43,9 @@ import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEInputbox from '../basic/SEInputbox.vue';
 import { seriesTypes } from '../../core/utils/chartUtils';
+import { mapState, mapStores } from 'pinia';
+import { useChartParametersStore } from '../../store/modules/chartParameters';
+import { useDataStore } from '../../store/modules/data';
 
 export default defineComponent({
     components: {
@@ -54,26 +57,26 @@ export default defineComponent({
         return { seriesTypes };
     },
     computed: {
+        ...mapStores(useChartParametersStore),
+        ...mapState(useDataStore, ['numRows', 'numCols']),
         filteredSeriesTypes(): typeof seriesTypes {
-            const numRows = this.$store.getters['dataStore/numRows'];
-            const numCols = this.$store.getters['dataStore/numCols'];
-            if (numRows > 50 || numCols >= 3) {
+            if (this.numRows > 50 || this.numCols >= 3) {
                 // Pie doesn't work well with large datasets, limiting to 50 rows, and 2 columns.
                 return seriesTypes.filter(type => type.value !== 'pie');
             }
             return seriesTypes;
         },
         chartType: {
-            get(): string { return this.$store.state.chartParametersStore.type; },
-            set(val: string) { return this.$store.commit('chartParametersStore/setType', val); }
+            get(): string { return this.chartParametersStore.type; },
+            set(val: string) { this.chartParametersStore.setType(val); }
         },
         chartTitle: {
-            get(): string { return this.$store.state.chartParametersStore.title; },
-            set(val: string) { return this.$store.commit('chartParametersStore/setTitle', val); }
+            get(): string { return this.chartParametersStore.title; },
+            set(val: string) { this.chartParametersStore.setTitle(val); }
         },
         chartSubtitle: {
-            get(): string { return this.$store.state.chartParametersStore.subtitle; },
-            set(val: string) { return this.$store.commit('chartParametersStore/setSubtitle', val); }
+            get(): string { return this.chartParametersStore.subtitle; },
+            set(val: string) { this.chartParametersStore.setSubtitle(val); }
         }
     }
 });
