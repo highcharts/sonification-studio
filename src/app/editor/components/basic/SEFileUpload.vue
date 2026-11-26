@@ -18,32 +18,39 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         fileTypes: { type: String, default: '.txt,.csv' }
     },
+    // load: the file contents (string)
+    emits: ['load'],
     methods: {
-        emitLoadEventWithFileContents(e: any) {
-            const file = e.target.files[0];
+        emitLoadEventWithFileContents(e: Event) {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) {
+                return;
+            }
             const reader = new FileReader();
 
             reader.onload = ev => this.$emit('load', ev?.target?.result);
             reader.readAsText(file);
 
-            const fileInput: any = this.$refs.fileInput;
+            const fileInput = this.$refs.fileInput as HTMLInputElement | undefined;
             if (fileInput) {
                 fileInput.value = '';
             }
         },
 
         triggerDialog() {
-            const fileInput: any = this.$refs.fileInput;
+            const fileInput = this.$refs.fileInput as HTMLInputElement | undefined;
             if (fileInput) {
                 fileInput.click();
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
