@@ -4,11 +4,14 @@
     Props:
         - options: Array<{ label, value, selected? }> - The radio options.
         - [id]: String - Id to put on the group.
-        - [value]: String - Value of the selected radio button.
+        - [modelValue]: String - Value of the selected radio button.
+
+    Events:
+        - update:modelValue: Re-emits the input event for use with v-model.
 -->
 <template>
     <div
-        :id="id || null"
+        :id="id || undefined"
         class="seradio-group"
     >
         <div
@@ -24,18 +27,20 @@
                 type="radio"
                 :name="groupId"
                 :value="btn.value"
-                :checked="value === btn.value || btn.selected"
-                @input="$emit('input', $event.target.value)"
+                :checked="modelValue === btn.value || btn.selected"
+                @input="onInput"
             >
         </div>
     </div>
 </template>
 
 <script lang="ts">
-interface SERadioButtonDefinition {
+import { defineComponent, type PropType } from 'vue';
+
+export interface SERadioButtonDefinition {
     label: string;
     value: string;
-    selected: boolean;
+    selected?: boolean;
     id?: string;
 }
 
@@ -46,28 +51,34 @@ function getUniqueId(val: string): string {
     return `seradio-group-${val}-${now}-${unique}`;
 }
 
-export default {
+export default defineComponent({
     props: {
-        options: { type: Array, required: true },
+        options: { type: Array as PropType<SERadioButtonDefinition[]>, required: true },
         id: { type: String, default: '' },
-        value: { type: String, default: '' }
+        modelValue: { type: String, default: '' }
     },
+    emits: ['update:modelValue'],
 
     computed: {
-        radioButtons() {
-            const options = this.options as Array<SERadioButtonDefinition>;
-            return options.map((button: SERadioButtonDefinition) => {
+        radioButtons(): SERadioButtonDefinition[] {
+            return this.options.map((button: SERadioButtonDefinition) => {
                 return Object.assign({
                     id: getUniqueId(button.value)
                 }, button);
             });
         },
 
-        groupId() {
+        groupId(): string {
             return getUniqueId('group');
         }
+    },
+
+    methods: {
+        onInput(e: Event) {
+            this.$emit('update:modelValue', (e.target as HTMLInputElement).value);
+        }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

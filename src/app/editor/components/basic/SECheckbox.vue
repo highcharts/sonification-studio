@@ -4,27 +4,35 @@
 
     Props:
         - id: String - Input element id.
-        - [value]: Boolean - Whether or not the checkbox is checked.
+        - [modelValue]: Boolean - Whether or not the checkbox is checked.
 
     Events:
-        - input: Re-emits the change event for use with v-model.
+        - update:modelValue: Re-emits the input event for use with v-model.
 -->
 <template>
     <input
         :id="id"
         type="checkbox"
-        :checked="value"
-        @input="$emit('input', $event.target.checked)"
+        :checked="modelValue"
+        @input="onInput"
     >
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         id: { type: String, required: true },
-        value: { type: Boolean, default: false }
+        modelValue: { type: Boolean, default: false }
+    },
+    emits: ['update:modelValue'],
+    methods: {
+        onInput(e: Event) {
+            this.$emit('update:modelValue', (e.target as HTMLInputElement).checked);
+        }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
