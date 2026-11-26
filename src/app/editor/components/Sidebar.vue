@@ -80,6 +80,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import HeaderTab from './HeaderTab.vue';
 import SETablist from './basic/SETablist.vue';
 import SEButton from './basic/SEButton.vue';
@@ -91,7 +92,7 @@ import resetIcon from '../assets/undo-alt-solid.svg';
 import arrowRightIcon from '../assets/arrow-right.svg';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         AudioMappingControls,
         ChartMappingControls,
@@ -99,12 +100,14 @@ export default {
         SEButton,
         SETablist
     },
-    data: function () {
+    data() {
         return {
             visualIcon, audioIcon, resetIcon, arrowRightIcon
         };
     },
-    computed: mapState('viewStore', ['selectedSidebarTabId']),
+    computed: {
+        ...mapState('viewStore', ['selectedSidebarTabId'])
+    },
     methods: {
         tabClicked(tabId: string): void {
             this.$store.commit('viewStore/selectSidebarTab', tabId);
@@ -122,7 +125,7 @@ export default {
                         // Recreate chart
                         this.$store.commit('viewStore/setShowChartComponent', true);
                         this.$nextTick(() => {
-                            (this as any).$announcer.announce('New project loaded.');
+                            this.$announcer.announce('New project loaded.');
                             setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 900);
                         });
                     });
@@ -132,14 +135,14 @@ export default {
 
         onHideSidebarClick() {
             this.$store.commit('viewStore/setSidebarVisible', false);
-            (this as any).$chartBridge.reflowChart();
+            this.$chartBridge.reflowChart();
         },
 
         focusHideButton() {
-            this.$nextTick(() => (this as any).$refs.hideBtn.focus());
+            this.$nextTick(() => (this.$refs.hideBtn as HTMLButtonElement).focus());
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

@@ -1,6 +1,6 @@
 <template>
     <main>
-        <Data
+        <EditorData
             v-show="selectedHeaderTabContent === 'dataContent'"
             id="dataContent"
             ref="dataContent"
@@ -50,6 +50,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, type ComponentPublicInstance } from 'vue';
 import TextDescription from './TextDescription.vue';
 import PlayControls from './PlayControls.vue';
 import Preview from './Preview.vue';
@@ -58,20 +59,23 @@ import Sidebar from './Sidebar.vue';
 import ShowPanel from './ShowPanel.vue';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         TextDescription,
         PlayControls,
         Preview,
-        Data,
+        // Registered under another name, as <data> is an HTML element
+        EditorData: Data,
         Sidebar,
         ShowPanel
     },
-    computed: mapState('viewStore', ['selectedHeaderTabContent', 'showChartComponent', 'sidebarVisible']),
+    computed: {
+        ...mapState('viewStore', ['selectedHeaderTabContent', 'showChartComponent', 'sidebarVisible'])
+    },
     methods: {
         skipToContent() {
             if (this.selectedHeaderTabContent === 'dataContent') {
-                ((this.$refs.dataContent as Vue).$el as HTMLElement).focus();
+                ((this.$refs.dataContent as ComponentPublicInstance).$el as HTMLElement).focus();
             } else {
                 (this.$refs.chartContent as HTMLDivElement).focus();
             }
@@ -79,11 +83,11 @@ export default {
 
         onShowSidebar() {
             this.$store.commit('viewStore/setSidebarVisible', true);
-            (this as any).$chartBridge.reflowChart();
-            (this as any).$refs.sidebar.focusHideButton();
+            this.$chartBridge.reflowChart();
+            (this.$refs.sidebar as { focusHideButton: () => void }).focusHideButton();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

@@ -21,19 +21,21 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import arrowRightIcon from '../assets/arrow-right.svg';
 
-export default {
+export default defineComponent({
     props: {
         name: { type: String, required: true },
         arrowDirection: { type: String, required: true }
     },
-    data: function () {
+    emits: ['click'],
+    data() {
         return {
             arrowRightIcon
         };
-    },
-};
+    }
+});
 </script>
 
 <style lang="less" scoped>

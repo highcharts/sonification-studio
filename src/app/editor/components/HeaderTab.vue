@@ -21,13 +21,16 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         selected: { type: Boolean, default: false },
         small: { type: Boolean, default: false },
         icon: { type: String, default: '' }
-    }
-};
+    },
+    emits: ['click']
+});
 </script>
 
 <style lang="less" scoped>

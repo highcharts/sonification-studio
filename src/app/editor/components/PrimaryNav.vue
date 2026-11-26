@@ -5,7 +5,7 @@
                 <button
                     ref="helpBtn"
                     class="help-btn"
-                    :aria-expanded="helpVisible"
+                    :aria-expanded="helpVisible ? 'true' : undefined"
                     @click="onHelpClick"
                 >
                     Help
@@ -30,7 +30,7 @@
                     <a
                         href="#"
                         @click="navigate"
-                        @keydown.space="navigate"
+                        @keydown.space="onBackLinkSpace($event, navigate)"
                     >
                         <img
                             class="back-icon"
@@ -48,12 +48,19 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, type ComponentPublicInstance } from 'vue';
 import { keyPressed, Keys, Modifiers } from '../core/utils/keyboardUtils';
 import HelpContent from './HelpContent.vue';
 import SEModalInfo from './basic/SEModalInfo.vue';
 import backIcon from '../assets/angle-left-solid.svg';
 
-export default {
+// The parts of SEModalInfo used here
+type HelpDialog = ComponentPublicInstance & {
+    hideOthersFromAT: () => void;
+    unhideOthersFromAT: () => void;
+};
+
+export default defineComponent({
     components: {
         HelpContent, SEModalInfo
     },
@@ -64,11 +71,12 @@ export default {
         };
     },
     watch: {
-        helpVisible(val) {
+        helpVisible(val: boolean) {
+            const helpDialog = this.$refs.helpDialog as HelpDialog;
             if (!val) {
-                (this.$refs as any).helpDialog.unhideOthersFromAT();
+                helpDialog.unhideOthersFromAT();
             } else {
-                (this.$refs as any).helpDialog.hideOthersFromAT();
+                helpDialog.hideOthersFromAT();
             }
         }
     },
@@ -97,15 +105,21 @@ export default {
             this.helpVisible = !this.helpVisible;
             if (this.helpVisible) {
                 this.$nextTick(() => setTimeout(
-                    () => (this.$refs.helpDialog as any).$el.focus(),
+                    () => ((this.$refs.helpDialog as HelpDialog).$el as HTMLElement).focus(),
                     20
                 ));
             } else {
                 this.hideHelpDialog();
             }
+        },
+        // Space follows the Back link, like Enter. vue-router types navigate()
+        // for mouse events only, but it treats any event alike: it prevents
+        // the default action and ignores presses with modifier keys.
+        onBackLinkSpace(e: KeyboardEvent, navigate: (e?: MouseEvent) => Promise<unknown>) {
+            navigate(e as Event as MouseEvent);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

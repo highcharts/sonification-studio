@@ -21,11 +21,12 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import HeaderTab from './HeaderTab.vue';
 import SETablist from './basic/SETablist.vue';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         SETablist, HeaderTab
     },
@@ -44,17 +45,19 @@ export default {
             }]
         };
     },
-    computed: mapState('viewStore', ['selectedHeaderTabId']),
+    computed: {
+        ...mapState('viewStore', ['selectedHeaderTabId'])
+    },
     methods: {
         tabClicked(tabId: string, controlsId: string): void {
             this.$store.commit('viewStore/selectHeaderTab', {
                 selectedTabId: tabId,
                 contentId: controlsId
             });
-            (this as any).$chartBridge.reflowChart();
+            this.$chartBridge.reflowChart();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
