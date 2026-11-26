@@ -333,7 +333,7 @@ export class ChartBridge {
             synthPatch: instrument,
         });
 
-        timeline.addChannel('instrument', instr, [
+        timeline.addChannel('instrument', instr, false, [
             {
                 time: 0,
                 instrumentEventOptions: {
