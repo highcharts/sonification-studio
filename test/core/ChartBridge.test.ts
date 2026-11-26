@@ -83,7 +83,7 @@ describe('ChartBridge store wiring', () => {
         initChart();
 
         const data = useDataStore(pinia);
-        data.setTextDescription('Description');
+        data.setSelectedDataSource('table');
         // Nested action call: loadFromCSV calls setTableRowData
         data.loadFromCSV('a,b\n1,2');
         vi.advanceTimersByTime(999);
@@ -104,6 +104,13 @@ describe('ChartBridge store wiring', () => {
         expect(() => data.fillColumn({ columnName: 'B', equation: '2 *' })).toThrow();
         vi.advanceTimersByTime(1000);
         expect(counters().data).toBe(2);
+    });
+
+    test('Editing the text description queues no data reactivity', () => {
+        initChart();
+        useDataStore(pinia).setTextDescription('Description');
+        vi.advanceTimersByTime(5000);
+        expect(counters()).toEqual({ param: 1, data: 1 });
     });
 
     test('View store actions queue nothing', () => {

@@ -891,7 +891,14 @@ export class ChartBridge {
         this.chartParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
         this.seriesParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
         this.globalSonifyParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
-        this.dataStore.$onAction(({ after }) => after(afterDataAction), true);
+        this.dataStore.$onAction(({ name, after }) => {
+            // The text description isn't chart data, and a data update stops
+            // playback (PlayButtons), so typing a description while listening
+            // must not count as one.
+            if (name !== 'setTextDescription') {
+                after(afterDataAction);
+            }
+        }, true);
     }
 
     // Trigger a reactivity update, but only once every X milliseconds.
