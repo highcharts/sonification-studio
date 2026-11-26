@@ -239,5 +239,33 @@ describe('Project file handling', () => {
             expect(restored.dataStore.textDescription).toBe('Changed description');
             expect(restored.seriesParametersStore.seriesParameters['se-hc-series-id-1'].pitchOptions.min).toBe(40);
         });
+
+        test('Keeps the data in its columns over repeated saves and loads', async () => {
+            const data = useDataStore();
+            // Empty cells before values: a blank header cell over the row
+            // labels, a cleared cell in the first data row, a gap
+            data.setTableRowData([
+                { A: '', B: 'Second', C: 'Third' },
+                { A: '', B: '0.5', C: '7' },
+                { A: '1', B: '', C: '8' }
+            ]);
+            const csv = ';Second;Third\n;0.5;7\n1;;8';
+            expect(data.tableCSV).toBe(csv);
+
+            for (let i = 0; i < 3; i++) {
+                restoreFromProjectFile(await download('Round trip'));
+                // The chart, created again after a project is loaded, loads
+                // the data from the CSV (Preview.vue)
+                data.loadFromCSV(data.tableCSV);
+
+                expect(data.tableCSV).toBe(csv);
+                // Empty cells are left out of the rows
+                expect(data.tableRowData).toEqual([
+                    { B: 'Second', C: 'Third' },
+                    { B: '0.5', C: '7' },
+                    { A: '1', C: '8' }
+                ]);
+            }
+        });
     });
 });

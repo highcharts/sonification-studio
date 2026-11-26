@@ -31,6 +31,13 @@ export function parseCSV (strData: string, strDelimiter = ';'): Array<Array<stri
         // Get the delimiter that was found.
         const strMatchedDelimiter = arrMatches[1];
 
+        // Data that starts with a field delimiter starts with an empty field,
+        // which the pattern skips: it takes the delimiter as the start of
+        // the second field
+        if (arrMatches.index === 0 && strMatchedDelimiter === strDelimiter) {
+            arrData[0].push('');
+        }
+
         // Check to see if the given delimiter has a length
         // (is not the start of string) and if it matches
         // field delimiter. If id does not, then we know

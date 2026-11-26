@@ -113,8 +113,38 @@ function getPlaceholderData(): Array<Record<string, string>> {
     return data;
 }
 
+// Index of a column name ('A' is 0, 'Z' 25, 'COL1' 26, ...), or -1 for
+// another key
+function getColumnIndex(columnName: string): number {
+    if (/^[A-Z]$/.test(columnName)) {
+        return columnName.charCodeAt(0) - 65;
+    }
+    const match = /^COL([1-9]\d*)$/.exec(columnName);
+    return match ? 25 + Number(match[1]) : -1;
+}
+
+// A row's values in a CSV line, each in its column. A row may lack the
+// columns between its values (loadFromCSV leaves out empty cells), which get
+// empty values, so that the values keep their columns when the CSV is
+// parsed again (as when a project is loaded). Values under other keys follow.
+function rowToCSV(row: TableRow): string {
+    const values: TableCellValue[] = [];
+    const otherValues: TableCellValue[] = [];
+    for (const [key, value] of Object.entries(row)) {
+        const index = getColumnIndex(key);
+        if (index < 0) {
+            otherValues.push(value);
+        } else {
+            values[index] = value;
+        }
+    }
+    // Array.from() gives the missing columns as undefined, and join() writes
+    // undefined and null as empty values
+    return Array.from(values).concat(otherValues).join(';');
+}
+
 function generateCSV(rowData: TableRow[]): string {
-    return rowData.map((row) => Object.values(row).join(';')).join('\n');
+    return rowData.map(rowToCSV).join('\n');
 }
 
 export const useDataStore = defineStore('data', {

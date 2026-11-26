@@ -79,6 +79,14 @@ describe('data store', () => {
         expect(store.tableCSV).toBe('a;b;\n1;true\n');
     });
 
+    test('The CSV has each value in its column', () => {
+        const store = useDataStore();
+        store.setTableRowData([{ C: 'c', A: 'a', other: 'x' }, { B: '2' }, { COL2: 'z', A: 0 }]);
+        expect(store.tableCSV).toBe(
+            'a;;c;x\n;2\n0' + ';'.repeat(27) + 'z'
+        );
+    });
+
     test('setTableCSV only sets the CSV', () => {
         const store = useDataStore();
         store.setTableRowData([{ A: 'a' }]);
@@ -173,6 +181,16 @@ describe('data store', () => {
             const store = useDataStore();
             store.loadFromCSV('a,,c\n,2,');
             expect(store.tableRowData).toEqual([{ A: 'a', C: 'c' }, { B: '2' }]);
+            // The CSV keeps the values in their columns
+            expect(store.tableCSV).toBe('a;;c\n;2');
+        });
+
+        test('Keeps an empty first cell of the first row', () => {
+            const store = useDataStore();
+            store.loadFromCSV(';b;c\n1;2;3');
+            expect(store.tableRowData).toEqual([{ B: 'b', C: 'c' }, { A: '1', B: '2', C: '3' }]);
+            store.loadFromCSV(',b');
+            expect(store.tableRowData).toEqual([{ B: 'b' }]);
         });
 
         test('Names columns past Z COL1, COL2, ...', () => {
