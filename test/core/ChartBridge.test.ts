@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
 import type { Chart } from 'highcharts';
 import type { Store } from 'vuex';
 import highchartsPackage from 'highcharts/package.json';
@@ -34,7 +34,7 @@ describe('ChartBridge Google Sheets errors', () => {
     // bridge only compares them with the chart an error is reported for.
     const chart = {} as Chart;
     const otherChart = {} as Chart;
-    let warn: ReturnType<typeof vi.spyOn>;
+    let warn: MockInstance<typeof console.warn>;
 
     function getBridge(selectedDataSource = 'googlesheets') {
         const store = getStubStore(selectedDataSource);
@@ -90,6 +90,25 @@ describe('ChartBridge Google Sheets errors', () => {
 
         expect(store.commit).not.toHaveBeenCalled();
         expect(warn).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('ChartBridge fallback chart options', () => {
+    test('Give a chart that takes the data of a later update', () => {
+        const bridge = new ChartBridge(
+            getStubStore('table') as unknown as Store<any>, Highcharts
+        );
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        const chart = Highcharts.stockChart(container, bridge.buildFallbackChartOptions());
+
+        expect(chart.series.length).toBe(0);
+        chart.update({ data: { csv: 'Index;Value\n1;5\n2;7' } });
+        expect(chart.series.map((s) => s.name)).toEqual(['Value']);
+        expect(chart.series[0].points.map((p) => p.y)).toEqual([5, 7]);
+
+        chart.destroy();
+        container.remove();
     });
 });
 

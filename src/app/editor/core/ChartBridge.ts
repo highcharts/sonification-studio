@@ -293,6 +293,19 @@ export class ChartBridge {
         return deepMerge(defaultOptions, newOptions);
     }
 
+    /**
+     * Options a chart can be created from whatever the user's data and
+     * parameters are: the defaults, with the data of an empty grid. For when
+     * Highcharts throws on the options from buildChartOptions while it
+     * creates the chart. The chart has the data module set up, so it takes
+     * the data of a later update.
+     */
+    public buildFallbackChartOptions(): GenericObject {
+        const defaultOptions = deepMerge(defaultChartOptions, this.getLegendItemHookOptions());
+        // 'null' rather than '', as for an empty grid in buildChartOptions
+        return deepMerge(defaultOptions, { data: { csv: 'null' } });
+    }
+
     public getDataSeries(): Array<GenericObject> {
         return this.chart?.series || [];
     }
