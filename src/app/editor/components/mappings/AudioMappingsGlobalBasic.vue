@@ -74,6 +74,8 @@ import SESlider from '../basic/SESlider.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SERadioGroup from '../basic/SERadioGroup.vue';
 import { speedToDuration } from '../../core/utils/sonificationTools';
+import { mapStores } from 'pinia';
+import { useGlobalSonifyParametersStore } from '../../store/modules/globalSonifyParameters';
 
 export default defineComponent({
     components: {
@@ -94,28 +96,29 @@ export default defineComponent({
         };
     },
     computed: {
+        ...mapStores(useGlobalSonifyParametersStore),
         duration(): number {
             return speedToDuration(this.speed);
         },
         speed: {
-            get(): number { return this.$store.state.globalSonifyParametersStore.speed; },
-            set(val: number) { return this.$store.commit('globalSonifyParametersStore/setSpeed', val); }
+            get(): number { return this.globalSonifyParametersStore.speed; },
+            set(val: number) { this.globalSonifyParametersStore.setSpeed(val); }
         },
         detail: {
-            get(): number { return this.$store.state.globalSonifyParametersStore.detail; },
-            set(val: number) { return this.$store.commit('globalSonifyParametersStore/setDetail', val); }
+            get(): number { return this.globalSonifyParametersStore.detail; },
+            set(val: number) { this.globalSonifyParametersStore.setDetail(val); }
         },
         playMarkerEnabled: {
-            get(): boolean { return this.$store.state.globalSonifyParametersStore.playMarkerEnabled; },
-            set(val: boolean) { return this.$store.commit('globalSonifyParametersStore/setPlayMarkerEnabled', val); }
+            get(): boolean { return this.globalSonifyParametersStore.playMarkerEnabled; },
+            set(val: boolean) { this.globalSonifyParametersStore.setPlayMarkerEnabled(val); }
         },
         tooltipMarkerEnabled: {
-            get(): boolean { return this.$store.state.globalSonifyParametersStore.tooltipMarkerEnabled; },
-            set(val: boolean) { return this.$store.commit('globalSonifyParametersStore/setTooltipMarkerEnabled', val); }
+            get(): boolean { return this.globalSonifyParametersStore.tooltipMarkerEnabled; },
+            set(val: boolean) { this.globalSonifyParametersStore.setTooltipMarkerEnabled(val); }
         },
         order: {
-            get(): string { return this.$store.state.globalSonifyParametersStore.order; },
-            set(val: string) { return this.$store.commit('globalSonifyParametersStore/setOrder', val); }
+            get(): string { return this.globalSonifyParametersStore.order; },
+            set(val: string) { this.globalSonifyParametersStore.setOrder(val); }
         }
     }
 });

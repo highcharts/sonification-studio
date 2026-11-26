@@ -57,7 +57,8 @@ import Preview from './Preview.vue';
 import Data from './Data.vue';
 import Sidebar from './Sidebar.vue';
 import ShowPanel from './ShowPanel.vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../store/modules/view';
 
 export default defineComponent({
     components: {
@@ -70,7 +71,8 @@ export default defineComponent({
         ShowPanel
     },
     computed: {
-        ...mapState('viewStore', ['selectedHeaderTabContent', 'showChartComponent', 'sidebarVisible'])
+        ...mapState(useViewStore, ['selectedHeaderTabContent', 'showChartComponent', 'sidebarVisible']),
+        ...mapStores(useViewStore)
     },
     methods: {
         skipToContent() {
@@ -82,7 +84,7 @@ export default defineComponent({
         },
 
         onShowSidebar() {
-            this.$store.commit('viewStore/setSidebarVisible', true);
+            this.viewStore.setSidebarVisible(true);
             this.$chartBridge.reflowChart();
             (this.$refs.sidebar as { focusHideButton: () => void }).focusHideButton();
         }

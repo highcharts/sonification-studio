@@ -24,7 +24,8 @@
 import { defineComponent } from 'vue';
 import HeaderTab from './HeaderTab.vue';
 import SETablist from './basic/SETablist.vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../store/modules/view';
 
 export default defineComponent({
     components: {
@@ -46,11 +47,12 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapState('viewStore', ['selectedHeaderTabId'])
+        ...mapState(useViewStore, ['selectedHeaderTabId']),
+        ...mapStores(useViewStore)
     },
     methods: {
         tabClicked(tabId: string, controlsId: string): void {
-            this.$store.commit('viewStore/selectHeaderTab', {
+            this.viewStore.selectHeaderTab({
                 selectedTabId: tabId,
                 contentId: controlsId
             });

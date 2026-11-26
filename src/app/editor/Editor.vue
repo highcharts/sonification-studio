@@ -16,10 +16,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
 import Header from './components/Header.vue';
 import MainContentView from './components/MainContentView.vue';
 import Footer from './components/Footer.vue';
-import { storageKey, storageRevision } from './store/store';
+import { restoreAppState, storageKey, storageRevision } from './store/store';
+import { useDataStore } from './store/modules/data';
+import { useViewStore } from './store/modules/view';
 
 export default defineComponent({
     components: {
@@ -27,6 +30,9 @@ export default defineComponent({
         EditorHeader: Header,
         MainContentView,
         EditorFooter: Footer,
+    },
+    computed: {
+        ...mapStores(useDataStore, useViewStore),
     },
     mounted() {
         this.$announcer.init(
@@ -48,16 +54,15 @@ export default defineComponent({
 
             if (!isDev && stateJSON) {
                 const restoredState = JSON.parse(stateJSON);
-                this.$store.dispatch('restoreState', restoredState);
+                restoreAppState(restoredState, this.$pinia);
             } else {
-                this.$store.commit('dataStore/setToPlaceholderData');
+                this.dataStore.setToPlaceholderData();
                 this.$nextTick(() => {
-                    const rowData: Array<Record<string, unknown>> = this.$store.state.dataStore.tableRowData;
-                    this.$store.commit(
-                        'dataStore/setTableCSV',
+                    const rowData = this.dataStore.tableRowData;
+                    this.dataStore.setTableCSV(
                         rowData.map((row) => Object.values(row).join(';')).join('\n')
                     );
-                    this.$store.commit('viewStore/triggerDataReactivity');
+                    this.viewStore.triggerDataReactivity();
                 });
             }
         },

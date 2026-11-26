@@ -61,6 +61,8 @@ import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SESlider from '../basic/SESlider.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
+import { mapStores } from 'pinia';
+import { useGlobalSonifyParametersStore } from '../../store/modules/globalSonifyParameters';
 
 export default defineComponent({
     components: {
@@ -69,21 +71,22 @@ export default defineComponent({
         SECheckbox
     },
     computed: {
+        ...mapStores(useGlobalSonifyParametersStore),
         minNote: {
-            get(): number { return this.$store.state.globalSonifyParametersStore.minNote; },
-            set(val: number) { return this.$store.commit('globalSonifyParametersStore/setMinNote', val); }
+            get(): number { return this.globalSonifyParametersStore.minNote; },
+            set(val: number) { this.globalSonifyParametersStore.setMinNote(val); }
         },
         maxNote: {
-            get(): number { return this.$store.state.globalSonifyParametersStore.maxNote; },
-            set(val: number) { return this.$store.commit('globalSonifyParametersStore/setMaxNote', val); }
+            get(): number { return this.globalSonifyParametersStore.maxNote; },
+            set(val: number) { this.globalSonifyParametersStore.setMaxNote(val); }
         },
         panEnabled: {
-            get(): boolean { return this.$store.state.globalSonifyParametersStore.panEnabled; },
-            set(val: boolean) { return this.$store.commit('globalSonifyParametersStore/setPanEnabled', val); }
+            get(): boolean { return this.globalSonifyParametersStore.panEnabled; },
+            set(val: boolean) { this.globalSonifyParametersStore.setPanEnabled(val); }
         },
         panWidth: {
-            get(): number { return this.$store.state.globalSonifyParametersStore.panWidth; },
-            set(val: number) { return this.$store.commit('globalSonifyParametersStore/setPanWidth', val); }
+            get(): number { return this.globalSonifyParametersStore.panWidth; },
+            set(val: number) { this.globalSonifyParametersStore.setPanWidth(val); }
         }
     }
 });

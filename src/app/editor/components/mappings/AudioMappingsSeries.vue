@@ -55,9 +55,9 @@ import AudioMappingsSeriesHighpass from './AudioMappingsSeriesHighpass.vue';
 import AudioMappingsSeriesTremoloDepth from './AudioMappingsSeriesTremoloDepth.vue';
 import AudioMappingsSeriesTremoloSpeed from './AudioMappingsSeriesTremoloSpeed.vue';
 import { GenericObject } from '../../core/utils/objects';
-import { makeSelectedAudioMappingSeriesPropertyMapping } from '../../store/storeUtils';
 import { getSeriesId } from '../../core/utils/chartUtils';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
 
 export default defineComponent({
     components: {
@@ -108,11 +108,15 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapState('viewStore', ['reactToDataUpdates']),
-        expandedAccordionItems(): GenericObject {
-            return this.$store.state.viewStore.expandedSeriesAudioAccordionItems;
+        ...mapStores(useViewStore),
+        ...mapState(useViewStore, {
+            reactToDataUpdates: 'reactToDataUpdates',
+            expandedAccordionItems: 'expandedSeriesAudioAccordionItems'
+        }),
+        selectedSeries: {
+            get(): string { return this.viewStore.selectedDataSeriesAudioMapping; },
+            set(val: string) { this.viewStore.setSelectedDataSeriesAudioMapping(val); }
         },
-        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
         dataSeries(): Array<{ name: string; value: string }> {
             const chartBridge = this.$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
@@ -125,7 +129,7 @@ export default defineComponent({
     },
     methods: {
         onAccordionItemClick(e: Event, item: GenericObject, isSelected: boolean) {
-            this.$store.commit('viewStore/setExpandedSeriesAudioAccordionItem', {
+            this.viewStore.setExpandedSeriesAudioAccordionItem({
                 itemName: item.heading,
                 expanded: isSelected
             });

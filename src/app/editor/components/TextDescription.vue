@@ -42,10 +42,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
 import SEButton from './basic/SEButton.vue';
 import SEControl from './basic/SEControl.vue';
 import { GenericObject } from '../core/utils/objects';
 import { describeTable } from '../core/textDescription';
+import { useDataStore } from '../store/modules/data';
 
 export default defineComponent({
     components: {
@@ -58,9 +60,10 @@ export default defineComponent({
         };
     },
     computed: {
+        ...mapStores(useDataStore),
         textDescription: {
-            get(): string { return this.$store.state.dataStore.textDescription; },
-            set(desc: string) { this.$store.commit('dataStore/setTextDescription', desc); }
+            get(): string { return this.dataStore.textDescription; },
+            set(desc: string) { this.dataStore.setTextDescription(desc); }
         }
     },
     methods: {
@@ -69,9 +72,9 @@ export default defineComponent({
                 this.onToggleExpand();
             }
             if (!this.textDescription || window.confirm('This will replace the existing description. Continue?')) {
-                const columnsWithData = this.$store.getters['dataStore/tableColumnNamesWithData'];
+                const columnsWithData = this.dataStore.tableColumnNamesWithData;
                 const columnData = columnsWithData.reduce((acc: GenericObject, columnName: string) => {
-                    acc[columnName] = this.$store.getters['dataStore/column'](columnName);
+                    acc[columnName] = this.dataStore.column(columnName);
                     return acc;
                 }, {});
 

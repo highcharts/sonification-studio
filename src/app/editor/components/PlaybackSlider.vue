@@ -15,14 +15,15 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import SESlider from './basic/SESlider.vue';
-import { mapState } from 'vuex';
+import { mapState } from 'pinia';
+import { useViewStore } from '../store/modules/view';
 
 export default defineComponent({
     components: {
         SESlider
     },
     computed: {
-        ...mapState('viewStore', ['playbackProgress'])
+        ...mapState(useViewStore, ['playbackProgress'])
     }
 });
 </script>

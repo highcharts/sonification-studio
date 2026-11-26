@@ -11,17 +11,25 @@
     so that the source data always mirrors the data the grid is working with.
  */
 
+import { defineStore } from 'pinia';
 import { parseCSV } from '../../core/utils/csvParser';
-import { GenericObject } from '../../core/utils/objects';
 import { evaluate } from 'mathjs';
 
-interface UpdateCellDataProps {
+// Value of one grid cell. Usually a string, but the grid and project files
+// can hold other primitives.
+export type TableCellValue = string | number | boolean | null;
+
+// One grid row: column name ('A' to 'Z', then 'COL1', 'COL2', ...) -> cell value.
+// Row 0 holds the column headers.
+export type TableRow = Record<string, TableCellValue>;
+
+export interface UpdateCellDataProps {
     rowIndex: number;
     columnName: string;
-    value: any;
+    value: TableCellValue;
 }
 
-interface FillColumnProps {
+export interface FillColumnProps {
     columnName: string;
     equation: string;
 }
@@ -32,7 +40,35 @@ export enum GoogleSheetStatus {
     Error,
 }
 
-function getFillValue(row: GenericObject, rowIx: number, fillData: FillColumnProps): string {
+export interface DataSourceOption {
+    name: string;
+    value: string;
+}
+
+export interface DataState {
+    tableCSV: string;
+    tableRowData: TableRow[];
+    tableHeaders: string[];
+    textDescription: string;
+    selectedDataSource: string;
+    spreadsheetSetupComplete: boolean;
+    googleSpreadsheetURL: string;
+    googleApiKey: string;
+    googleAutoUpdateEnabled: boolean;
+    googleAutoUpdateFrequency: number;
+    googleSheetStatus: GoogleSheetStatus;
+    googleSheetErrorMessage: string;
+    dataSourcesList: DataSourceOption[];
+}
+
+// The part of the data state that is restored from project files and
+// localStorage sessions.
+export interface DataRestoreState {
+    tableRowData: TableRow[];
+    textDescription?: string;
+}
+
+function getFillValue(row: TableRow, rowIx: number, fillData: FillColumnProps): string {
     return (
         '' +
         evaluate(fillData.equation, {
@@ -77,14 +113,12 @@ function getPlaceholderData(): Array<Record<string, string>> {
     return data;
 }
 
-function generateCSV(rowData: Array<Record<string, any>>): string {
+function generateCSV(rowData: TableRow[]): string {
     return rowData.map((row) => Object.values(row).join(';')).join('\n');
 }
 
-export const dataStore = {
-    namespaced: true,
-
-    state: {
+export const useDataStore = defineStore('data', {
+    state: (): DataState => ({
         tableCSV: '',
         tableRowData: [],
         tableHeaders: [],
@@ -101,22 +135,25 @@ export const dataStore = {
             { name: 'Grid', value: 'table' },
             { name: 'Google Sheets', value: 'googlesheets' },
         ],
-    },
+    }),
 
+    // The Vuex module also had a textDescription getter returning the state
+    // value of the same name. Pinia stores share one namespace for state and
+    // getters, so read the state directly.
     getters: {
-        numRows: (state: GenericObject): number => {
+        numRows: (state): number => {
             return state.tableRowData.length;
         },
-        numCols: (state: GenericObject): number => {
+        numCols: (state): number => {
             if (state.tableRowData.length > 0) {
                 // Assuming all rows have the same number of columns
                 return Object.keys(state.tableRowData[0]).length;
             }
             return 0;
         },
-        tableColumnNamesWithData: (state: GenericObject): Array<string> => {
+        tableColumnNamesWithData: (state): Array<string> => {
             const rows = state.tableRowData;
-            const res: GenericObject = {};
+            const res: Record<string, string> = {};
             for (const row of rows) {
                 const columns = Object.entries(row);
                 for (const [col, val] of columns) {
@@ -129,77 +166,75 @@ export const dataStore = {
             return Object.keys(res).sort();
         },
 
-        column: (state: GenericObject): ((key: string) => Array<unknown>) => {
+        column: (state): ((key: string) => Array<TableCellValue>) => {
             return (key: string) => {
-                return state.tableRowData.map((row: GenericObject) => row[key] ?? null);
+                return state.tableRowData.map((row) => row[key] ?? null);
             };
         },
 
-        googleSpreadsheetId: (state: GenericObject): string => {
-            const regex = /docs\.google\.com\/spreadsheets\/d\/([-_.~a-zA-Z0-9]+)(\/|$)/;
-            return state.googleSpreadsheetURL && state.googleSpreadsheetURL.match(regex)[1];
+        // Empty if the URL is not a spreadsheet URL. The URL is user input.
+        googleSpreadsheetId: (state): string => {
+            const regex = /docs\.google\.com\/spreadsheets\/d\/([-_.~a-zA-Z0-9]+)([/?#]|$)/;
+            const match = state.googleSpreadsheetURL.match(regex);
+            return match ? match[1] : '';
         },
 
-        tableCSVDataURI: (state: GenericObject): string => {
+        tableCSVDataURI: (state): string => {
             return state.tableCSV ? encodeURI(`data:text/csv;charset=utf-8,${state.tableCSV}`) : '';
-        },
-
-        textDescription: (state: GenericObject): string => {
-            return state.textDescription;
         },
     },
 
-    mutations: {
-        restoreStoreState(state: any, newState?: GenericObject) {
-            state.tableRowData = newState ? newState.tableRowData : getPlaceholderData();
-            state.textDescription = newState ? newState.textDescription || '' : '';
-            state.tableCSV = generateCSV(state.tableRowData);
+    actions: {
+        restoreStoreState(newState?: DataRestoreState) {
+            this.tableRowData = newState ? newState.tableRowData : getPlaceholderData();
+            this.textDescription = newState ? newState.textDescription || '' : '';
+            this.tableCSV = generateCSV(this.tableRowData);
         },
 
-        setTableCSV(state: any, csv: string) {
-            state.tableCSV = csv;
+        setTableCSV(csv: string) {
+            this.tableCSV = csv;
         },
 
-        setSelectedDataSource(state: any, source: string) {
-            state.selectedDataSource = source;
+        setSelectedDataSource(source: string) {
+            this.selectedDataSource = source;
         },
 
-        setSpreadsheetSetupComplete(state: any, complete: boolean) {
-            state.spreadsheetSetupComplete = complete;
+        setSpreadsheetSetupComplete(complete: boolean) {
+            this.spreadsheetSetupComplete = complete;
         },
 
-        setGoogleSpreadsheetURL(state: any, url: string) {
-            state.googleSpreadsheetURL = url.trim();
+        setGoogleSpreadsheetURL(url: string) {
+            this.googleSpreadsheetURL = url.trim();
         },
 
-        setGoogleApiKey(state: any, key: string) {
-            state.googleApiKey = key.trim();
+        setGoogleApiKey(key: string) {
+            this.googleApiKey = key.trim();
         },
 
-        setGoogleAutoUpdateEnabled(state: any, enabled: boolean) {
-            state.googleAutoUpdateEnabled = enabled;
+        setGoogleAutoUpdateEnabled(enabled: boolean) {
+            this.googleAutoUpdateEnabled = enabled;
         },
 
-        setGoogleSheetStatus(state: any, status: GoogleSheetStatus) {
-            state.googleSheetStatus = status;
+        setGoogleSheetStatus(status: GoogleSheetStatus) {
+            this.googleSheetStatus = status;
         },
 
-        setGoogleSheetErrorMessage(state: any, message: GoogleSheetStatus) {
-            state.googleSheetErrorMessage = message;
+        setGoogleSheetErrorMessage(message: string) {
+            this.googleSheetErrorMessage = message;
         },
 
-        setTableRowData(state: any, data: Array<unknown>) {
-            state.tableRowData = data;
-            const csv = generateCSV(state.tableRowData);
-            state.tableCSV = csv;
+        setTableRowData(data: TableRow[]) {
+            this.tableRowData = data;
+            const csv = generateCSV(this.tableRowData);
+            this.tableCSV = csv;
         },
 
-        fillColumn(state: any, fillData: FillColumnProps) {
-            const rowData = state.tableRowData;
+        fillColumn(fillData: FillColumnProps) {
+            const rowData = this.tableRowData;
             const col = fillData.columnName;
-            const newRows: Array<GenericObject> = [];
+            const newRows: TableRow[] = [];
 
-            rowData.forEach((row: GenericObject, rowIx: number): void => {
+            rowData.forEach((row, rowIx): void => {
                 const newRow = { ...row };
                 if (rowIx) {
                     newRow[col] = getFillValue(newRow, rowIx, fillData);
@@ -207,12 +242,12 @@ export const dataStore = {
                 newRows.push(newRow);
             });
 
-            state.tableRowData = newRows;
-            state.tableCSV = generateCSV(state.tableRowData);
+            this.tableRowData = newRows;
+            this.tableCSV = generateCSV(this.tableRowData);
         },
 
-        updateCellValue(state: any, cellData: UpdateCellDataProps) {
-            const rowData = state.tableRowData;
+        updateCellValue(cellData: UpdateCellDataProps) {
+            const rowData = this.tableRowData;
             const row = rowData[cellData.rowIndex];
             const column = cellData.columnName;
 
@@ -221,31 +256,29 @@ export const dataStore = {
 
             rowData.splice(cellData.rowIndex, 1, newRow);
 
-            const newCSV = generateCSV(state.tableRowData);
+            const newCSV = generateCSV(this.tableRowData);
 
-            state.tableCSV = newCSV;
+            this.tableCSV = newCSV;
         },
 
-        addTableRows(state: any, numRows: number) {
+        addTableRows(numRows: number) {
             let i = numRows;
             while (i--) {
-                state.tableRowData.push({});
+                this.tableRowData.push({});
             }
-            state.tableCSV = generateCSV(state.tableRowData);
+            this.tableCSV = generateCSV(this.tableRowData);
         },
 
-        setToPlaceholderData(state: any) {
-            state.tableRowData = getPlaceholderData();
-            state.tableCSV = generateCSV(state.tableRowData);
+        setToPlaceholderData() {
+            this.tableRowData = getPlaceholderData();
+            this.tableCSV = generateCSV(this.tableRowData);
         },
 
-        setTextDescription(state: any, description: string) {
-            state.textDescription = description;
+        setTextDescription(description: string) {
+            this.textDescription = description;
         },
-    },
 
-    actions: {
-        loadFromCSV({ commit }: any, csv: string) {
+        loadFromCSV(csv: string) {
             const hasTab = csv.indexOf('\t') > -1;
             const hasSemicolon = csv.indexOf(';') > -1;
             const delim = hasTab ? '\t' : hasSemicolon ? ';' : ',';
@@ -260,7 +293,7 @@ export const dataStore = {
             }
 
             const objectifiedArr = arr.map((row: string[]) => {
-                const rowObject: any = {};
+                const rowObject: TableRow = {};
                 row.forEach((cell: string, i: number) => {
                     if (cell) {
                         const columnName = columnHeaders[i] || '_';
@@ -270,7 +303,7 @@ export const dataStore = {
                 return rowObject;
             });
 
-            commit('setTableRowData', objectifiedArr);
+            this.setTableRowData(objectifiedArr);
         },
     },
-};
+});

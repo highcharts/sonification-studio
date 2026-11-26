@@ -6,9 +6,11 @@
 
 <script lang="ts">
 import { defineComponent, markRaw } from 'vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
 import * as GridPro from '@highcharts/grid-pro/grid-pro';
 import '@highcharts/grid-pro/css/grid-pro.css';
+import { useDataStore } from '../store/modules/data';
+import { useViewStore } from '../store/modules/view';
 
 export default defineComponent({
     data() {
@@ -26,24 +28,25 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapState('dataStore', ['tableRowData']),
-        ...mapState('viewStore', ['selectedHeaderTabContent']),
+        ...mapState(useDataStore, ['tableRowData']),
+        ...mapState(useViewStore, ['selectedHeaderTabContent']),
+        ...mapStores(useDataStore, useViewStore),
     },
 
     mounted() {
         // Get CSV imports to propagate immediately
-        this.unsubscribeFromStore = this.$store.subscribe((mutation) => {
+        this.unsubscribeFromStore = this.dataStore.$onAction(({ name, after }) => after(() => {
             if (
-                mutation.type === 'dataStore/setTableRowData' ||
-                mutation.type === 'dataStore/setTableCSV' ||
-                mutation.type === 'dataStore/addTableRows' ||
-                mutation.type === 'dataStore/fillColumn'
+                name === 'setTableRowData' ||
+                name === 'setTableCSV' ||
+                name === 'addTableRows' ||
+                name === 'fillColumn'
             ) {
                 if (this.isUpdatingFromGrid) return; // ignore grid-originated commits
-                const onDataTab = this.$store.state.viewStore.selectedHeaderTabContent === 'dataContent';
+                const onDataTab = this.viewStore.selectedHeaderTabContent === 'dataContent';
 
                 // If rows were added, do scroll to bottom after the rebuild
-                if (mutation.type === 'dataStore/addTableRows') {
+                if (name === 'addTableRows') {
                     this.pendingScrollToBottom = true;
                 }
 
@@ -53,14 +56,14 @@ export default defineComponent({
                     this.pendingRebuild = true;
                 }
             }
-        });
+        }));
 
         // Check if there's data in the store, don't reset to placeholder if there's real data
-        const storeData = this.$store.state.dataStore.tableRowData;
+        const storeData = this.dataStore.tableRowData;
         if (!this.tableRowData?.length && !storeData?.length) {
-            this.$store.commit('dataStore/setToPlaceholderData');
+            this.dataStore.setToPlaceholderData();
             this.$nextTick(() => {
-                this.observeAndRenderWhenVisible(this.$store.state.dataStore.tableRowData);
+                this.observeAndRenderWhenVisible(this.dataStore.tableRowData);
             });
         } else {
             // Use store data if available, fallback to component data
@@ -95,7 +98,7 @@ export default defineComponent({
             () => this.selectedHeaderTabContent,
             (newTab, oldTab) => {
                 if (newTab === 'dataContent' && oldTab !== 'dataContent') {
-                    const currentData = this.$store.state.dataStore.tableRowData;
+                    const currentData = this.dataStore.tableRowData;
                     this.$nextTick(() => {
                         if (this.pendingRebuild) {
                             this.rebuildGridFromStore();
@@ -277,7 +280,7 @@ export default defineComponent({
         rebuildGridFromStore() {
             const container = this.$refs.gridContainer as HTMLElement;
             if (!container) return;
-            const latest = this.$store.state.dataStore.tableRowData;
+            const latest = this.dataStore.tableRowData;
 
             if (this.gridInstance?.destroy) {
                 this.gridInstance.destroy();
@@ -476,7 +479,7 @@ export default defineComponent({
             this.isUpdatingFromGrid = true;
 
             if (nonEmptyCols.length === 0) {
-                this.$store.commit('dataStore/setTableCSV', '');
+                this.dataStore.setTableCSV('');
                 // Reset flag after update
                 this.$nextTick(() => {
                     this.isUpdatingFromGrid = false;
@@ -505,7 +508,7 @@ export default defineComponent({
             }
 
             // Update the store with the new data - this will update both tableRowData and CSV
-            this.$store.commit('dataStore/setTableRowData', updatedRowData);
+            this.dataStore.setTableRowData(updatedRowData);
 
             // Reset flag after update
             this.$nextTick(() => {

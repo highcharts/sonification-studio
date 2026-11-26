@@ -25,7 +25,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { keyPressed, Keys, Modifiers } from '../core/utils/keyboardUtils';
-import { mapState } from 'vuex';
+import { mapState } from 'pinia';
+import { useViewStore } from '../store/modules/view';
 import playIcon from '../assets/play.svg';
 import stopIcon from '../assets/stop.svg';
 import pauseIcon from '../assets/pause.svg';
@@ -47,8 +48,7 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapState('viewStore', ['selectedHeaderTabId', 'reactToParameterUpdates']),
-        ...mapState('dataStore', ['reactToDataUpdates'])
+        ...mapState(useViewStore, ['selectedHeaderTabId', 'reactToParameterUpdates', 'reactToDataUpdates'])
     },
     // Stop playing when something changes.
     watch: {

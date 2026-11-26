@@ -90,7 +90,11 @@ import visualIcon from '../assets/chart-line-solid.svg';
 import audioIcon from '../assets/music-solid.svg';
 import resetIcon from '../assets/undo-alt-solid.svg';
 import arrowRightIcon from '../assets/arrow-right.svg';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useChartParametersStore } from '../store/modules/chartParameters';
+import { useSeriesParametersStore } from '../store/modules/seriesParameters';
+import { useGlobalSonifyParametersStore } from '../store/modules/globalSonifyParameters';
+import { useViewStore } from '../store/modules/view';
 
 export default defineComponent({
     components: {
@@ -106,27 +110,28 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapState('viewStore', ['selectedSidebarTabId'])
+        ...mapState(useViewStore, ['selectedSidebarTabId']),
+        ...mapStores(useChartParametersStore, useSeriesParametersStore, useGlobalSonifyParametersStore, useViewStore)
     },
     methods: {
         tabClicked(tabId: string): void {
-            this.$store.commit('viewStore/selectSidebarTab', tabId);
+            this.viewStore.selectSidebarTab(tabId);
         },
 
         onResetClick(): void {
             if (window.confirm('This will reset all audio and visual settings. Proceed?')) {
-                this.$store.commit('seriesParametersStore/clearState');
-                this.$store.commit('chartParametersStore/restoreStoreState');
-                this.$store.commit('globalSonifyParametersStore/restoreStoreState');
-                this.$store.commit('viewStore/setLoadingChart', true);
+                this.seriesParametersStore.clearState();
+                this.chartParametersStore.restoreStoreState();
+                this.globalSonifyParametersStore.restoreStoreState();
+                this.viewStore.setLoadingChart(true);
                 setTimeout(() => {
-                    this.$store.commit('viewStore/setShowChartComponent', false);
+                    this.viewStore.setShowChartComponent(false);
                     this.$nextTick(() => {
                         // Recreate chart
-                        this.$store.commit('viewStore/setShowChartComponent', true);
+                        this.viewStore.setShowChartComponent(true);
                         this.$nextTick(() => {
                             this.$announcer.announce('New project loaded.');
-                            setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 900);
+                            setTimeout(() => this.viewStore.setLoadingChart(false), 900);
                         });
                     });
                 }, 100);
@@ -134,7 +139,7 @@ export default defineComponent({
         },
 
         onHideSidebarClick() {
-            this.$store.commit('viewStore/setSidebarVisible', false);
+            this.viewStore.setSidebarVisible(false);
             this.$chartBridge.reflowChart();
         },
 
