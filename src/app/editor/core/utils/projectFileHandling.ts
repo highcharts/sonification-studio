@@ -4,7 +4,7 @@
 
 import { Store } from 'vuex';
 import { downloadURI } from './browserUtils';
-import LZString from './lz-string.min.js';
+import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 import { storageRevision } from '../../store/store';
 import { version } from '../../../../../package.json';
 
@@ -13,7 +13,7 @@ export function downloadProjectFile(projectTitle: string, store: Store<any>): vo
     state.appVersion = version;
     state.storeVersion = storageRevision;
     const json = JSON.stringify(state);
-    const compressed = LZString.compressToUTF16(json);
+    const compressed = compressToUTF16(json);
     const blob = new Blob([compressed], {type: 'application/octet-stream'});
     const uri = window.URL.createObjectURL(blob);
     const filename = projectTitle + '.hssp';
@@ -21,7 +21,7 @@ export function downloadProjectFile(projectTitle: string, store: Store<any>): vo
 }
 
 export function restoreFromProjectFile(fileContents: string, store: Store<any>): void {
-    const uncompressed = LZString.decompressFromUTF16(fileContents);
+    const uncompressed = decompressFromUTF16(fileContents);
     if (uncompressed) {
         const obj = JSON.parse(uncompressed);
         const storeVersion = obj.storeVersion;
