@@ -238,8 +238,12 @@ export const useDataStore = defineStore('data', {
             return match ? match[1] : '';
         },
 
+        // The CSV is encoded as a URI component: encodeURI() leaves "#" as
+        // it is, which would end the data at the first "#"
         tableCSVDataURI: (state): string => {
-            return state.tableCSV ? encodeURI(`data:text/csv;charset=utf-8,${state.tableCSV}`) : '';
+            return state.tableCSV ?
+                'data:text/csv;charset=utf-8,' + encodeURIComponent(state.tableCSV) :
+                '';
         },
     },
 

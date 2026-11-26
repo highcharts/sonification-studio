@@ -391,7 +391,18 @@ describe('data store', () => {
             const store = useDataStore();
             expect(store.tableCSVDataURI).toBe('');
             store.setTableRowData([{ A: 'a b', B: 'ø' }, { A: '1', B: '2' }]);
-            expect(store.tableCSVDataURI).toBe('data:text/csv;charset=utf-8,a%20b;%C3%B8%0A1;2');
+            expect(store.tableCSVDataURI).toBe('data:text/csv;charset=utf-8,a%20b%3B%C3%B8%0A1%3B2');
+        });
+
+        test('tableCSVDataURI gives the CSV when read, including "#"', async () => {
+            const store = useDataStore();
+            store.setTableRowData([
+                { A: 'Index (X value)', B: 'Sensor Data (Y value)', C: '# of items' },
+                { A: '0', B: '-0.5', C: 'a; "b"' },
+                { A: '1', B: '2#3', C: 'ø, é/?&=+$@:%' }
+            ]);
+            const response = await fetch(store.tableCSVDataURI);
+            expect(await response.text()).toBe(store.tableCSV);
         });
     });
 
