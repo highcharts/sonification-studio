@@ -240,10 +240,6 @@ export const useDataStore = defineStore('data', {
             this.tableCSV = generateCSV(this.tableRowData);
         },
 
-        setTableCSV(csv: string) {
-            this.tableCSV = csv;
-        },
-
         setSelectedDataSource(source: string) {
             this.selectedDataSource = source;
         },

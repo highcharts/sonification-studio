@@ -286,7 +286,6 @@ export function getGridDataTable(grid: Grid, presentation = false): DataTable | 
 // project and a loaded project file, and the grid's own edits
 const gridDataActions = [
     'setTableRowData',
-    'setTableCSV',
     'addTableRows',
     'fillColumn',
     'restoreStoreState'

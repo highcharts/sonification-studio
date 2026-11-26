@@ -94,7 +94,6 @@ describe('getGridRebuild', () => {
     test('Rebuilds after data changes outside the grid', () => {
         for (const action of [
             'setTableRowData',
-            'setTableCSV',
             'addTableRows',
             'fillColumn',
             'restoreStoreState'
@@ -122,7 +121,6 @@ describe('getGridRebuild', () => {
         expect(rebuildsOf(() => dataStore.addTableRows(2))).toEqual(['now']);
         expect(rebuildsOf(() => dataStore.fillColumn({ columnName: 'B', equation: 'i' })))
             .toEqual(['now']);
-        expect(rebuildsOf(() => dataStore.setTableCSV(''))).toEqual(['now']);
         expect(rebuildsOf(() => dataStore.restoreStoreState())).toEqual(['now']);
         expect(rebuildsOf(() => dataStore.setTextDescription('Text'))).toEqual([]);
     });

@@ -143,14 +143,6 @@ describe('data store', () => {
         });
     });
 
-    test('setTableCSV only sets the CSV', () => {
-        const store = useDataStore();
-        store.setTableRowData([{ A: 'a' }]);
-        store.setTableCSV('');
-        expect(store.tableCSV).toBe('');
-        expect(store.tableRowData).toEqual([{ A: 'a' }]);
-    });
-
     test('updateCellValue replaces the row object in place and regenerates the CSV', () => {
         const store = useDataStore();
         store.setTableRowData([{ A: 'x', B: 'y' }, { A: '1', B: '2' }]);
