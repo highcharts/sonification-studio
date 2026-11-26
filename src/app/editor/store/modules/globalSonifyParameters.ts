@@ -15,8 +15,11 @@ export interface AddContextPayload {
 // A global audio context cue
 export interface SonifyContext {
     valueInterval: number;
-    valueMultiplier: number;
-    valueMultiplierName: string;
+    // The interval unit on datetime axes. Missing in cues of project files
+    // and sessions saved before it was added (same storage revision): the
+    // mapping then uses 1, and the controls show milliseconds.
+    valueMultiplier?: number;
+    valueMultiplierName?: string;
     valueProp: string;
     playWhenType: string;
     playWhenThreshold: number;
