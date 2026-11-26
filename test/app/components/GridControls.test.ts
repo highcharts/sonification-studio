@@ -64,6 +64,14 @@ describe('GridControls.vue', () => {
     });
 
     describe('Fill column from equation', () => {
+        test('Has help text without markup, with the values "2 * i" fills in', () => {
+            // SEControl renders the help text as text, a paragraph for each <br>
+            const paragraphs = wrapper.findAll('.helptext-content-container p').map(p => p.text());
+            expect(paragraphs).toHaveLength(4);
+            paragraphs.forEach(text => expect(text).not.toMatch(/[<>&]/));
+            expect(paragraphs[2]).toBe('Use "i" to refer to the row number. Example: "2 * i" will fill in the values 2, 4, 6, 8 etc.');
+        });
+
         test('Announces the first filled values, not the empty header row', async () => {
             // A cleared grid: the header row has no value in the column
             useDataStore().setTableRowData(Array.from(Array(10), () => ({})));
