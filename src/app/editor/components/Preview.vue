@@ -65,8 +65,11 @@ export default defineComponent({
             // Whether highcharts-vue creates the chart from fallback options,
             // after Highcharts threw on the editor's options
             createFromFallback: false,
-            // Whether the chart was created from the fallback options
+            // Whether the chart was created from the fallback options, and
+            // has not been updated with the editor's options since
             startedFromFallback: false,
+            // Whether Highcharts threw on the latest options update
+            chartUpdateFailed: false,
             // The last chart error announced, and when it last occurred
             lastChartError: { message: '', time: 0 }
         };
@@ -92,6 +95,25 @@ export default defineComponent({
         }
     },
 
+    watch: {
+        // highcharts-vue updates the chart in its own options watcher, which
+        // runs while this component is patched, so before this 'post'
+        // watcher. Options the chart took end the failure: the next error is
+        // news, even within two seconds, and the chart shows the editor's
+        // settings, not only the fallback options.
+        chartComponentOptions: {
+            handler() {
+                if (this.chartUpdateFailed) {
+                    this.chartUpdateFailed = false;
+                    return;
+                }
+                this.startedFromFallback = false;
+                this.lastChartError = { message: '', time: 0 };
+            },
+            flush: 'post'
+        }
+    },
+
     mounted() {
         this.$nextTick(() => this.initChart());
     },
@@ -106,6 +128,7 @@ export default defineComponent({
     errorCaptured(error: unknown) {
         if (this.getChart()) {
             console.error('Could not update the chart:', error);
+            this.chartUpdateFailed = true;
             this.announceChartError(this.startedFromFallback ?
                 // It may never have shown the editor's settings: the user
                 // did not necessarily change anything
@@ -210,7 +233,8 @@ export default defineComponent({
         // seconds of its last occurrence: one change can make Highcharts
         // throw more than once (e.g. on the options, then on the data parsed
         // with them, then on a queued refresh), which the user needs to hear
-        // only once.
+        // only once. An update that works in between clears the last error
+        // (see the chartComponentOptions watcher).
         announceChartError(message: string) {
             const now = Date.now();
             const last = this.lastChartError;

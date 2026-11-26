@@ -122,4 +122,73 @@ describe('Preview.vue', () => {
             ['The chart could not be updated.']
         ]);
     });
+
+    test('Announces an update error again after an update that worked', async () => {
+        const preview = mountPreview(renderable, {});
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        // E.g. arrowing through the series types, within two seconds
+        for (const options of [unrenderable, renderable, unrenderable]) {
+            preview.chartOptions = options;
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+        }
+
+        expect(consoleError.mock.calls.map((call) => call[0])).toEqual([
+            'Could not update the chart:',
+            'Could not update the chart:'
+        ]);
+        expect(preview.announcer.announce.mock.calls).toEqual([
+            ['The chart could not be updated.'],
+            ['The chart could not be updated.']
+        ]);
+    });
+
+    test('Announces an update error again when it repeats after two seconds', async () => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date(2026, 0, 1, 12, 0, 0));
+        try {
+            const preview = mountPreview(renderable, {});
+            wrapper = preview.wrapper;
+            await flushPromises();
+
+            preview.chartOptions = unrenderable;
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+            vi.setSystemTime(new Date(2026, 0, 1, 12, 0, 1, 999));
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+            vi.setSystemTime(new Date(2026, 0, 1, 12, 0, 4));
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+
+            expect(consoleError).toHaveBeenCalledTimes(3);
+            // Not within two seconds of the last occurrence
+            expect(preview.announcer.announce.mock.calls).toEqual([
+                ['The chart could not be updated.'],
+                ['The chart could not be updated.']
+            ]);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    test('Says the chart could not be updated once it showed the editor\'s settings', async () => {
+        const preview = mountPreview(unrenderable, {});
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        for (const options of [renderable, unrenderable]) {
+            preview.chartOptions = options;
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+        }
+
+        expect(preview.announcer.announce.mock.calls).toEqual([
+            // Created from the fallback options
+            ['The chart could not be shown with the current settings.'],
+            ['The chart could not be updated.']
+        ]);
+    });
 });
