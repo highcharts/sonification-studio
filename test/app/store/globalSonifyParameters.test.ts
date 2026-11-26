@@ -183,6 +183,24 @@ describe('globalSonifyParameters store', () => {
         });
     });
 
+    test('Continues context ids after the highest restored one', () => {
+        const store = useGlobalSonifyParametersStore();
+        store.restoreStoreState({
+            contexts: [{ id: 3 } as SonifyContext, { id: 1 } as SonifyContext]
+        });
+        store.addContext({ valueRange: null, inactive: false });
+        expect(store.contexts.map(c => c.id)).toEqual([3, 1, 4]);
+
+        // Removing the new context leaves the restored ones
+        store.removeContext(4);
+        expect(store.contexts.map(c => c.id)).toEqual([3, 1]);
+
+        // A restore without contexts keeps the current ones and their numbering
+        store.restoreStoreState({ volume: 10 });
+        store.addContext({ valueRange: null, inactive: false });
+        expect(store.contexts.map(c => c.id)).toEqual([3, 1, 4]);
+    });
+
     test('removeContext removes the context with the id, and ignores unknown ids', () => {
         const store = useGlobalSonifyParametersStore();
         store.addContext({ valueRange: null, inactive: false });

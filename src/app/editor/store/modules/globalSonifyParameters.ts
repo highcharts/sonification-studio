@@ -70,6 +70,10 @@ const makeDefaultContext = (valueMultiplier: number, valueMultiplierName: string
     showDetails: true
 });
 
+// The id after the highest context id (1 without contexts)
+const nextContextId = (contexts: SonifyContext[]): number =>
+    contexts.reduce((max, context) => typeof context.id === 'number' && context.id > max ? context.id : max, 0) + 1;
+
 
 const defaultState = (): GlobalSonifyParametersState => ({
     volume: 70,
@@ -112,7 +116,6 @@ export const useGlobalSonifyParametersStore = defineStore('globalSonifyParameter
         // Add items here if they are to be restored from opening project files
         // or localStorage session restore. Keep backwards compatibility in mind.
         restoreStoreState(newState?: Partial<GlobalSonifyParametersState>) {
-            idCounter = 1;
             const defaultOpts = defaultState();
             const restoredKeys: Array<keyof GlobalSonifyParametersState> = [
                 'volume', 'playMarkerEnabled', 'minNote', 'maxNote', 'panEnabled', 'panWidth', 'detail',
@@ -120,6 +123,10 @@ export const useGlobalSonifyParametersStore = defineStore('globalSonifyParameter
             ];
             restoredKeys.forEach(
                 x => setStateValue(this.$state, x, newState ? firstDefined(newState[x], this.$state[x]) : defaultOpts[x]));
+            // Restored contexts keep their ids, so continue numbering after the
+            // highest one: ids must stay unique, as they are shown to the user,
+            // used as v-for keys and to remove contexts.
+            idCounter = nextContextId(this.contexts);
         },
 
         setVolume(volume: number) {
