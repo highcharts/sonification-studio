@@ -37,6 +37,15 @@ export interface SonifyContext {
     showDetails: boolean;
 }
 
+// The parameters of a context cue that can be set (the id identifies the cue)
+export type SonifyContextParameterName = Exclude<keyof SonifyContext, 'id'>;
+
+export interface SetContextParameterPayload<K extends SonifyContextParameterName = SonifyContextParameterName> {
+    id: number;
+    parameterName: K;
+    value: SonifyContext[K];
+}
+
 export interface GlobalSonifyParametersState {
     volume: number;
     speed: number;
@@ -176,6 +185,15 @@ export const useGlobalSonifyParametersStore = defineStore('globalSonifyParameter
             const ix = this.contexts.findIndex(c => c.id === id);
             if (ix > -1) {
                 this.contexts.splice(ix, 1);
+            }
+        },
+
+        // Set a parameter of the context cue with the id. Does nothing if
+        // there is no such cue.
+        setContextParameter<K extends SonifyContextParameterName>(payload: SetContextParameterPayload<K>) {
+            const context = this.contexts.find(c => c.id === payload.id);
+            if (context) {
+                context[payload.parameterName] = payload.value;
             }
         },
 
