@@ -1,7 +1,7 @@
 <template>
     <div class="play-button">
         <button
-            :disabled="enabled ? null : true"
+            :disabled="!enabled"
             @click="$emit('click')"
             @mouseup="$emit('mouseup', $event)"
             @mousedown="$emit('mousedown', $event)"
@@ -20,13 +20,15 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         iconPath: { type: String, required: true },
         enabled: { type: Boolean, default: true }
     },
     emits: ['click', 'mouseup', 'mousedown', 'keydown', 'keyup']
-};
+});
 </script>
 
 <style lang="less" scoped>

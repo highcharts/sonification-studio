@@ -4,7 +4,7 @@
             id="slider-playback"
             label="Playback"
             :show-value-input="false"
-            :value="playbackProgress"
+            :model-value="playbackProgress"
             disabled
             arrow-thumb
             dark-on-light
@@ -13,15 +13,18 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SESlider from './basic/SESlider.vue';
 import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         SESlider
     },
-    computed: mapState('viewStore', ['playbackProgress']),
-};
+    computed: {
+        ...mapState('viewStore', ['playbackProgress'])
+    }
+});
 </script>
 
 <style lang="less" scoped>
