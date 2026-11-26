@@ -46,7 +46,9 @@ declare module '@highcharts/grid-pro/es-modules/Grid/Pro/CellRendering/CellRende
     }
 }
 
-// Does nothing when the renderer is registered already (on a hot reload)
+// Does nothing when the renderer is registered already (on a hot reload), so
+// Grid Pro keeps the first version of the class: changes to it only apply
+// after a full page reload.
 GridPro.CellRendererRegistry.registerRenderer(clearableNumberInputType, ClearableNumberInputRenderer);
 
 /*
