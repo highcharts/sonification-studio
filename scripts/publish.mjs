@@ -16,13 +16,28 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, readFileSync, rmSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
+
+// Any other argument stops the script, so that e.g. --dry-run doesn't
+// make a real release
+let force;
+try {
+    ({ values: { force } } = parseArgs({
+        options: { force: { type: 'boolean', default: false } }
+    }));
+} catch (error) {
+    if (!error.code?.startsWith('ERR_PARSE_ARGS_')) {
+        throw error;
+    }
+    console.error(`${error.message}.\nUsage: npm run release [-- --force]`);
+    process.exit(1);
+}
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const dist = join(root, 'dist');
 const docs = join(root, 'docs');
 const target = join(docs, version);
-const force = process.argv.slice(2).includes('--force');
 
 // Checked first, so a forgotten version bump fails before the build
 if (existsSync(target) && !force) {
