@@ -30,10 +30,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
 import { Chart } from 'highcharts-vue';
 import type { Chart as HighchartsChartInstance, Options } from 'highcharts';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
+import { useDataStore } from '../store/modules/data';
+import { useViewStore } from '../store/modules/view';
 
 // The highcharts-vue component instance, as seen through a template ref
 interface ChartComponent {
@@ -52,8 +54,9 @@ export default defineComponent({
     },
 
     computed: {
-        ...mapState('dataStore', ['tableCSV']),
-        ...mapState('viewStore', ['reactToParameterUpdates', 'loadingChart']),
+        ...mapState(useDataStore, ['tableCSV']),
+        ...mapState(useViewStore, ['reactToParameterUpdates', 'loadingChart']),
+        ...mapStores(useDataStore),
 
         chartOptions(): Options {
             return this.$chartBridge.reactiveGet(
@@ -69,8 +72,8 @@ export default defineComponent({
                 const chartBridge = this.$chartBridge;
                 chartBridge.init(chart);
 
-                const csv = this.$store.state.dataStore.tableCSV;
-                this.$store.dispatch('dataStore/loadFromCSV', csv); // ✅ safe to call now
+                const csv = this.dataStore.tableCSV;
+                this.dataStore.loadFromCSV(csv); // ✅ safe to call now
             }
         });
     },

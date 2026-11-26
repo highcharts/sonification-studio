@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
 import { downloadURI } from '../core/utils/browserUtils';
 import menuIcon from '../assets/bars-solid.svg';
 import jsIcon from '../assets/js-square-brands.svg';
@@ -33,6 +34,7 @@ import htmlIcon from '../assets/file-code-solid.svg';
 import spinnerIcon from '../assets/spinner-solid.svg';
 import SEDropdownMenu from './basic/SEDropdownMenu.vue';
 import SEModalMessage from './basic/SEModalMessage.vue';
+import { useDataStore } from '../store/modules/data';
 
 // A button item in SEDropdownMenu's options format
 interface MenuButtonOption {
@@ -55,6 +57,7 @@ export default defineComponent({
         };
     },
     computed: {
+        ...mapStores(useDataStore),
         menuOptions(): MenuButtonOption[] {
             return [{
                 label: 'Video',
@@ -185,13 +188,13 @@ export default defineComponent({
 
         dlCSV() {
             downloadURI(
-                this.$store.getters['dataStore/tableCSVDataURI'],
+                this.dataStore.tableCSVDataURI,
                 this.$chartBridge.getChartTitleForExport() + '.csv'
             );
         },
 
         dlTextDesc() {
-            const desc = this.$store.state.dataStore.textDescription;
+            const desc = this.dataStore.textDescription;
             if (desc) {
                 downloadURI(
                     'data:text/plain;charset=UTF-8,' + encodeURIComponent(desc),

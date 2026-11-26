@@ -318,7 +318,8 @@ import SEInputbox from './basic/SEInputbox.vue';
 import SECheckbox from './basic/SECheckbox.vue';
 import gsheetIcon from '../assets/Google_Sheets_logo.svg';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
-import { GoogleSheetStatus } from '../store/modules/data';
+import { mapStores } from 'pinia';
+import { GoogleSheetStatus, useDataStore } from '../store/modules/data';
 
 export default defineComponent({
     components: {
@@ -333,25 +334,26 @@ export default defineComponent({
         };
     },
     computed: {
+        ...mapStores(useDataStore),
         spreadsheetURL: {
-            get(): string { return this.$store.state.dataStore.googleSpreadsheetURL; },
-            set(val: string) { this.$store.commit('dataStore/setGoogleSpreadsheetURL', val); }
+            get(): string { return this.dataStore.googleSpreadsheetURL; },
+            set(val: string) { this.dataStore.setGoogleSpreadsheetURL(val); }
         },
         apiKey: {
-            get(): string { return this.$store.state.dataStore.googleApiKey; },
-            set(val: string) { this.$store.commit('dataStore/setGoogleApiKey', val); }
+            get(): string { return this.dataStore.googleApiKey; },
+            set(val: string) { this.dataStore.setGoogleApiKey(val); }
         },
         autoUpdateEnabled: {
-            get(): boolean { return this.$store.state.dataStore.googleAutoUpdateEnabled; },
-            set(val: boolean) { this.$store.commit('dataStore/setGoogleAutoUpdateEnabled', val); }
+            get(): boolean { return this.dataStore.googleAutoUpdateEnabled; },
+            set(val: boolean) { this.dataStore.setGoogleAutoUpdateEnabled(val); }
         },
         googleSheetStatus: {
-            get(): GoogleSheetStatus { return this.$store.state.dataStore.googleSheetStatus; },
-            set(val: GoogleSheetStatus) { this.$store.commit('dataStore/setGoogleSheetStatus', val); }
+            get(): GoogleSheetStatus { return this.dataStore.googleSheetStatus; },
+            set(val: GoogleSheetStatus) { this.dataStore.setGoogleSheetStatus(val); }
         },
         googleSheetErrorMessage: {
-            get(): string { return this.$store.state.dataStore.googleSheetErrorMessage; },
-            set(val: string) { this.$store.commit('dataStore/setGoogleSheetErrorMessage', val); }
+            get(): string { return this.dataStore.googleSheetErrorMessage; },
+            set(val: string) { this.dataStore.setGoogleSheetErrorMessage(val); }
         },
         humanReadableErrorMessage(): string {
             const src = this.googleSheetErrorMessage;
@@ -403,16 +405,16 @@ export default defineComponent({
         },
         onStartOver() {
             this.currentStep = 'apikey';
-            this.$store.commit('dataStore/setSpreadsheetSetupComplete', false);
-            this.$store.commit('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Loading);
+            this.dataStore.setSpreadsheetSetupComplete(false);
+            this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Loading);
         },
         onFinishClick() {
-            this.$store.commit('dataStore/setSpreadsheetSetupComplete', true);
+            this.dataStore.setSpreadsheetSetupComplete(true);
             this.currentStep = 'confirmation';
 
             if (!this.spreadsheetURL) {
-                this.$store.commit('dataStore/setGoogleSheetErrorMessage', 'Requested entity was not found');
-                this.$store.commit('dataStore/setGoogleSheetStatus', GoogleSheetStatus.Error);
+                this.dataStore.setGoogleSheetErrorMessage('Requested entity was not found');
+                this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Error);
             }
         }
     }
