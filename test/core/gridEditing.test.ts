@@ -1,7 +1,7 @@
 /*
     The data grid's options in a Grid Pro grid rendered in jsdom: cell edits
-    written back to the store's rows as Grid.vue does, number cells and CSV
-    headers.
+    written back to the store's rows as Grid.vue does, number cells, CSV
+    headers and row indexes for screen readers.
 */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -20,6 +20,7 @@ import {
 } from '../../src/app/editor/core/utils/gridData';
 
 type ColumnOptions = NonNullable<GridPro.Options['columns']>[number];
+type RowOptions = NonNullable<NonNullable<GridPro.Options['rendering']>['rows']>;
 
 // A CSV header row, then 8 rows, so that both columns are detected as numbers
 function getRows(): TableRowData[] {
@@ -33,10 +34,11 @@ function getRows(): TableRowData[] {
 let grid: GridPro.Grid | undefined;
 
 // Render a grid with the app's options for the data, with changes to some
-// columns' options
+// columns' options and to the row options
 async function renderGrid(
     data: GridTableData,
-    columnChanges: Record<string, Partial<ColumnOptions>> = {}
+    columnChanges: Record<string, Partial<ColumnOptions>> = {},
+    rowChanges: RowOptions = {}
 ): Promise<GridPro.Grid> {
     const options = getGridOptions(data);
     options.columns = options.columns?.map((column) => ({
@@ -47,7 +49,7 @@ async function renderGrid(
     // rendered
     options.rendering = {
         ...options.rendering,
-        rows: { ...options.rendering?.rows, virtualization: false }
+        rows: { ...options.rendering?.rows, virtualization: false, ...rowChanges }
     };
     const container = document.createElement('div');
     document.body.appendChild(container);
@@ -218,5 +220,56 @@ describe('CSV headers', () => {
             expect(headerCell?.htmlElement.getAttribute('aria-description')).toEqual(headers[i]);
         });
         expect(document.querySelector('thead b')).toBeNull();
+    });
+});
+
+// The workaround for Grid Pro 3.2.0 numbering the rendered rows by their
+// position among them (gridProSetup.ts)
+describe('Row indexes for screen readers', () => {
+    function getViewport(gridWithViewport: GridPro.Grid): GridPro.Table {
+        if (!gridWithViewport.viewport) {
+            throw new Error('No viewport');
+        }
+        return gridWithViewport.viewport;
+    }
+
+    // aria-rowindex of the rows of each body section, in order
+    function getAriaRowIndexes(viewport: GridPro.Table): number[][] {
+        return Array.from(viewport.tableElement.tBodies)
+            .map((tbody) => Array.from(tbody.rows).map((row) => Number(row.getAttribute('aria-rowindex'))))
+            .filter((indexes) => indexes.length);
+    }
+
+    // Render only some of the main body's rows, as row virtualization does
+    // after a scroll, and number the rows again, as Grid Pro does after
+    // rendering the rows
+    async function renderOnlyRows(viewport: GridPro.Table, from: number) {
+        viewport.rows.slice(0, from).forEach((row) => row.htmlElement.remove());
+        viewport.rows = viewport.rows.slice(from);
+        await viewport.syncAriaRowIndexes();
+    }
+
+    test('Number the rendered rows by their index in the table', async () => {
+        const viewport = getViewport(await renderGrid(prepareGridData(getRows())));
+        // The column ids and the CSV headers
+        expect(viewport.header?.rows).toHaveLength(2);
+        expect(getAriaRowIndexes(viewport)).toEqual([[3, 4, 5, 6, 7, 8, 9, 10]]);
+
+        // The last 3 rows, after a scroll to the end
+        await renderOnlyRows(viewport, 5);
+        expect(getAriaRowIndexes(viewport)).toEqual([[8, 9, 10]]);
+        expect(viewport.tableElement.getAttribute('aria-rowcount')).toEqual('10');
+    });
+
+    test('Count the pinned rows before and after the other rows', async () => {
+        const viewport = getViewport(await renderGrid(prepareGridData(getRows()), {}, {
+            pinning: { topIds: [2], bottomIds: [5] }
+        }));
+        // The pinned rows are also shown among the other rows
+        expect(getAriaRowIndexes(viewport)).toEqual([[3], [4, 5, 6, 7, 8, 9, 10, 11], [12]]);
+
+        await renderOnlyRows(viewport, 5);
+        expect(getAriaRowIndexes(viewport)).toEqual([[3], [9, 10, 11], [12]]);
+        expect(viewport.tableElement.getAttribute('aria-rowcount')).toEqual('12');
     });
 });
