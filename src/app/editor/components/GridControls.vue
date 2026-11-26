@@ -143,7 +143,8 @@ export default defineComponent({
 
                     let announcement = 'Column ' + destinationColumn + ' filled.';
 
-                    const columnData = this.dataStore.column(destinationColumn);
+                    // Row 0 holds the column headers, which are not filled
+                    const columnData = this.dataStore.column(destinationColumn).slice(1);
                     const numValuesToAnnounce = Math.min(5, columnData.length);
                     if (numValuesToAnnounce > 0) {
                         announcement += ' First values are ';

@@ -10,6 +10,12 @@ describe('GridControls.vue', () => {
 
     const clearGridButton = () => wrapper.findAll('button').find(b => b.text() === 'Clear Grid');
 
+    const fillColumn = async (column: string, equation: string) => {
+        await wrapper.find('#data-fillcolumn-drop').setValue(column);
+        await wrapper.find('.equation-input').setValue(equation);
+        await wrapper.find('button[aria-label="Fill column"]').trigger('click');
+    };
+
     beforeEach(() => {
         vi.useFakeTimers();
         const pinia = createPinia();
@@ -55,5 +61,36 @@ describe('GridControls.vue', () => {
 
         expect(useDataStore().tableRowData).toHaveLength(200);
         expect(announce).not.toHaveBeenCalled();
+    });
+
+    describe('Fill column from equation', () => {
+        test('Announces the first filled values, not the empty header row', async () => {
+            // A cleared grid: the header row has no value in the column
+            useDataStore().setTableRowData(Array.from(Array(10), () => ({})));
+
+            await fillColumn('C', '2 * i');
+
+            expect(useDataStore().column('C').slice(0, 4)).toEqual([null, '2', '4', '6']);
+            expect(announce).toHaveBeenCalledExactlyOnceWith('Column C filled. First values are 2, 4, 6, 8, 10.');
+        });
+
+        test('Leaves the column header out of the announcement', async () => {
+            // The placeholder data's column B header is "Sensor Data (Y value)"
+            await fillColumn('B', 'i');
+
+            expect(useDataStore().column('B')[0]).toBe('Sensor Data (Y value)');
+            expect(announce).toHaveBeenCalledExactlyOnceWith('Column B filled. First values are 1, 2, 3, 4, 5.');
+        });
+
+        test('Announces fewer values for a short column, and none without rows to fill', async () => {
+            const data = useDataStore();
+            data.setTableRowData([{ A: 'Header' }, {}, {}]);
+            await fillColumn('A', 'i * 3');
+            expect(announce).toHaveBeenLastCalledWith('Column A filled. First values are 3, 6.');
+
+            data.setTableRowData([{ A: 'Header' }]);
+            await fillColumn('A', 'i * 3');
+            expect(announce).toHaveBeenLastCalledWith('Column A filled.');
+        });
     });
 });
