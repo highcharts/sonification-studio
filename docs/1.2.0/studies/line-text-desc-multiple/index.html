@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="author" content="Highsoft AS">
+        <meta name="description" content="Highcharts sonification related studies.">
+        <meta name="keywords" content="sonification,chart,dataviz,studio,science">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+        <title>Multiple lines | Studies | Highcharts Sonification Studio</title>
+        <style>
+            html, body {
+                font-family: 'Roboto', 'Segoe UI', Verdana, sans-serif;
+                margin: 0;
+            }
+            header {
+                width: 100%;
+                height: 4rem;
+                background-image: none;
+                background-color: #484859;
+                display: flex;
+                align-items: center;
+            }
+            #clear {
+                flex-grow: 1;
+            }
+            #hc-icon {
+                height: 2rem;
+                margin-right: 12px;
+                vertical-align: middle;
+                margin-top: -5px;
+            }
+            header a {
+                display: block;
+                padding-left: 15px;
+                text-decoration: none;
+            }
+            header h1 {
+                font-size: 0.9rem;
+                font-weight: normal;
+                color: #d5cbe4;
+            }
+            #header-inner {
+                border-left: 1px solid #d5cbe4;
+                padding-left: 10px;
+            }
+        </style>
+        <style>
+            /* Study styles */
+            #container {
+                height: 500px;
+            }
+
+            #csv,
+            .highcharts-description {
+                display: none;
+            }
+
+            .highcharts-line-description {
+                margin: 30px 0 0;
+                border-left: 6px solid #8daeb9;
+                margin-left: 6px;
+                padding: 35px 35px 15px 35px;
+                background-color: #ecf4f5;
+                border-radius: 0 30px 0 0;
+            }
+
+            .highcharts-trend-controls {
+                margin: 0 0 30px 6px;
+                background-color: #ecf4f5;
+                border-left: 6px solid #8daeb9;
+                padding: 5px 35px 35px 35px;
+            }
+
+            .highcharts-trend-controls-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+
+            .highcharts-trend-controls h3 {
+                margin-top: 0;
+            }
+
+            .highcharts-trend-controls label {
+                margin: 20px 15px 10px 10px;
+            }
+
+            .highcharts-trend-controls button,
+            .highcharts-trend-range-container button,
+            .highcharts-sonification-dialog button {
+                background-color: #e9eff0;
+                border: 1px solid #8daeb9;
+                text-decoration: none;
+                cursor: pointer;
+                margin: 10px 0;
+                padding: 10px 20px;
+                appearance: none;
+                font-size: 1rem;
+            }
+
+            .highcharts-sonification-dialog {
+                max-width: 900px;
+            }
+
+            .highcharts-sonification-dialog button {
+                margin-right: 15px;
+            }
+
+            .highcharts-trend-range-container input {
+                margin: 5px 20px 0 10px;
+            }
+
+            .highcharts-trend-range-container button {
+                margin: 0;
+                padding: 3px 10px;
+                font-size: 0.9rem;
+            }
+
+            .highcharts-figure,
+            .highcharts-data-table table {
+                min-width: 360px;
+                max-width: 1050px;
+                margin: 1em auto;
+                font-family: Verdana, sans-serif;
+            }
+
+            .highcharts-data-table table {
+                font-family: Verdana, sans-serif;
+                border-collapse: collapse;
+                border: 1px solid #ebebeb;
+                margin: 10px auto;
+                text-align: center;
+                width: 100%;
+                max-width: 500px;
+            }
+
+            .highcharts-data-table caption {
+                padding: 1em 0;
+                font-size: 1.2em;
+                color: #555;
+            }
+
+            .highcharts-data-table th {
+                font-weight: 600;
+                padding: 0.5em;
+            }
+
+            .highcharts-data-table td,
+            .highcharts-data-table th,
+            .highcharts-data-table caption {
+                padding: 0.5em;
+            }
+
+            .highcharts-data-table thead tr,
+            .highcharts-data-table tr:nth-child(even) {
+                background: #f8f8f8;
+            }
+
+            .highcharts-data-table tr:hover {
+                background: #f1f7ff;
+            }
+            #intro {
+                margin: 35px auto;
+                max-width: 850px;
+            }
+            #intro a {
+                color: #4368B1;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <a href="https://www.highcharts.com">
+                <h1>
+                    <img
+                        id="hc-icon"
+                        alt="Highcharts"
+                        src="../highcharts-logo.svg"
+                    >
+                    <span id="header-inner">Sonification Studies</span>
+                </h1>
+            </a>
+            <span id="clear"></span>
+        </header>
+        <main>
+            <div id="intro">
+                <h1>Automatic text description demo - Multiple lines</h1>
+
+                <p>This is a study exploring the use of automatically generated text descriptions in combination with sonification, with the goal of making line charts with large amounts of data more accessible to people with visual disabilities. This is combined with existing Highcharts accessibility features, including structured and accessible SVG graphics. This work was presented at CSUN 2023 by Øystein Moseng (Highcharts) and Ted Gies (Elsevier). Slides and drafts from the presentation can be found at <a href="https://www.slideshare.net/tedgies/csun-2023-automated-descriptions-3-march-2023-tgpptx">Slideshare</a>.</p>
+
+                <p>Automatic line smoothing is also made available, and forms a mathematical basis for the text description calculations. The smoothing makes use of a modified, cascading Visvalingam-Whyatt algorithm. The text description makes use of deterministic math, without machine learning. As charts often communicate important data, we found the accuracy of current AI/ML models problematic, and therefore chose to see if we could get more reliable results using other methods. The functionality demonstrated below scored high in user testing, and can serve as a starting point for richer analysis through ML models.</p>
+
+                <p>Note that this is an exploratory study, and not intended to be production ready. It uses a modified version of the Highcharts v10.3.3 JavaScript library. Since this study was made, Highcharts v11 has brought <a href="https://www.highcharts.com/demo#audio-charts">improved sonification features</a> into an official release. For an in depth overview of current production ready features, see <a href="https://www.highcharts.com">highcharts.com</a>. No other libraries or dependencies were used for this work.</p>
+
+                <p>The following descriptions are automatically generated from the chart configuration. The chart is created and described on the client side, and no backend processing is done.</p>
+            </div>
+
+            <figure class="highcharts-figure">
+                <div id="container"></div>
+                <p class="highcharts-description">
+                    Demo showing how automatic text descriptions can work with multiple lines.
+                </p>
+            </figure>
+
+            <pre id="csv">Time,Japan,Sweden,USA
+            2002-01-01,5.2,5.8,5.7
+            2002-02-01,5.3,5.8,5.7
+            2002-03-01,5.3,5.8,5.7
+            2002-04-01,5.3,6,5.9
+            2002-05-01,5.4,5.8,5.8
+            2002-06-01,5.5,5.6,5.8
+            2002-07-01,5.4,6.1,5.8
+            2002-08-01,5.5,5.9,5.7
+            2002-09-01,5.4,6.2,5.7
+            2002-10-01,5.4,6,5.7
+            2002-11-01,5.2,6.2,5.9
+            2002-12-01,5.4,6.3,6
+            2003-01-01,5.4,6.4,5.8
+            2003-02-01,5.2,6,5.9
+            2003-03-01,5.4,6.3,5.9
+            2003-04-01,5.5,6.3,6
+            2003-05-01,5.4,6.3,6.1
+            2003-06-01,5.4,6.4,6.3
+            2003-07-01,5.2,6.5,6.2
+            2003-08-01,5.1,6.9,6.1
+            2003-09-01,5.2,6.5,6.1
+            2003-10-01,5.1,6.9,6
+            2003-11-01,5.1,7.3,5.8
+            2003-12-01,4.9,7,5.7
+            2004-01-01,4.9,7,5.7
+            2004-02-01,5,7.6,5.6
+            2004-03-01,4.8,7.4,5.8
+            2004-04-01,4.8,7.1,5.6
+            2004-05-01,4.7,7.6,5.6
+            2004-06-01,4.7,7.4,5.6
+            2004-07-01,4.9,7.2,5.5
+            2004-08-01,4.8,7.3,5.4
+            2004-09-01,4.6,7.8,5.4
+            2004-10-01,4.6,7.1,5.5
+            2004-11-01,4.5,7.5,5.4
+            2004-12-01,4.5,7.5,5.4
+            2005-01-01,4.5,7,5.3
+            2005-02-01,4.6,7.8,5.4
+            2005-03-01,4.5,7.3,5.2
+            2005-04-01,4.5,7.8,5.2
+            2005-05-01,4.5,8.1,5.1
+            2005-06-01,4.3,8.4,5
+            2005-07-01,4.4,8.3,5
+            2005-08-01,4.3,8,4.9
+            2005-09-01,4.2,7.6,5
+            2005-10-01,4.4,8.2,5
+            2005-11-01,4.5,7.4,5
+            2005-12-01,4.4,7.9,4.9
+            2006-01-01,4.4,8.1,4.7
+            2006-02-01,4.1,7.3,4.8
+            2006-03-01,4.1,7.6,4.7
+            2006-04-01,4.1,8,4.7
+            2006-05-01,4.1,7.4,4.6
+            2006-06-01,4.2,7.2,4.6
+            2006-07-01,4.1,7.2,4.7
+            2006-08-01,4.1,7.2,4.7
+            2006-09-01,4.1,6.9,4.5
+            2006-10-01,4.1,6.8,4.4
+            2006-11-01,4,6.8,4.5
+            2006-12-01,4,6.6,4.4
+            2007-01-01,4,6.7,4.6
+            2007-02-01,4,6.4,4.5
+            2007-03-01,4,6.7,4.4
+            2007-04-01,3.8,6.3,4.5
+            2007-05-01,3.8,6.1,4.4
+            2007-06-01,3.7,6.4,4.6
+            2007-07-01,3.6,6,4.7
+            2007-08-01,3.7,6.2,4.6
+            2007-09-01,3.9,6.3,4.7
+            2007-10-01,4,6.4,4.7
+            2007-11-01,3.8,6.1,4.7
+            2007-12-01,3.7,6.2,5
+            2008-01-01,3.9,6.2,5
+            2008-02-01,4,6,4.9
+            2008-03-01,3.8,6,5.1
+            2008-04-01,3.9,5.8,5
+            2008-05-01,4,6,5.4
+            2008-06-01,4,6.8,5.6
+            2008-07-01,3.9,6.4,5.8
+            2008-08-01,4.1,6.1,6.1
+            2008-09-01,4,6.6,6.1
+            2008-10-01,3.8,6.5,6.5
+            2008-11-01,4,7.2,6.8
+            2008-12-01,4.4,7,7.3
+            2009-01-01,4.3,7,7.8
+            2009-02-01,4.6,7.9,8.3
+            2009-03-01,4.8,8,8.7
+            2009-04-01,5,8,9
+            2009-05-01,5.1,9.1,9.4
+            2009-06-01,5.2,8.6,9.5
+            2009-07-01,5.5,8.6,9.5
+            2009-08-01,5.4,9,9.6
+            2009-09-01,5.4,9,9.8
+            2009-10-01,5.2,8.9,10
+            2009-11-01,5.2,8.9,9.9
+            2009-12-01,5.2,9.2,9.9
+            2010-01-01,5,9.3,9.8
+            2010-02-01,5,9.1,9.8
+            2010-03-01,5.1,9,9.9
+            2010-04-01,5.1,9.5,9.9
+            2010-05-01,5.1,9,9.6
+            2010-06-01,5.2,8.4,9.4
+            2010-07-01,5,8.9,9.4
+            2010-08-01,5.1,8.6,9.5
+            2010-09-01,5.1,8.6,9.5
+            2010-10-01,5.1,8.5,9.4
+            2010-11-01,5,8.2,9.8
+            2010-12-01,4.9,8.2,9.3
+            2011-01-01,4.8,8.2,9.1
+            2011-02-01,4.7,7.9,9
+            2011-03-01,4.7,8.1,9
+            2011-04-01,4.7,7.8,9.1
+            2011-05-01,4.6,8,9
+            2011-06-01,4.7,8.1,9.1
+            2011-07-01,4.7,7.9,9
+            2011-08-01,4.5,7.9,9
+            2011-09-01,4.2,7.7,9
+            2011-10-01,4.4,8,8.8
+            2011-11-01,4.5,7.9,8.6
+            2011-12-01,4.5,8,8.5
+            2012-01-01,4.5,8.1,8.3
+            2012-02-01,4.5,8,8.3
+            2012-03-01,4.5,7.7,8.2
+            2012-04-01,4.5,7.7,8.2
+            2012-05-01,4.4,8.4,8.2
+            2012-06-01,4.3,8,8.2
+            2012-07-01,4.3,8.2,8.2
+            2012-08-01,4.2,8.3,8.1
+            2012-09-01,4.2,8.3,7.8
+            2012-10-01,4.1,8.2,7.8
+            2012-11-01,4.1,8.6,7.7
+            2012-12-01,4.3,8.3,7.9
+            2013-01-01,4.2,8.1,8
+            2013-02-01,4.3,8.2,7.7
+            2013-03-01,4.1,8.5,7.5
+            2013-04-01,4.1,8.4,7.6
+            2013-05-01,4.1,8,7.5
+            2013-06-01,3.9,8.2,7.5
+            2013-07-01,3.8,8.1,7.3
+            2013-08-01,4.1,8.2,7.2
+            2013-09-01,3.9,8.3,7.2
+            2013-10-01,4,8,7.2
+            2013-11-01,3.9,8.2,6.9
+            2013-12-01,3.7,8.2,6.7
+            2014-01-01,3.7,8.3,6.6
+            2014-02-01,3.6,8.2,6.7
+            2014-03-01,3.7,8.3,6.7
+            2014-04-01,3.6,8.3,6.2
+            2014-05-01,3.6,7.8,6.3
+            2014-06-01,3.7,8.3,6.1
+            2014-07-01,3.7,8,6.2
+            2014-08-01,3.5,8.2,6.1
+            2014-09-01,3.5,7.9,5.9
+            2014-10-01,3.6,8.2,5.7
+            2014-11-01,3.4,8.1,5.8
+            2014-12-01,3.4,7.7,5.6
+            2015-01-01,3.6,8,5.7
+            2015-02-01,3.5,8.1,5.5
+            2015-03-01,3.4,7.7,5.4
+            2015-04-01,3.4,8,5.4
+            2015-05-01,3.3,7.8,5.6
+            2015-06-01,3.4,7.7,5.3
+            2015-07-01,3.3,7.3,5.2
+            2015-08-01,3.4,7.1,5.1
+            2015-09-01,3.4,7.5,5
+            2015-10-01,3.2,7.4,5
+            2015-11-01,3.3,7.1,5.1
+            2015-12-01,3.3,7.4,5
+            2016-01-01,3.2,7.2,4.8
+            2016-02-01,3.3,7.3,4.9
+            2016-03-01,3.2,7.5,5
+            2016-04-01,3.2,6.9,5.1
+            2016-05-01,3.2,7.4,4.8
+            2016-06-01,3.1,6.9,4.9
+            2016-07-01,3,7,4.8
+            2016-08-01,3.1,7.3,4.9
+            2016-09-01,3,6.9,5
+            2016-10-01,3,7.1,4.9
+            2016-11-01,3,7,4.7
+            2016-12-01,3,7.1,4.7
+            2017-01-01,3,7,4.7
+            2017-02-01,2.9,7.1,4.6
+            2017-03-01,2.8,6.6,4.4
+            2017-04-01,2.8,7,4.4
+            2017-05-01,3,6.9,4.4
+            2017-06-01,2.8,6.7,4.3
+            2017-07-01,2.8,7.1,4.3
+            2017-08-01,2.8,6.6,4.4
+            2017-09-01,2.8,7,4.3
+            2017-10-01,2.7,7,4.2
+            2017-11-01,2.7,6.6,4.2
+            2017-12-01,2.7,6.8,4.1
+            2018-01-01,2.4,6.8,4
+            2018-02-01,2.5,5.9,4.1
+            2018-03-01,2.5,6.3,4
+            2018-04-01,2.5,6.6,4
+            2018-05-01,2.2,6.1,3.8
+            2018-06-01,2.4,6.6,4
+            2018-07-01,2.5,6.6,3.8
+            2018-08-01,2.5,6.5,3.8
+            2018-09-01,2.3,6.7,3.7
+            2018-10-01,2.4,6.6,3.8
+            2018-11-01,2.5,6.7,3.8
+            2018-12-01,2.5,6.8,3.9
+            2019-01-01,2.5,6.4,4
+            2019-02-01,2.4,7,3.8
+            2019-03-01,2.5,7.5,3.8
+            2019-04-01,2.4,6.6,3.6
+            2019-05-01,2.3,6.7,3.7
+            2019-06-01,2.3,6.5,3.6
+            2019-07-01,2.3,7.3,3.7
+            2019-08-01,2.3,7.3,3.7
+            2019-09-01,2.4,6.9,3.5
+            2019-10-01,2.4,7,3.6
+            2019-11-01,2.3,7.7,3.6
+            2019-12-01,2.2,6.9,3.6
+            2020-01-01,2.4,7.4,3.5
+            2020-02-01,2.4,7.9,3.5
+            2020-03-01,2.5,6.8,4.4
+            2020-04-01,2.6,8.1,14.7
+            2020-05-01,2.8,8.5,13.2
+            2020-06-01,2.8,9.2,11
+            2020-07-01,2.9,9.5,10.2
+            2020-08-01,3,9.3,8.4
+            2020-09-01,3,9.1,7.9
+            2020-10-01,3.1,8.8,6.9
+            2020-11-01,2.9,8.6,6.7
+            2020-12-01,3,9.2,6.7
+            2021-01-01,3,8.9,6.3
+            2021-02-01,2.9,9.2,6.2
+            2021-03-01,2.7,9.5,6.1
+            2021-04-01,2.8,9,6.1
+            2021-05-01,2.9,9,5.8
+            2021-06-01,2.9,9.4,5.9
+            2021-07-01,2.8,8.5,5.4
+            2021-08-01,2.8,8.9,5.2
+            2021-09-01,2.8,8.8,4.8
+            2021-10-01,2.7,8.3,4.5
+            2021-11-01,2.8,8.3,4.2
+            2021-12-01,2.7,7.9,3.9
+            2022-01-01,2.8,8,4
+            2022-02-01,2.7,7.4,3.8
+            2022-03-01,2.6,7.6,3.6
+            2022-04-01,2.5,7.7,3.6
+            2022-05-01,2.6,7.8,3.6
+            2022-06-01,2.6,7.6,3.6
+            2022-07-01,2.6,7,3.5
+            2022-08-01,2.5,7,3.7
+            2022-09-01,2.6,7.1,3.5
+            2022-10-01,2.6,7.7,3.7
+            2022-11-01,2.5,7.2,3.6
+            2022-12-01,2.5,7.5,3.5</pre>
+        </main>
+
+        <script src="../highcharts-bundles/2023-04-28-linetextdesc-highcharts-bundle.js"></script>
+        <script>
+            const day = 1000 * 60 * 60 * 24;
+            let prevYear,
+                yearCount = -1;
+
+            const say = function (msg) {
+                const speaker = new Highcharts.sonification
+                    .SonificationSpeaker({
+                        language: 'en-US',
+                        rate: 2.5,
+                        volume: 0.4
+                    });
+                setTimeout(() => speaker.say(msg), 300);
+            };
+
+            const chart = Highcharts.chart('container', {
+                title: {
+                    text: 'Unemployment rate last 20 years',
+                    align: 'left'
+                },
+                subtitle: {
+                    text: 'Shown in percent of labor force',
+                    align: 'left'
+                },
+                chart: {
+                    type: 'spline',
+                    marginTop: 70
+                },
+                colors: ['#3d3f51', '#42858C', '#AD343E'],
+                accessibility: {
+                    screenReaderSection: {
+                        axisRangeDateFormat: '%B %Y',
+                        beforeChartFormat: ''
+                    },
+                    point: {
+                        dateFormat: '%b %e, %Y',
+                        valueDescriptionFormat: '{value}{separator}{xDescription}'
+                    },
+                    series: {
+                        pointDescriptionEnabledThreshold: false
+                    }
+                },
+                sonification: {
+                    duration: 27000,
+                    afterSeriesWait: 1500,
+                    defaultInstrumentOptions: {
+                        mapping: {
+                            playDelay: 1000
+                        }
+                    },
+                    events: {
+                        onPlay: function (timeline) {
+                            // eslint-disable-next-line no-underscore-dangle
+                            if (!timeline._navigating) {
+                                const curPoint = timeline.getCurrentPoint();
+                                if (curPoint) {
+                                    say(curPoint.series.name);
+                                }
+                            }
+                        },
+                        onSeriesEnd: function (series) {
+                            const newSeries = series.chart.series[series.index + 1];
+                            if (newSeries) {
+                                say(newSeries.name);
+                            }
+                        }
+                    },
+                    globalContextTracks: [{
+                        instrument: 'chop',
+                        valueInterval: day,
+                        mapping: {
+                            volume: 0.4,
+                            playDelay: 1000
+                        },
+                        activeWhen: function (context) {
+                            const x = context.value,
+                                year = new Date(x).getFullYear(),
+                                newYear = year !== prevYear;
+                            prevYear = year;
+                            return newYear;
+                        }
+                    }, {
+                        type: 'speech',
+                        mapping: {
+                            text: function (context) {
+                                const x = context.value,
+                                    year = new Date(x).getFullYear();
+                                return '' + year;
+                            },
+                            rate: 2.5,
+                            volume: 0.3,
+                            playDelay: 1000
+                        },
+                        valueInterval: day * 10,
+                        activeWhen: function (context) {
+                            const x = context.value,
+                                year = new Date(x).getFullYear(),
+                                newYear = year !== prevYear;
+                            prevYear = year;
+                            if (newYear) {
+                                ++yearCount;
+                                return !(yearCount % 5);
+                            }
+                            return false;
+                        }
+                    }]
+                },
+                exporting: {
+                    enabled: false
+                },
+                plotOptions: {
+                    series: {
+                        label: {
+                            connectorAllowed: true
+                        },
+                        marker: {
+                            enabled: false
+                        },
+                        cropThreshold: 10
+                    }
+                },
+                data: {
+                    csv: document.getElementById('csv').textContent
+                },
+                yAxis: {
+                    title: {
+                        text: null
+                    },
+                    accessibility: {
+                        description: 'Percent unemployment of labor force'
+                    },
+                    labels: {
+                        format: '{value:,.0f}%'
+                    }
+                },
+                xAxis: {
+                    accessibility: {
+                        description: 'Time'
+                    },
+                    type: 'datetime'
+                },
+                tooltip: {
+                    valueSuffix: '%',
+                    stickOnContact: true
+                },
+                legend: {
+                    enabled: false
+                }
+            });
+
+            chart.accessibility.addLineChartTextDescription();
+            chart.accessibility.addLineTrendControls();
+        </script>
+    </body>
+</html>
