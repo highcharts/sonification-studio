@@ -46,6 +46,13 @@ export interface DataSourceOption {
     value: string;
 }
 
+// The version of the column ids the rows are keyed by, saved with them in
+// project files and sessions: 2 for A to Z, then AA, AB, ... Rows saved
+// without it (by v1.2.1 and earlier) can have older ids, which are renamed
+// when they are restored (renameLegacyColumnIds). Rows saved with it are
+// restored as they are: their ids could pass for older ones.
+export const columnIdsVersion = 2;
+
 export interface DataState {
     tableCSV: string;
     tableRowData: TableRow[];
@@ -60,6 +67,8 @@ export interface DataState {
     googleSheetStatus: GoogleSheetStatus;
     googleSheetErrorMessage: string;
     dataSourcesList: DataSourceOption[];
+    // Always columnIdsVersion: the rows are renamed to it when restored
+    columnIdsVersion: number;
 }
 
 // The part of the data state that is restored from project files and
@@ -68,6 +77,7 @@ export interface DataState {
 // editor has.
 export interface DataRestoreState {
     tableRowData: TableRow[];
+    columnIdsVersion?: number;
     textDescription?: string;
     selectedDataSource?: string;
     spreadsheetSetupComplete?: boolean;
@@ -208,6 +218,7 @@ export const useDataStore = defineStore('data', {
             { name: 'Grid', value: 'table' },
             { name: 'Google Sheets', value: 'googlesheets' },
         ],
+        columnIdsVersion,
     }),
 
     // The Vuex module also had a textDescription getter returning the state
@@ -275,9 +286,12 @@ export const useDataStore = defineStore('data', {
         // unless the state has one. The columns past Z of rows saved by
         // v1.2.1 and earlier are renamed AA, AB, ...
         restoreStoreState(newState?: DataRestoreState) {
-            this.tableRowData = newState ?
-                renameLegacyColumnIds(newState.tableRowData) :
-                getPlaceholderData();
+            const savedVersion = newState?.columnIdsVersion;
+            this.tableRowData = !newState ?
+                getPlaceholderData() :
+                typeof savedVersion === 'number' && savedVersion >= columnIdsVersion ?
+                    newState.tableRowData :
+                    renameLegacyColumnIds(newState.tableRowData);
             this.textDescription = newState ? newState.textDescription || '' : '';
             this.tableCSV = generateCSV(this.tableRowData);
 

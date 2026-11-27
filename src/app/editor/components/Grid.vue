@@ -32,6 +32,9 @@ import { useViewStore } from '../store/modules/view';
 const gridRenderTimeout = 10000;
 
 export default defineComponent({
+    // columnCountChange: the number of columns the grid shows, when it
+    // changes (also after a rebuild)
+    emits: ['columnCountChange'],
     data() {
         return {
             // The Grid Pro instance is stored with markRaw(), so Vue never
@@ -58,6 +61,12 @@ export default defineComponent({
         ...mapState(useDataStore, ['tableRowData']),
         ...mapState(useViewStore, ['selectedHeaderTabContent']),
         ...mapStores(useDataStore, useViewStore),
+    },
+
+    watch: {
+        gridColumnCount(count: number) {
+            this.$emit('columnCountChange', count);
+        }
     },
 
     mounted() {

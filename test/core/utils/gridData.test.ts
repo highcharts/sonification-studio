@@ -18,7 +18,7 @@ import {
     toStoreValue,
     type TableRowData
 } from '../../../src/app/editor/core/utils/gridData';
-import { useDataStore } from '../../../src/app/editor/store/modules/data';
+import { tableCSVDelimiter, useDataStore } from '../../../src/app/editor/store/modules/data';
 import { getNavigationTarget } from '../../../src/app/editor/core/gridProSetup';
 
 function getRows(): TableRowData[] {
@@ -71,17 +71,28 @@ describe('Column ids', () => {
         expect(ids.slice(0, 3)).toEqual(['A', 'B', 'C']);
         expect(ids.slice(25)).toEqual(['Z', 'AA', 'AB', 'AC', 'AD']);
         expect(getGridColumnIds(50).at(-1)).toEqual('AX');
-        expect([51, 52, 701, 702, 18277].map(getColumnId))
-            .toEqual(['AZ', 'BA', 'ZZ', 'AAA', 'ZZZ']);
+        expect([51, 52, 701, 702, 18277, 18278].map(getColumnId))
+            .toEqual(['AZ', 'BA', 'ZZ', 'AAA', 'ZZZ', 'AAAA']);
     });
 
     test('Give the index of each column id, and -1 for other keys', () => {
-        for (const index of [0, 25, 26, 51, 52, 701, 702, 18277]) {
+        for (const index of [0, 25, 26, 51, 52, 701, 702, 18277, 18278, 500000]) {
             expect(getColumnIndex(getColumnId(index))).toEqual(index);
         }
-        for (const key of ['', 'a', 'Aa', 'A1', 'COL1', 'AAAA', '_', 'other']) {
+        for (const key of ['', 'a', 'Aa', 'A1', 'COL1', '_', 'other']) {
             expect(getColumnIndex(key)).toEqual(-1);
         }
+    });
+
+    test('Keep the columns of a CSV wider than ZZZ through the store\'s CSV', () => {
+        // Values in the first column and the 18279th, AAAA
+        const dataStore = useDataStore(createPinia());
+        dataStore.loadFromCSV('first' + ','.repeat(18278) + 'last\n1');
+        const rows = dataStore.tableRowData;
+        expect(rows).toEqual([{ A: 'first', AAAA: 'last' }, { A: '1' }]);
+
+        dataStore.loadFromCSV(dataStore.tableCSV, tableCSVDelimiter);
+        expect(dataStore.tableRowData).toEqual(rows);
     });
 
     test('Match the columns of an imported CSV with more than 26 columns', () => {

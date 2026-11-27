@@ -9,6 +9,11 @@ import {
     useDataStore,
     type TableRow
 } from '../../../src/app/editor/store/modules/data';
+import {
+    getAppState,
+    restoreAppState,
+    type RestoreAppState
+} from '../../../src/app/editor/store/store';
 
 const toCSV = (rows: Array<Record<string, unknown>>) =>
     rows.map(row => Object.values(row).join(';')).join('\n');
@@ -23,8 +28,10 @@ describe('data store', () => {
         expect(Object.keys(store.$state)).toEqual([
             'tableCSV', 'tableRowData', 'tableHeaders', 'textDescription', 'selectedDataSource',
             'spreadsheetSetupComplete', 'googleSpreadsheetURL', 'googleApiKey', 'googleAutoUpdateEnabled',
-            'googleAutoUpdateFrequency', 'googleSheetStatus', 'googleSheetErrorMessage', 'dataSourcesList'
+            'googleAutoUpdateFrequency', 'googleSheetStatus', 'googleSheetErrorMessage', 'dataSourcesList',
+            'columnIdsVersion'
         ]);
+        expect(store.columnIdsVersion).toBe(2);
         expect(store.tableRowData).toEqual([]);
         expect(store.googleSheetStatus).toBe(GoogleSheetStatus.Loading);
         expect(store.dataSourcesList).toEqual([
@@ -78,6 +85,32 @@ describe('data store', () => {
                 { A: '1', AA: '2', AC: '4' }
             ]);
             expect(store.tableCSV).toBe('x' + ';'.repeat(25) + 'z;h1;;h3\n1' + ';'.repeat(26) + '2;;4');
+        });
+
+        test('Keeps the columns of rows saved with the column ids version, which can look older', () => {
+            // A CSV of 53 columns with values in A to AA and in BA, the 53rd:
+            // its rows have the ids of the v1.1.1 grid's rows, A to Z, AA
+            // and BA
+            const line = (prefix: string) => Array.from({ length: 53 }, (_, i) =>
+                i <= 26 || i === 52 ? prefix + i : '').join(',');
+            const pinia = createPinia();
+            const store = useDataStore(pinia);
+            store.loadFromCSV(line('H') + '\n' + line(''));
+            expect(Object.keys(store.tableRowData[1]).slice(25)).toEqual(['Z', 'AA', 'BA']);
+
+            // Saved to a session or project file, and restored
+            const saved = JSON.parse(JSON.stringify(getAppState(pinia))) as RestoreAppState;
+            expect(saved.dataStore?.columnIdsVersion).toBe(2);
+            const restoredPinia = createPinia();
+            restoreAppState(saved, restoredPinia);
+            const restored = useDataStore(restoredPinia);
+            expect(restored.tableRowData).toEqual(store.tableRowData);
+            expect(restored.tableRowData[1].BA).toBe('52');
+            expect(restored.tableCSV).toBe(store.tableCSV);
+
+            // Without the version, the rows are taken for the v1.1.1 grid's
+            restored.restoreStoreState({ tableRowData: store.tableRowData });
+            expect(restored.tableRowData[1].AB).toBe('52');
         });
 
         test('Resets the data source settings, but not the Google API key', () => {

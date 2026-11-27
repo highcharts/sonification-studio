@@ -77,6 +77,31 @@ describe('GridControls.vue', () => {
             expect(dropdownOptions().slice(24)).toEqual(['Y', 'Z', 'AA', 'AB', 'AC', 'AD']);
         });
 
+        test('Lists the columns the grid reports, which it keeps when values are deleted', async () => {
+            // The grid has added columns to A to P after a value typed in K,
+            // which was then deleted
+            useDataStore().setTableRowData([{ A: 'x' }, { A: '1', K: '' }]);
+            await wrapper.setProps({ gridColumnCount: 16 });
+            expect(dropdownOptions()).toEqual('ABCDEFGHIJKLMNOP'.split(''));
+        });
+
+        test('Selects the first column when the selected one is no longer listed', async () => {
+            const data = useDataStore();
+            await wrapper.setProps({ gridColumnCount: 16 });
+            await wrapper.find('#data-fillcolumn-drop').setValue('P');
+
+            // The grid is cleared and rebuilt with A to K
+            data.setTableRowData(Array.from(Array(10), () => ({})));
+            await wrapper.setProps({ gridColumnCount: 11 });
+            const select = wrapper.find<HTMLSelectElement>('#data-fillcolumn-drop').element;
+            expect(select.value).toBe('A');
+
+            await wrapper.find('.equation-input').setValue('i');
+            await wrapper.find('button[aria-label="Fill column"]').trigger('click');
+            expect(data.column('A').slice(0, 3)).toEqual([null, '1', '2']);
+            expect(data.tableRowData.some((row) => '' in row || 'P' in row)).toBe(false);
+        });
+
         test('Has help text without markup, with the values "2 * i" fills in', () => {
             // SEControl renders the help text as text, a paragraph for each <br>
             const paragraphs = wrapper.findAll('.helptext-content-container p').map(p => p.text());

@@ -70,9 +70,10 @@ export function getGridColumnIds(count: number): string[] {
 }
 
 // Index of a column id ('A' is 0, 'Z' 25, 'AA' 26, ...), or -1 for another
-// key. Ids have at most three letters (ZZZ is the 18278th column).
+// key. Ids have as many letters as getColumnId gives them (AAAA is the
+// 18279th column, of a CSV that wide).
 export function getColumnIndex(columnId: string): number {
-    if (!/^[A-Z]{1,3}$/.test(columnId)) {
+    if (!/^[A-Z]+$/.test(columnId)) {
         return -1;
     }
     let n = 0;
@@ -85,14 +86,15 @@ export function getColumnIndex(columnId: string): number {
 const legacyColumnIdPattern = /^COL([1-9]\d*)$/;
 
 // Rows with the column ids of projects and sessions saved before the columns
-// past Z were named AA, AB, ... (v1.2.1 and earlier), renamed to them:
+// past Z were named AA, AB, ... (v1.2.1 and earlier), renamed to them. Only
+// for rows saved without the data store's columnIdsVersion: the current ids
+// can look like the older ones.
 // - COL1, COL2, ...: the columns past Z of an imported CSV, and of the grid
-//   in v1.2.0 and v1.2.1. Other rows never have them.
+//   in v1.2.0 and v1.2.1.
 // - AA, BA, CA, ...: the columns past Z of the grid in master v1.1.1, which
 //   gave each row it wrote a cell in each of its columns. Such rows have no
-//   other ids of two letters, and a row has cells in A to Z and BA. Other
-//   rows with BA (the 53rd column, of an imported CSV) would also have AB to
-//   AZ, unless these columns are empty in every row.
+//   other ids of two letters, and a row has cells in A to Z and BA. The
+//   versions without columnIdsVersion gave no other columns these ids.
 // A COL id's value wins over another for the same column, as in v1.2.1 (its
 // rowToCSV put a value under another key after the columns). Rows without
 // these ids are returned as they are.

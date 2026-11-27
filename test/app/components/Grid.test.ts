@@ -101,7 +101,10 @@ describe('Grid.vue', () => {
         const grid = await mountGrid();
         const vm = grid.vm as unknown as GridVM;
         const columnIds = () => vm.gridInstance?.viewport?.columns.map((column) => column.id);
+        // The column counts the grid has reported (for the Fill dropdown)
+        const countsReported = () => grid.emitted('columnCountChange')?.map(([count]) => count);
         expect(columnIds()).toEqual(getGridColumnIds(11));
+        expect(countsReported()).toEqual([11]);
 
         // An edit in the first five columns after the data adds none
         await typeInCell(1, 'C', '1');
@@ -111,6 +114,7 @@ describe('Grid.vue', () => {
         await typeInCell(1, 'K', '5');
         expect(data.tableRowData[2]).toEqual({ A: '1', B: '20', C: '1', K: '5' });
         expect(columnIds()).toEqual(getGridColumnIds(16));
+        expect(countsReported()).toEqual([11, 16]);
         expect(grid.findAll('tbody tr[data-row-index="1"] td').map((td) => td.attributes('data-value')))
             .toEqual(['1', '20', '1', '', '', '', '', '', '', '', '5', '', '', '', '', '']);
 
@@ -118,6 +122,13 @@ describe('Grid.vue', () => {
         await typeInCell(1, 'P', '7');
         expect(data.tableRowData[2]).toEqual({ A: '1', B: '20', C: '1', K: '5', P: '7' });
         expect(columnIds()).toEqual(getGridColumnIds(21));
+        expect(countsReported()).toEqual([11, 16, 21]);
+
+        // Deleting the value keeps the columns, until the grid is rebuilt
+        await typeInCell(1, 'P', '');
+        expect(data.tableRowData[2]).toEqual({ A: '1', B: '20', C: '1', K: '5', P: '' });
+        expect(columnIds()).toEqual(getGridColumnIds(21));
+        expect(countsReported()).toEqual([11, 16, 21]);
     });
 
     test('Keeps the sorting and the filtering when adding columns', async () => {

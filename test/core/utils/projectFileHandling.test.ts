@@ -202,12 +202,14 @@ describe('Project file handling', () => {
             expect(saved.appVersion).toBe(version);
             expect(saved.storeVersion).toBe(4);
             // Same keys, in the same order, as master wrote in each section,
-            // but no Google API key
+            // but no Google API key, and the data's column ids version last
+            // (master ignores it)
             for (const section of ['chartParametersStore', 'seriesParametersStore', 'dataStore',
                 'globalSonifyParametersStore', 'viewStore']) {
-                expect(Object.keys(saved[section])).toEqual(
-                    Object.keys(fixtureState[section]).filter((key) => key !== 'googleApiKey')
-                );
+                expect(Object.keys(saved[section])).toEqual([
+                    ...Object.keys(fixtureState[section]).filter((key) => key !== 'googleApiKey'),
+                    ...section === 'dataStore' ? ['columnIdsVersion'] : []
+                ]);
             }
         });
 
@@ -266,10 +268,12 @@ describe('Project file handling', () => {
                 'globalSonifyParametersStore']) {
                 expect(JSON.stringify(saved[section])).toBe(JSON.stringify(fixtureState[section]));
             }
-            // The data, apart from the Google API key
+            // The data, apart from the Google API key, with the column ids
+            // version
             const { googleApiKey, ...fixtureData } = fixtureState.dataStore;
             expect(googleApiKey).toBe('');
-            expect(JSON.stringify(saved.dataStore)).toBe(JSON.stringify(fixtureData));
+            expect(JSON.stringify(saved.dataStore))
+                .toBe(JSON.stringify({ ...fixtureData, columnIdsVersion: 2 }));
         });
 
         test('Round-trips through restoreFromProjectFile', async () => {

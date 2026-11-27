@@ -77,12 +77,16 @@ describe('App state', () => {
                 dataSourcesList: [
                     { name: 'Grid', value: 'table' },
                     { name: 'Google Sheets', value: 'googlesheets' }
-                ]
+                ],
+                columnIdsVersion: 2
             });
+            // The Vuex root state's keys, and the column ids version after
+            // them, which the Vuex store (master) does not restore
             expect(Object.keys(json.dataStore)).toEqual([
                 'tableCSV', 'tableRowData', 'tableHeaders', 'textDescription', 'selectedDataSource',
                 'spreadsheetSetupComplete', 'googleSpreadsheetURL', 'googleApiKey', 'googleAutoUpdateEnabled',
-                'googleAutoUpdateFrequency', 'googleSheetStatus', 'googleSheetErrorMessage', 'dataSourcesList'
+                'googleAutoUpdateFrequency', 'googleSheetStatus', 'googleSheetErrorMessage', 'dataSourcesList',
+                'columnIdsVersion'
             ]);
             expect(Object.keys(json.globalSonifyParametersStore)).toEqual([
                 'volume', 'speed', 'order', 'playMarkerEnabled', 'tooltipMarkerEnabled', 'minNote',
@@ -227,10 +231,14 @@ describe('App state', () => {
             restoreAppState({ ...saved, appVersion: '1.1.1', storeVersion: 4 }, pinia);
             const serialized = JSON.parse(JSON.stringify(getAppState(pinia)));
 
+            // With the column ids version after the data's keys. Master
+            // restores only the rows and the description of the data, so it
+            // ignores it.
+            const expected = { ...saved, dataStore: { ...saved.dataStore, columnIdsVersion: 2 } };
             const savedKeys = Object.keys(saved).filter(key => !versionKeys.includes(key));
             expect(Object.keys(serialized)).toEqual(savedKeys);
             savedKeys.forEach(key => {
-                expect(Object.keys(serialized[key])).toEqual(Object.keys(saved[key]));
+                expect(Object.keys(serialized[key])).toEqual(Object.keys(expected[key]));
             });
 
             // Apart from the view store, which is not restored, the state
@@ -238,7 +246,7 @@ describe('App state', () => {
             const withoutView = (state: Record<string, unknown>) => JSON.stringify(
                 Object.fromEntries(Object.entries(state).filter(
                     ([key]) => key !== 'viewStore' && !versionKeys.includes(key))));
-            expect(withoutView(serialized)).toBe(withoutView(saved));
+            expect(withoutView(serialized)).toBe(withoutView(expected));
         });
 
         test('Round-trips through getAppState and restoreAppState unchanged', () => {
