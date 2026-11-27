@@ -85,5 +85,9 @@ app.config.globalProperties.$announcer = announcer;
 app.use(router);
 
 // Resolve the initial route before mounting, so the $route watcher above only
-// fires on actual navigation and not on initial page load.
-router.isReady().then(() => app.mount('#app'));
+// fires on actual navigation and not on initial page load. The first page
+// still needs its title, which index.html sets to Home's.
+router.isReady().then(() => {
+    document.title = router.currentRoute.value.meta.title;
+    app.mount('#app');
+});
