@@ -1,3 +1,8 @@
+// An open-ended object, such as Highcharts options or a chart, whose
+// properties are read and written without declaring them. The one explicit
+// `any` the linter allows: Highcharts' options and internals are too many and
+// too dynamic to declare where the chart code uses them.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type GenericObject = { [key: string]: any };
 
 
@@ -14,8 +19,8 @@ export function isObject(x: unknown): boolean {
 }
 
 
-export function firstDefined(a: any, b: any): any {
-    return typeof a !== 'undefined' ? a : b;
+export function firstDefined<A, B>(a: A, b: B): Exclude<A, undefined> | B {
+    return typeof a !== 'undefined' ? a as Exclude<A, undefined> : b;
 }
 
 
@@ -31,38 +36,34 @@ export function nullFallback<T1, T2>(a: T1 | null, b: T2): T1|T2 {
  * replacing the a value with the b value.
  */
 export function deepMerge(
-    a: any,
-    b: any
+    a: unknown,
+    b: unknown
 ): GenericObject {
-    const isArray = (x: unknown): boolean => Array.isArray(x);
-
-    let res = Object.assign({}, typeof a === 'object' ? a : {});
+    const res: GenericObject = Object.assign({}, typeof a === 'object' ? a : {});
 
     // Merging in an object
     if (isObject(b)) {
-        for (const [key, value] of Object.entries(b)) {
+        for (const [key, value] of Object.entries(b as GenericObject)) {
             res[key] = deepMerge(res[key], value);
         }
         return res;
     }
 
     // Merging two arrays
-    if (isArray(a) && isArray(b)) {
+    if (Array.isArray(a) && Array.isArray(b)) {
         const shouldDeepMergeArrays = a.length === b.length;
         if (shouldDeepMergeArrays) {
-            res = a.map((item: unknown, index: number) => deepMerge(item, b[index]));
-        } else {
-            res = b; // Replace arrays of different length
+            return a.map((item: unknown, index: number) => deepMerge(item, b[index]));
         }
-        return res;
+        return b; // Replace arrays of different length
     }
 
     // Merging in a primitive (or a function or something else) - overwrites
-    return b;
+    return b as GenericObject;
 }
 
 
-export function setNestedChildProp(obj: any, propStr: string, val: any): void {
+export function setNestedChildProp(obj: GenericObject, propStr: string, val: unknown): void {
     const props = propStr.split('.');
     const firstProp = props.shift();
     if (!firstProp) {
@@ -78,13 +79,13 @@ export function setNestedChildProp(obj: any, propStr: string, val: any): void {
 }
 
 
-export function deepFreeze(obj: any): object {
+export function deepFreeze<T>(obj: T): T {
     if (obj === undefined) {
         return obj;
     }
     Object.freeze(obj);
     Object.getOwnPropertyNames(obj).forEach(prop => {
-        const val = obj[prop];
+        const val: unknown = (obj as GenericObject)[prop];
         if (
             val !== null &&
             (typeof val === 'object' || typeof val === 'function') &&
@@ -97,13 +98,11 @@ export function deepFreeze(obj: any): object {
 }
 
 
-export function deepClone(obj: any): object {
-    const shouldBeCloned = (x: any) => typeof x === 'object' && x !== null;
-    const isDate = (x: any) => x instanceof Date;
-    const cloneDate = (x: any) => new Date(x.getTime());
-    const cloneArray = (x: any) => {
+export function deepClone(obj: unknown): object {
+    const shouldBeCloned = (x: unknown): x is object => typeof x === 'object' && x !== null;
+    const cloneArray = (x: unknown[]) => {
         let i = x.length;
-        const newArray = [];
+        const newArray: unknown[] = [];
         while (i--) {
             newArray[i] = shouldBeCloned(x[i]) ?
                 cloneObject(x[i]) : x[i];
@@ -111,17 +110,17 @@ export function deepClone(obj: any): object {
         return newArray;
     };
 
-    function cloneObject(o: any): object {
+    function cloneObject(o: unknown): object {
         if (Array.isArray(o)) {
             return cloneArray(o);
         }
-        if (isDate(o)) {
-            return cloneDate(o);
+        if (o instanceof Date) {
+            return new Date(o.getTime());
         }
 
-        const newObject: any = {};
+        const newObject: GenericObject = {};
         Object.getOwnPropertyNames(o).forEach(prop => {
-            const val = o[prop];
+            const val: unknown = (o as GenericObject)[prop];
             if (shouldBeCloned(val)) {
                 newObject[prop] = cloneObject(val);
             } else {

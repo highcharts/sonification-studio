@@ -1,4 +1,4 @@
-import { GenericObject } from '../utils/objects';
+import type { GenericObject } from '../utils/objects';
 
 export class ChartMappings {
     public static type(value: string): GenericObject {

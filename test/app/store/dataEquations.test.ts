@@ -36,9 +36,9 @@ describe('data store fillColumn (equations)', () => {
         expect(store.tableRowData.map((row) => row.C)).toEqual(['', '3', '-3', '10']);
     });
 
-    test('Treats empty string cells as zero', () => {
+    test('Leaves the result empty where a cell the equation uses is empty', () => {
         const store = fillColumn(getRows(), 'D', 'C + 1');
-        expect(store.tableRowData.slice(1).map((row) => row.D)).toEqual(['1', '1', '1']);
+        expect(store.tableRowData.slice(1).map((row) => row.D)).toEqual(['', '', '']);
     });
 
     test('Supports functions and constants', () => {
@@ -57,7 +57,7 @@ describe('data store fillColumn (equations)', () => {
             store.fillColumn({ columnName: 'C', equation });
 
         expect(fill('2 *')).toThrow(SyntaxError);
-        expect(fill('2 * Q')).toThrow('Undefined symbol Q');
+        expect(fill('2 * q')).toThrow('Undefined symbol q');
         expect(store.tableRowData).toBe(rowsBefore);
         expect(store.tableRowData).toEqual(getRows());
         expect(store.tableCSV).toBe(csvBefore);

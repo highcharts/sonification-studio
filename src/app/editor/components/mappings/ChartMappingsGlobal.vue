@@ -35,7 +35,7 @@ import ChartMappingsGlobalBasic from './ChartMappingsGlobalBasic.vue';
 import ChartMappingsGlobalAdvanced from './ChartMappingsGlobalAdvanced.vue';
 import ChartMappingsGlobalAxis from './ChartMappingsGlobalAxis.vue';
 
-import { GenericObject } from '../../core/utils/objects';
+import type { GenericObject } from '../../core/utils/objects';
 import { mapState, mapStores } from 'pinia';
 import { useViewStore } from '../../store/modules/view';
 

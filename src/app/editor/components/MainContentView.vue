@@ -35,10 +35,12 @@
                 v-show="sidebarVisible"
                 ref="sidebar"
                 class="sidebar"
+                @hide="onHideSidebar"
             />
 
             <ShowPanel
                 v-show="!sidebarVisible"
+                ref="showSidebarPanel"
                 name="sidebar"
                 arrow-direction="left"
                 @click="onShowSidebar"
@@ -81,6 +83,13 @@ export default defineComponent({
             } else {
                 (this.$refs.chartContent as HTMLDivElement).focus();
             }
+        },
+
+        onHideSidebar() {
+            this.viewStore.setSidebarVisible(false);
+            this.$chartBridge.reflowChart();
+            // The Hide button is gone with the sidebar
+            this.$nextTick(() => (this.$refs.showSidebarPanel as { focus: () => void }).focus());
         },
 
         onShowSidebar() {

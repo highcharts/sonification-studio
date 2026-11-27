@@ -104,6 +104,7 @@ export default defineComponent({
         SEButton,
         SETablist
     },
+    emits: ['hide'],
     data() {
         return {
             visualIcon, audioIcon, resetIcon, arrowRightIcon
@@ -138,9 +139,10 @@ export default defineComponent({
             }
         },
 
+        // MainContentView hides the sidebar, and moves the focus to the
+        // button that shows it again
         onHideSidebarClick() {
-            this.viewStore.setSidebarVisible(false);
-            this.$chartBridge.reflowChart();
+            this.$emit('hide');
         },
 
         focusHideButton() {

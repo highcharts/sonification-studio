@@ -12,7 +12,8 @@ import { useGlobalSonifyParametersStore } from '../../src/app/editor/store/modul
 import { useViewStore } from '../../src/app/editor/store/modules/view';
 import { restoreAppState } from '../../src/app/editor/store/store';
 import { restoreFromProjectFile } from '../../src/app/editor/core/utils/projectFileHandling';
-import { applyCellEdit, getGridColumnIds } from '../../src/app/editor/core/utils/gridData';
+import { applyCellEdit } from '../../src/app/editor/core/utils/gridData';
+import { escapeHTML } from '../../src/app/editor/core/utils/htmlText';
 import type { GenericObject } from '../../src/app/editor/core/utils/objects';
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 import fixtureContents from '../fixtures/project-v1.1.1.hssp?raw';
@@ -229,12 +230,10 @@ describe('ChartBridge series of the data\'s columns', () => {
         return chart;
     }
 
-    // Load a project file, then load its data from the CSV, as the chart
-    // created again after a project is loaded does (Preview.vue)
+    // Load a project file. The chart created again after a project is
+    // loaded (Preview.vue) leaves the rows as they are.
     function loadProject(fileContents: string) {
         restoreFromProjectFile(fileContents, pinia);
-        const data = useDataStore(pinia);
-        data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
     }
 
     // A project file as master v1.1.1 saved it
@@ -305,9 +304,6 @@ describe('ChartBridge series of the data\'s columns', () => {
         setActivePinia(pinia = createPinia());
         bridge = new ChartBridge(pinia, Highcharts);
         restoreAppState(JSON.parse(masterLocalStorageJSON), pinia);
-        // The chart loads the data from the CSV (Preview.vue)
-        const data = useDataStore(pinia);
-        data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
         expect(describeSeries(showData())).toEqual(expectedSeries);
     });
 
@@ -344,12 +340,12 @@ describe('ChartBridge series of the data\'s columns', () => {
         ]);
 
         // Clear each cell of column B, as the grid writes its edits
-        // (Grid.vue): every row gets every column up to the last one in use
+        // (Grid.vue): only the edited cell changes
         const editColumnB = (value: (rowIndex: number) => string) => {
             for (let rowIndex = 1; rowIndex < data.tableRowData.length; rowIndex++) {
                 data.setTableRowData(applyCellEdit(data.tableRowData, {
                     rowIndex, columnId: 'B', value: value(rowIndex)
-                }, getGridColumnIds(8)));
+                }));
             }
         };
         editColumnB(() => '');
@@ -370,6 +366,86 @@ describe('ChartBridge series of the data\'s columns', () => {
             [1, 2, 3, 4, 5, 6, 7], valuesOfC
         ]);
         expect(JSON.stringify(useSeriesParametersStore(pinia).seriesParameters)).toBe(parametersBefore);
+    });
+
+    test('Settings made while editing keep their columns after a save and reload, and a later edit', async () => {
+        // Rows edited in the grid, with an empty middle column, C: every row
+        // has a cell in it, as in the placeholder data
+        const data = useDataStore(pinia);
+        data.setTableRowData([
+            { A: 'X', B: 'First', C: '', D: 'Third' },
+            { A: '0', B: '1', C: '', D: '10' },
+            { A: '1', B: '2', C: '', D: '8' }
+        ]);
+        setSeriesSettings(0, 'Custom B', '#ff0000', 'flute');
+        setSeriesSettings(2, 'Custom D', '#0000ff', 'piano');
+        const expected = [
+            ['Custom B', '#ff0000', 'flute', true],
+            // The empty column's hidden series
+            ['Series 2', expect.any(String), undefined, false],
+            ['Custom D', '#0000ff', 'piano', true]
+        ];
+        expect(describeSettings(showData())).toEqual(expected);
+
+        // Saved and loaded into a new editor, whose chart leaves the rows
+        // as they are
+        let contents = '';
+        window.URL.createObjectURL = (blob: Blob | MediaSource) => {
+            contents = '' + (blob as Blob).size;
+            void (blob as Blob).text().then((text) => {
+                contents = text;
+            });
+            return 'blob:project';
+        };
+        const { downloadProjectFile } = await import('../../src/app/editor/core/utils/projectFileHandling');
+        downloadProjectFile('Project', pinia);
+        await vi.waitFor(() => expect(contents.length).toBeGreaterThan(10));
+        chart?.destroy();
+        chart = void 0;
+        setActivePinia(pinia = createPinia());
+        bridge = new ChartBridge(pinia, Highcharts);
+        loadProject(contents);
+        expect(describeSettings(showData())).toEqual(expected);
+
+        // The first edit in the grid changes only its cell
+        const loaded = useDataStore(pinia);
+        loaded.setTableRowData(applyCellEdit(loaded.tableRowData, { rowIndex: 1, columnId: 'B', value: '5' }));
+        expect(describeSettings(showData())).toEqual(expected);
+    });
+
+    test('A grid edit in rows loaded from a CSV gives no column without cells a series', () => {
+        // No row has a cell in column B, which has no series
+        const data = useDataStore(pinia);
+        data.loadFromCSV('Index,,Cos,Sin\n0,,10,1\n1,,8,2');
+        setSeriesSettings(1, 'Custom D', '#0000ff', 'piano');
+        expect(describeSettings(showData())[1]).toEqual(['Custom D', '#0000ff', 'piano', true]);
+
+        data.setTableRowData(applyCellEdit(data.tableRowData, { rowIndex: 1, columnId: 'C', value: '9' }));
+
+        const settings = describeSettings(showData());
+        expect(settings).toHaveLength(2);
+        expect(settings[1]).toEqual(['Custom D', '#0000ff', 'piano', true]);
+    });
+
+    test('Series and point names are given to the chart escaped, which shows them as text', () => {
+        const data = useDataStore(pinia);
+        data.loadFromCSV('Label;<b>Temp</b> & co;"x<10"\n<i>Jan</i>;1;2\nFeb;3;4', ';');
+        useSeriesParametersStore(pinia).setSeriesParameter({
+            seriesId: 'se-hc-series-id-1', parameterName: 'seriesName', parameterValue: '<u>Set</u>'
+        });
+
+        const shownChart = showData();
+        expect(shownChart.series.map((s) => s.name)).toEqual([
+            '&lt;b&gt;Temp&lt;/b&gt; &amp; co',
+            '&lt;u&gt;Set&lt;/u&gt;'
+        ]);
+        expect(shownChart.series[0].points.map((point) => point.name)).toEqual(['&lt;i&gt;Jan&lt;/i&gt;', 'Feb']);
+        // Shown as text in the legend
+        shownChart.update({ legend: { enabled: true } });
+        const legendTexts = Array.from(container.querySelectorAll('.highcharts-legend-item text'))
+            .map((text) => text.textContent);
+        expect(legendTexts).toEqual(['<b>Temp</b> & co', '<u>Set</u>']);
+        expect(container.querySelector('.highcharts-legend-item b, .highcharts-legend-item u')).toBeNull();
     });
 
     test('A CSV imported with an empty middle column gives the settings of series 0 to its next column', () => {
@@ -434,7 +510,9 @@ describe('ChartBridge HTML export', () => {
     // bump highchartsExportCDN with it, see the comment there.
     test('Loads Highcharts from the CDN for the app\'s major version', () => {
         const major = highchartsPackage.version.split('.')[0];
-        expect(highchartsExportCDN).toBe(`https://code.highcharts.com/${major}`);
+        // jsDelivr serves the files without a Referer, which a file opened
+        // from disk does not send
+        expect(highchartsExportCDN).toBe(`https://cdn.jsdelivr.net/npm/highcharts@${major}`);
     });
 
     test('Keeps text in the options from ending the script element', () => {
@@ -451,6 +529,8 @@ describe('ChartBridge HTML export', () => {
         const chart = Highcharts.stockChart(container, bridge.buildChartOptions(csv));
         bridge.init(chart);
         chart.update(bridge.buildChartOptions(csv));
+        // Text the bridge does not escape for the chart
+        chart.update({ title: { text: name } });
 
         const html = bridge.getHTMLChartConfig();
         chart.destroy();
@@ -463,12 +543,16 @@ describe('ChartBridge HTML export', () => {
         expect(html.indexOf('</script>', scriptStart)).toBe(html.lastIndexOf('</script>'));
         expect(html).toContain('\\u003c/script>');
 
-        // The options hold the name as it is
+        // The options hold the title as it is, and the series name escaped,
+        // which the exported chart shows as text
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const scripts = doc.querySelectorAll('script');
         expect(scripts).toHaveLength(5);
-        const optionsJSON = /const options = ([\s\S]*?);\n\s*const chart = /.exec(scripts[4].textContent || '')?.[1];
-        expect(JSON.parse(optionsJSON || 'null').series[0].name).toBe(name);
+        // The options are written as JSON, which ends with a "}" line
+        const optionsJSON = /const options = ([\s\S]*?\n\});\n/.exec(scripts[4].textContent || '')?.[1];
+        const options = JSON.parse(optionsJSON || 'null');
+        expect(options.title.text).toBe(name);
+        expect(options.series[0].name).toBe(escapeHTML(name));
     });
 });
 
@@ -595,5 +679,117 @@ describe('ChartBridge store wiring', () => {
             enablePolling: true,
             dataRefreshRate: 10
         });
+    });
+});
+
+describe('ChartBridge playback when Highcharts rebuilds the timeline', () => {
+    // A stand-in for the chart's sonification timeline, playing or paused
+    // at a time
+    const makeTimeline = (state: { playing?: boolean; paused?: boolean; time?: number } = {}) => {
+        const timeline = {
+            isPlaying: !!state.playing,
+            isPaused: !!state.paused,
+            resumeFromTime: state.paused ? state.time ?? 0 : 0,
+            channels: ['channel'],
+            playingChannels: void 0 as unknown[] | undefined,
+            onEndArgument: void 0 as ((e: unknown) => void) | undefined,
+            getCurrentTime: () => state.time ?? 0,
+            resume: vi.fn(() => {
+                timeline.isPlaying = true;
+                timeline.isPaused = false;
+            }),
+            reset: vi.fn(() => {
+                timeline.isPlaying = false;
+                timeline.isPaused = false;
+            })
+        };
+        return timeline;
+    };
+    type Timeline = ReturnType<typeof makeTimeline>;
+
+    let bridge: ChartBridge;
+    let chart: GenericObject;
+    let events: GenericObject;
+
+    beforeEach(() => {
+        const pinia = createPinia();
+        bridge = new ChartBridge(pinia, Highcharts);
+        chart = {
+            series: [{}],
+            options: { sonification: { duration: 1000 } },
+            sonification: {
+                timeline: makeTimeline(),
+                isPlaying: () => chart.sonification.timeline.isPlaying
+            },
+            toggleSonify: vi.fn(),
+            sonify: vi.fn()
+        };
+        bridge.init(chart);
+        events = bridge.buildChartOptions('x;y\n0;1').sonification.events;
+    });
+
+    afterEach(() => {
+        bridge.stopChart();
+    });
+
+    // What Highcharts does on a render: an update of the timeline
+    const rebuildTimeline = (newTimeline: Timeline) => {
+        events.beforeUpdate({ chart, timeline: chart.sonification.timeline });
+        chart.sonification.timeline = newTimeline;
+        events.afterUpdate({ chart, timeline: newTimeline });
+        return newTimeline;
+    };
+
+    test('Plays on from where it was on the new timeline', () => {
+        const onEnd = vi.fn();
+        bridge.playChart(onEnd);
+        const playEnd = chart.toggleSonify.mock.calls[0][1];
+        chart.sonification.timeline = makeTimeline({ playing: true, time: 1200 });
+
+        const timeline = rebuildTimeline(makeTimeline());
+
+        expect(timeline.resumeFromTime).toBe(1200);
+        expect(timeline.playingChannels).toBe(timeline.channels);
+        expect(timeline.resume).toHaveBeenCalledOnce();
+        expect(timeline.isPlaying).toBe(true);
+        // The end of playback on the new timeline ends it as before
+        expect(timeline.onEndArgument).toBe(playEnd);
+    });
+
+    test('Stays paused where it was', () => {
+        chart.sonification.timeline = makeTimeline({ paused: true, time: 800 });
+
+        const timeline = rebuildTimeline(makeTimeline());
+
+        expect(timeline.isPaused).toBe(true);
+        expect(timeline.resumeFromTime).toBe(800);
+        expect(timeline.resume).not.toHaveBeenCalled();
+    });
+
+    test('Leaves a stopped timeline alone', () => {
+        const timeline = rebuildTimeline(makeTimeline());
+
+        expect(timeline.isPaused).toBe(false);
+        expect(timeline.resumeFromTime).toBe(0);
+        expect(timeline.resume).not.toHaveBeenCalled();
+    });
+
+    test('Loops with the same end callback, and stops without loop', () => {
+        const onEnd = vi.fn();
+        bridge.playChart(onEnd, true);
+        const playEnd = chart.toggleSonify.mock.calls[0][1];
+
+        playEnd({});
+        playEnd({});
+        expect(onEnd).toHaveBeenCalledTimes(2);
+        // Each round plays the chart again, with the callback that loops
+        expect(chart.sonify.mock.calls).toEqual([[playEnd], [playEnd]]);
+        expect(chart.sonification.timeline.reset).not.toHaveBeenCalled();
+
+        chart.toggleSonify.mockClear();
+        bridge.playChart(onEnd);
+        chart.toggleSonify.mock.calls[0][1]({});
+        expect(chart.sonify).toHaveBeenCalledTimes(2);
+        expect(chart.sonification.timeline.reset).toHaveBeenCalledOnce();
     });
 });

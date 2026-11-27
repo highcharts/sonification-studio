@@ -26,8 +26,8 @@ describe('DataGSheet.vue', () => {
     const finishWithURL = async (url: string) => {
         useDataStore().setGoogleSpreadsheetURL(url);
         wrapper.vm.onFinishClick();
-        // Focus is moved on the next tick after the status watcher, plus 80 ms
-        await vi.advanceTimersByTimeAsync(100);
+        // Focus is moved once the DOM is updated
+        await vi.advanceTimersByTimeAsync(0);
     };
 
     const expectSpreadsheetNotFound = () => {
@@ -60,5 +60,54 @@ describe('DataGSheet.vue', () => {
         expect(data.googleSheetErrorMessage).toBe('');
         // Focus moves to the loading text
         expect(document.activeElement?.textContent?.trim()).toBe('Loading data...');
+    });
+
+    test('Moves the focus from Next to the next step\'s heading right away', async () => {
+        const next = wrapper.findAll('.apikeyContent button').find((button) => button.text() === 'Next');
+        (next?.element as HTMLButtonElement).focus();
+        const focusLog: string[] = [];
+        document.addEventListener('focusin', () => focusLog.push(document.activeElement?.tagName || ''));
+
+        await next?.trigger('click');
+
+        expect(document.activeElement?.textContent?.trim()).toBe('Prepare your Google Sheet');
+        expect(focusLog).toEqual(['H4']);
+    });
+
+    test('Shows the step of a sheet linked in a loaded project or session', async () => {
+        const data = useDataStore();
+        data.restoreStoreState({
+            tableRowData: [],
+            selectedDataSource: 'googlesheets',
+            spreadsheetSetupComplete: true,
+            googleSpreadsheetURL: 'https://docs.google.com/spreadsheets/d/abc/edit',
+            googleApiKey: 'key'
+        });
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.currentStep).toBe('confirmation');
+
+        // A new project starts the setup over
+        data.restoreStoreState();
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.currentStep).toBe('apikey');
+    });
+
+    test('Starts at the confirmation when the sheet is linked already', () => {
+        const linked = mount(DataGSheet, { global: { plugins: [createPinia()] } });
+        expect(linked.vm.currentStep).toBe('apikey');
+        linked.unmount();
+
+        const pinia = createPinia();
+        useDataStore(pinia).restoreStoreState({
+            tableRowData: [],
+            selectedDataSource: 'googlesheets',
+            spreadsheetSetupComplete: true,
+            googleSpreadsheetURL: 'https://docs.google.com/spreadsheets/d/abc/edit',
+            googleApiKey: 'key'
+        });
+        setActivePinia(pinia);
+        const restored = mount(DataGSheet, { global: { plugins: [pinia] } });
+        expect(restored.vm.currentStep).toBe('confirmation');
+        restored.unmount();
     });
 });

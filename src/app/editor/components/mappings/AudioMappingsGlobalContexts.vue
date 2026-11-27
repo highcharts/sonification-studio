@@ -11,7 +11,7 @@
                 </h6>
                 <button
                     class="remove-btn"
-                    aria-label="Remove context"
+                    :aria-label="'Remove context cue ' + context.id"
                     @click="onRemoveContext(context.id)"
                 >
                     <img
@@ -359,8 +359,19 @@ export default defineComponent({
         }
     },
     methods: {
+        // Remove a context cue, and move the focus from its Remove button,
+        // which is gone, to the next cue's, the previous cue's, or the Add
+        // button
         onRemoveContext(id: number) {
+            const index = this.contexts.findIndex((context) => context.id === id);
             this.globalSonifyParametersStore.removeContext(id);
+            this.$announcer.announce('Context cue ' + id + ' removed.');
+            this.$nextTick(() => {
+                const removeButtons = (this.$el as HTMLElement).querySelectorAll<HTMLElement>('.remove-btn');
+                const nextButton = removeButtons[Math.min(index, removeButtons.length - 1)] ||
+                    (this.$el as HTMLElement).querySelector<HTMLElement>('.add-btn');
+                nextButton?.focus();
+            });
         },
         addContext(inactive = false) {
             const range = this.xRange.max - this.xRange.min;

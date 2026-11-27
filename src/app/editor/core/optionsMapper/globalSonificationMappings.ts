@@ -1,4 +1,4 @@
-import { GenericObject } from '../utils/objects';
+import type { GenericObject } from '../utils/objects';
 import { speedToDuration } from '../utils/sonificationTools';
 
 export class GlobalSonificationMappings {
@@ -141,7 +141,7 @@ export class GlobalSonificationMappings {
                     'crossing above': { crossingUp: def.playWhenThreshold },
                     'crossing below': { crossingDown: def.playWhenThreshold },
                     'between': { min: def.playWhenMin, max: def.playWhenMax },
-                } as any)[def.playWhenType];
+                } as Record<string, GenericObject>)[def.playWhenType];
                 opts.activeWhen.prop = def.valueProp;
             }
 

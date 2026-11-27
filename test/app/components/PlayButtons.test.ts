@@ -7,6 +7,7 @@ import { useViewStore } from '../../../src/app/editor/store/modules/view';
 describe('PlayButtons.vue', () => {
     let pinia: Pinia;
     let wrapper: VueWrapper;
+    const announce = vi.fn();
     const chartBridge = {
         playChart: vi.fn(),
         pauseChart: vi.fn(),
@@ -22,11 +23,12 @@ describe('PlayButtons.vue', () => {
         pinia = createPinia();
         setActivePinia(pinia);
         wrapper = mount(PlayButtons, {
+            attachTo: document.body,
             global: {
                 plugins: [pinia],
                 mocks: {
                     $chartBridge: chartBridge,
-                    $announcer: { announce: vi.fn() }
+                    $announcer: { announce }
                 }
             }
         });
@@ -92,5 +94,51 @@ describe('PlayButtons.vue', () => {
 
         expect(chartBridge.stopChart).not.toHaveBeenCalled();
         expect(playPauseButton().text()).toBe('Pause');
+    });
+
+    test('Says playback stopped when a change stops it, but not when nothing played', async () => {
+        useViewStore().triggerParameterReactivity();
+        await wrapper.vm.$nextTick();
+        expect(announce).not.toHaveBeenCalled();
+
+        await play();
+        useViewStore().triggerDataReactivity();
+        await wrapper.vm.$nextTick();
+        expect(announce).toHaveBeenCalledExactlyOnceWith('Playback stopped.');
+    });
+
+    test('Says so when its shortcut toggles loop, and that playback stopped', async () => {
+        const pressCtrlT = () => document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 't', keyCode: 84, ctrlKey: true, bubbles: true, cancelable: true
+        }));
+
+        pressCtrlT();
+        await wrapper.vm.$nextTick();
+        expect(announce).toHaveBeenLastCalledWith('Loop enabled.');
+
+        await play();
+        pressCtrlT();
+        await wrapper.vm.$nextTick();
+        expect(announce).toHaveBeenLastCalledWith('Loop disabled. Playback stopped.');
+        expect(playPauseButton().text()).toBe('Play');
+    });
+
+    test('Moves the focus from Stop to Play, as Stop is disabled', async () => {
+        await play();
+        (stopButton().element as HTMLButtonElement).focus();
+
+        await stopButton().trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(stopButton().attributes('disabled')).toBeDefined();
+        expect(document.activeElement).toBe(playPauseButton().element);
+    });
+
+    test('Leaves the focus alone when it is not on Stop', async () => {
+        await play();
+        (playPauseButton().element as HTMLButtonElement).focus();
+        useViewStore().triggerDataReactivity();
+        await wrapper.vm.$nextTick();
+        expect(document.activeElement).toBe(playPauseButton().element);
     });
 });

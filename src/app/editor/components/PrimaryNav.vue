@@ -54,11 +54,6 @@ import HelpContent from './HelpContent.vue';
 import SEModalInfo from './basic/SEModalInfo.vue';
 import backIcon from '../assets/angle-left-solid.svg';
 
-// The parts of SEModalInfo used here
-type HelpDialog = ComponentPublicInstance & {
-    hideOthersFromAT: () => void;
-    unhideOthersFromAT: () => void;
-};
 
 export default defineComponent({
     components: {
@@ -69,16 +64,6 @@ export default defineComponent({
             backIcon,
             helpVisible: false
         };
-    },
-    watch: {
-        helpVisible(val: boolean) {
-            const helpDialog = this.$refs.helpDialog as HelpDialog;
-            if (!val) {
-                helpDialog.unhideOthersFromAT();
-            } else {
-                helpDialog.hideOthersFromAT();
-            }
-        }
     },
     mounted() {
         document.addEventListener('keydown', this.onDocumentKeydown);
@@ -109,7 +94,7 @@ export default defineComponent({
             this.helpVisible = !this.helpVisible;
             if (this.helpVisible) {
                 this.$nextTick(() => setTimeout(
-                    () => ((this.$refs.helpDialog as HelpDialog).$el as HTMLElement).focus(),
+                    () => ((this.$refs.helpDialog as ComponentPublicInstance).$el as HTMLElement).focus(),
                     20
                 ));
             } else {

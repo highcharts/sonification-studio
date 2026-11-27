@@ -35,7 +35,7 @@
 */
 
 import { defineStore } from 'pinia';
-import { GenericObject } from '../../core/utils/objects';
+import type { GenericObject } from '../../core/utils/objects';
 
 // The parameters of one series: parameter name -> value, or parent name ->
 // the parameters nested under it. Open-ended by design (see above).

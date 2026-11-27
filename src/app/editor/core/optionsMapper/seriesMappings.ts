@@ -3,12 +3,14 @@
     Sonification related mappings are separated out into its own class.
 */
 
-import { GenericObject } from '../utils/objects';
+import type { GenericObject } from '../utils/objects';
+import { escapeHTML } from '../utils/htmlText';
 
 export class SeriesMappings {
 
+    // Escaped, so the chart shows the name as text (see ChartBridge)
     public static seriesName(value: string): GenericObject {
-        return { name: value };
+        return { name: typeof value === 'string' ? escapeHTML(value) : value };
     }
 
     public static seriesColor(value: string): GenericObject {

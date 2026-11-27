@@ -22,7 +22,11 @@ import 'highcharts/modules/sonification';
 import 'highcharts/modules/accessibility';
 // Highcharts 13 renamed the high-contrast-light theme to high-contrast
 import 'highcharts/themes/high-contrast';
-import { negativeLogPlugin } from './utils/chartUtils';
+import {
+    destroyedFocusElementPlugin,
+    negativeLogPlugin,
+    plainTextAriaLabelPlugin
+} from './utils/chartUtils';
 
 // Highcharts 13 charts follow the system's light or dark mode by default.
 // The app's interface is light only, so keep the chart light, as before.
@@ -35,5 +39,7 @@ Highcharts.setOptions({
 });
 
 negativeLogPlugin(Highcharts);
+destroyedFocusElementPlugin(Highcharts);
+plainTextAriaLabelPlugin(Highcharts);
 
 export default Highcharts;

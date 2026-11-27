@@ -98,6 +98,10 @@
                                 <b>Note</b> that you need a personal Google Account for this to work, not a Google Suite account from your company
                                 or school.
                             </p>
+                            <p class="notebox">
+                                The API key is kept in this browser only. It is not saved in project files, so a project you share does not
+                                share your key.
+                            </p>
 
                             <div class="inputRow">
                                 <SEInputbox
@@ -107,7 +111,7 @@
                                 />
                                 <SEButton
                                     dark
-                                    @click="currentStep = 'sharesettings'"
+                                    @click="goToStep('sharesettings')"
                                 >
                                     Next
                                 </SEButton>
@@ -160,13 +164,13 @@
                     <div class="navbuttons">
                         <SEButton
                             dark
-                            @click="currentStep = 'apikey'"
+                            @click="goToStep('apikey')"
                         >
                             Previous
                         </SEButton>
                         <SEButton
                             dark
-                            @click="currentStep = 'sheeturl'"
+                            @click="goToStep('sheeturl')"
                         >
                             Next
                         </SEButton>
@@ -195,7 +199,7 @@
                     <div class="navbuttons">
                         <SEButton
                             dark
-                            @click="currentStep = 'sharesettings'"
+                            @click="goToStep('sharesettings')"
                         >
                             Previous
                         </SEButton>
@@ -330,7 +334,8 @@ export default defineComponent({
             gsheetIcon,
             spinnerIcon,
             statuses: GoogleSheetStatus,
-            currentStep: 'apikey'
+            // A restored session or project may have the sheet linked
+            currentStep: useDataStore().spreadsheetSetupComplete ? 'confirmation' : 'apikey'
         };
     },
     computed: {
@@ -373,44 +378,58 @@ export default defineComponent({
         }
     },
     watch: {
-        currentStep(newStep: string) {
-            switch(newStep) {
-            case 'apikey':
-                this.focusDeferred(this.$refs.apikeyHeading as HTMLElement);
-                break;
-            case 'sharesettings':
-                this.focusDeferred(this.$refs.sharesettingsHeading as HTMLElement);
-                break;
-            case 'sheeturl':
-                this.focusDeferred(this.$refs.sheeturlHeading as HTMLElement);
-                break;
-            case 'confirmation':
-                if (this.googleSheetStatus === GoogleSheetStatus.Loading) {
-                    this.focusDeferred(this.$refs.loadingDataText as HTMLElement);
-                }
-                break;
+        // A project opened or a new project: show the step the sheet's setup
+        // is at, without moving the focus, which is elsewhere
+        'dataStore.spreadsheetSetupComplete'(complete: boolean) {
+            const linked = this.currentStep === 'confirmation';
+            if (complete !== linked) {
+                this.currentStep = complete ? 'confirmation' : 'apikey';
             }
         },
         googleSheetStatus(newStatus: GoogleSheetStatus) {
+            if (this.currentStep !== 'confirmation') {
+                return;
+            }
             if (newStatus === GoogleSheetStatus.Success) {
-                this.focusDeferred(this.$refs.successHeading as HTMLElement);
+                this.focusOnUpdate(this.$refs.successHeading as HTMLElement);
             } else if (newStatus === GoogleSheetStatus.Error) {
-                this.focusDeferred(this.$refs.errorHeading as HTMLElement);
+                this.focusOnUpdate(this.$refs.errorHeading as HTMLElement);
             }
         }
     },
     methods: {
-        focusDeferred(el: HTMLElement | undefined) {
-            this.$nextTick(() => setTimeout(() => el?.focus(), 80));
+        // Focus an element once the DOM is updated. The button that was
+        // clicked may be hidden by then, and the browser would move the
+        // focus to the page if it were not moved right away.
+        focusOnUpdate(el: HTMLElement | undefined) {
+            this.$nextTick(() => el?.focus());
+        },
+        // Show a step of the setup, and move the focus to it
+        goToStep(step: string) {
+            this.currentStep = step;
+            const focusTargets: Record<string, string> = {
+                apikey: 'apikeyHeading',
+                sharesettings: 'sharesettingsHeading',
+                sheeturl: 'sheeturlHeading'
+            };
+            if (focusTargets[step]) {
+                this.focusOnUpdate(this.$refs[focusTargets[step]] as HTMLElement);
+            } else if (step === 'confirmation') {
+                const statusTargets: Record<number, string> = {
+                    [GoogleSheetStatus.Loading]: 'loadingDataText',
+                    [GoogleSheetStatus.Success]: 'successHeading',
+                    [GoogleSheetStatus.Error]: 'errorHeading'
+                };
+                this.focusOnUpdate(this.$refs[statusTargets[this.googleSheetStatus]] as HTMLElement);
+            }
         },
         onStartOver() {
-            this.currentStep = 'apikey';
             this.dataStore.setSpreadsheetSetupComplete(false);
             this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Loading);
+            this.goToStep('apikey');
         },
         onFinishClick() {
             this.dataStore.setSpreadsheetSetupComplete(true);
-            this.currentStep = 'confirmation';
 
             // No URL, or not a Google Sheets URL: there is no spreadsheet to
             // fetch, so the chart would neither load data nor report an error.
@@ -418,6 +437,7 @@ export default defineComponent({
                 this.dataStore.setGoogleSheetErrorMessage('Requested entity was not found');
                 this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Error);
             }
+            this.goToStep('confirmation');
         }
     }
 });

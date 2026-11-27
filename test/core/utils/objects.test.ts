@@ -2,7 +2,8 @@ import { describe, expect, test } from 'vitest';
 import {
     deepClone,
     deepFreeze,
-    setNestedChildProp
+    setNestedChildProp,
+    type GenericObject
 } from '../../../src/app/editor/core/utils/objects';
 
 describe('setNestedChildProp tests', () => {
@@ -52,7 +53,7 @@ describe('setNestedChildProp tests', () => {
 });
 
 describe('deepFreeze tests', () => {
-    const testIllegalOperation = (obj: any, illegal: (param: any) => void): void => {
+    const testIllegalOperation = (obj: object, illegal: (param: GenericObject) => void): void => {
         const frozen = deepFreeze(obj);
         expect(() => illegal(frozen)).toThrow();
     };
@@ -102,7 +103,7 @@ describe('deepFreeze tests', () => {
 
 describe('deepClone tests', () => {
     const isEqual = (a: object, b: object) => JSON.stringify(a) === JSON.stringify(b);
-    const modifyObject = (o: any) => {
+    const modifyObject = (o: GenericObject) => {
         const names = Object.getOwnPropertyNames(o);
         names.forEach(prop => {
             const val = o[prop];

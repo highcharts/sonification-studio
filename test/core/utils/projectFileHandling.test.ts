@@ -54,6 +54,7 @@ describe('Project file handling', () => {
             });
             useGlobalSonifyParametersStore().setTooltipMarkerEnabled(true);
             useDataStore().setSelectedDataSource('googlesheets');
+            useDataStore().setGoogleApiKey('editor key');
             useViewStore().selectSidebarTab('Audio');
             const viewStateBefore = JSON.stringify(useViewStore().$state);
 
@@ -110,8 +111,14 @@ describe('Project file handling', () => {
             expect(data.tableRowData[4].C).toBe(-12);
             expect(data.tableCSV).toBe(fixtureState.dataStore.tableCSV);
             expect(data.textDescription).toBe('Fixture description: two series, sensor and cosine.');
-            // Not restored
-            expect(data.selectedDataSource).toBe('googlesheets');
+            // The data source settings, but not the file's Google API key:
+            // the editor keeps its own
+            expect(data.selectedDataSource).toBe('table');
+            expect(data.googleSpreadsheetURL).toBe('');
+            expect(data.googleAutoUpdateEnabled).toBe(false);
+            expect(data.googleAutoUpdateFrequency).toBe(10);
+            expect(data.spreadsheetSetupComplete).toBe(false);
+            expect(data.googleApiKey).toBe('editor key');
 
             // The view store is not restored
             expect(JSON.stringify(useViewStore().$state)).toBe(viewStateBefore);
@@ -194,11 +201,60 @@ describe('Project file handling', () => {
             ]);
             expect(saved.appVersion).toBe(version);
             expect(saved.storeVersion).toBe(4);
-            // Same keys, in the same order, as master wrote in each section
+            // Same keys, in the same order, as master wrote in each section,
+            // but no Google API key
             for (const section of ['chartParametersStore', 'seriesParametersStore', 'dataStore',
                 'globalSonifyParametersStore', 'viewStore']) {
-                expect(Object.keys(saved[section])).toEqual(Object.keys(fixtureState[section]));
+                expect(Object.keys(saved[section])).toEqual(
+                    Object.keys(fixtureState[section]).filter((key) => key !== 'googleApiKey')
+                );
             }
+        });
+
+        test('Leaves out the Google API key, which a loaded file does not replace', async () => {
+            const data = useDataStore();
+            data.setSelectedDataSource('googlesheets');
+            data.setGoogleApiKey('secret key');
+            data.setGoogleSpreadsheetURL('https://docs.google.com/spreadsheets/d/abc123/edit');
+            data.setGoogleAutoUpdateEnabled(true);
+            data.setSpreadsheetSetupComplete(true);
+
+            const contents = await download('Shared');
+            expect(decompressFromUTF16(contents)).not.toContain('secret key');
+            const saved = JSON.parse(decompressFromUTF16(contents));
+            expect(saved.dataStore).not.toHaveProperty('googleApiKey');
+
+            // Opened in another editor, with its own key, or with none
+            const other = createPinia();
+            useDataStore(other).setGoogleApiKey('other key');
+            restoreFromProjectFile(contents, other);
+            expect(useDataStore(other)).toMatchObject({
+                selectedDataSource: 'googlesheets',
+                googleSpreadsheetURL: 'https://docs.google.com/spreadsheets/d/abc123/edit',
+                googleAutoUpdateEnabled: true,
+                googleApiKey: 'other key',
+                spreadsheetSetupComplete: true
+            });
+
+            const withoutKey = createPinia();
+            restoreFromProjectFile(contents, withoutKey);
+            // The setup starts over at the API key, with the rest filled in
+            expect(useDataStore(withoutKey)).toMatchObject({
+                selectedDataSource: 'googlesheets',
+                googleSpreadsheetURL: 'https://docs.google.com/spreadsheets/d/abc123/edit',
+                googleApiKey: '',
+                spreadsheetSetupComplete: false
+            });
+        });
+
+        test('Does not take the Google API key from a file saved with one', () => {
+            // Files saved before version 1.2.1 have the key
+            const withKey = compressToUTF16(JSON.stringify({
+                ...fixtureState,
+                dataStore: { ...fixtureState.dataStore, googleApiKey: 'saved key' }
+            }));
+            restoreFromProjectFile(withKey);
+            expect(useDataStore().googleApiKey).toBe('');
         });
 
         test('Saves a loaded master project as master saved it, apart from the view state', async () => {
@@ -206,10 +262,14 @@ describe('Project file handling', () => {
 
             const saved = JSON.parse(decompressFromUTF16(await download('Resaved')));
 
-            for (const section of ['chartParametersStore', 'seriesParametersStore', 'dataStore',
+            for (const section of ['chartParametersStore', 'seriesParametersStore',
                 'globalSonifyParametersStore']) {
                 expect(JSON.stringify(saved[section])).toBe(JSON.stringify(fixtureState[section]));
             }
+            // The data, apart from the Google API key
+            const { googleApiKey, ...fixtureData } = fixtureState.dataStore;
+            expect(googleApiKey).toBe('');
+            expect(JSON.stringify(saved.dataStore)).toBe(JSON.stringify(fixtureData));
         });
 
         test('Round-trips through restoreFromProjectFile', async () => {
@@ -257,18 +317,26 @@ describe('Project file handling', () => {
 
             for (let i = 0; i < 3; i++) {
                 restoreFromProjectFile(await download('Round trip'));
-                // The chart, created again after a project is loaded, loads
-                // the data from the CSV (Preview.vue)
-                data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
 
                 expect(data.tableCSV).toBe(csv);
-                // Empty cells are left out of the rows
+                // The rows keep their empty cells, so the columns that have
+                // only those keep their series (see buildChartOptions)
                 expect(data.tableRowData).toEqual([
-                    { B: 'Temp; C', C: 'Say "hi"' },
-                    { B: '0.5', C: '7' },
-                    { A: '1', C: '8;9' }
+                    { A: '', B: 'Temp; C', C: 'Say "hi"' },
+                    { A: '', B: '0.5', C: '7' },
+                    { A: '1', B: '', C: '8;9' }
                 ]);
             }
+
+            // Loaded from the CSV, as from an imported CSV file, the rows have
+            // no cells for the empty values, and the values keep their columns
+            data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
+            expect(data.tableCSV).toBe(csv);
+            expect(data.tableRowData).toEqual([
+                { B: 'Temp; C', C: 'Say "hi"' },
+                { B: '0.5', C: '7' },
+                { A: '1', C: '8;9' }
+            ]);
         });
 
         test('Keeps a single column of data over saves and loads', async () => {
@@ -278,6 +346,7 @@ describe('Project file handling', () => {
 
             for (let i = 0; i < 2; i++) {
                 restoreFromProjectFile(await download('Single column'));
+                expect(data.tableRowData).toEqual(rows);
                 data.loadFromCSV(data.tableCSV, tableCSVDelimiter);
                 expect(data.tableRowData).toEqual(rows);
             }

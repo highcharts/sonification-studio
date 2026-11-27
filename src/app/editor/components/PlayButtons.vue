@@ -1,12 +1,14 @@
 <template>
     <div class="play-buttons-container">
         <PlayButton
+            ref="playPauseButton"
             :icon-path="playPauseIcon"
             @click="onPlayPauseClick"
         >
             {{ playing ? 'Pause' : 'Play' }}
         </PlayButton>
         <PlayButton
+            ref="stopButton"
             :icon-path="stopIcon"
             :enabled="playing || paused"
             @click="onStopClick"
@@ -34,6 +36,9 @@ import loopIcon from '../assets/loop.svg';
 import PlayButton from './PlayButton.vue';
 import PlayCheckbox from './PlayCheckbox.vue';
 
+// The parts of PlayButton used here
+type PlayButtonComponent = InstanceType<typeof PlayButton>;
+
 export default defineComponent({
     components: {
         PlayButton, PlayCheckbox
@@ -43,6 +48,8 @@ export default defineComponent({
             playing: false,
             paused: false,
             loopEnabled: false,
+            // Loop was toggled with its keyboard shortcut, which announces it
+            loopToggledByKey: false,
             playPauseIcon: playIcon,
             stopIcon, pauseIcon, loopIcon
         };
@@ -53,13 +60,17 @@ export default defineComponent({
     // Stop playing when something changes.
     watch: {
         reactToParameterUpdates() {
-            this.onStopClick();
+            this.stopForChange();
         },
         reactToDataUpdates() {
-            this.onStopClick();
+            this.stopForChange();
         },
-        loopEnabled() {
-            this.onStopClick();
+        loopEnabled(enabled: boolean) {
+            const loopMessage = this.loopToggledByKey ?
+                'Loop ' + (enabled ? 'enabled' : 'disabled') + '.' :
+                '';
+            this.loopToggledByKey = false;
+            this.stopForChange(loopMessage);
         }
     },
     mounted() {
@@ -78,8 +89,9 @@ export default defineComponent({
                     this.onStopClick();
                     e.preventDefault();
                 } else if (keyPressed(Keys.T, Modifiers.Ctrl, e)) {
+                    // The loopEnabled watcher announces the change
+                    this.loopToggledByKey = true;
                     this.loopEnabled = !this.loopEnabled;
-                    this.$announcer.announce('Loop ' + (this.loopEnabled ? 'enabled' : 'disabled') + '.');
                     e.preventDefault();
                 } else if (keyPressed(Keys.Left, Modifiers.Ctrl + Modifiers.Shift, e)) {
                     this.resetPlayPauseBtn();
@@ -107,14 +119,35 @@ export default defineComponent({
             this.playing = !this.playing;
         },
         resetPlayPauseBtn() {
+            // The Stop button is disabled once nothing plays, which would
+            // drop its focus to the page
+            const stopButtonHadFocus = this.getButton('stopButton')?.contains(document.activeElement);
             this.paused = false;
             this.playing = false;
             this.playPauseIcon = playIcon;
+            if (stopButtonHadFocus) {
+                this.$nextTick(() => this.getButton('playPauseButton')?.focus());
+            }
         },
         onStopClick() {
             this.paused = false;
             this.resetPlayPauseBtn();
             this.$chartBridge.stopChart();
+        },
+        // Stop playback for a change to the chart or the loop setting, and
+        // say so if it was playing, before an optional message
+        stopForChange(message = '') {
+            const wasPlaying = this.playing;
+            this.onStopClick();
+            const announcement = [message, wasPlaying ? 'Playback stopped.' : '']
+                .filter(Boolean)
+                .join(' ');
+            if (announcement) {
+                this.$announcer.announce(announcement);
+            }
+        },
+        getButton(ref: 'playPauseButton' | 'stopButton'): HTMLButtonElement | undefined {
+            return (this.$refs[ref] as PlayButtonComponent | undefined)?.$el.querySelector('button') ?? void 0;
         }
     }
 });

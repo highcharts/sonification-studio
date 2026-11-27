@@ -138,7 +138,7 @@ describe('Edits in a sorted or filtered grid', () => {
         await cell.editValue(1);
 
         expect(edits).toEqual([{ rowIndex: 4, columnId: 'B', value: '1' }]);
-        const newRows = applyCellEdit(rows, edits[0], data.columnIds);
+        const newRows = applyCellEdit(rows, edits[0]);
         expect(newRows.map((row) => row.B)).toEqual(
             ['Value', '10', '30', '20', '1', '15', '35', '25', '5']
         );
@@ -228,9 +228,10 @@ describe('CSV headers', () => {
             expect(headerCell?.htmlElement.textContent?.trim()).toEqual(headers[i]);
             // What the filter and column menu popups show
             expect(headerCell?.value).toEqual(headers[i]);
-            // Labelled with the column id, described by the CSV header
-            expect(headerCell?.htmlElement.getAttribute('aria-label')).toEqual(id);
-            expect(headerCell?.htmlElement.getAttribute('aria-description')).toEqual(headers[i]);
+            // Labelled with the CSV header shown, not the column id, which
+            // is in the header cell above it
+            expect(headerCell?.htmlElement.getAttribute('aria-label')).toEqual(headers[i]);
+            expect(headerCell?.htmlElement.hasAttribute('aria-description')).toBe(false);
             // The sort button is labelled with the header
             const sortButton = headerCell?.htmlElement.querySelector('.hcg-header-cell-icons button');
             expect(sortButton?.getAttribute('aria-label')).toEqual(`${headers[i]} Not sorted.`);
@@ -308,5 +309,65 @@ describe('Row indexes for screen readers', () => {
         await renderOnlyRows(viewport, 5);
         expect(getAriaRowIndexes(viewport)).toEqual([[3], [9, 10, 11], [12]]);
         expect(viewport.tableElement.getAttribute('aria-rowcount')).toEqual('12');
+    });
+});
+
+describe('Keyboard navigation', () => {
+    // Press a key on the focused cell, as the browser does
+    const press = (key: string, modifiers: KeyboardEventInit = {}) => {
+        const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...modifiers });
+        document.activeElement?.dispatchEvent(event);
+        return event;
+    };
+    // The focused cell's column id and row index
+    const focused = () => {
+        const cell = document.activeElement as HTMLElement;
+        return '' + cell.getAttribute('data-column-id') + cell.parentElement?.getAttribute('data-row-index');
+    };
+
+    test('Moves the focus with Page Down and Up, Home and End, and Ctrl+Home and End', async () => {
+        const navigationGrid = await renderGrid(prepareGridData(getRows()));
+        getShownCell(navigationGrid, 2, 'B').htmlElement.focus();
+        expect(focused()).toEqual('B2');
+
+        // Instead of the browser's scrolling
+        expect(press('PageDown').defaultPrevented).toBe(true);
+        // jsdom has no layout, so a page is one row
+        await vi.waitFor(() => expect(focused()).toEqual('B3'));
+        press('PageUp');
+        await vi.waitFor(() => expect(focused()).toEqual('B2'));
+        press('Home');
+        await vi.waitFor(() => expect(focused()).toEqual('A2'));
+        press('End', { ctrlKey: true });
+        // The last row, and the last of the empty columns after the data
+        await vi.waitFor(() => expect(focused()).toEqual('G7'));
+        press('Home', { metaKey: true });
+        await vi.waitFor(() => expect(focused()).toEqual('A0'));
+        press('End');
+        await vi.waitFor(() => expect(focused()).toEqual('G0'));
+
+        // Other modifiers are left to the browser and the screen reader
+        expect(press('End', { shiftKey: true }).defaultPrevented).toBe(false);
+        expect(focused()).toEqual('G0');
+    });
+
+    test('Names the cell editor by its column and row', async () => {
+        const rows = getRows();
+        rows[1].C = 'text';
+        const editorGrid = await renderGrid(prepareGridData(rows));
+        const label = async (rowIndex: number, columnId: string) => {
+            const cellEditing = editorGrid.viewport?.cellEditing;
+            cellEditing?.startEditing(getShownCell(editorGrid, rowIndex, columnId));
+            const input = cellEditing?.editModeContent?.getMainElement();
+            cellEditing?.stopEditing(false);
+            // Grid Pro ends the edit asynchronously
+            await vi.waitFor(() => expect(cellEditing?.editedCell).toBeUndefined());
+            return input?.getAttribute('aria-label');
+        };
+
+        // A number column, with its CSV header
+        expect(await label(4, 'B')).toEqual('Column B, Value, row 5');
+        // A text column, without one
+        expect(await label(0, 'C')).toEqual('Column C, row 1');
     });
 });

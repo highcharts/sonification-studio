@@ -1,5 +1,5 @@
 import { createApp, defineComponent, h, markRaw } from 'vue';
-import { createRouter, createWebHashHistory, RouteLocationNormalized } from 'vue-router';
+import { createRouter, createWebHashHistory, type RouteLocationNormalized } from 'vue-router';
 import { createPinia } from 'pinia';
 import Editor from '../editor/Editor.vue';
 import Home from '../home/Home.vue';

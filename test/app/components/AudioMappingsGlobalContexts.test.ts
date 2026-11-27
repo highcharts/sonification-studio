@@ -14,6 +14,7 @@ describe('AudioMappingsGlobalContexts.vue', () => {
         playAudioSample: ReturnType<typeof vi.fn>;
     };
     let actions: string[];
+    let announce: ReturnType<typeof vi.fn>;
 
     const store = () => useGlobalSonifyParametersStore(pinia);
     const context = () => store().contexts[0];
@@ -36,11 +37,13 @@ describe('AudioMappingsGlobalContexts.vue', () => {
             forceUpdate: vi.fn(),
             playAudioSample: vi.fn()
         };
+        announce = vi.fn();
         wrapper = mount(AudioMappingsGlobalContexts, {
             props: { variableValueProp: true },
+            attachTo: document.body,
             global: {
                 plugins: [pinia],
-                mocks: { $chartBridge: chartBridge }
+                mocks: { $chartBridge: chartBridge, $announcer: { announce } }
             }
         });
     });
@@ -158,5 +161,27 @@ describe('AudioMappingsGlobalContexts.vue', () => {
         await wrapper.findAll('.remove-btn')[0].trigger('click');
         expect(store().contexts.map(c => c.id)).toEqual([2]);
         expect(wrapper.find('h6').text()).toBe('Context cue 2');
+    });
+
+    test('Moves the focus from a removed cue to the next cue, the previous cue or Add', async () => {
+        await wrapper.find('.add-btn').trigger('click');
+        await wrapper.find('.add-btn').trigger('click');
+        const removeButton = (id: number) => wrapper.find(`[aria-label="Remove context cue ${id}"]`);
+        const remove = async (id: number) => {
+            (removeButton(id).element as HTMLElement).focus();
+            await removeButton(id).trigger('click');
+            await flushPromises();
+        };
+
+        await remove(2);
+        expect(announce).toHaveBeenLastCalledWith('Context cue 2 removed.');
+        expect(document.activeElement).toBe(removeButton(3).element);
+
+        await remove(3);
+        expect(document.activeElement).toBe(removeButton(1).element);
+
+        await remove(1);
+        expect(store().contexts).toEqual([]);
+        expect(document.activeElement).toBe(wrapper.find('.add-btn').element);
     });
 });

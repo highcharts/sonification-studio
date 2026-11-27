@@ -1,6 +1,12 @@
 import { SeriesMappings } from './seriesMappings';
 import { SeriesSonificationMappings } from './seriesSonificationMappings';
-import { GenericObject, deepMerge } from '../utils/objects';
+import { type GenericObject, deepMerge } from '../utils/objects';
+
+// A mapping class's static methods, looked up by parameter name: each maps a
+// parameter's value to series options
+type MappingTable = Record<string, ((value: unknown) => GenericObject) | undefined>;
+const seriesMappings = SeriesMappings as unknown as MappingTable;
+const seriesSonificationMappings = SeriesSonificationMappings as unknown as MappingTable;
 
 
 /*
@@ -10,7 +16,7 @@ function toSeriesOptionsObject(seriesParameters: GenericObject): GenericObject {
     let res = {};
 
     for (const [param, val] of Object.entries(seriesParameters)) {
-        const mapper = (SeriesMappings as any)[param] || (SeriesSonificationMappings as any)[param];
+        const mapper = seriesMappings[param] || seriesSonificationMappings[param];
         const options = mapper ? mapper(val) : {};
         res = deepMerge(res, options);
     }

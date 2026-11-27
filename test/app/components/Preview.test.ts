@@ -62,9 +62,8 @@ describe('Preview.vue', () => {
         expect(preview.chartBridge.init).toHaveBeenCalledTimes(1);
         expect(preview.chartBridge.init.mock.calls[0][0].series[0].type).toBe('line');
         expect(preview.chartBridge.forceUpdate).not.toHaveBeenCalled();
-        expect(preview.loadFromCSV).toHaveBeenCalledTimes(1);
-        // The app's own CSV, whose delimiter is known
-        expect(preview.loadFromCSV).toHaveBeenCalledWith('', ';');
+        // The rows are left as they are, with their empty cells
+        expect(preview.loadFromCSV).not.toHaveBeenCalled();
         expect(preview.announcer.announce).not.toHaveBeenCalled();
         expect(consoleError).not.toHaveBeenCalled();
     });
@@ -87,7 +86,7 @@ describe('Preview.vue', () => {
         ]);
         // Options derived from the fallback chart are refreshed
         expect(preview.chartBridge.forceUpdate).toHaveBeenCalledWith(true);
-        expect(preview.loadFromCSV).toHaveBeenCalledTimes(1);
+        expect(preview.loadFromCSV).not.toHaveBeenCalled();
     });
 
     test('Announces when not even the fallback options give a chart', async () => {

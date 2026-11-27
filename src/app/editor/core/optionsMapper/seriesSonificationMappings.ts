@@ -1,4 +1,4 @@
-import { GenericObject } from '../utils/objects';
+import type { GenericObject } from '../utils/objects';
 
 // For options where the UI is 0-100, but the option should be 0-1
 const hundredToOneTransform = (x: number): number => x / 100;

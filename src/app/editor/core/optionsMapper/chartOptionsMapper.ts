@@ -1,6 +1,12 @@
-import { GenericObject, deepMerge } from '../utils/objects';
+import { type GenericObject, deepMerge } from '../utils/objects';
 import { ChartMappings } from './chartMappings';
 import { GlobalSonificationMappings } from './globalSonificationMappings';
+
+// A mapping class's static methods, looked up by parameter name: each maps a
+// parameter's value to chart options
+type MappingTable = Record<string, (value: unknown, chart: GenericObject, params?: GenericObject) => GenericObject>;
+const sonifyMappings = GlobalSonificationMappings as unknown as MappingTable;
+const chartMappings = ChartMappings as unknown as MappingTable;
 
 
 /**
@@ -16,12 +22,12 @@ class ChartOptionsMapper {
     }
 
     public addSonifyParameter(param: string, value: unknown, params: GenericObject) {
-        const newOptions = (GlobalSonificationMappings as any)[param](value, this.chart, params);
+        const newOptions = sonifyMappings[param](value, this.chart, params);
         this.options = deepMerge(this.options, newOptions);
     }
 
     public addChartParameter(param: string, value: unknown) {
-        const newOptions = (ChartMappings as any)[param](value, this.chart);
+        const newOptions = chartMappings[param](value, this.chart);
         this.options = deepMerge(this.options, newOptions);
     }
 }

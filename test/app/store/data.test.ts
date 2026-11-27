@@ -64,13 +64,57 @@ describe('data store', () => {
             expect(store.tableCSV).toBe(toCSV(store.tableRowData));
         });
 
-        test('Leaves the other data state alone', () => {
+        test('Resets the data source settings, but not the Google API key', () => {
             const store = useDataStore();
             store.setSelectedDataSource('googlesheets');
             store.setGoogleApiKey('key');
+            store.setGoogleSpreadsheetURL('https://docs.google.com/spreadsheets/d/abc/edit');
+            store.setGoogleAutoUpdateEnabled(true);
+            store.setSpreadsheetSetupComplete(true);
+            store.setGoogleSheetStatus(GoogleSheetStatus.Error);
+            store.setGoogleSheetErrorMessage('Failed');
+
             store.restoreStoreState();
-            expect(store.selectedDataSource).toBe('googlesheets');
-            expect(store.googleApiKey).toBe('key');
+
+            expect(store).toMatchObject({
+                selectedDataSource: 'table',
+                googleApiKey: 'key',
+                googleSpreadsheetURL: '',
+                googleAutoUpdateEnabled: false,
+                googleAutoUpdateFrequency: 10,
+                spreadsheetSetupComplete: false,
+                googleSheetStatus: GoogleSheetStatus.Loading,
+                googleSheetErrorMessage: ''
+            });
+        });
+
+        test('Restores the data source settings, and a Google API key from a session', () => {
+            const store = useDataStore();
+            const sheet = {
+                tableRowData: [{ A: 'x' }],
+                selectedDataSource: 'googlesheets',
+                spreadsheetSetupComplete: true,
+                googleSpreadsheetURL: 'https://docs.google.com/spreadsheets/d/abc/edit',
+                googleAutoUpdateEnabled: true,
+                googleAutoUpdateFrequency: 5
+            };
+
+            // A localStorage session has the key
+            store.restoreStoreState({ ...sheet, googleApiKey: 'session key' });
+            expect(store).toMatchObject({ ...sheet, googleApiKey: 'session key' });
+
+            // A project file has none: the key stays
+            store.restoreStoreState(sheet);
+            expect(store.googleApiKey).toBe('session key');
+            expect(store.spreadsheetSetupComplete).toBe(true);
+
+            // Unknown data sources fall back to the grid, and a sheet with
+            // no spreadsheet URL is not set up
+            store.restoreStoreState({ ...sheet, selectedDataSource: 'other' });
+            expect(store.selectedDataSource).toBe('table');
+            expect(store.spreadsheetSetupComplete).toBe(false);
+            store.restoreStoreState({ ...sheet, googleSpreadsheetURL: 'https://example.com' });
+            expect(store.spreadsheetSetupComplete).toBe(false);
         });
     });
 
@@ -201,6 +245,45 @@ describe('data store', () => {
             // Rows are copied, not changed
             expect(store.tableRowData[0]).not.toBe(headerRow);
             expect(store.tableCSV).toBe('Header A;Header B\n1;3\n2;6\n3;9');
+        });
+
+        test('Leaves a row empty where a column the equation names is empty', () => {
+            const store = useDataStore();
+            store.setTableRowData([
+                { A: 'Header A', B: 'Header B', C: 'Header C' },
+                { A: '1', B: '10' },
+                { A: '2', B: '' },
+                { A: ' ', B: '30' },
+                { A: '4', B: '40' }
+            ]);
+
+            store.fillColumn({ columnName: 'C', equation: 'A + B' });
+
+            expect(store.column('C')).toEqual(['Header C', '11', '', '', '44']);
+        });
+
+        test('Takes column names for columns, not mathjs constants or units', () => {
+            const store = useDataStore();
+            // E and F have no cells: mathjs has the constant E and the unit F
+            store.setTableRowData([{ A: 'h' }, { A: '1' }, { A: '2' }]);
+
+            store.fillColumn({ columnName: 'B', equation: 'E' });
+            expect(store.column('B')).toEqual([null, '', '']);
+
+            store.fillColumn({ columnName: 'B', equation: 'F + 1' });
+            expect(store.column('B')).toEqual([null, '', '']);
+
+            // A column with values, in a function, and lowercase mathjs
+            // constants still work
+            store.fillColumn({ columnName: 'B', equation: 'round(sqrt(A * 4) * pi * e)' });
+            expect(store.column('B')).toEqual([null, '17', '24']);
+        });
+
+        test('Fills rows from the row number alone, whatever the other columns hold', () => {
+            const store = useDataStore();
+            store.setTableRowData([{ A: 'h' }, {}, { A: '' }]);
+            store.fillColumn({ columnName: 'B', equation: '2 * i' });
+            expect(store.column('B')).toEqual([null, '2', '4']);
         });
 
         test('Leaves the rows unchanged when the equation fails', () => {
