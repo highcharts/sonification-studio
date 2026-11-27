@@ -60,6 +60,9 @@ describe('highchartsSetup plugins', () => {
         container.appendChild(later);
         await Promise.resolve();
         expect(later.getAttribute('aria-label')).toBe('a "b" \'c\' &lt;');
+        // Not decoded again when the observer sees the decoded label
+        await Promise.resolve();
+        expect(later.getAttribute('aria-label')).toBe('a "b" \'c\' &lt;');
     });
 
     test('The focus border is not drawn around a destroyed element', () => {

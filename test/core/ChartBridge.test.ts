@@ -774,6 +774,51 @@ describe('ChartBridge playback when Highcharts rebuilds the timeline', () => {
         expect(timeline.resume).not.toHaveBeenCalled();
     });
 
+    test('Resumes a paused timeline with the end callback of the playback resumed', () => {
+        // Paused (e.g. stepped through with the keyboard) with the callback
+        // of an earlier playback
+        const earlier = vi.fn();
+        chart.sonification.timeline = makeTimeline({ paused: true, time: 500 });
+        chart.sonification.timeline.onEndArgument = earlier;
+
+        bridge.playChart(vi.fn());
+
+        const playEnd = chart.toggleSonify.mock.calls[0][1];
+        expect(chart.sonification.timeline.onEndArgument).toBe(playEnd);
+    });
+
+    test('Stops playback before an audio export, and tells the play controls', async () => {
+        const stopped = vi.fn();
+        bridge.onPlaybackStopped(stopped);
+        vi.stubGlobal('MediaRecorder', class {
+            static isTypeSupported() {
+                return true;
+            }
+            mimeType = 'audio/webm';
+            start() {}
+            stop() {}
+        });
+        chart.sonification.audioContext = {
+            destination: {},
+            createMediaStreamDestination: () => ({ stream: {} })
+        };
+        chart.sonification.setAudioDestination = vi.fn(() => {
+            // Highcharts rebuilds the timeline when the destination changes
+            rebuildTimeline(makeTimeline());
+        });
+        chart.sonification.timeline = makeTimeline({ paused: true, time: 700 });
+        const paused = chart.sonification.timeline;
+
+        void bridge.downloadAudio();
+
+        expect(paused.reset).toHaveBeenCalledOnce();
+        expect(stopped).toHaveBeenCalledOnce();
+        // The export's timeline starts from the beginning
+        expect(chart.sonification.timeline.isPaused).toBe(false);
+        expect(chart.sonification.timeline.resumeFromTime).toBe(0);
+        vi.unstubAllGlobals();
+    });
+
     test('Loops with the same end callback, and stops without loop', () => {
         const onEnd = vi.fn();
         bridge.playChart(onEnd, true);
@@ -791,5 +836,38 @@ describe('ChartBridge playback when Highcharts rebuilds the timeline', () => {
         chart.toggleSonify.mock.calls[0][1]({});
         expect(chart.sonify).toHaveBeenCalledTimes(2);
         expect(chart.sonification.timeline.reset).toHaveBeenCalledOnce();
+    });
+});
+
+describe('ChartBridge Google Sheets polling', () => {
+    test('A poll with unchanged data is no news, a changed one is', () => {
+        const pinia = createPinia();
+        const data = useDataStore(pinia);
+        data.restoreStoreState({
+            tableRowData: [],
+            selectedDataSource: 'googlesheets',
+            spreadsheetSetupComplete: true,
+            googleSpreadsheetURL: 'https://docs.google.com/spreadsheets/d/abc/edit',
+            googleApiKey: 'key'
+        });
+        const bridge = new ChartBridge(pinia, Highcharts);
+        const statusActions: string[] = [];
+        data.$onAction(({ name }) => {
+            if (name === 'setGoogleSheetStatus') {
+                statusActions.push(name);
+            }
+        });
+        // What the data module parses from the sheet on each poll
+        const poll = (y: number) => bridge.buildChartOptions().data.complete({
+            series: [{ name: 'Sheet', data: [[0, 1], [1, y]] }]
+        });
+
+        poll(2);
+        poll(2);
+        expect(statusActions).toHaveLength(1);
+        expect(data.googleSheetStatus).toBe(GoogleSheetStatus.Success);
+
+        poll(3);
+        expect(statusActions).toHaveLength(2);
     });
 });

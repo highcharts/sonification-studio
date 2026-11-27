@@ -50,6 +50,7 @@ export default defineComponent({
             loopEnabled: false,
             // Loop was toggled with its keyboard shortcut, which announces it
             loopToggledByKey: false,
+            stopListeningToBridge: null as null | (() => void),
             playPauseIcon: playIcon,
             stopIcon, pauseIcon, loopIcon
         };
@@ -75,9 +76,12 @@ export default defineComponent({
     },
     mounted() {
         document.addEventListener('keydown', this.onDocumentKeydown);
+        // An audio or video export stops playback to play the chart itself
+        this.stopListeningToBridge = this.$chartBridge.onPlaybackStopped(() => this.stopForChange());
     },
     beforeUnmount() {
         document.removeEventListener('keydown', this.onDocumentKeydown);
+        this.stopListeningToBridge?.();
     },
     methods: {
         onDocumentKeydown(e: KeyboardEvent) {

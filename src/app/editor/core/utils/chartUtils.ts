@@ -132,10 +132,15 @@ export function escapePointNames(data: unknown[]): unknown[] {
  * element, whenever one is set.
  */
 export function plainTextAriaLabelPlugin(Highcharts: typeof HighchartsModule) {
+    // The labels decoded, so that a label is not decoded again when the
+    // observer sees it set, and its decoded text has an entity in it
+    const decodedLabels = new WeakMap<Element, string>();
     const decode = (element: Element) => {
         const label = element.getAttribute('aria-label');
-        if (label && hasHTMLEntities(label)) {
-            element.setAttribute('aria-label', unescapeHTML(label));
+        if (label && label !== decodedLabels.get(element) && hasHTMLEntities(label)) {
+            const decoded = unescapeHTML(label);
+            decodedLabels.set(element, decoded);
+            element.setAttribute('aria-label', decoded);
         }
     };
     const decodeTree = (element: Element) => {

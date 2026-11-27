@@ -335,7 +335,8 @@ export default defineComponent({
             spinnerIcon,
             statuses: GoogleSheetStatus,
             // A restored session or project may have the sheet linked
-            currentStep: useDataStore().spreadsheetSetupComplete ? 'confirmation' : 'apikey'
+            currentStep: useDataStore().spreadsheetSetupComplete ? 'confirmation' : 'apikey',
+            stopWatchingRestores: null as null | (() => void)
         };
     },
     computed: {
@@ -378,14 +379,6 @@ export default defineComponent({
         }
     },
     watch: {
-        // A project opened or a new project: show the step the sheet's setup
-        // is at, without moving the focus, which is elsewhere
-        'dataStore.spreadsheetSetupComplete'(complete: boolean) {
-            const linked = this.currentStep === 'confirmation';
-            if (complete !== linked) {
-                this.currentStep = complete ? 'confirmation' : 'apikey';
-            }
-        },
         googleSheetStatus(newStatus: GoogleSheetStatus) {
             if (this.currentStep !== 'confirmation') {
                 return;
@@ -396,6 +389,21 @@ export default defineComponent({
                 this.focusOnUpdate(this.$refs.errorHeading as HTMLElement);
             }
         }
+    },
+    mounted() {
+        // A project opened or a new project (or a session restored): show
+        // the step the sheet's setup is at, without moving the focus, which
+        // is elsewhere
+        this.stopWatchingRestores = this.dataStore.$onAction(({ name, after }) => {
+            if (name === 'restoreStoreState') {
+                after(() => {
+                    this.currentStep = this.dataStore.spreadsheetSetupComplete ? 'confirmation' : 'apikey';
+                });
+            }
+        });
+    },
+    beforeUnmount() {
+        this.stopWatchingRestores?.();
     },
     methods: {
         // Focus an element once the DOM is updated. The button that was

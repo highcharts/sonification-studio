@@ -212,8 +212,8 @@ if (!gridProCellKeyDown.handlesNavigationKeys) {
 /*
     Name the cell editor's input for screen readers, which Grid Pro 3.2 gives
     no name: by its column (with the column's CSV header) and its row. The
-    grid edits text with the text input, and numbers with the number input
-    (in ClearableNumberInputRenderer).
+    grid edits text with the text input, numbers with the number input (in
+    ClearableNumberInputRenderer), and true/false values with the checkbox.
 */
 
 interface EditorContent {
@@ -230,7 +230,7 @@ type EditorRender = ((this: unknown, cell: EditedCell, parentElement?: HTMLEleme
     labelsEditor?: true;
 };
 
-for (const type of ['textInput', 'numberInput'] as const) {
+for (const type of ['textInput', 'numberInput', 'checkbox'] as const) {
     const rendererPrototype = GridPro.CellRendererRegistry.types[type].prototype as unknown as {
         render: EditorRender;
     };

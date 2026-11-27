@@ -12,7 +12,15 @@ describe('PlayButtons.vue', () => {
         playChart: vi.fn(),
         pauseChart: vi.fn(),
         stopChart: vi.fn(),
-        playAdjacent: vi.fn()
+        playAdjacent: vi.fn(),
+        // The listener the buttons give the bridge
+        stoppedListener: void 0 as undefined | (() => void),
+        onPlaybackStopped: vi.fn((listener: () => void) => {
+            chartBridge.stoppedListener = listener;
+            return () => {
+                chartBridge.stoppedListener = void 0;
+            };
+        })
     };
 
     const buttons = () => wrapper.findAll('button');
@@ -140,5 +148,15 @@ describe('PlayButtons.vue', () => {
         useViewStore().triggerDataReactivity();
         await wrapper.vm.$nextTick();
         expect(document.activeElement).toBe(playPauseButton().element);
+    });
+
+    test('Shows that an export stopped playback', async () => {
+        await play();
+
+        chartBridge.stoppedListener?.();
+        await wrapper.vm.$nextTick();
+
+        expect(playPauseButton().text()).toBe('Play');
+        expect(announce).toHaveBeenCalledWith('Playback stopped.');
     });
 });

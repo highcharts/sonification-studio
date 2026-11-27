@@ -117,6 +117,10 @@ export class ChartBridge {
     // The callback the chart's timeline calls when playback ends, see playChart
     private playbackOnEnd: ((e: unknown) => void) | undefined;
     private playbackHandoff: PlaybackHandoff | null = null;
+    // Called when the bridge stops playback itself, see onPlaybackStopped
+    private playbackStoppedListeners = new Set<() => void>();
+    // The series a Google Sheet gave last, see the data's complete handler
+    private googleSheetData = '';
 
     /**
      * Construct the class with the app's Pinia instance and the app's
@@ -261,8 +265,20 @@ export class ChartBridge {
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
+    // A polled sheet whose data has not changed is no news: the status
+    // action would update the components that depend on the data, and
+    // stop playback (PlayButtons) on every poll
     if (fromGoogleSheets) {
-        this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Success);
+        const sheetData = JSON.stringify(
+            (parseResult.series || []).map((s: GenericObject) => [s.name, s.data])
+        );
+        if (
+            this.dataStore.googleSheetStatus !== GoogleSheetStatus.Success ||
+            sheetData !== this.googleSheetData
+        ) {
+            this.googleSheetData = sheetData;
+            this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Success);
+        }
     }
 
     // Text in a column other than the first (e.g. a label column) can not
@@ -395,12 +411,42 @@ export class ChartBridge {
             }
         };
         this.playbackOnEnd = onTimelineEnd;
+        // A paused timeline resumes with the callback it was given when it
+        // started playing (or by continuePlayback), which may be another
+        // playback's (e.g. with loop): give it this one
+        const timeline: ChartTimeline | undefined = chart.sonification?.timeline;
+        if (timeline?.isPaused) {
+            timeline.onEndArgument = onTimelineEnd;
+        }
         chart.toggleSonify(false, onTimelineEnd);
+    }
+
+    /**
+     * Call a listener when the bridge stops playback itself (before an
+     * audio or video export, which plays the chart from the start), so that
+     * the play controls can show it. Returns a function that removes it.
+     */
+    public onPlaybackStopped(listener: () => void): () => void {
+        this.playbackStoppedListeners.add(listener);
+        return () => this.playbackStoppedListeners.delete(listener);
+    }
+
+    // Stop playback, playing or paused, so that an export plays the chart
+    // from the start with its own end callback. Redirecting the audio rebuilds
+    // the timeline, which would otherwise pick up where playback was.
+    private stopPlaybackForExport(): void {
+        const timeline: ChartTimeline | undefined = this.chart?.sonification?.timeline;
+        const wasActive = !!timeline && (timeline.isPlaying || timeline.isPaused);
+        this.stopChart();
+        if (wasActive) {
+            this.playbackStoppedListeners.forEach((listener) => listener());
+        }
     }
 
     public stopChart() {
         this.stopProgressUpdatePolling();
         this.chart?.sonification?.timeline?.reset();
+        this.playbackOnEnd = void 0;
         this.updatePlayProgress();
     }
 
@@ -680,13 +726,19 @@ export class ChartBridge {
                     // as the editor does (plainTextAriaLabelPlugin)
                     const container = document.getElementById('container');
                     const entities = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
+                    // The labels decoded, so that one is not decoded again
+                    // when its decoded text has an entity in it
+                    const decodedLabels = new WeakMap();
                     const decodeLabel = function (element) {
                         const label = element.getAttribute && element.getAttribute('aria-label');
-                        if (label && /&(amp|lt|gt|quot|#39);/.test(label)) {
-                            element.setAttribute('aria-label', label.replace(
+                        if (label && label !== decodedLabels.get(element) &&
+                                /&(amp|lt|gt|quot|#39);/.test(label)) {
+                            const decoded = label.replace(
                                 /&(amp|lt|gt|quot|#39);/g,
                                 function (entity) { return entities[entity]; }
-                            ));
+                            );
+                            decodedLabels.set(element, decoded);
+                            element.setAttribute('aria-label', decoded);
                         }
                     };
                     new MutationObserver(function (records) {
@@ -796,6 +848,7 @@ export class ChartBridge {
                 reject(new Error('Could not download audio, no audio context available.'));
                 return;
             }
+            this.stopPlaybackForExport();
             const destination = context.createMediaStreamDestination();
             this.setAudioDestinationNode(destination);
 
@@ -845,6 +898,7 @@ export class ChartBridge {
         if (!audioContext) {
             throw new Error('Could not export video, no audio context available.');
         }
+        this.stopPlaybackForExport();
         const audioDestination = audioContext.createMediaStreamDestination();
         const exportStream = audioDestination.stream;
         exportStream.addTrack(videoTrack);
@@ -1047,7 +1101,8 @@ export class ChartBridge {
     // Highcharts throws away the chart's sonification timeline and builds a
     // new one on every render of the chart, which stops playback: also when
     // nothing that plays changed, as when the chart is resized (e.g. when the
-    // sidebar is hidden) or redrawn, or when a Google Sheet is polled. So the
+    // sidebar is hidden) or redrawn, or when a Google Sheet is polled and has
+    // not changed (see the data's complete handler). So the
     // new timeline picks up where the old one was, playing or paused, as its
     // own pause and resume do. A change to the settings or the data still
     // stops playback (in PlayButtons), once the change reaches the bridge.

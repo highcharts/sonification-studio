@@ -90,6 +90,11 @@ describe('DataGSheet.vue', () => {
         data.restoreStoreState();
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.currentStep).toBe('apikey');
+
+        // Also from a step part-way through the setup
+        wrapper.vm.goToStep('sheeturl');
+        data.restoreStoreState();
+        expect(wrapper.vm.currentStep).toBe('apikey');
     });
 
     test('Starts at the confirmation when the sheet is linked already', () => {
