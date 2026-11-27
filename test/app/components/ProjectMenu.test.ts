@@ -6,6 +6,8 @@ import SEFileUpload from '../../../src/app/editor/components/basic/SEFileUpload.
 import { useChartParametersStore } from '../../../src/app/editor/store/modules/chartParameters';
 import { useSeriesParametersStore } from '../../../src/app/editor/store/modules/seriesParameters';
 import { useDataStore } from '../../../src/app/editor/store/modules/data';
+import { useGlobalSonifyParametersStore } from '../../../src/app/editor/store/modules/globalSonifyParameters';
+import { getGridRebuild } from '../../../src/app/editor/core/utils/gridData';
 import { useViewStore } from '../../../src/app/editor/store/modules/view';
 import fixtureContents from '../../fixtures/project-v1.1.1.hssp?raw';
 
@@ -57,15 +59,38 @@ describe('ProjectMenu.vue', () => {
         announcer.announce.mockClear();
     });
 
-    test('New Project resets the data and series, recreates the chart and announces it', async () => {
+    test('New Project resets the data and all settings, recreates the chart and announces it', async () => {
+        const globalSonify = useGlobalSonifyParametersStore(pinia);
+        globalSonify.addContext({ valueRange: null, inactive: false });
+        const data = useDataStore(pinia);
+        data.setTextDescription('Old description');
+        data.setSelectedDataSource('googlesheets');
+        data.setGoogleApiKey('key');
+        // The data store actions that rebuild the grid
+        const gridActions: string[] = [];
+        data.$onAction(({ name }) => {
+            if (getGridRebuild(name, { isUpdatingFromGrid: false, hasRendered: true, onDataTab: true }) !== 'none') {
+                gridActions.push(name);
+            }
+        });
+
         await menuItem('New Project').trigger('click');
         expect(confirm).toHaveBeenCalledTimes(1);
         expect(useViewStore(pinia).loadingChart).toBe(true);
 
         await vi.advanceTimersByTimeAsync(recreateChartMs);
 
-        expect(useDataStore(pinia).tableRowData).toEqual(placeholderRows());
+        expect(data.tableRowData).toEqual(placeholderRows());
+        expect(data.textDescription).toBe('');
+        expect(data.selectedDataSource).toBe('table');
+        // The user's own key stays
+        expect(data.googleApiKey).toBe('key');
         expect(useSeriesParametersStore(pinia).seriesParameters).toEqual({});
+        // The chart and audio settings, as the confirmation says
+        expect(useChartParametersStore(pinia).title).toBe('Test chart');
+        expect(globalSonify.contexts).toEqual([]);
+        // The grid is built once
+        expect(gridActions).toEqual(['restoreStoreState']);
         expect(chartBridge.init).toHaveBeenCalledTimes(1);
         expect(announcer.announce).toHaveBeenCalledWith('New project loaded.');
         const view = useViewStore(pinia);

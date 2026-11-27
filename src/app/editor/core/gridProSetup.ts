@@ -7,7 +7,7 @@ import * as GridPro from '@highcharts/grid-pro/grid-pro';
 import type { CellRendererOptions } from '@highcharts/grid-pro/es-modules/Grid/Pro/CellRendering/CellRenderer';
 import type { NumberInputRendererOptions } from '@highcharts/grid-pro/es-modules/Grid/Pro/CellRendering/Renderers/NumberInputRenderer';
 import type { TableBodySection } from '@highcharts/grid-pro/es-modules/Grid/Core/Table/Table';
-import { clearableNumberInputType } from './utils/gridData';
+import { clearableNumberInputType, getCellEditorLabel } from './utils/gridData';
 
 const { numberInput: NumberInputRenderer } = GridPro.CellRendererRegistry.types;
 
@@ -119,4 +119,137 @@ if (!gridProSyncAriaRowIndexes.numbersRowsByIndex) {
     };
     syncAriaRowIndexes.numbersRowsByIndex = true;
     GridPro.Table.prototype.syncAriaRowIndexes = syncAriaRowIndexes;
+}
+
+/*
+    Keyboard navigation in the grid's body cells for the keys Grid Pro 3.2
+    leaves to the browser: it scrolls the table, but the focus stays in the
+    cell, which drops to the page when its row scrolls out of the rendered
+    rows. These keys move the focus instead, as in the ARIA grid pattern,
+    and the table scrolls to the focused cell:
+    - Page Down, Page Up: a page of rows down or up, in the same column;
+    - Home, End: the first or the last cell in the row;
+    - Ctrl+Home, Ctrl+End: the first cell in the first row, or the last cell
+      in the last row (also with Cmd on macOS).
+*/
+
+// The parts of Grid Pro's table and cells used here, which its typings mark
+// internal
+interface NavigableTable {
+    columns: unknown[];
+    tbodyElement: HTMLElement;
+    rowsVirtualizer: { rowCount: number; defaultRowHeight: number };
+    focusCellByRowIndex(rowIndex: number, columnIndex: number): void;
+}
+
+interface NavigableCell {
+    htmlElement: HTMLElement;
+    row: { index?: number; viewport: NavigableTable };
+    column?: { index: number };
+}
+
+type CellKeyDown = ((this: NavigableCell, e: KeyboardEvent) => void) & {
+    // Set on the wrapped handler, so a hot reload does not wrap it again
+    handlesNavigationKeys?: true;
+};
+
+// The cell a key moves the focus to, as [row index, column index] in the
+// table as shown (sorted and filtered), or undefined for other keys
+export function getNavigationTarget(
+    key: string,
+    ctrlKey: boolean,
+    position: { rowIndex: number; columnIndex: number },
+    size: { rowCount: number; columnCount: number; pageRowCount: number }
+): [number, number] | undefined {
+    const { rowIndex, columnIndex } = position;
+    const lastRow = size.rowCount - 1;
+    const lastColumn = size.columnCount - 1;
+    switch (key) {
+    case 'PageDown':
+        return [Math.min(rowIndex + size.pageRowCount, lastRow), columnIndex];
+    case 'PageUp':
+        return [Math.max(rowIndex - size.pageRowCount, 0), columnIndex];
+    case 'Home':
+        return ctrlKey ? [0, 0] : [rowIndex, 0];
+    case 'End':
+        return ctrlKey ? [lastRow, lastColumn] : [rowIndex, lastColumn];
+    }
+    return void 0;
+}
+
+const tableCellPrototype = GridPro.TableCell.prototype as unknown as { onKeyDown: CellKeyDown };
+const gridProCellKeyDown = tableCellPrototype.onKeyDown;
+
+if (!gridProCellKeyDown.handlesNavigationKeys) {
+    const onKeyDown: CellKeyDown = function (this: NavigableCell, e: KeyboardEvent): void {
+        const table = this.row.viewport;
+        const rowIndex = this.row.index;
+        const columnIndex = this.column?.index;
+        const rowHeight = table.rowsVirtualizer.defaultRowHeight;
+        const rowsInView = rowHeight > 0 ? Math.floor(table.tbodyElement.clientHeight / rowHeight) : 0;
+        // Not in an input of the cell (in edit mode), nor with other
+        // modifiers, which are the browser's or the screen reader's
+        const target = e.target === this.htmlElement && !e.altKey && !e.shiftKey &&
+            rowIndex !== void 0 && columnIndex !== void 0 &&
+            getNavigationTarget(e.key, e.ctrlKey || e.metaKey, { rowIndex, columnIndex }, {
+                rowCount: table.rowsVirtualizer.rowCount,
+                columnCount: table.columns.length,
+                // The rows in view, less one, so the focused row stays in view
+                pageRowCount: Math.max(1, rowsInView - 1)
+            });
+        if (target) {
+            e.preventDefault();
+            e.stopPropagation();
+            table.focusCellByRowIndex(target[0], target[1]);
+            return;
+        }
+        gridProCellKeyDown.call(this, e);
+    };
+    onKeyDown.handlesNavigationKeys = true;
+    tableCellPrototype.onKeyDown = onKeyDown;
+}
+
+/*
+    Name the cell editor's input for screen readers, which Grid Pro 3.2 gives
+    no name: by its column (with the column's CSV header) and its row. The
+    grid edits text with the text input, numbers with the number input (in
+    ClearableNumberInputRenderer), and true/false values with the checkbox.
+*/
+
+interface EditorContent {
+    getMainElement(): HTMLElement;
+}
+
+interface EditedCell {
+    column: { id: string; header?: { value?: string } };
+    row: { index?: number };
+}
+
+type EditorRender = ((this: unknown, cell: EditedCell, parentElement?: HTMLElement) => EditorContent) & {
+    // Set on the wrapped method, so a hot reload does not wrap it again
+    labelsEditor?: true;
+};
+
+for (const type of ['textInput', 'numberInput', 'checkbox'] as const) {
+    const rendererPrototype = GridPro.CellRendererRegistry.types[type].prototype as unknown as {
+        render: EditorRender;
+    };
+    const gridProRender = rendererPrototype.render;
+    if (gridProRender.labelsEditor) {
+        continue;
+    }
+    const render: EditorRender = function (this: unknown, cell, parentElement) {
+        const content = gridProRender.call(this, cell, parentElement);
+        const { column, row } = cell;
+        // The header value is the CSV header, or the column id without one
+        const headerValue = column.header?.value;
+        content.getMainElement().setAttribute('aria-label', getCellEditorLabel(
+            column.id,
+            headerValue && headerValue !== column.id ? headerValue : void 0,
+            row.index === void 0 ? void 0 : row.index + 1
+        ));
+        return content;
+    };
+    render.labelsEditor = true;
+    rendererPrototype.render = render;
 }

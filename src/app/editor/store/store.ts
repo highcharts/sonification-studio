@@ -6,7 +6,7 @@
 import type { Pinia } from 'pinia';
 import { useChartParametersStore, type ChartParametersState } from './modules/chartParameters';
 import { useSeriesParametersStore, type SeriesParametersState } from './modules/seriesParameters';
-import { useDataStore, type DataState } from './modules/data';
+import { useDataStore, type DataRestoreState, type DataState } from './modules/data';
 import { useGlobalSonifyParametersStore, type GlobalSonifyParametersState } from './modules/globalSonifyParameters';
 import { useViewStore, type ViewState } from './modules/view';
 
@@ -46,12 +46,19 @@ export function getAppState(pinia?: Pinia): AppState {
     };
 }
 
+// A state to restore: a localStorage session's, or a project file's, which has
+// no Google API key
+export type RestoreAppState = Partial<Omit<AppState, 'dataStore'>> & {
+    dataStore?: DataRestoreState;
+};
+
 /**
  * Restore state of stores to match a new state, for loading project files or
  * restoring localStorage sessions. If a new state is not provided, the state is
- * restored to the default state. The view store is not restored.
+ * restored to the default state (New Project), except for the Google API key.
+ * The view store is not restored.
  */
-export function restoreAppState(newState?: Partial<AppState>, pinia?: Pinia): void {
+export function restoreAppState(newState?: RestoreAppState, pinia?: Pinia): void {
     useChartParametersStore(pinia).restoreStoreState(newState?.chartParametersStore);
     useGlobalSonifyParametersStore(pinia).restoreStoreState(newState?.globalSonifyParametersStore);
     useDataStore(pinia).restoreStoreState(newState?.dataStore);

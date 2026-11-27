@@ -40,8 +40,6 @@ export default defineComponent({
             // last queued render has finished or failed.
             gridRendered: Promise.resolve() as Promise<void>,
             renderCount: 0,
-            // Column ids of the grid currently shown
-            gridColumnIds: [] as string[],
             // Stops writing the current grid's edits to the store
             stopWatchingGridEdits: null as null | (() => void),
             resizeObserver: null as ResizeObserver | null,
@@ -182,7 +180,6 @@ export default defineComponent({
                     return;
                 }
                 this.destroyGrid();
-                this.gridColumnIds = tableData.columnIds;
 
                 return new Promise<void>((resolve) => {
                     const timeout = setTimeout(() => {
@@ -240,7 +237,7 @@ export default defineComponent({
         // Only that cell changes: the other values are kept as they are in
         // the store, including the CSV header row the grid shows as headers.
         onGridCellEdited(edit: CellEdit) {
-            const rows = applyCellEdit(this.dataStore.tableRowData, edit, this.gridColumnIds);
+            const rows = applyCellEdit(this.dataStore.tableRowData, edit);
 
             // Ignore the store notifications of this update
             this.isUpdatingFromGrid = true;

@@ -67,10 +67,11 @@ describe('GridControls.vue', () => {
         test('Has help text without markup, with the values "2 * i" fills in', () => {
             // SEControl renders the help text as text, a paragraph for each <br>
             const paragraphs = wrapper.findAll('.helptext-content-container p').map(p => p.text());
-            expect(paragraphs).toHaveLength(4);
+            expect(paragraphs).toHaveLength(5);
             paragraphs.forEach(text => expect(text).not.toMatch(/[<>&]/));
-            expect(paragraphs[2]).toBe('Use "i" to refer to the row number. Example: "2 * i" will fill in the values 2, 4, 6, 8 etc.');
-            expect(paragraphs[3]).toContain('"Expression syntax" (mathjs.org/docs/expressions/syntax.html)');
+            expect(paragraphs[2]).toBe('Where a cell the equation uses is empty, the result in that row is left empty.');
+            expect(paragraphs[3]).toBe('Use "i" to refer to the row number. Example: "2 * i" will fill in the values 2, 4, 6, 8 etc.');
+            expect(paragraphs[4]).toContain('"Expression syntax" (mathjs.org/docs/expressions/syntax.html)');
         });
 
         test('Announces the first filled values, not the empty header row', async () => {
@@ -81,6 +82,14 @@ describe('GridControls.vue', () => {
 
             expect(useDataStore().column('C').slice(0, 4)).toEqual([null, '2', '4', '6']);
             expect(announce).toHaveBeenCalledExactlyOnceWith('Column C filled. First values are 2, 4, 6, 8, 10.');
+        });
+
+        test('Announces empty results as empty', async () => {
+            useDataStore().setTableRowData([{ A: 'X' }, { A: '1' }, {}, { A: '3' }]);
+
+            await fillColumn('B', 'A * 2');
+
+            expect(announce).toHaveBeenCalledExactlyOnceWith('Column B filled. First values are 2, empty, 6.');
         });
 
         test('Leaves the column header out of the announcement', async () => {

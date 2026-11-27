@@ -5,7 +5,9 @@ import {
     clearableNumberInputType,
     compareDates,
     detectColumnDataType,
+    getCellEditorLabel,
     getGridColumnIds,
+    getSeriesColumnIds,
     getGridOptions,
     getGridRebuild,
     prepareGridData,
@@ -13,6 +15,7 @@ import {
     type TableRowData
 } from '../../../src/app/editor/core/utils/gridData';
 import { useDataStore } from '../../../src/app/editor/store/modules/data';
+import { getNavigationTarget } from '../../../src/app/editor/core/gridProSetup';
 
 function getRows(): TableRowData[] {
     return [
@@ -81,7 +84,7 @@ describe('Column ids', () => {
         // An edit in the 30th column changes its value in the CSV
         const newRows = applyCellEdit(rows, {
             rowIndex: 1, columnId: 'COL4', value: '99'
-        }, data.columnIds);
+        });
         expect(Object.values(newRows[1]).join(',')).toEqual(
             values.slice(0, 29).join(',') + ',99'
         );
@@ -170,15 +173,73 @@ describe('getGridOptions', () => {
         const rows: TableRowData[] = [{ A: 'Cost {USD}', B: '' }, { A: '1', B: '2' }];
         const options = getGridOptions(prepareGridData(rows));
 
-        // The column id above the CSV header, which describes the column
-        expect(options.header?.[0]).toMatchObject({
+        // The column id above the CSV header
+        expect(options.header?.[0]).toEqual({
             format: 'A',
-            columns: [{ columnId: 'A', accessibility: { description: 'Cost {USD}' } }]
+            className: 'hcg-center',
+            columns: [{ columnId: 'A', className: 'hcg-center' }]
         });
         expect(getColumn(options, 'A')?.header?.format).toBeUndefined();
         // No CSV header: the column id only
         expect(options.header?.[1]).toEqual({ columnId: 'B', format: 'B', className: 'hcg-center' });
         expect(getColumn(options, 'B')?.header).toBeUndefined();
+    });
+});
+
+describe('getSeriesColumnIds', () => {
+    test('Gives a series to the columns with cells up to the last value', () => {
+        // Placeholder-like rows: cells in every column, values in A and B
+        expect([...getSeriesColumnIds([
+            { A: 'x', B: 'y', C: '', D: '' },
+            { A: '0', B: '1', C: '', D: '' }
+        ])]).toEqual(['A', 'B']);
+
+        // An empty middle column with cells keeps its series
+        expect([...getSeriesColumnIds([
+            { A: 'x', B: 'y', C: '', D: 'z' },
+            { A: '0', B: '', C: ' ', D: '1' },
+            { A: '1', B: '2', C: '', D: '' }
+        ])]).toEqual(['A', 'B', 'C', 'D']);
+
+        // A column without cells (rows loaded from a CSV) gets none, nor
+        // does a header without values
+        expect([...getSeriesColumnIds([
+            { A: 'x', B: 'y', C: 'z', D: 'only a header' },
+            { A: '0', C: '1' },
+            { A: '1', C: '2', COL1: '' }
+        ])]).toEqual(['A', 'C']);
+    });
+});
+
+describe('getNavigationTarget', () => {
+    const size = { rowCount: 100, columnCount: 10, pageRowCount: 20 };
+    const at = { rowIndex: 50, columnIndex: 3 };
+
+    test('Moves a page, to the row\'s ends or to the grid\'s corners', () => {
+        expect(getNavigationTarget('PageDown', false, at, size)).toEqual([70, 3]);
+        expect(getNavigationTarget('PageUp', false, at, size)).toEqual([30, 3]);
+        expect(getNavigationTarget('Home', false, at, size)).toEqual([50, 0]);
+        expect(getNavigationTarget('End', false, at, size)).toEqual([50, 9]);
+        expect(getNavigationTarget('Home', true, at, size)).toEqual([0, 0]);
+        expect(getNavigationTarget('End', true, at, size)).toEqual([99, 9]);
+    });
+
+    test('Stops at the first and the last row', () => {
+        expect(getNavigationTarget('PageDown', false, { rowIndex: 95, columnIndex: 0 }, size)).toEqual([99, 0]);
+        expect(getNavigationTarget('PageUp', false, { rowIndex: 5, columnIndex: 0 }, size)).toEqual([0, 0]);
+    });
+
+    test('Leaves other keys alone', () => {
+        expect(getNavigationTarget('ArrowDown', false, at, size)).toBeUndefined();
+        expect(getNavigationTarget('a', true, at, size)).toBeUndefined();
+    });
+});
+
+describe('getCellEditorLabel', () => {
+    test('Names the column, its CSV header and the row', () => {
+        expect(getCellEditorLabel('B', 'Sensor Data', 5)).toEqual('Column B, Sensor Data, row 5');
+        expect(getCellEditorLabel('C', void 0, 1)).toEqual('Column C, row 1');
+        expect(getCellEditorLabel('C', void 0, void 0)).toEqual('Column C');
     });
 });
 
@@ -212,7 +273,7 @@ describe('Cell edits', () => {
             rowIndex: data.firstDataRowIndex + rowId,
             columnId: 'B',
             value: toStoreValue(5)
-        }, data.columnIds);
+        });
 
         expect(newRows).toEqual([
             { A: 'Index (X value)', B: 'Sensor Data (Y value)' },
@@ -233,20 +294,33 @@ describe('Cell edits', () => {
         expect(toStoreValue(null)).toEqual('');
         const newRows = applyCellEdit(getRows(), {
             rowIndex: 2, columnId: 'A', value: toStoreValue(0)
-        }, getGridColumnIds(7));
+        });
         expect(newRows[2].A).toEqual('0');
     });
 
-    test('Keep the values in column order', () => {
+    test('Change only the edited cell, which keeps its column in the CSV', () => {
         const rows: TableRowData[] = [{ A: 'x', B: 'y' }, { A: '1', B: '2' }, {}];
         const newRows = applyCellEdit(rows, {
             rowIndex: 2, columnId: 'C', value: '3'
-        }, getGridColumnIds(7));
+        });
 
-        expect(newRows.map((row) => Object.values(row).join(';'))).toEqual([
-            'x;y;',
-            '1;2;',
-            ';;3'
-        ]);
+        // The other rows get no cells, and are the same objects
+        expect(newRows).toEqual([{ A: 'x', B: 'y' }, { A: '1', B: '2' }, { C: '3' }]);
+        expect(newRows[0]).toBe(rows[0]);
+        const data = useDataStore(createPinia());
+        data.setTableRowData(newRows);
+        expect(data.tableCSV).toBe('x;y\n1;2\n;;3');
+    });
+
+    test('Add the rows up to an edited row after the last one', () => {
+        const newRows = applyCellEdit([{ A: 'x' }], { rowIndex: 2, columnId: 'B', value: '5' });
+        expect(newRows).toEqual([{ A: 'x' }, {}, { B: '5' }]);
+    });
+
+    test('Give a column without cells no cells in the other rows', () => {
+        // Rows loaded from a CSV with an empty middle column, B
+        const rows: TableRowData[] = [{ A: 'x', C: 'z' }, { A: '1', C: '3' }, { A: '2', C: '4' }];
+        const newRows = applyCellEdit(rows, { rowIndex: 1, columnId: 'A', value: '7' });
+        expect(newRows.every((row) => !('B' in row))).toBe(true);
     });
 });

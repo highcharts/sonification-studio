@@ -1,14 +1,16 @@
 import type * as HighchartsModule from 'highcharts';
 import type Announcer from './utils/Announcer';
-import { GenericObject, deepMerge } from './utils/objects';
+import { type GenericObject, deepMerge } from './utils/objects';
 import { downloadURI } from './utils/browserUtils';
 import {
+    escapePointNames,
     getGoogleSheetsErrorMessage,
     getSeriesId,
     removeNonNumericYValues,
     seriesDataHasValues
 } from './utils/chartUtils';
-import { getGridColumnIds } from './utils/gridData';
+import { escapeHTML, unescapeHTML } from './utils/htmlText';
+import { getGridColumnIds, getSeriesColumnIds } from './utils/gridData';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
@@ -19,12 +21,15 @@ import { GoogleSheetStatus, useDataStore } from '../store/modules/data';
 import { useGlobalSonifyParametersStore } from '../store/modules/globalSonifyParameters';
 import { useViewStore } from '../store/modules/view';
 
-// Where exported HTML files load Highcharts from: the CDN's latest release of
-// the major version the app uses, so that a later major, which may rename or
-// remove the modules and theme they load (as 13 renamed high-contrast-light to
-// high-contrast), does not break them. Bump it with the highcharts dependency,
-// after checking that the script URLs in getHTMLChartConfig still exist.
-export const highchartsExportCDN = 'https://code.highcharts.com/13';
+// Where exported HTML files load Highcharts from: the highcharts npm package on
+// jsDelivr, at the latest release of the major version the app uses, so that a
+// later major, which may rename or remove the modules and theme they load (as
+// 13 renamed high-contrast-light to high-contrast), does not break them. Not
+// code.highcharts.com, which refuses requests without a Referer: browsers send
+// none from a page opened from disk, which is how exported files are mostly
+// opened. Bump it with the highcharts dependency, after checking that the
+// script URLs in getHTMLChartConfig still exist.
+export const highchartsExportCDN = 'https://cdn.jsdelivr.net/npm/highcharts@13';
 
 // The event Highcharts.error() fires on the Highcharts object
 interface HighchartsErrorEvent {
@@ -56,6 +61,34 @@ interface SonificationSampleClasses {
     SonificationTimeline: new () => SampleTimeline;
 }
 
+// The chart's sonification timeline, with the internals its own pause and
+// resume use (Highcharts 13.1.1), which the playback handoff below uses too
+export interface ChartTimeline {
+    isPlaying: boolean;
+    isPaused: boolean;
+    resumeFromTime: number;
+    channels: unknown[];
+    playingChannels?: unknown[];
+    onEndArgument?: (e: unknown) => void;
+    getCurrentTime(): number;
+    resume(): void;
+}
+
+// The bridge's methods, which reactiveGet calls by name, and their argument
+type BridgeMethod = {
+    [K in keyof ChartBridge]: ChartBridge[K] extends (...args: never[]) => unknown ? K : never
+}[keyof ChartBridge];
+type BridgeMethodArgument<K extends BridgeMethod> =
+    ChartBridge[K] extends (argument: infer A, ...rest: never[]) => unknown ? A : never;
+type BridgeMethodResult<K extends BridgeMethod> =
+    ChartBridge[K] extends (...args: never[]) => infer R ? R : never;
+
+// Where playback was when Highcharts last threw away the chart's timeline
+interface PlaybackHandoff {
+    playing: boolean;
+    time: number;
+}
+
 /**
  * Interface between chart-specific logic and the rest of the
  * app.
@@ -81,6 +114,13 @@ export class ChartBridge {
     private progressTimer: number | undefined;
     private _seReactivityCounter: number | null = null;
     private audioSampleTimeline: SampleTimeline | null = null;
+    // The callback the chart's timeline calls when playback ends, see playChart
+    private playbackOnEnd: ((e: unknown) => void) | undefined;
+    private playbackHandoff: PlaybackHandoff | null = null;
+    // Called when the bridge stops playback itself, see onPlaybackStopped
+    private playbackStoppedListeners = new Set<() => void>();
+    // The series a Google Sheet gave last, see the data's complete handler
+    private googleSheetData = '';
 
     /**
      * Construct the class with the app's Pinia instance and the app's
@@ -161,13 +201,18 @@ export class ChartBridge {
      * the value of "test" will update as well, and fetch its result from
      * "getCurrentChartOptions".
      */
-    public reactiveGet(func: keyof ChartBridge, reactivityCounter: number, payload?: any): any {
+    public reactiveGet<K extends BridgeMethod>(
+        func: K,
+        reactivityCounter: number,
+        payload?: BridgeMethodArgument<K>
+    ): BridgeMethodResult<K> {
         this._seReactivityCounter = reactivityCounter;
 
-        const res = (this as any)[func](payload);
+        const method = this[func] as (payload?: BridgeMethodArgument<K>) => BridgeMethodResult<K>;
+        const res = method.call(this, payload);
 
         if (typeof res === 'object' && res) {
-            res._seReactivityCounter = this._seReactivityCounter;
+            (res as GenericObject)._seReactivityCounter = this._seReactivityCounter;
         }
 
         return res;
@@ -182,18 +227,16 @@ export class ChartBridge {
         // chartOptions contains the current state of the chart mapping parameters
         const chartSettings = this.chartOptions;
         // We hook into the legend item click event to link it with the series.visible option
-        const legendItemClickHook = this.getLegendItemHookOptions();
-        const defaultOptions = deepMerge(defaultChartOptions, legendItemClickHook);
+        const defaultOptions = this.getDefaultOptions();
 
         const dataSource = this.dataStore.selectedDataSource;
         const spreadsheetSetupComplete = this.dataStore.spreadsheetSetupComplete;
         const fromGoogleSheets = dataSource === 'googlesheets' && spreadsheetSetupComplete;
 
-        // The grid's columns that a row has a cell in, after the first row
-        // (the series names); see the data's complete handler below
-        const gridColumnsWithCells = fromGoogleSheets ? null : new Set(
-            this.dataStore.tableRowData.slice(1).flatMap((row) => Object.keys(row))
-        );
+        // The grid's columns that get a series; see the data's complete
+        // handler below
+        const seriesColumnIds = fromGoogleSheets ? null :
+            getSeriesColumnIds(this.dataStore.tableRowData);
 
         /*eslint-disable indent */
         const dataSourceOptions =
@@ -222,35 +265,47 @@ export class ChartBridge {
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
+    // A polled sheet whose data has not changed is no news: the status
+    // action would update the components that depend on the data, and
+    // stop playback (PlayButtons) on every poll
     if (fromGoogleSheets) {
-        this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Success);
+        const sheetData = JSON.stringify(
+            (parseResult.series || []).map((s: GenericObject) => [s.name, s.data])
+        );
+        if (
+            this.dataStore.googleSheetStatus !== GoogleSheetStatus.Success ||
+            sheetData !== this.googleSheetData
+        ) {
+            this.googleSheetData = sheetData;
+            this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Success);
+        }
     }
 
     // Text in a column other than the first (e.g. a label column) can not
-    // be plotted, and would make Highcharts throw
+    // be plotted, and would make Highcharts throw. The series names (the
+    // CSV headers) and the point names (text in the first column) are
+    // escaped, so the chart shows them as text, not as HTML: in the
+    // legend, the tooltip, the axis labels and the series labels.
+    // Highcharts decodes them, also in its aria-labels (see
+    // plainTextAriaLabelPlugin), and the editor reads them decoded.
     (parseResult.series || []).forEach((s: GenericObject) => {
+        if (typeof s.name === 'string') {
+            s.name = escapeHTML(s.name);
+        }
         if (Array.isArray(s.data)) {
-            s.data = removeNonNumericYValues(s.data);
+            s.data = escapePointNames(removeNonNumericYValues(s.data));
         }
     });
 
-    // Leave out the series of a grid column that no row has a cell in (after
-    // the first row), as master v1.1.1 did. It generated the grid's CSV from
-    // each row's cells in order, and rows loaded from a CSV (on a CSV import
-    // or project load) have no cells for their empty values, so such a
-    // column was left out of the chart. The series ids go by series index
-    // (see getSeriesId), so in projects saved after a load, the series
-    // settings of the columns after it are under the ids that leave it out.
-    // The app keeps each value in its column, so leaving out the series
-    // gives those settings to the right data. Edits in the grid give each
-    // row a cell in every column (applyCellEdit), so a column emptied there
-    // keeps its (hidden) series, and the later series their settings.
-    if (gridColumnsWithCells && parseResult.series) {
+    // Leave out the series of the grid's columns that get none (see
+    // getSeriesColumnIds): a column without cells, as master v1.1.1 did, and
+    // the empty columns after the last value.
+    if (seriesColumnIds && parseResult.series) {
         // Series i has the values of the CSV's column i + 1 (the first
         // column holds the x values)
         const columnIds = getGridColumnIds(parseResult.series.length + 1);
         parseResult.series = parseResult.series.filter(
-            (_s: GenericObject, i: number) => gridColumnsWithCells.has(columnIds[i + 1])
+            (_s: GenericObject, i: number) => seriesColumnIds.has(columnIds[i + 1])
         );
     }
 
@@ -273,7 +328,7 @@ export class ChartBridge {
     if (seriesOptions) {
         const mergedSeries = deepMerge(parseResult.series, seriesOptions);
 
-        mergedSeries.forEach((s: any, i: number) => {
+        mergedSeries.forEach((s: GenericObject, i: number) => {
             const hasData = seriesDataHasValues(s.data);
 
             if (!s.name) {
@@ -315,9 +370,16 @@ export class ChartBridge {
      * the data of a later update.
      */
     public buildFallbackChartOptions(): GenericObject {
-        const defaultOptions = deepMerge(defaultChartOptions, this.getLegendItemHookOptions());
         // 'null' rather than '', as for an empty grid in buildChartOptions
-        return deepMerge(defaultOptions, { data: { csv: 'null' } });
+        return deepMerge(this.getDefaultOptions(), { data: { csv: 'null' } });
+    }
+
+    // The default chart options, with the bridge's event hooks
+    private getDefaultOptions(): GenericObject {
+        return deepMerge(
+            deepMerge(defaultChartOptions, this.getLegendItemHookOptions()),
+            this.getTimelineUpdateHookOptions()
+        );
     }
 
     public getDataSeries(): Array<GenericObject> {
@@ -328,7 +390,7 @@ export class ChartBridge {
         return this.chart?.sonification?.timeline?.isPaused;
     }
 
-    public playChart(onEnd?: (e: any) => void, loop = false) {
+    public playChart(onEnd?: (e: unknown) => void, loop = false) {
         const chart = this.chart;
         if (!chart || !chart.series?.length || this.isPlaying()) {
             return;
@@ -336,21 +398,55 @@ export class ChartBridge {
 
         this.startProgressUpdatePolling();
 
-        chart.toggleSonify(false, (e: any) => {
+        // With loop, each round plays the chart again with this same
+        // callback, so that the next round ends the same way
+        const onTimelineEnd = (e: unknown) => {
             if (onEnd) {
                 onEnd(e);
             }
-            if (loop && chart) {
-                chart.sonify(onEnd, true);
+            if (loop && this.chart === chart) {
+                chart.sonify(onTimelineEnd);
             } else {
                 this.stopChart();
             }
-        });
+        };
+        this.playbackOnEnd = onTimelineEnd;
+        // A paused timeline resumes with the callback it was given when it
+        // started playing (or by continuePlayback), which may be another
+        // playback's (e.g. with loop): give it this one
+        const timeline: ChartTimeline | undefined = chart.sonification?.timeline;
+        if (timeline?.isPaused) {
+            timeline.onEndArgument = onTimelineEnd;
+        }
+        chart.toggleSonify(false, onTimelineEnd);
+    }
+
+    /**
+     * Call a listener when the bridge stops playback itself (before an
+     * audio or video export, which plays the chart from the start), so that
+     * the play controls can show it. Returns a function that removes it.
+     */
+    public onPlaybackStopped(listener: () => void): () => void {
+        this.playbackStoppedListeners.add(listener);
+        return () => this.playbackStoppedListeners.delete(listener);
+    }
+
+    // Stop playback, playing or paused, so that an export plays the chart
+    // from the start with its own end callback. Redirecting the audio rebuilds
+    // the timeline, which would otherwise pick up where playback was.
+    private stopPlaybackForExport(): void {
+        const timeline: ChartTimeline | undefined = this.chart?.sonification?.timeline;
+        const wasActive = !!timeline && (timeline.isPlaying || timeline.isPaused);
+        this.stopChart();
+        if (wasActive) {
+            this.playbackStoppedListeners.forEach((listener) => listener());
+        }
     }
 
     public stopChart() {
         this.stopProgressUpdatePolling();
         this.chart?.sonification?.timeline?.reset();
+        this.playbackOnEnd = void 0;
         this.updatePlayProgress();
     }
 
@@ -373,7 +469,7 @@ export class ChartBridge {
             const numSeries = this.chart?.series.length;
             const announcement =
                 pointsPlayed.reduce((acc, cur): string => {
-                    const val = numSeries > 1 ? cur.y + ' ' + cur.series.name : cur.y;
+                    const val = numSeries > 1 ? cur.y + ' ' + unescapeHTML(cur.series.name) : cur.y;
                     return acc ? acc + ', ' + val : val;
                 }, '') +
                 '. X is ' +
@@ -625,7 +721,41 @@ export class ChartBridge {
                         }
                     });
                     const options = ${optionsString};
-                    const chart = Highcharts.chart('container', options);
+                    // The series and point names are escaped, so the chart
+                    // shows them as text: decode them in the aria-labels too,
+                    // as the editor does (plainTextAriaLabelPlugin)
+                    const container = document.getElementById('container');
+                    const entities = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
+                    // The labels decoded, so that one is not decoded again
+                    // when its decoded text has an entity in it
+                    const decodedLabels = new WeakMap();
+                    const decodeLabel = function (element) {
+                        const label = element.getAttribute && element.getAttribute('aria-label');
+                        if (label && label !== decodedLabels.get(element) &&
+                                /&(amp|lt|gt|quot|#39);/.test(label)) {
+                            const decoded = label.replace(
+                                /&(amp|lt|gt|quot|#39);/g,
+                                function (entity) { return entities[entity]; }
+                            );
+                            decodedLabels.set(element, decoded);
+                            element.setAttribute('aria-label', decoded);
+                        }
+                    };
+                    new MutationObserver(function (records) {
+                        records.forEach(function (record) {
+                            decodeLabel(record.target);
+                            record.addedNodes.forEach(function (node) {
+                                if (node.querySelectorAll) {
+                                    decodeLabel(node);
+                                    node.querySelectorAll('[aria-label]').forEach(decodeLabel);
+                                }
+                            });
+                        });
+                    }).observe(container, {
+                        subtree: true, childList: true, attributes: true, attributeFilter: ['aria-label']
+                    });
+                    const chart = Highcharts.chart(container, options);
+                    container.querySelectorAll('[aria-label]').forEach(decodeLabel);
 
                     document.getElementById('play-button').onclick = function () {
                         const btn = this;
@@ -718,6 +848,7 @@ export class ChartBridge {
                 reject(new Error('Could not download audio, no audio context available.'));
                 return;
             }
+            this.stopPlaybackForExport();
             const destination = context.createMediaStreamDestination();
             this.setAudioDestinationNode(destination);
 
@@ -753,7 +884,7 @@ export class ChartBridge {
         canvas.height = chartEl.offsetHeight;
 
         const unusedCtx = canvas.getContext('2d'); // Because of bug in firefox, must get context before capt.stream.
-        const canvasStream = (canvas as any).captureStream(framerate);
+        const canvasStream = canvas.captureStream(framerate);
         if (!canvasStream) {
             console.log('Canvas context:', unusedCtx); // Use context so it is not optimized away.
             throw new Error('Canvas capture stream not supported.');
@@ -767,6 +898,7 @@ export class ChartBridge {
         if (!audioContext) {
             throw new Error('Could not export video, no audio context available.');
         }
+        this.stopPlaybackForExport();
         const audioDestination = audioContext.createMediaStreamDestination();
         const exportStream = audioDestination.stream;
         exportStream.addTrack(videoTrack);
@@ -814,7 +946,7 @@ export class ChartBridge {
         onError?: (e: { error: DOMException }) => void
     ): GenericObject {
         const recorder = this.getMediaRecorder(stream, audioOnly);
-        const data: any = [];
+        const data: Blob[] = [];
         recorder.ondataavailable = (e: GenericObject) => {
             data.push(e.data);
         };
@@ -887,7 +1019,7 @@ export class ChartBridge {
     }
 
     private getMediaRecorder(stream: MediaStream, audioOnly = true): GenericObject {
-        const Recorder = (window as any).MediaRecorder;
+        const Recorder = window.MediaRecorder;
         const preferredMimeTypes = audioOnly
             ? [
                   'audio/wav',
@@ -928,7 +1060,7 @@ export class ChartBridge {
     }
 
     private browserSupportsRecording(): boolean {
-        return !!(window as any).MediaRecorder;
+        return 'MediaRecorder' in window;
     }
 
     private setAudioDestinationNode(node?: AudioNode) {
@@ -964,6 +1096,52 @@ export class ChartBridge {
                 },
             },
         };
+    }
+
+    // Highcharts throws away the chart's sonification timeline and builds a
+    // new one on every render of the chart, which stops playback: also when
+    // nothing that plays changed, as when the chart is resized (e.g. when the
+    // sidebar is hidden) or redrawn, or when a Google Sheet is polled and has
+    // not changed (see the data's complete handler). So the
+    // new timeline picks up where the old one was, playing or paused, as its
+    // own pause and resume do. A change to the settings or the data still
+    // stops playback (in PlayButtons), once the change reaches the bridge.
+    private getTimelineUpdateHookOptions(): GenericObject {
+        return {
+            sonification: {
+                events: {
+                    beforeUpdate: (e: { timeline?: ChartTimeline }) => {
+                        this.playbackHandoff = this.getPlaybackHandoff(e.timeline);
+                    },
+                    afterUpdate: (e: { timeline?: ChartTimeline }) => {
+                        const handoff = this.playbackHandoff;
+                        this.playbackHandoff = null;
+                        if (handoff && e.timeline) {
+                            this.continuePlayback(e.timeline, handoff);
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    private getPlaybackHandoff(timeline?: ChartTimeline): PlaybackHandoff | null {
+        if (!timeline || !timeline.isPlaying && !timeline.isPaused) {
+            return null;
+        }
+        return { playing: timeline.isPlaying, time: timeline.getCurrentTime() };
+    }
+
+    // Put a new timeline where playback was on the old one: paused at its
+    // time, and playing on from there if it was playing
+    private continuePlayback(timeline: ChartTimeline, handoff: PlaybackHandoff): void {
+        timeline.playingChannels = timeline.channels;
+        timeline.resumeFromTime = handoff.time;
+        timeline.isPaused = true;
+        timeline.onEndArgument = this.playbackOnEnd;
+        if (handoff.playing) {
+            timeline.resume();
+        }
     }
 
     private isPlaying(): boolean {

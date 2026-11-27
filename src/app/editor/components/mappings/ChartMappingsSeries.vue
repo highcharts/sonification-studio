@@ -130,8 +130,9 @@ import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
 import SESlider from '../basic/SESlider.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
-import { GenericObject } from '../../core/utils/objects';
+import type { GenericObject } from '../../core/utils/objects';
 import { getSeriesId, seriesTypes } from '../../core/utils/chartUtils';
+import { unescapeHTML } from '../../core/utils/htmlText';
 import { mapState, mapStores } from 'pinia';
 import { useViewStore } from '../../store/modules/view';
 import { getSeriesParameter, setSeriesParameter } from '../../store/storeUtils';
@@ -187,7 +188,8 @@ export default defineComponent({
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
 
             return series.map((s: GenericObject) => ({
-                name: s.name,
+                // Escaped for the chart (see ChartBridge)
+                name: unescapeHTML(s.name),
                 value: getSeriesId(s)
             }));
         },

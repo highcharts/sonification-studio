@@ -4,15 +4,20 @@
     More elaborate than SEModalMessage.
 -->
 <template>
+    <!-- aria-modal: screen readers keep to the dialog while it is open.
+         Enter and Space close it when the dialog itself has the focus (as
+         when it opens), not when they press one of its buttons, which close
+         it on their click. -->
     <div
         ref="outerContainer"
         class="popup-outer-container"
         tabindex="-1"
         role="dialog"
-        :aria-label="dialogTitle + ', modal'"
+        aria-modal="true"
+        :aria-label="dialogTitle"
         @click="onclick"
-        @keydown.enter="$emit('close')"
-        @keydown.space="$emit('close')"
+        @keydown.enter.self="$emit('close')"
+        @keydown.space.self.prevent="$emit('close')"
         @keydown.tab="ontab"
     >
         <div
@@ -62,7 +67,6 @@ import { defineComponent, type ComponentPublicInstance } from 'vue';
 import SEButton from './SEButton.vue';
 import hcLogo from '../../assets/highcharts-logo.svg';
 import closeIcon from '../../assets/times-solid.svg';
-import { hideOtherElementsFromAT, unhideElementsFromAT } from '../../core/utils/browserUtils';
 
 export default defineComponent({
     components: { SEButton },
@@ -70,7 +74,7 @@ export default defineComponent({
         dialogTitle: { type: String, default: 'Information' }
     },
     emits: ['close'],
-    data() { return { hcLogo, closeIcon, hiddenElementsRef: [] as HTMLElement[] }; },
+    data() { return { hcLogo, closeIcon }; },
     methods: {
         onclick(e: MouseEvent) {
             const innerContainer = this.$refs.innerContainer as Element;
@@ -85,12 +89,6 @@ export default defineComponent({
                 e.stopPropagation();
                 e.preventDefault();
             }
-        },
-        hideOthersFromAT() {
-            this.hiddenElementsRef = hideOtherElementsFromAT(this.$refs.outerContainer as HTMLElement);
-        },
-        unhideOthersFromAT() {
-            unhideElementsFromAT(this.hiddenElementsRef);
         }
     }
 });

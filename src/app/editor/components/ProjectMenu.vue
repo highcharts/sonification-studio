@@ -15,8 +15,8 @@ import SEDropdownMenu, { type SEDropdownMenuOption } from './basic/SEDropdownMen
 import type { Chart } from 'highcharts';
 import Highcharts from '../core/highchartsSetup';
 import { downloadProjectFile, restoreFromProjectFile } from '../core/utils/projectFileHandling';
+import { restoreAppState } from '../store/store';
 import { useSeriesParametersStore } from '../store/modules/seriesParameters';
-import { useDataStore } from '../store/modules/data';
 import { useViewStore } from '../store/modules/view';
 import projectIcon from '../assets/file-export-solid.svg';
 import menuIcon from '../assets/bars-solid.svg';
@@ -32,7 +32,7 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapStores(useSeriesParametersStore, useDataStore, useViewStore),
+        ...mapStores(useSeriesParametersStore, useViewStore),
         menuOptions(): SEDropdownMenuOption[] {
             return [{
                 label: 'New Project',
@@ -98,24 +98,13 @@ export default defineComponent({
                 });
             }
         },
+        // As importProject, with the default state: the placeholder data
+        // and the default settings (the Google API key is kept)
         newProject() {
             if (window.confirm('This will clear all data and reset all settings. Proceed?')) {
                 this.cleanSlateAndRecreateChart(() => {
-                    // Restore the data to the default (placeholder) data
-                    this.dataStore.restoreStoreState();
-
-                    // Hide chart temporarily to force full remount
-                    this.viewStore.setShowChartComponent(false);
-
-                    this.$nextTick(() => {
-                        // Show chart again (triggers <Preview> remount and mounted() hook)
-                        this.viewStore.setShowChartComponent(true);
-
-                        // Announce once the new chart will be initialized (chart logic moved to Preview.vue)
-                        this.$nextTick(() => {
-                            this.$announcer.announce('New project loaded.');
-                        });
-                    });
+                    restoreAppState(void 0, this.$pinia);
+                    this.$announcer.announce('New project loaded.');
                 });
             }
         }

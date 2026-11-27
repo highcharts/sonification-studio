@@ -1,6 +1,7 @@
 <template>
     <div class="show-panel">
         <button
+            ref="button"
             :aria-label="'Show '+ name"
             :title="'Show ' + name"
             :class="{
@@ -34,6 +35,11 @@ export default defineComponent({
         return {
             arrowRightIcon
         };
+    },
+    methods: {
+        focus() {
+            (this.$refs.button as HTMLButtonElement).focus();
+        }
     }
 });
 </script>

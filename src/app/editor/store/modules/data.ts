@@ -13,7 +13,8 @@
 
 import { defineStore } from 'pinia';
 import { parseCSV } from '../../core/utils/csvParser';
-import { evaluate } from 'mathjs';
+import { getColumnIndex } from '../../core/utils/gridData';
+import { compile, isSymbolNode, parse, type MathNode } from 'mathjs';
 
 // Value of one grid cell. Usually a string, but the grid and project files
 // can hold other primitives.
@@ -56,20 +57,59 @@ export interface DataState {
 }
 
 // The part of the data state that is restored from project files and
-// localStorage sessions.
+// localStorage sessions. Project files have no Google API key (see
+// downloadProjectFile): restoring a state without one keeps the key the
+// editor has.
 export interface DataRestoreState {
     tableRowData: TableRow[];
     textDescription?: string;
+    selectedDataSource?: string;
+    spreadsheetSetupComplete?: boolean;
+    googleSpreadsheetURL?: string;
+    googleApiKey?: string;
+    googleAutoUpdateEnabled?: boolean;
+    googleAutoUpdateFrequency?: number;
 }
 
-function getFillValue(row: TableRow, rowIx: number, fillData: FillColumnProps): string {
-    return (
-        '' +
-        evaluate(fillData.equation, {
-            i: rowIx,
-            ...row,
-        })
-    );
+const dataSources = ['table', 'googlesheets'];
+
+function isEmptyCell(value: TableCellValue | undefined): boolean {
+    return value === undefined || value === null || String(value).trim() === '';
+}
+
+// The columns an equation refers to. A column name (A to Z, COL1, ...) always
+// means the column, also where mathjs has a constant or a unit with that name
+// (E, F, ...), so that a column is never taken for one when it is empty.
+function getEquationColumnNames(equation: string): string[] {
+    const names = new Set<string>();
+    parse(equation).traverse((node: MathNode, path: string) => {
+        // Not the name of a function called, as "sin" in "sin(A)"
+        if (isSymbolNode(node) && path !== 'fn' && getColumnIndex(node.name) >= 0) {
+            names.add(node.name);
+        }
+    });
+    return [...names];
+}
+
+// The values of a column filled from an equation, by row (the first row, the
+// column headers, is not filled). Where a column the equation refers to has
+// an empty cell, the row's value is left empty. "i" is the row number.
+function getFillValues(rows: TableRow[], equation: string): Array<string | undefined> {
+    const columnNames = getEquationColumnNames(equation);
+    const expression = compile(equation);
+    return rows.map((row, rowIx) => {
+        if (!rowIx) {
+            return void 0;
+        }
+        const scope: Record<string, TableCellValue | number> = { i: rowIx };
+        for (const name of columnNames) {
+            if (isEmptyCell(row[name])) {
+                return '';
+            }
+            scope[name] = row[name];
+        }
+        return '' + expression.evaluate(scope);
+    });
 }
 
 function getPlaceholderData(): Array<Record<string, string>> {
@@ -105,16 +145,6 @@ function getPlaceholderData(): Array<Record<string, string>> {
     }
 
     return data;
-}
-
-// Index of a column name ('A' is 0, 'Z' 25, 'COL1' 26, ...), or -1 for
-// another key
-function getColumnIndex(columnName: string): number {
-    if (/^[A-Z]$/.test(columnName)) {
-        return columnName.charCodeAt(0) - 65;
-    }
-    const match = /^COL([1-9]\d*)$/.exec(columnName);
-    return match ? 25 + Number(match[1]) : -1;
 }
 
 // Delimiter of the values in the store's CSV (tableCSV)
@@ -242,10 +272,37 @@ export const useDataStore = defineStore('data', {
     },
 
     actions: {
+        // Restore the data and the data source settings from a project file
+        // or a localStorage session, or without a state, reset them to the
+        // placeholder data and the defaults. The Google API key is kept,
+        // unless the state has one.
         restoreStoreState(newState?: DataRestoreState) {
             this.tableRowData = newState ? newState.tableRowData : getPlaceholderData();
             this.textDescription = newState ? newState.textDescription || '' : '';
             this.tableCSV = generateCSV(this.tableRowData);
+
+            const source = newState?.selectedDataSource;
+            this.selectedDataSource = source && dataSources.includes(source) ? source : 'table';
+            this.googleSpreadsheetURL = typeof newState?.googleSpreadsheetURL === 'string' ?
+                newState.googleSpreadsheetURL :
+                '';
+            if (typeof newState?.googleApiKey === 'string') {
+                this.googleApiKey = newState.googleApiKey;
+            }
+            this.googleAutoUpdateEnabled = newState?.googleAutoUpdateEnabled === true;
+            const frequency = newState?.googleAutoUpdateFrequency;
+            this.googleAutoUpdateFrequency = typeof frequency === 'number' && frequency > 0 ?
+                frequency :
+                10;
+            // The sheet is fetched again, so its status starts over. A
+            // project file opened without an API key in the editor starts
+            // the setup over, at the API key, with the rest filled in.
+            this.spreadsheetSetupComplete = newState?.spreadsheetSetupComplete === true &&
+                this.selectedDataSource === 'googlesheets' &&
+                !!this.googleApiKey &&
+                !!this.googleSpreadsheetId;
+            this.googleSheetStatus = GoogleSheetStatus.Loading;
+            this.googleSheetErrorMessage = '';
         },
 
         setSelectedDataSource(source: string) {
@@ -282,20 +339,16 @@ export const useDataStore = defineStore('data', {
             this.tableCSV = csv;
         },
 
+        // Throws if the equation can not be parsed or evaluated, and leaves
+        // the rows as they were
         fillColumn(fillData: FillColumnProps) {
-            const rowData = this.tableRowData;
             const col = fillData.columnName;
-            const newRows: TableRow[] = [];
+            const values = getFillValues(this.tableRowData, fillData.equation);
 
-            rowData.forEach((row, rowIx): void => {
-                const newRow = { ...row };
-                if (rowIx) {
-                    newRow[col] = getFillValue(newRow, rowIx, fillData);
-                }
-                newRows.push(newRow);
+            this.tableRowData = this.tableRowData.map((row, rowIx) => {
+                const value = values[rowIx];
+                return value === undefined ? { ...row } : { ...row, [col]: value };
             });
-
-            this.tableRowData = newRows;
             this.tableCSV = generateCSV(this.tableRowData);
         },
 

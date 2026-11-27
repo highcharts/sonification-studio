@@ -130,7 +130,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import closeIcon from '../../assets/times-solid.svg';
-import { getUUID, GenericObject } from '../../core/utils/objects';
+import { getUUID, type GenericObject } from '../../core/utils/objects';
 import { Keys, keyPressed, Modifiers } from '../../core/utils/keyboardUtils';
 
 export default defineComponent({

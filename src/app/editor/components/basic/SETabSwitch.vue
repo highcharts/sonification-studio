@@ -7,7 +7,9 @@
 
     Props:
         - options: Array<{ name, controls }> - Tab definitions. options[].controls
-            is the ID to the tab content activated by the switch.
+            is the ID to the tab content activated by the switch. Only the
+            selected tab's content is rendered (see ChartMappingControls), so
+            only the selected tab has aria-controls.
         - arialabel: String - Label for the switch.
 -->
 <template>
@@ -23,7 +25,7 @@
             tabindex="-1"
             :class="{ selected: selectedButton === btn.name }"
             :aria-selected="selectedButton === btn.name ? 'true' : 'false'"
-            :aria-controls="btn.controls"
+            :aria-controls="selectedButton === btn.name ? btn.controls : undefined"
             @click="onclick(btn)"
         >
             {{ btn.name }}

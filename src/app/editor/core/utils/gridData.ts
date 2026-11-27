@@ -16,6 +16,7 @@ import type { CellEvent } from '@highcharts/grid-pro/es-modules/Data/DataTable';
 // Grid Pro typings leave out
 import type {} from '@highcharts/grid-pro/es-modules/Grid/Pro/License/LicenseValidationComposition';
 import type { TableRow } from '../../store/modules/data';
+import { escapeHTML } from './htmlText';
 
 export type GridColumnDataType = Column['dataType'];
 export type GridCellValue = string | number | boolean | null | undefined;
@@ -55,6 +56,43 @@ export function getGridColumnIds(count: number): string[] {
         { length: count },
         (_, i) => i < 26 ? String.fromCharCode(65 + i) : `COL${i - 25}`
     );
+}
+
+// Index of a column id ('A' is 0, 'Z' 25, 'COL1' 26, ...), or -1 for another
+// key
+export function getColumnIndex(columnId: string): number {
+    if (/^[A-Z]$/.test(columnId)) {
+        return columnId.charCodeAt(0) - 65;
+    }
+    const match = /^COL([1-9]\d*)$/.exec(columnId);
+    return match ? 25 + Number(match[1]) : -1;
+}
+
+// The ids of the columns that get a series in the chart: the columns a row
+// after the first (the series names) has a cell in, up to the last column
+// that has a value. The series ids go by series index (getSeriesId), so the
+// series settings stay with their columns as long as this set does not change:
+// - Rows loaded from a CSV (imported, or by master v1.1.1 after a project or
+//   session was loaded) have no cells for empty values. A column without
+//   cells gets no series, as in master v1.1.1, whose saved settings of the
+//   columns after it go by the series that leave it out.
+// - Rows edited in the grid keep the cells they have (applyCellEdit), and
+//   rows are saved and loaded as they are, so a column emptied in the grid
+//   keeps its (hidden) series while a later column has values.
+// - Columns of empty cells after the last value (the placeholder data's C to
+//   Z) get none, so they do not show as empty series.
+export function getSeriesColumnIds(rows: TableRowData[]): Set<string> {
+    const withCells = new Set<string>();
+    let lastIndexWithValue = -1;
+    for (const row of rows.slice(1)) {
+        for (const [key, value] of Object.entries(row)) {
+            withCells.add(key);
+            if (!isEmpty(value) && String(value).trim() !== '') {
+                lastIndexWithValue = Math.max(lastIndexWithValue, getColumnIndex(key));
+            }
+        }
+    }
+    return new Set([...withCells].filter((key) => getColumnIndex(key) <= lastIndexWithValue));
 }
 
 // The first store row holds the CSV headers when all its values are text.
@@ -318,15 +356,17 @@ export function getGridRebuild(actionName: string, state: GridState): 'now' | 'l
 // Grid Pro's number input, but a cleared cell stays empty instead of 0.
 export const clearableNumberInputType = 'clearableNumberInput';
 
-// Text as HTML that parses back to the text. Quotes are escaped too, as
-// Highcharts' HTML parser rewrites ' style="' in the markup it is given.
-function escapeHTML(text: string): string {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+// The accessible name of a cell's editor input: its column, with the column's
+// CSV header if it has one, and its row in the grid (1 for the first row
+// shown)
+export function getCellEditorLabel(
+    columnId: string,
+    csvHeader: string | undefined,
+    rowNumber: number | undefined
+): string {
+    return ['Column ' + columnId, csvHeader, rowNumber === void 0 ? void 0 : 'row ' + rowNumber]
+        .filter(Boolean)
+        .join(', ');
 }
 
 // The CSV header of a column, if it has one
@@ -349,12 +389,10 @@ export function getGridOptions(tableData: GridTableData, gridKey?: string): Opti
                 format: id,
                 className: 'hcg-center',
                 columns: [{
-                    // The text is set by the column's header options
+                    // The text and the label are set by the column's header
+                    // options
                     columnId: id,
-                    className: 'hcg-center',
-                    // Grid Pro labels the cell with the column id only, so
-                    // screen readers get the CSV header as its description.
-                    accessibility: { description: csvHeader }
+                    className: 'hcg-center'
                 }]
             };
         }
@@ -386,7 +424,10 @@ export function getGridOptions(tableData: GridTableData, gridKey?: string): Opti
         // column menu buttons are labelled with that text. The filter and
         // column menu popups show the header cell's value as text, so after
         // rendering the value is set to the CSV header, as is the text
-        // (dropping the <span>).
+        // (dropping the <span>). Grid Pro labels the header cell with the
+        // column id, which screen readers would read instead of the header
+        // shown, so it is labelled with the CSV header (the column id is in
+        // the header cell above it).
         if (csvHeader) {
             column.header = {
                 formatter: () => '<span>' + escapeHTML(csvHeader) + '</span>',
@@ -394,6 +435,7 @@ export function getGridOptions(tableData: GridTableData, gridKey?: string): Opti
                     afterRender: function () {
                         if (this.header) {
                             this.header.value = csvHeader;
+                            this.header.htmlElement.setAttribute('aria-label', csvHeader);
                         }
                         if (this.header?.headerContent) {
                             this.header.headerContent.textContent = csvHeader;
@@ -468,41 +510,18 @@ export function getGridOptions(tableData: GridTableData, gridKey?: string): Opti
     };
 }
 
-// Return the store's rows with an edited cell. Every row gets a value (or '')
-// for each grid column up to the last one in use, in column order, so the
-// values line up in the CSV generated from the rows. Other keys in a row are
-// kept after these.
-export function applyCellEdit(
-    rows: TableRowData[],
-    edit: CellEdit,
-    columnIds: string[]
-): TableRowData[] {
-    let lastColumnIndex = columnIds.indexOf(edit.columnId);
-    for (const row of rows) {
-        for (const key of Object.keys(row)) {
-            lastColumnIndex = Math.max(lastColumnIndex, columnIds.indexOf(key));
-        }
-    }
-    const usedColumnIds = columnIds.slice(0, lastColumnIndex + 1);
-
-    const normalizeRow = (row: TableRowData): TableRowData => {
-        const newRow: TableRowData = {};
-        for (const id of usedColumnIds) {
-            newRow[id] = row[id] ?? '';
-        }
-        for (const key of Object.keys(row)) {
-            if (!(key in newRow)) {
-                newRow[key] = row[key];
-            }
-        }
-        return newRow;
-    };
-
-    const newRows = rows.map(normalizeRow);
+// Return the store's rows with an edited cell: only that cell changes, and a
+// row is added for it if needed. The CSV generated from the rows keeps each
+// value in its column (rowToCSV in the data store), so a row needs no cells
+// for its empty values. Giving the rows such cells would give a column that no
+// row has a cell in a series in the chart, and so give the series settings of
+// the columns after it to other columns (see buildChartOptions in
+// ChartBridge). Other keys in a row are kept.
+export function applyCellEdit(rows: TableRowData[], edit: CellEdit): TableRowData[] {
+    const newRows = rows.slice();
     while (newRows.length <= edit.rowIndex) {
-        newRows.push(normalizeRow({}));
+        newRows.push({});
     }
-    newRows[edit.rowIndex][edit.columnId] = edit.value;
-
+    newRows[edit.rowIndex] = { ...newRows[edit.rowIndex], [edit.columnId]: edit.value };
     return newRows;
 }

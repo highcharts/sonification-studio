@@ -1,4 +1,4 @@
-import { GenericObject } from './utils/objects';
+import type { GenericObject } from './utils/objects';
 import { getChartStatistics } from './utils/chartUtils';
 
 export const defaultChartOptions = {
@@ -26,8 +26,8 @@ export const defaultChartOptions = {
         },
         panKey: 'alt',
         events: {
-            afterA11yUpdate: function () {
-                const svg = (this as any).renderer.box;
+            afterA11yUpdate: function (this: { renderer: { box: SVGElement } }) {
+                const svg = this.renderer.box;
                 svg.setAttribute('role', 'application');
             }
         }

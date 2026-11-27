@@ -32,12 +32,12 @@
 
 <script lang="ts">
 import { defineComponent, type ComponentPublicInstance } from 'vue';
-import { mapState, mapStores } from 'pinia';
+import { mapState } from 'pinia';
 import { Chart } from 'highcharts-vue';
 import type { Chart as HighchartsChartInstance, Options } from 'highcharts';
 import Highcharts from '../core/highchartsSetup';
 import spinnerIcon from '../assets/circle-notch-solid.svg';
-import { tableCSVDelimiter, useDataStore } from '../store/modules/data';
+import { useDataStore } from '../store/modules/data';
 import { useViewStore } from '../store/modules/view';
 
 // The highcharts-vue component instance, as seen through a template ref
@@ -78,7 +78,6 @@ export default defineComponent({
     computed: {
         ...mapState(useDataStore, ['tableCSV']),
         ...mapState(useViewStore, ['reactToParameterUpdates', 'loadingChart']),
-        ...mapStores(useDataStore),
 
         chartOptions(): Options {
             return this.$chartBridge.reactiveGet(
@@ -175,6 +174,12 @@ export default defineComponent({
             // editor's options
             this.startedFromFallback = this.createFromFallback;
             this.createFromFallback = false;
+            // Updates the chart with the editor's options, which gives it the
+            // series settings, and the components that depend on the chart
+            // their data. The rows are left as they are: parsing them again
+            // from the CSV would drop their empty cells, and a column without
+            // cells has no series, which would move the series settings of
+            // the columns after it to other columns (see buildChartOptions).
             this.$chartBridge.init(chart);
             if (this.startedFromFallback) {
                 // init() derived options from the fallback chart, which has
@@ -183,9 +188,6 @@ export default defineComponent({
                 // editor's options and data have reached the chart
                 this.$chartBridge.forceUpdate(true);
             }
-
-            const csv = this.dataStore.tableCSV;
-            this.dataStore.loadFromCSV(csv, tableCSVDelimiter); // ✅ safe to call now
         },
 
         // Highcharts threw while it created the chart. A chart created again
