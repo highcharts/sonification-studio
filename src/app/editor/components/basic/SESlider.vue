@@ -7,7 +7,7 @@
         - [labelledby]: String - ID of external label.
         - [min]: Number - Min value for slider.
         - [max]: Number - Max value for slider.
-        - [value]: Number - Current slider value (one-way binding only).
+        - [modelValue]: Number - Current slider value.
         - [step]: Number - Step for slider values.
         - [dark]: Boolean - Alternate styling for dark backgrounds.
         - [darkOnLight]: Boolean - Alternate dark styling for light backgrounds.
@@ -17,7 +17,8 @@
         - [arrowThumb]: Boolean - Make the thumb look like an arrow
 
     Events:
-        - input: Re-emits the input event for use with v-model.
+        - update:modelValue: Re-emits the input event for use with v-model.
+            The value is emitted as a string (0 if empty): use v-model.number.
 -->
 <template>
     <div class="se-slider">
@@ -25,8 +26,8 @@
             v-if="label"
             :id="uuid1"
             :for="id"
-            :class="{ dark, 'dark-on-light': darkOnLight }"
             class="se-slider-label"
+            :class="{ dark, 'dark-on-light': darkOnLight }"
         >
             {{ label }}
             <span
@@ -34,7 +35,7 @@
                 class="label-value"
                 :class="{ 'dark-on-light': darkOnLight }"
             >
-                {{ value + '' + (valueIsPct ? '%' : '') }}
+                {{ modelValue + '' + (valueIsPct ? '%' : '') }}
             </span>
         </label>
         <div class="se-slider-inner">
@@ -47,11 +48,11 @@
                 :disabled="disabled"
                 :min="min"
                 :max="max"
-                :value="value"
                 :step="step"
+                :value="modelValue"
                 :class="{ dark, 'dark-on-light': darkOnLight }"
                 :style="'width:' + (Math.round(max).toString().length * 0.875) + 'rem'"
-                @click="$event.target.select()"
+                @click="onclick"
                 @input="oninput"
                 @change="onchange"
             >
@@ -59,24 +60,25 @@
                 :id="showValueInput ? uuid2 : id"
                 type="range"
                 :disabled="disabled"
-                :aria-hidden="showValueInput"
+                :aria-hidden="showValueInput ? 'true' : undefined"
                 :tabindex="showValueInput ? '-1' : '0'"
                 :min="min"
                 :max="max"
-                :value="value"
                 :step="step"
-                :class="{ dark, 'dark-on-light': darkOnLight, disabled, 'arrow-thumb': arrowThumb }"
+                :value="modelValue"
                 class="se-slider-range-input"
-                @input="$emit('input', $event.target.value || 0)"
+                :class="{ dark, 'dark-on-light': darkOnLight, disabled, 'arrow-thumb': arrowThumb }"
+                @input="onrangeinput"
             >
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { getUUID } from '../../core/utils/objects';
 
-export default {
+export default defineComponent({
     props: {
         id: { type: String, required: true },
         label: { type: String, default: '' },
@@ -89,10 +91,15 @@ export default {
         valueIsPct: { type: Boolean, default: false },
         min: { type: Number, default: 0 },
         max: { type: Number, default: 100 },
-        value: { type: Number, default: 50 },
+        modelValue: { type: Number, default: 50 },
+        // Set by v-model.number. Declared so it doesn't fall through to the
+        // root element as an attribute; Vue applies the modifier itself.
+        modelModifiers: { type: Object, default: () => ({}) },
         step: { type: Number, default: 1 },
         arrowThumb: { type: Boolean, default: false }
     },
+    // update:modelValue: the input's value as a string, or 0 if empty
+    emits: ['update:modelValue'],
     data() {
         return { validityTimer: 0 };
     },
@@ -100,23 +107,32 @@ export default {
         uuid1: () => getUUID('se-slider'),
         uuid2: () => getUUID('se-slider')
     },
+    beforeUnmount() {
+        clearTimeout(this.validityTimer);
+    },
     methods: {
+        onclick(e: MouseEvent) {
+            (e.target as HTMLInputElement).select();
+        },
         oninput(e: Event) {
             const target = e.target as HTMLInputElement;
             if (target.checkValidity()) {
-                this.$emit('input', target.value || 0);
+                this.$emit('update:modelValue', target.value || 0);
             } else {
                 clearTimeout(this.validityTimer);
-                this.validityTimer = setTimeout(() => target.reportValidity(), 1000);
+                this.validityTimer = window.setTimeout(() => target.reportValidity(), 1000);
             }
         },
         onchange(e: Event) {
             const target = e.target as HTMLInputElement;
             clearTimeout(this.validityTimer);
             target.reportValidity();
+        },
+        onrangeinput(e: Event) {
+            this.$emit('update:modelValue', (e.target as HTMLInputElement).value || 0);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

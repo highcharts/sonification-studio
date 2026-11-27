@@ -76,27 +76,35 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
 import SEButton from './basic/SEButton.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import SEInputbox from './basic/SEInputbox.vue';
 import SEControl from './basic/SEControl.vue';
+import { type TableRow, useDataStore } from '../store/modules/data';
 
 type ColumnDropdownItem = { name: string; value: string };
 
-export default {
+export default defineComponent({
     components: {
         SEButton, SEDropdown, SEControl, SEInputbox
     },
+    emits: ['triggerScrollLastGridRowWithData'],
     data() {
         return {
             fillDropdownList: [
                 { name: 'A', value: 'A' }
-            ],
+            ] as ColumnDropdownItem[],
             rowsToAdd: 10,
             fillEquation: '',
             fillEquationColumn: '',
-            fillHelptext: 'Fill each row in a column with the results from an equation.<br>Refer to values in other columns by the column name. Example: Filling column C with the equation &quot;2 * B&quot; will result in each row in column C having twice the value as in column B.<br>Use &quot;i&quot; to refer to the row number. Example: &quot;2 * i&quot; will fill in the values 0, 2, 4, 6, 8 etc.<br>Advanced expressions are supported, similar to functionality found on typical graphing calculators. See <a style="color: #fff" href="https://mathjs.org/docs/expressions/syntax.html">mathJS documentation</a> for details.'
+            // Plain text: SEControl renders it as text, with a paragraph for each <br>
+            fillHelptext: 'Fill each row in a column with the results from an equation.<br>Refer to values in other columns by the column name. Example: Filling column C with the equation "2 * B" will result in each row in column C having twice the value as in column B.<br>Use "i" to refer to the row number. Example: "2 * i" will fill in the values 2, 4, 6, 8 etc.<br>Advanced expressions are supported, similar to functionality found on typical graphing calculators. See "Expression syntax" (mathjs.org/docs/expressions/syntax.html) in the mathJS documentation for details.'
         };
+    },
+    computed: {
+        ...mapStores(useDataStore)
     },
     beforeMount() {
         this.fillDropdownList = 'ABCDEFGHIJK'.split('')
@@ -105,18 +113,18 @@ export default {
     methods: {
         onClearDataClick() {
             if (window.confirm('This will clear all data from the grid. Proceed?')) {
-                const emptyRowData = Array.from(Array(10), () => []);
-                this.$store.commit('dataStore/setTableRowData', emptyRowData);
+                const emptyRowData: TableRow[] = Array.from(Array(10), () => ({}));
+                this.dataStore.setTableRowData(emptyRowData);
                 // A timeout seems to be required in order for the announcement not to be overshadowed.
-                setTimeout(() => (this as any).$announcer.announce('Data table cleared.'), 500);
+                setTimeout(() => this.$announcer.announce('Data table cleared.'), 500);
             }
         },
 
         onAddRowsClick() {
             const numRows = this.rowsToAdd;
             if (numRows) {
-                this.$store.commit('dataStore/addTableRows', numRows);
-                (this as any).$announcer.announce('Rows added. Total number of rows: ' + this.$store.getters['dataStore/numRows']);
+                this.dataStore.addTableRows(numRows);
+                this.$announcer.announce('Rows added. Total number of rows: ' + this.dataStore.numRows);
 
                 // Scroll after row adding has been processed.
                 setTimeout(() => this.$emit('triggerScrollLastGridRowWithData'), 0);
@@ -129,14 +137,15 @@ export default {
 
             if (equation) {
                 try {
-                    this.$store.commit('dataStore/fillColumn', {
+                    this.dataStore.fillColumn({
                         columnName: destinationColumn,
                         equation
                     });
 
                     let announcement = 'Column ' + destinationColumn + ' filled.';
 
-                    const columnData = this.$store.getters['dataStore/column'](destinationColumn);
+                    // Row 0 holds the column headers, which are not filled
+                    const columnData = this.dataStore.column(destinationColumn).slice(1);
                     const numValuesToAnnounce = Math.min(5, columnData.length);
                     if (numValuesToAnnounce > 0) {
                         announcement += ' First values are ';
@@ -148,14 +157,14 @@ export default {
                         announcement += '.';
                     }
 
-                    (this as any).$announcer.announce(announcement);
+                    this.$announcer.announce(announcement);
                 } catch (e) {
-                    alert('Error filling column: ' + e.message);
+                    alert('Error filling column: ' + (e as Error).message);
                 }
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
@@ -199,7 +208,7 @@ export default {
         padding-right: 1.6rem;
     }
 
-    input[type="number"], /deep/ .se-control-content input {
+    input[type="number"], :deep(.se-control-content input) {
         display: block;
         font-family: inherit;
         font-size: 0.8125rem;
@@ -237,7 +246,7 @@ export default {
         margin: 0 40px;
     }
 
-    .control-label, /deep/ .se-control-label {
+    .control-label, :deep(.se-control-label) {
         font-size: 0.8125rem;
     }
 

@@ -45,14 +45,16 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
 import SEAccordionContainer from '../basic/SEAccordionContainer.vue';
 import AudioMappingsGlobalBasic from './AudioMappingsGlobalBasic.vue';
 import AudioMappingsGlobalDefaults from './AudioMappingsGlobalDefaults.vue';
 import AudioMappingsGlobalContexts from './AudioMappingsGlobalContexts.vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
 
-export default {
+export default defineComponent({
     components: {
         SEAccordionContainer,
         AudioMappingsGlobalBasic,
@@ -60,23 +62,26 @@ export default {
         AudioMappingsGlobalDefaults,
         SEAccordionItem
     },
-    computed: mapState('viewStore', [
-        'expandedGlobalAudioBasicAccordionItem',
-        'expandedGlobalAudioDefaultsAccordionItem',
-        'expandedGlobalAudioContextsAccordionItem'
-    ]),
+    computed: {
+        ...mapStores(useViewStore),
+        ...mapState(useViewStore, [
+            'expandedGlobalAudioBasicAccordionItem',
+            'expandedGlobalAudioDefaultsAccordionItem',
+            'expandedGlobalAudioContextsAccordionItem'
+        ])
+    },
     methods: {
         onBasicAccordionClick(e: Event, item: unknown, isSelected: boolean) {
-            this.$store.commit('viewStore/setExpandedGlobalAudioBasicAccordionItem', isSelected);
+            this.viewStore.setExpandedGlobalAudioBasicAccordionItem(isSelected);
         },
         onDefaultsAccordionClick(e: Event, item: unknown, isSelected: boolean) {
-            this.$store.commit('viewStore/setExpandedGlobalAudioDefaultsAccordionItem', isSelected);
+            this.viewStore.setExpandedGlobalAudioDefaultsAccordionItem(isSelected);
         },
         onContextsAccordionClick(e: Event, item: unknown, isSelected: boolean) {
-            this.$store.commit('viewStore/setExpandedGlobalAudioContextsAccordionItem', isSelected);
+            this.viewStore.setExpandedGlobalAudioContextsAccordionItem(isSelected);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

@@ -1,6 +1,7 @@
 node_modules
 .DS_Store
 dist
-.cache
 vendor
 .prettierrc
+# Local Vite environment files, e.g. .env.local with the Grid Key (see README)
+*.local

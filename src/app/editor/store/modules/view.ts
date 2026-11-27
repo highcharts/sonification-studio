@@ -3,22 +3,41 @@
     used across multiple components.
 */
 
-import Vue from 'vue';
+import { defineStore } from 'pinia';
 
-interface SelectHeaderTabPayload {
+export interface SelectHeaderTabPayload {
     selectedTabId: string;
     contentId: string;
 }
 
-interface ExpandedAccordionItemPayload {
+export interface ExpandedAccordionItemPayload {
     itemName: string;
     expanded: boolean;
 }
 
-export const viewStore = {
-    namespaced: true,
+export interface ViewState {
+    reactToParameterUpdates: number;
+    reactToDataUpdates: number;
+    showChartComponent: boolean;
+    loadingChart: boolean;
+    selectedHeaderTabContent: string;
+    selectedHeaderTabId: string;
+    selectedSidebarTabId: string;
+    sidebarVisible: boolean;
+    showGridTools: boolean;
+    playbackProgress: number;
+    selectedDataSeriesChartMapping: string;
+    selectedDataSeriesAudioMapping: string;
+    expandedGlobalAudioBasicAccordionItem: boolean;
+    expandedGlobalAudioDefaultsAccordionItem: boolean;
+    expandedGlobalAudioContextsAccordionItem: boolean;
+    // Accordion item name -> expanded
+    expandedSeriesAudioAccordionItems: Record<string, boolean>;
+    expandedChartMappingsAccordionItems: Record<string, boolean>;
+}
 
-    state: {
+export const useViewStore = defineStore('view', {
+    state: (): ViewState => ({
         // Reactive dependencies, see ChartBridge.reactiveGet()
         reactToParameterUpdates: 0,
         reactToDataUpdates: 0,
@@ -45,72 +64,72 @@ export const viewStore = {
         expandedChartMappingsAccordionItems: {
             Basic: true
         }
-    },
+    }),
 
-    mutations: {
-        selectHeaderTab(state: any, payload: SelectHeaderTabPayload) {
-            state.selectedHeaderTabId = payload.selectedTabId;
-            state.selectedHeaderTabContent = payload.contentId;
+    actions: {
+        selectHeaderTab(payload: SelectHeaderTabPayload) {
+            this.selectedHeaderTabId = payload.selectedTabId;
+            this.selectedHeaderTabContent = payload.contentId;
         },
 
-        selectSidebarTab(state: any, selectedTab: string) {
-            state.selectedSidebarTabId = selectedTab;
+        selectSidebarTab(selectedTab: string) {
+            this.selectedSidebarTabId = selectedTab;
         },
 
-        setPlaybackProgress(state: any, progressPct: number) {
-            state.playbackProgress = progressPct;
+        setPlaybackProgress(progressPct: number) {
+            this.playbackProgress = progressPct;
         },
 
-        setSelectedDataSeriesChartMapping(state: any, seriesId: string) {
-            state.selectedDataSeriesChartMapping = seriesId;
+        setSelectedDataSeriesChartMapping(seriesId: string) {
+            this.selectedDataSeriesChartMapping = seriesId;
         },
 
-        setSelectedDataSeriesAudioMapping(state: any, seriesId: string) {
-            state.selectedDataSeriesAudioMapping = seriesId;
+        setSelectedDataSeriesAudioMapping(seriesId: string) {
+            this.selectedDataSeriesAudioMapping = seriesId;
         },
 
-        setSidebarVisible(state: any, visible: boolean) {
-            state.sidebarVisible = visible;
+        setSidebarVisible(visible: boolean) {
+            this.sidebarVisible = visible;
         },
 
-        setShowChartComponent(state: any, show: boolean) {
-            state.showChartComponent = show;
+        setShowChartComponent(show: boolean) {
+            this.showChartComponent = show;
         },
 
-        setShowGridTools(state: any, show: boolean) {
-            state.showGridTools = show;
+        setShowGridTools(show: boolean) {
+            this.showGridTools = show;
         },
 
-        setLoadingChart(state: any, loading: boolean) {
-            state.loadingChart = loading;
+        setLoadingChart(loading: boolean) {
+            this.loadingChart = loading;
         },
 
-        setExpandedSeriesAudioAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
-            Vue.set(state.expandedSeriesAudioAccordionItems, payload.itemName, payload.expanded);
+        setExpandedSeriesAudioAccordionItem(payload: ExpandedAccordionItemPayload) {
+            this.expandedSeriesAudioAccordionItems[payload.itemName] = payload.expanded;
         },
 
-        setExpandedChartMappingsAccordionItem(state: any, payload: ExpandedAccordionItemPayload) {
-            Vue.set(state.expandedChartMappingsAccordionItems, payload.itemName, payload.expanded);
+        setExpandedChartMappingsAccordionItem(payload: ExpandedAccordionItemPayload) {
+            this.expandedChartMappingsAccordionItems[payload.itemName] = payload.expanded;
         },
 
-        setExpandedGlobalAudioBasicAccordionItem(state: any, selected: boolean) {
-            state.expandedGlobalAudioBasicAccordionItem = selected;
+        setExpandedGlobalAudioBasicAccordionItem(selected: boolean) {
+            this.expandedGlobalAudioBasicAccordionItem = selected;
         },
 
-        setExpandedGlobalAudioDefaultsAccordionItem(state: any, selected: boolean) {
-            state.expandedGlobalAudioDefaultsAccordionItem = selected;
+        setExpandedGlobalAudioDefaultsAccordionItem(selected: boolean) {
+            this.expandedGlobalAudioDefaultsAccordionItem = selected;
         },
 
-        setExpandedGlobalAudioContextsAccordionItem(state: any, selected: boolean) {
-            state.expandedGlobalAudioContextsAccordionItem = selected;
+        setExpandedGlobalAudioContextsAccordionItem(selected: boolean) {
+            this.expandedGlobalAudioContextsAccordionItem = selected;
         },
 
-        triggerParameterReactivity(state: any) {
-            state.reactToParameterUpdates++;
+        triggerParameterReactivity() {
+            this.reactToParameterUpdates++;
         },
 
-        triggerDataReactivity(state: any) {
-            state.reactToDataUpdates++;
+        triggerDataReactivity() {
+            this.reactToDataUpdates++;
         }
     }
-};
+});

@@ -4,7 +4,7 @@
             <div class="textdesc-left">
                 <button
                     aria-label="Show text description"
-                    :aria-expanded="showTextarea"
+                    :aria-expanded="showTextarea ? 'true' : 'false'"
                     @click="onToggleExpand"
                 >
                     <div
@@ -41,12 +41,14 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
 import SEButton from './basic/SEButton.vue';
 import SEControl from './basic/SEControl.vue';
-import { GenericObject } from '../core/utils/objects';
 import { describeTable } from '../core/textDescription';
+import { useDataStore } from '../store/modules/data';
 
-export default {
+export default defineComponent({
     components: {
         SEButton,
         SEControl
@@ -57,9 +59,10 @@ export default {
         };
     },
     computed: {
+        ...mapStores(useDataStore),
         textDescription: {
-            get() { return (this as any).$store.state.dataStore.textDescription; },
-            set(desc) { return this.$store.commit('dataStore/setTextDescription', desc); }
+            get(): string { return this.dataStore.textDescription; },
+            set(desc: string) { this.dataStore.setTextDescription(desc); }
         }
     },
     methods: {
@@ -68,13 +71,10 @@ export default {
                 this.onToggleExpand();
             }
             if (!this.textDescription || window.confirm('This will replace the existing description. Continue?')) {
-                const columnsWithData = this.$store.getters['dataStore/tableColumnNamesWithData'];
-                const columnData = columnsWithData.reduce((acc: GenericObject, columnName: string) => {
-                    acc[columnName] = this.$store.getters['dataStore/column'](columnName);
-                    return acc;
-                }, {});
-
-                this.textDescription = describeTable(columnData);
+                this.textDescription = describeTable(
+                    this.dataStore.tableRowData,
+                    this.dataStore.tableColumnNamesWithData
+                );
 
                 const description = this.$refs.description as HTMLElement;
                 this.$nextTick(() => setTimeout(() => description.focus(), 20));
@@ -82,10 +82,10 @@ export default {
         },
         onToggleExpand() {
             this.showTextarea = !this.showTextarea;
-            (this as any).$chartBridge.reflowChart();
+            this.$chartBridge.reflowChart();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

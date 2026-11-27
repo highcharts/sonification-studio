@@ -58,16 +58,18 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, type ComponentPublicInstance } from 'vue';
 import SEButton from './SEButton.vue';
 import hcLogo from '../../assets/highcharts-logo.svg';
 import closeIcon from '../../assets/times-solid.svg';
 import { hideOtherElementsFromAT, unhideElementsFromAT } from '../../core/utils/browserUtils';
 
-export default {
+export default defineComponent({
     components: { SEButton },
     props: {
         dialogTitle: { type: String, default: 'Information' }
     },
+    emits: ['close'],
     data() { return { hcLogo, closeIcon, hiddenElementsRef: [] as HTMLElement[] }; },
     methods: {
         onclick(e: MouseEvent) {
@@ -78,20 +80,20 @@ export default {
         },
         ontab(e: KeyboardEvent) {
             const atCloseIcon = e.target === this.$refs.closeIcon;
-            const atCloseBtn = e.target === (this.$refs.closeBtn as Vue).$el;
+            const atCloseBtn = e.target === (this.$refs.closeBtn as ComponentPublicInstance).$el;
             if (atCloseIcon && e.shiftKey || atCloseBtn && !e.shiftKey) {
                 e.stopPropagation();
                 e.preventDefault();
             }
         },
         hideOthersFromAT() {
-            this.hiddenElementsRef = hideOtherElementsFromAT((this.$refs as any).outerContainer);
+            this.hiddenElementsRef = hideOtherElementsFromAT(this.$refs.outerContainer as HTMLElement);
         },
         unhideOthersFromAT() {
             unhideElementsFromAT(this.hiddenElementsRef);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

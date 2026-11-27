@@ -1,0 +1,194 @@
+import { afterEach, beforeEach, describe, expect, test, vi, type MockInstance } from 'vitest';
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
+import { createPinia } from 'pinia';
+import type { Options } from 'highcharts';
+import Highcharts from '../../../src/app/editor/core/highchartsSetup';
+import Preview from '../../../src/app/editor/components/Preview.vue';
+import { useDataStore } from '../../../src/app/editor/store/modules/data';
+import { useViewStore } from '../../../src/app/editor/store/modules/view';
+
+// Options Highcharts throws on, when it creates the chart or updates it
+const unrenderable: Options = { series: [{ type: 'nonexistent' as 'line', data: [1, 2] }] };
+const renderable: Options = { series: [{ type: 'line', data: [1, 2] }] };
+
+function mountPreview(chartOptions: Options, fallbackOptions: Options) {
+    const pinia = createPinia();
+    const loadFromCSV = vi.spyOn(useDataStore(pinia), 'loadFromCSV')
+        .mockImplementation(() => undefined);
+    const preview = {
+        chartOptions,
+        viewStore: useViewStore(pinia),
+        loadFromCSV,
+        chartBridge: {
+            // A new object each time, as the chart bridge returns
+            reactiveGet: () => ({ ...preview.chartOptions }),
+            buildFallbackChartOptions: () => fallbackOptions,
+            init: vi.fn(),
+            forceUpdate: vi.fn(),
+            stopChart: vi.fn()
+        },
+        announcer: { announce: vi.fn() },
+        wrapper: undefined as VueWrapper | undefined
+    };
+    preview.wrapper = mount(Preview, {
+        attachTo: document.body,
+        global: {
+            plugins: [pinia],
+            mocks: { $chartBridge: preview.chartBridge, $announcer: preview.announcer }
+        }
+    });
+    return preview;
+}
+
+describe('Preview.vue', () => {
+    let wrapper: VueWrapper | undefined;
+    let consoleError: MockInstance<typeof console.error>;
+
+    beforeEach(() => {
+        consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+        wrapper?.unmount();
+        wrapper = undefined;
+        vi.restoreAllMocks();
+    });
+
+    test('Hands the chart it created to the chart bridge', async () => {
+        const preview = mountPreview(renderable, {});
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        expect(preview.chartBridge.init).toHaveBeenCalledTimes(1);
+        expect(preview.chartBridge.init.mock.calls[0][0].series[0].type).toBe('line');
+        expect(preview.chartBridge.forceUpdate).not.toHaveBeenCalled();
+        expect(preview.loadFromCSV).toHaveBeenCalledTimes(1);
+        // The app's own CSV, whose delimiter is known
+        expect(preview.loadFromCSV).toHaveBeenCalledWith('', ';');
+        expect(preview.announcer.announce).not.toHaveBeenCalled();
+        expect(consoleError).not.toHaveBeenCalled();
+    });
+
+    test('Creates the chart from fallback options when Highcharts throws', async () => {
+        const preview = mountPreview(unrenderable, {});
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        // The fallback chart, which the editor's options then fail to update
+        const chart = preview.chartBridge.init.mock.calls[0]?.[0];
+        expect(chart).toBeDefined();
+        expect(Highcharts.charts.filter((c) => c)).toEqual([chart]);
+        expect(consoleError.mock.calls.map((call) => call[0])).toEqual([
+            'Could not create the chart:',
+            'Could not update the chart:'
+        ]);
+        expect(preview.announcer.announce.mock.calls).toEqual([
+            ['The chart could not be shown with the current settings.']
+        ]);
+        // Options derived from the fallback chart are refreshed
+        expect(preview.chartBridge.forceUpdate).toHaveBeenCalledWith(true);
+        expect(preview.loadFromCSV).toHaveBeenCalledTimes(1);
+    });
+
+    test('Announces when not even the fallback options give a chart', async () => {
+        const preview = mountPreview(unrenderable, unrenderable);
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        expect(preview.chartBridge.init).not.toHaveBeenCalled();
+        expect(preview.loadFromCSV).not.toHaveBeenCalled();
+        expect(Highcharts.charts.filter((c) => c)).toEqual([]);
+        expect(preview.announcer.announce.mock.calls).toEqual([
+            ['The chart could not be created.']
+        ]);
+    });
+
+    test('Announces an update error once when it repeats right away', async () => {
+        const preview = mountPreview(renderable, {});
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        preview.chartOptions = unrenderable;
+        preview.viewStore.triggerParameterReactivity();
+        await flushPromises();
+        preview.viewStore.triggerParameterReactivity();
+        await flushPromises();
+
+        expect(consoleError.mock.calls.map((call) => call[0])).toEqual([
+            'Could not update the chart:',
+            'Could not update the chart:'
+        ]);
+        expect(preview.announcer.announce.mock.calls).toEqual([
+            ['The chart could not be updated.']
+        ]);
+    });
+
+    test('Announces an update error again after an update that worked', async () => {
+        const preview = mountPreview(renderable, {});
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        // E.g. arrowing through the series types, within two seconds
+        for (const options of [unrenderable, renderable, unrenderable]) {
+            preview.chartOptions = options;
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+        }
+
+        expect(consoleError.mock.calls.map((call) => call[0])).toEqual([
+            'Could not update the chart:',
+            'Could not update the chart:'
+        ]);
+        expect(preview.announcer.announce.mock.calls).toEqual([
+            ['The chart could not be updated.'],
+            ['The chart could not be updated.']
+        ]);
+    });
+
+    test('Announces an update error again when it repeats after two seconds', async () => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date(2026, 0, 1, 12, 0, 0));
+        try {
+            const preview = mountPreview(renderable, {});
+            wrapper = preview.wrapper;
+            await flushPromises();
+
+            preview.chartOptions = unrenderable;
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+            vi.setSystemTime(new Date(2026, 0, 1, 12, 0, 1, 999));
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+            vi.setSystemTime(new Date(2026, 0, 1, 12, 0, 4));
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+
+            expect(consoleError).toHaveBeenCalledTimes(3);
+            // Not within two seconds of the last occurrence
+            expect(preview.announcer.announce.mock.calls).toEqual([
+                ['The chart could not be updated.'],
+                ['The chart could not be updated.']
+            ]);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    test('Says the chart could not be updated once it showed the editor\'s settings', async () => {
+        const preview = mountPreview(unrenderable, {});
+        wrapper = preview.wrapper;
+        await flushPromises();
+
+        for (const options of [renderable, unrenderable]) {
+            preview.chartOptions = options;
+            preview.viewStore.triggerParameterReactivity();
+            await flushPromises();
+        }
+
+        expect(preview.announcer.announce.mock.calls).toEqual([
+            // Created from the fallback options
+            ['The chart could not be shown with the current settings.'],
+            ['The chart could not be updated.']
+        ]);
+    });
+});

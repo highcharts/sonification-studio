@@ -16,7 +16,7 @@
                 </h1>
             </div>
 
-            {{ /* Use button element because of potential vue-router issue with #-links */ }}
+            <!-- Use button element because of potential vue-router issue with #-links -->
             <button
                 role="link"
                 class="skip-link sr-only"
@@ -27,10 +27,7 @@
                 Skip to content
             </button>
 
-            <PrimaryNav
-                class="primary-nav"
-                @skipToContent="$emit('skipToContent')"
-            />
+            <PrimaryNav class="primary-nav" />
         </div>
 
         <div class="nav-container">
@@ -60,6 +57,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import highchartsIcon from '../assets/highcharts-logo.svg';
 import EditorNav from './EditorNav.vue';
 import PrimaryNav from './PrimaryNav.vue';
@@ -67,7 +65,7 @@ import ImportMenu from './ImportMenu.vue';
 import ExportMenu from './ExportMenu.vue';
 import ProjectMenu from './ProjectMenu.vue';
 
-export default {
+export default defineComponent({
     components: {
         EditorNav,
         PrimaryNav,
@@ -75,6 +73,7 @@ export default {
         ExportMenu,
         ProjectMenu
     },
+    emits: ['skipToContent'],
     data() {
         return { highchartsIcon };
     },
@@ -84,7 +83,7 @@ export default {
             e.preventDefault();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

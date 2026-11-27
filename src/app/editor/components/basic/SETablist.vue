@@ -22,7 +22,9 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     mounted() {
         this.resetTabindex();
         const tabs = this.getTabsAsNodeList();
@@ -40,14 +42,14 @@ export default {
         activate(el: Element) {
             this.resetTabindex();
             el.setAttribute('tabindex', '0');
-            if ((el as any).click) {
-                (el as HTMLButtonElement).click();
+            if ((el as HTMLElement).click) {
+                (el as HTMLElement).click();
             } else {
                 const e = new Event('click');
                 el.dispatchEvent(e);
             }
-            if ((el as any).focus) {
-                (el as any).focus();
+            if ((el as HTMLElement).focus) {
+                (el as HTMLElement).focus();
             }
         },
 
@@ -117,7 +119,7 @@ export default {
             this.activate(children[children.length - 1]);
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

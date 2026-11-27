@@ -66,12 +66,20 @@
 
 
 <script lang="ts">
+import { defineComponent, type PropType } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEInputbox from '../basic/SEInputbox.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
+import { mapStores } from 'pinia';
+import { useChartParametersStore } from '../../store/modules/chartParameters';
 
-export default {
+type Axis = 'X' | 'Y';
+
+// The axis as used in the names of chart parameters (e.g. xAxisTitle)
+const lowercaseAxes: Record<Axis, Lowercase<Axis>> = { X: 'x', Y: 'y' };
+
+export default defineComponent({
     components: {
         SEControl,
         SEDropdown,
@@ -79,7 +87,7 @@ export default {
         SECheckbox
     },
     props: {
-        axis: { type: String, required: true }
+        axis: { type: String as PropType<Axis>, required: true }
     },
     data() {
         return {
@@ -100,31 +108,32 @@ export default {
         };
     },
     computed: {
-        axisLowercase() {
-            return this.axis.toLowerCase();
+        ...mapStores(useChartParametersStore),
+        axisLowercase(): Lowercase<Axis> {
+            return lowercaseAxes[this.axis];
         },
         axisTitle: {
-            get() { return (this as any).$store.state.chartParametersStore[this.axisLowercase + 'AxisTitle']; },
-            set(val) { return this.$store.commit(`chartParametersStore/set${this.axis}AxisTitle`, val); }
+            get(): string { return this.chartParametersStore[`${this.axisLowercase}AxisTitle`]; },
+            set(val: string) { this.chartParametersStore[`set${this.axis}AxisTitle`](val); }
         },
         axisType: {
-            get() { return (this as any).$store.state.chartParametersStore[this.axisLowercase + 'AxisType']; },
-            set(val) { return this.$store.commit(`chartParametersStore/set${this.axis}AxisType`, val); }
+            get(): string { return this.chartParametersStore[`${this.axisLowercase}AxisType`]; },
+            set(val: string) { this.chartParametersStore[`set${this.axis}AxisType`](val); }
         },
         axisVisible: {
-            get() { return (this as any).$store.state.chartParametersStore[this.axisLowercase + 'AxisVisible']; },
-            set(val) { return this.$store.commit(`chartParametersStore/set${this.axis}AxisVisible`, val); }
+            get(): boolean { return this.chartParametersStore[`${this.axisLowercase}AxisVisible`]; },
+            set(val: boolean) { this.chartParametersStore[`set${this.axis}AxisVisible`](val); }
         },
         axisMin: {
-            get() { return (this as any).$store.state.chartParametersStore[this.axisLowercase + 'AxisMin']; },
-            set(val) { return this.$store.commit(`chartParametersStore/set${this.axis}AxisMin`, val); }
+            get(): string { return this.chartParametersStore[`${this.axisLowercase}AxisMin`]; },
+            set(val: string) { this.chartParametersStore[`set${this.axis}AxisMin`](val); }
         },
         axisMax: {
-            get() { return (this as any).$store.state.chartParametersStore[this.axisLowercase + 'AxisMax']; },
-            set(val) { return this.$store.commit(`chartParametersStore/set${this.axis}AxisMax`, val); }
+            get(): string { return this.chartParametersStore[`${this.axisLowercase}AxisMax`]; },
+            set(val: string) { this.chartParametersStore[`set${this.axis}AxisMax`](val); }
         }
     }
-};
+});
 </script>
 
 

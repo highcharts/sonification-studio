@@ -93,6 +93,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import fbIcon from './facebook-brands.svg';
 import ghIcon from './github-brands.svg';
 import instIcon from './instagram-brands.svg';
@@ -101,14 +102,14 @@ import twIcon from './twitter-brands.svg';
 import ytIcon from './youtube-brands.svg';
 import hcIcon from './highcharts-icon.svg';
 
-export default {
+export default defineComponent({
     data() {
         return { hcIcon, fbIcon, ghIcon, instIcon, lnIcon, twIcon, ytIcon };
     },
     computed: {
         year: () => new Date().getFullYear()
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

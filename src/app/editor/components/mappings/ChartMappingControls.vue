@@ -8,8 +8,9 @@
                 @click="toggleMappingActivated"
             />
         </TabswitchWrap>
-        <div
+        <component
             :is="activeView"
+            v-if="activeView"
             :id="activeView"
             class="activeView"
         />
@@ -17,12 +18,13 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SETabSwitch from '../basic/SETabSwitch.vue';
 import TabswitchWrap from './TabswitchWrap.vue';
 import ChartMappingsSeries from './ChartMappingsSeries.vue';
 import ChartMappingsGlobal from './ChartMappingsGlobal.vue';
 
-export default {
+export default defineComponent({
     components: {
         SETabSwitch,
         TabswitchWrap,
@@ -39,6 +41,7 @@ export default {
                 name: 'Data series settings',
                 controls: 'ChartMappingsSeries'
             }],
+            // Set by SETabSwitch, which emits the default tab when created
             activeView: ''
         };
     },
@@ -47,7 +50,7 @@ export default {
             this.activeView = viewId;
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

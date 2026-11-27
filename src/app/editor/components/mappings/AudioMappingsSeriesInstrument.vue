@@ -11,7 +11,7 @@
                 :id="slotProps.controlId"
                 v-model="instrument"
                 :options="instruments"
-                @input="onInstrumentChange"
+                @update:model-value="onInstrumentChange"
             />
         </SEControl>
 
@@ -44,44 +44,43 @@
 
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SECheckbox from '../basic/SECheckbox.vue';
-
-import {
-    makeSeriesParamPropertyGetMapping,
-    makeSeriesParamPropertySetMapping,
-    makeSelectedAudioMappingSeriesPropertyMapping
-} from '../../store/storeUtils';
+import { mapState } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
+import { getSeriesParameter, setSeriesParameter } from '../../store/storeUtils';
 import {
     nullFallback
 } from '../../core/utils/objects';
-import { mapState } from 'vuex';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SECheckbox,
         SEDropdown
     },
     computed: {
-        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(), // Needed for makeSeriesParamPropertyMapping
+        ...mapState(useViewStore, {
+            selectedSeries: 'selectedDataSeriesAudioMapping',
+            selectedHeaderTabContent: 'selectedHeaderTabContent'
+        }),
         sonificationEnabled: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'sonificationEnabled', true); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'sonificationEnabled', val); },
+            get(): boolean { return getSeriesParameter(this.selectedSeries, 'sonificationEnabled', true); },
+            set(val: boolean) { setSeriesParameter(this.selectedSeries, 'sonificationEnabled', val); },
         },
         instrument: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'instrument', 'piano', 'instrument'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'instrument', val, 'instrument'); },
+            get(): string { return getSeriesParameter(this.selectedSeries, 'instrument', 'piano', 'instrument'); },
+            set(val: string) { setSeriesParameter(this.selectedSeries, 'instrument', val, 'instrument'); },
         },
         pitchRoundingEnabled: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'pitchRoundingEnabled', false, 'instrument'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'pitchRoundingEnabled', val, 'instrument'); },
+            get(): boolean { return getSeriesParameter(this.selectedSeries, 'pitchRoundingEnabled', false, 'instrument'); },
+            set(val: boolean) { setSeriesParameter(this.selectedSeries, 'pitchRoundingEnabled', val, 'instrument'); },
         },
-        instruments() {
-            return (this as any).$chartBridge.getAvailableInstruments();
-        },
-        ...mapState('viewStore', ['selectedHeaderTabContent'])
+        instruments(): Array<Record<'name' | 'value', string>> {
+            return this.$chartBridge.getAvailableInstruments();
+        }
     },
     watch: {
         selectedSeries() {
@@ -94,7 +93,7 @@ export default {
     methods: {
         onInstrumentChange() {
             if (this.instrument && this.selectedHeaderTabContent !== 'dataContent') {
-                (this as any).$chartBridge.playAudioSample(this.instrument);
+                this.$chartBridge.playAudioSample(this.instrument);
             }
         },
         populateProps() {
@@ -102,7 +101,7 @@ export default {
             this.instrument = nullFallback(this.instrument, 'piano');
         }
     }
-};
+});
 </script>
 
 

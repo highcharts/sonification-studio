@@ -80,6 +80,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import HeaderTab from './HeaderTab.vue';
 import SETablist from './basic/SETablist.vue';
 import SEButton from './basic/SEButton.vue';
@@ -89,9 +90,13 @@ import visualIcon from '../assets/chart-line-solid.svg';
 import audioIcon from '../assets/music-solid.svg';
 import resetIcon from '../assets/undo-alt-solid.svg';
 import arrowRightIcon from '../assets/arrow-right.svg';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useChartParametersStore } from '../store/modules/chartParameters';
+import { useSeriesParametersStore } from '../store/modules/seriesParameters';
+import { useGlobalSonifyParametersStore } from '../store/modules/globalSonifyParameters';
+import { useViewStore } from '../store/modules/view';
 
-export default {
+export default defineComponent({
     components: {
         AudioMappingControls,
         ChartMappingControls,
@@ -99,31 +104,34 @@ export default {
         SEButton,
         SETablist
     },
-    data: function () {
+    data() {
         return {
             visualIcon, audioIcon, resetIcon, arrowRightIcon
         };
     },
-    computed: mapState('viewStore', ['selectedSidebarTabId']),
+    computed: {
+        ...mapState(useViewStore, ['selectedSidebarTabId']),
+        ...mapStores(useChartParametersStore, useSeriesParametersStore, useGlobalSonifyParametersStore, useViewStore)
+    },
     methods: {
         tabClicked(tabId: string): void {
-            this.$store.commit('viewStore/selectSidebarTab', tabId);
+            this.viewStore.selectSidebarTab(tabId);
         },
 
         onResetClick(): void {
             if (window.confirm('This will reset all audio and visual settings. Proceed?')) {
-                this.$store.commit('seriesParametersStore/clearState');
-                this.$store.commit('chartParametersStore/restoreStoreState');
-                this.$store.commit('globalSonifyParametersStore/restoreStoreState');
-                this.$store.commit('viewStore/setLoadingChart', true);
+                this.seriesParametersStore.clearState();
+                this.chartParametersStore.restoreStoreState();
+                this.globalSonifyParametersStore.restoreStoreState();
+                this.viewStore.setLoadingChart(true);
                 setTimeout(() => {
-                    this.$store.commit('viewStore/setShowChartComponent', false);
+                    this.viewStore.setShowChartComponent(false);
                     this.$nextTick(() => {
                         // Recreate chart
-                        this.$store.commit('viewStore/setShowChartComponent', true);
+                        this.viewStore.setShowChartComponent(true);
                         this.$nextTick(() => {
-                            (this as any).$announcer.announce('New project loaded.');
-                            setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 900);
+                            this.$announcer.announce('New project loaded.');
+                            setTimeout(() => this.viewStore.setLoadingChart(false), 900);
                         });
                     });
                 }, 100);
@@ -131,15 +139,15 @@ export default {
         },
 
         onHideSidebarClick() {
-            this.$store.commit('viewStore/setSidebarVisible', false);
-            (this as any).$chartBridge.reflowChart();
+            this.viewStore.setSidebarVisible(false);
+            this.$chartBridge.reflowChart();
         },
 
         focusHideButton() {
-            this.$nextTick(() => (this as any).$refs.hideBtn.focus());
+            this.$nextTick(() => (this.$refs.hideBtn as HTMLButtonElement).focus());
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

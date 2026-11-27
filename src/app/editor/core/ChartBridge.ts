@@ -1,13 +1,60 @@
-import Highcharts from 'highcharts/es-modules/masters/highcharts.src';
+import type * as HighchartsModule from 'highcharts';
 import type Announcer from './utils/Announcer';
 import { GenericObject, deepMerge } from './utils/objects';
 import { downloadURI } from './utils/browserUtils';
-import { getSeriesId } from './utils/chartUtils';
+import {
+    getGoogleSheetsErrorMessage,
+    getSeriesId,
+    removeNonNumericYValues,
+    seriesDataHasValues
+} from './utils/chartUtils';
+import { getGridColumnIds } from './utils/gridData';
 import { defaultChartOptions } from './defaultChartOptions';
 import { getChartOptionsFromParameters } from './optionsMapper/chartOptionsMapper';
 import { getSeriesOptionsFromParameters } from './optionsMapper/seriesOptionsMapper';
-import { GoogleSheetStatus } from '../store/modules/data';
-import { Store } from 'vuex';
+import type { Pinia } from 'pinia';
+import { useChartParametersStore } from '../store/modules/chartParameters';
+import { useSeriesParametersStore } from '../store/modules/seriesParameters';
+import { GoogleSheetStatus, useDataStore } from '../store/modules/data';
+import { useGlobalSonifyParametersStore } from '../store/modules/globalSonifyParameters';
+import { useViewStore } from '../store/modules/view';
+
+// Where exported HTML files load Highcharts from: the CDN's latest release of
+// the major version the app uses, so that a later major, which may rename or
+// remove the modules and theme they load (as 13 renamed high-contrast-light to
+// high-contrast), does not break them. Bump it with the highcharts dependency,
+// after checking that the script URLs in getHTMLChartConfig still exist.
+export const highchartsExportCDN = 'https://code.highcharts.com/13';
+
+// The event Highcharts.error() fires on the Highcharts object
+interface HighchartsErrorEvent {
+    chart?: HighchartsModule.Chart;
+    message: string;
+    preventDefault(): void;
+}
+
+// The sonification classes used to play instrument samples. Highcharts'
+// declarations type SonificationInstrument as an instance rather than a class,
+// and leave out SonificationTimeline, so they are described here.
+interface SampleTimeline {
+    addChannel(
+        type: 'instrument',
+        engine: object,
+        showPlayMarker: boolean,
+        events: HighchartsModule.SonificationTimelineEvent[]
+    ): void;
+    play(): void;
+    destroy(): void;
+}
+
+interface SonificationSampleClasses {
+    SonificationInstrument: new (
+        audioContext: AudioContext,
+        destination: AudioNode,
+        options: { synthPatch: string }
+    ) => object;
+    SonificationTimeline: new () => SampleTimeline;
+}
 
 /**
  * Interface between chart-specific logic and the rest of the
@@ -25,30 +72,32 @@ export class ChartBridge {
     private announcer: Announcer | null = null;
     private chartOptions: GenericObject = {};
     private chartDataOptions: GenericObject = {};
-    private chartParametersStore: GenericObject;
-    private seriesParametersStore: GenericObject;
-    private globalSonifyParametersStore: GenericObject;
-    private getStoreParam: (storeId: string, param: string) => any;
-    private commitToStore: (id: string, payload?: any) => void;
-    private storeGetter: (storeId: string, getterId: string) => any;
+    private chartParametersStore: ReturnType<typeof useChartParametersStore>;
+    private seriesParametersStore: ReturnType<typeof useSeriesParametersStore>;
+    private dataStore: ReturnType<typeof useDataStore>;
+    private globalSonifyParametersStore: ReturnType<typeof useGlobalSonifyParametersStore>;
+    private viewStore: ReturnType<typeof useViewStore>;
     private reactivityTimeouts: GenericObject = {};
     private progressTimer: number | undefined;
     private _seReactivityCounter: number | null = null;
-    private audioSampleTimeline: GenericObject | null = null;
+    private audioSampleTimeline: SampleTimeline | null = null;
 
     /**
-     * Construct the class with a Vuex store instance
+     * Construct the class with the app's Pinia instance and the app's
+     * Highcharts instance (from highchartsSetup.ts).
      */
-    constructor(store: Store<any>, private Highcharts: GenericObject) {
-        this.chartParametersStore = store.state.chartParametersStore;
-        this.seriesParametersStore = store.state.seriesParametersStore;
-        this.globalSonifyParametersStore = store.state.globalSonifyParametersStore;
-        this.commitToStore = (id: string, payload?: any) => store.commit(id, payload);
-        this.getStoreParam = (storeId: string, param: string): any => store.state[storeId][param];
-        this.storeGetter = (storeId: string, getterId: string): any =>
-            store.getters[`${storeId}/${getterId}`];
+    constructor(pinia: Pinia, private Highcharts: typeof HighchartsModule) {
+        this.chartParametersStore = useChartParametersStore(pinia);
+        this.seriesParametersStore = useSeriesParametersStore(pinia);
+        this.dataStore = useDataStore(pinia);
+        this.globalSonifyParametersStore = useGlobalSonifyParametersStore(pinia);
+        this.viewStore = useViewStore(pinia);
 
-        store.subscribe(this.onStoreMutation.bind(this));
+        this.subscribeToStoreActions();
+
+        Highcharts.addEvent(Highcharts, 'displayError', (e: HighchartsErrorEvent) =>
+            this.onHighchartsError(e)
+        );
     }
 
     /**
@@ -72,8 +121,8 @@ export class ChartBridge {
     public forceUpdate(queued = false): void {
         if (!queued) {
             this.updateChartOptions();
-            this.commitToStore('viewStore/triggerParameterReactivity');
-            this.commitToStore('viewStore/triggerDataReactivity');
+            this.viewStore.triggerParameterReactivity();
+            this.viewStore.triggerDataReactivity();
         } else {
             this.queueNewParamReactivity();
             this.queueNewDataReactivity();
@@ -95,7 +144,7 @@ export class ChartBridge {
      * functions.
      *
      * This is particularly useful for non-POD structures that contain
-     * functions, as they can not be stored in a Vuex store. For example,
+     * functions, as they can not be stored in a Pinia store. For example,
      * for components that depend on chart data series objects.
      *
      * Two reactivity counters are provided in the view store,
@@ -126,7 +175,8 @@ export class ChartBridge {
 
     /**
      * Builds the final options passed to the chart for rendering, based on
-     * mapping parameters and CSV data.
+     * mapping parameters and CSV data. The CSV is the data store's tableCSV:
+     * its rows tell which of the grid's columns get a series.
      */
     public buildChartOptions(csv?: string) {
         // chartOptions contains the current state of the chart mapping parameters
@@ -135,34 +185,34 @@ export class ChartBridge {
         const legendItemClickHook = this.getLegendItemHookOptions();
         const defaultOptions = deepMerge(defaultChartOptions, legendItemClickHook);
 
-        const dataSource = this.getStoreParam('dataStore', 'selectedDataSource');
-        const spreadsheetSetupComplete = this.getStoreParam(
-            'dataStore',
-            'spreadsheetSetupComplete'
+        const dataSource = this.dataStore.selectedDataSource;
+        const spreadsheetSetupComplete = this.dataStore.spreadsheetSetupComplete;
+        const fromGoogleSheets = dataSource === 'googlesheets' && spreadsheetSetupComplete;
+
+        // The grid's columns that a row has a cell in, after the first row
+        // (the series names); see the data's complete handler below
+        const gridColumnsWithCells = fromGoogleSheets ? null : new Set(
+            this.dataStore.tableRowData.slice(1).flatMap((row) => Object.keys(row))
         );
 
         /*eslint-disable indent */
         const dataSourceOptions =
-            dataSource === 'googlesheets' && spreadsheetSetupComplete
+            fromGoogleSheets
                 ? {
                       csv: void 0,
                       firstRowAsNames: true,
-                      googleAPIKey: this.getStoreParam('dataStore', 'googleApiKey'),
-                      googleSpreadsheetKey: this.storeGetter('dataStore', 'googleSpreadsheetId'),
-                      enablePolling: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-                      dataRefreshRate: this.getStoreParam('dataStore', 'googleAutoUpdateEnabled'),
-                      error: (text: string) => {
-                          const errObj = JSON.parse(text);
-                          const message = errObj?.error?.message || 'Unknown error';
-                          this.commitToStore('dataStore/setGoogleSheetErrorMessage', message);
-                          this.commitToStore(
-                              'dataStore/setGoogleSheetStatus',
-                              GoogleSheetStatus.Error
-                          );
-                      },
+                      googleAPIKey: this.dataStore.googleApiKey,
+                      googleSpreadsheetKey: this.dataStore.googleSpreadsheetId,
+                      enablePolling: this.dataStore.googleAutoUpdateEnabled,
+                      dataRefreshRate: this.dataStore.googleAutoUpdateFrequency,
+                      // Failed requests are handled in onHighchartsError
                   }
                 : {
-                      csv: csv || 'null',
+                      // A CSV of only line breaks (a cleared grid) must not
+                      // reach the data module: it finds no columns and calls
+                      // its afterComplete hook twice, so a chart created
+                      // with it initializes twice and destroys itself.
+                      csv: csv?.trim() ? csv : 'null',
                       columns: null,
                       firstRowAsNames: true,
                       googleSpreadsheetKey: '',
@@ -172,10 +222,35 @@ export class ChartBridge {
         const dataOptions = {
             data: Object.assign(dataSourceOptions, {
                 complete: (parseResult: GenericObject) => {
-    if (dataSource === 'googlesheets' && spreadsheetSetupComplete) {
-        this.commitToStore(
-            'dataStore/setGoogleSheetStatus',
-            GoogleSheetStatus.Success
+    if (fromGoogleSheets) {
+        this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Success);
+    }
+
+    // Text in a column other than the first (e.g. a label column) can not
+    // be plotted, and would make Highcharts throw
+    (parseResult.series || []).forEach((s: GenericObject) => {
+        if (Array.isArray(s.data)) {
+            s.data = removeNonNumericYValues(s.data);
+        }
+    });
+
+    // Leave out the series of a grid column that no row has a cell in (after
+    // the first row), as master v1.1.1 did. It generated the grid's CSV from
+    // each row's cells in order, and rows loaded from a CSV (on a CSV import
+    // or project load) have no cells for their empty values, so such a
+    // column was left out of the chart. The series ids go by series index
+    // (see getSeriesId), so in projects saved after a load, the series
+    // settings of the columns after it are under the ids that leave it out.
+    // The app keeps each value in its column, so leaving out the series
+    // gives those settings to the right data. Edits in the grid give each
+    // row a cell in every column (applyCellEdit), so a column emptied there
+    // keeps its (hidden) series, and the later series their settings.
+    if (gridColumnsWithCells && parseResult.series) {
+        // Series i has the values of the CSV's column i + 1 (the first
+        // column holds the x values)
+        const columnIds = getGridColumnIds(parseResult.series.length + 1);
+        parseResult.series = parseResult.series.filter(
+            (_s: GenericObject, i: number) => gridColumnsWithCells.has(columnIds[i + 1])
         );
     }
 
@@ -199,18 +274,7 @@ export class ChartBridge {
         const mergedSeries = deepMerge(parseResult.series, seriesOptions);
 
         mergedSeries.forEach((s: any, i: number) => {
-            const seriesData = s.data;
-
-            const hasData =
-                Array.isArray(seriesData) &&
-                seriesData.some((point: any) => {
-                    if (typeof point === 'number') return true;
-                    if (Array.isArray(point))
-                        return point[1] !== null && point[1] !== '';
-                    if (typeof point === 'object' && point !== null)
-                        return point.y !== null && point.y !== '';
-                    return point !== null && point !== '';
-                });
+            const hasData = seriesDataHasValues(s.data);
 
             if (!s.name) {
                 s.name = `Series ${i + 1}`;
@@ -241,6 +305,19 @@ export class ChartBridge {
         const newOptions = Object.assign(dataOptions, chartSettings);
 
         return deepMerge(defaultOptions, newOptions);
+    }
+
+    /**
+     * Options a chart can be created from whatever the user's data and
+     * parameters are: the defaults, with the data of an empty grid. For when
+     * Highcharts throws on the options from buildChartOptions while it
+     * creates the chart. The chart has the data module set up, so it takes
+     * the data of a later update.
+     */
+    public buildFallbackChartOptions(): GenericObject {
+        const defaultOptions = deepMerge(defaultChartOptions, this.getLegendItemHookOptions());
+        // 'null' rather than '', as for an empty grid in buildChartOptions
+        return deepMerge(defaultOptions, { data: { csv: 'null' } });
     }
 
     public getDataSeries(): Array<GenericObject> {
@@ -310,26 +387,23 @@ export class ChartBridge {
     }
 
     public playAudioSample(instrument: string) {
-        const globalVolume = this.getStoreParam('globalSonifyParametersStore', 'volume');
-        const Instrument = this.Highcharts.sonification.SonificationInstrument,
-            Timeline = this.Highcharts.sonification.SonificationTimeline,
+        const globalVolume = this.globalSonifyParametersStore.volume;
+        const { SonificationInstrument: Instrument, SonificationTimeline: Timeline } = this
+                .Highcharts.sonification as unknown as SonificationSampleClasses,
             s = this.chart?.sonification;
 
         if (!s) {
             return;
         }
 
-        let timeline = this.audioSampleTimeline;
-        if (timeline) {
-            timeline.destroy();
-        }
-        timeline = this.audioSampleTimeline = new Timeline() as GenericObject;
+        this.audioSampleTimeline?.destroy();
+        const timeline = (this.audioSampleTimeline = new Timeline());
 
         const instr = new Instrument(s.audioContext, s.audioContext.destination, {
             synthPatch: instrument,
         });
 
-        timeline.addChannel('instrument', instr, [
+        timeline.addChannel('instrument', instr, false, [
             {
                 time: 0,
                 instrumentEventOptions: {
@@ -347,8 +421,10 @@ export class ChartBridge {
         timeline.play();
     }
 
+    // Highcharts 13 keeps chart.exportChart() only as a deprecated alias of
+    // chart.exporting.exportChart()
     public downloadPNG(): void {
-        this.chart?.exportChart(
+        this.chart?.exporting?.exportChart(
             {
                 filename: this.getChartTitleForExport(),
             },
@@ -363,7 +439,7 @@ export class ChartBridge {
     }
 
     public downloadSVG(): void {
-        this.chart?.exportChart(
+        this.chart?.exporting?.exportChart(
             {
                 type: 'image/svg+xml',
                 filename: this.getChartTitleForExport(),
@@ -429,17 +505,21 @@ export class ChartBridge {
 
     public getHTMLChartConfig(): string {
         const options = this.getChartOptionsForExport();
-        const optionsString = JSON.stringify(options, void 0, 2);
+        // The options go into a <script> element. Text in them (a title, a
+        // series name, a value) could end it with "</script>", so each "<"
+        // is written as its Unicode escape (backslash, u003c), which
+        // JavaScript reads back as "<" (in JSON, "<" can only be in a string).
+        const optionsString = JSON.stringify(options, void 0, 2).replace(/</g, '\\u003c');
         const playControls = this.getHTMLPlayControlsForChart();
         return `
             <!DOCTYPE html>
             <html>
             <head>
                 <title>${this.getChartTitleForExport()}</title>
-                <script src="https://code.highcharts.com/highcharts.js"></script>
-                <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-                <script src="https://code.highcharts.com/modules/sonification.js"></script>
-                <script src="https://code.highcharts.com/themes/high-contrast-light.js"></script>
+                <script src="${highchartsExportCDN}/highcharts.js"></script>
+                <script src="${highchartsExportCDN}/modules/accessibility.js"></script>
+                <script src="${highchartsExportCDN}/modules/sonification.js"></script>
+                <script src="${highchartsExportCDN}/themes/high-contrast.js"></script>
                 <style>
                     body {
                         font-family: 'Roboto', sans-serif;
@@ -521,6 +601,9 @@ export class ChartBridge {
                 <div id="container" style="max-width: 900px; max-height: 500px;"></div>
                 <script>
                     Highcharts.setOptions({
+                        palette: {
+                            colorScheme: 'light'
+                        },
                         accessibility: {
                             screenReaderSection: {
                                 beforeChartFormat: '<h2>{chartTitle}</h2>' +
@@ -576,7 +659,7 @@ export class ChartBridge {
     }
 
     public getAvailableInstruments(): Array<Record<'name' | 'value', string>> {
-        return Object.keys(this.Highcharts.sonification.InstrumentPresets).map((i) => ({
+        return Object.keys(this.Highcharts.sonification.InstrumentPresets || {}).map((i) => ({
             name: i[0].toUpperCase() + i.slice(1),
             value: i,
         }));
@@ -669,7 +752,6 @@ export class ChartBridge {
         canvas.width = chartEl.offsetWidth;
         canvas.height = chartEl.offsetHeight;
 
-        // eslint-disable-next-line
         const unusedCtx = canvas.getContext('2d'); // Because of bug in firefox, must get context before capt.stream.
         const canvasStream = (canvas as any).captureStream(framerate);
         if (!canvasStream) {
@@ -855,20 +937,29 @@ export class ChartBridge {
         );
     }
 
+    // Keep the series' visible parameter in sync with the legend, which hides
+    // and shows a series when its legend item is clicked (also from the
+    // keyboard, which the accessibility module turns into a click). Without
+    // it, the next chart update would apply the old visibility again.
+    //
+    // This uses the legend's itemClick event, which fires before its default
+    // action toggles the series' visibility. The series' legendItemClick event
+    // fires only after that, since Highcharts 11, so the series' visible
+    // property no longer tells which way it is toggled.
     private getLegendItemHookOptions(): GenericObject {
-        const chartBridge = this;
         return {
-            plotOptions: {
-                series: {
-                    events: {
-                        legendItemClick: function () {
-                            const series: GenericObject = this;
-                            chartBridge.commitToStore('seriesParametersStore/setSeriesParameter', {
-                                seriesId: getSeriesId(series),
+            legend: {
+                events: {
+                    itemClick: (e: HighchartsModule.LegendItemClickEventObject) => {
+                        const item = e.legendItem;
+                        // Pie charts have points as legend items
+                        if (item instanceof this.Highcharts.Series) {
+                            this.seriesParametersStore.setSeriesParameter({
+                                seriesId: getSeriesId(item),
                                 parameterName: 'seriesVisible',
-                                parameterValue: !series.visible,
+                                parameterValue: !item.visible,
                             });
-                        },
+                        }
                     },
                 },
             },
@@ -879,33 +970,58 @@ export class ChartBridge {
         return this.chart?.sonification?.isPlaying();
     }
 
-    private onStoreMutation(mutation: GenericObject) {
-        const chartIsValid = this.chart && this.chart.options;
-        if (chartIsValid && this.isParameterMutation(mutation)) {
-            this.queueNewParamReactivity();
-        } else if (chartIsValid && this.isDataMutation(mutation)) {
-            this.queueNewDataReactivity();
+    // Since Highcharts 13, the data module reports a failed Google Sheets
+    // request with Highcharts.error() instead of calling a data.error callback.
+    private onHighchartsError(e: HighchartsErrorEvent) {
+        const message = getGoogleSheetsErrorMessage(e.message);
+        if (
+            message === null ||
+            !this.chart ||
+            e.chart !== this.chart ||
+            this.dataStore.selectedDataSource !== 'googlesheets'
+        ) {
+            return;
         }
+
+        // Handled here, so Highcharts does not log it as a warning
+        e.preventDefault();
+        this.dataStore.setGoogleSheetErrorMessage(message);
+        this.dataStore.setGoogleSheetStatus(GoogleSheetStatus.Error);
     }
 
-    private isParameterMutation(mutation: GenericObject): boolean {
-        return (
-            mutation.type.startsWith('chartParameters') ||
-            mutation.type.startsWith('seriesParameters') ||
-            mutation.type.startsWith('globalSonifyParameters')
-        );
-    }
-
-    private isDataMutation(mutation: GenericObject): boolean {
-        return mutation.type.startsWith('dataStore');
+    // Queue reactivity updates after every action on the parameter stores
+    // and the data store (whether or not it changed anything). Detached: the
+    // subscriptions last as long as the app.
+    private subscribeToStoreActions() {
+        const afterParameterAction = () => {
+            if (this.chart && this.chart.options) {
+                this.queueNewParamReactivity();
+            }
+        };
+        const afterDataAction = () => {
+            if (this.chart && this.chart.options) {
+                this.queueNewDataReactivity();
+            }
+        };
+        this.chartParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
+        this.seriesParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
+        this.globalSonifyParametersStore.$onAction(({ after }) => after(afterParameterAction), true);
+        this.dataStore.$onAction(({ name, after }) => {
+            // The text description isn't chart data, and a data update stops
+            // playback (PlayButtons), so typing a description while listening
+            // must not count as one.
+            if (name !== 'setTextDescription') {
+                after(afterDataAction);
+            }
+        }, true);
     }
 
     // Trigger a reactivity update, but only once every X milliseconds.
     private queueReactivityUpdate(
-        mutation: string,
+        trigger: () => void,
         interval: number,
         timeoutId: string,
-        beforeTrigger?: Function
+        beforeTrigger?: () => void
     ) {
         const timeouts = this.reactivityTimeouts;
         if (!timeouts[timeoutId]) {
@@ -914,14 +1030,14 @@ export class ChartBridge {
                 if (beforeTrigger) {
                     beforeTrigger();
                 }
-                this.commitToStore(mutation);
+                trigger();
             }, interval);
         }
     }
 
     private queueNewParamReactivity() {
         this.queueReactivityUpdate(
-            'viewStore/triggerParameterReactivity',
+            () => this.viewStore.triggerParameterReactivity(),
             ChartBridge.parameterReactivityIntervalMs,
             'paramReactivityTimeout',
             () => this.updateChartOptions()
@@ -930,7 +1046,7 @@ export class ChartBridge {
 
     private queueNewDataReactivity() {
         this.queueReactivityUpdate(
-            'viewStore/triggerDataReactivity',
+            () => this.viewStore.triggerDataReactivity(),
             ChartBridge.dataReactivityIntervalMs,
             'dataReactivityTimeout'
         );
@@ -942,8 +1058,8 @@ export class ChartBridge {
         const chartIsValid = this.chart && this.chart.options;
         if (chartIsValid) {
             this.chartOptions = getChartOptionsFromParameters(
-                this.globalSonifyParametersStore,
-                this.chartParametersStore,
+                this.globalSonifyParametersStore.$state,
+                this.chartParametersStore.$state,
                 this.chart || {}
             );
         }
@@ -965,7 +1081,7 @@ export class ChartBridge {
             return;
         }
 
-        const opts = this.chart?.options || Highcharts.getOptions();
+        const opts = this.chart?.options || this.Highcharts.getOptions();
         const threshold: number =
             opts?.accessibility?.series?.pointDescriptionEnabledThreshold || 8000;
 
@@ -1004,6 +1120,6 @@ export class ChartBridge {
         const totalDuration = chart.options?.sonification?.duration || 1,
             curTime = chart.sonification?.timeline?.getCurrentTime() || 0,
             progressPct = Math.round((100 * curTime) / totalDuration);
-        this.commitToStore('viewStore/setPlaybackProgress', progressPct);
+        this.viewStore.setPlaybackProgress(progressPct);
     }
 }

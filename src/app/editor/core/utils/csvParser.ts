@@ -1,6 +1,11 @@
 // Adapted from http://stackoverflow.com/a/1293163/2343
-// TODO: Definitely needs tests. Look online for acid tests.
+// Tests: test/core/utils/csvParser.test.ts. TODO: Add CSV acid tests.
 export function parseCSV (strData: string, strDelimiter = ';'): Array<Array<string>> {
+    // No rows. (The pattern below would match the empty string forever.)
+    if (!strData) {
+        return [];
+    }
+
     // Create a regular expression to parse the CSV values.
     const objPattern = new RegExp(
         (
@@ -22,14 +27,28 @@ export function parseCSV (strData: string, strDelimiter = ';'): Array<Array<stri
 
     // Create an array to hold our individual pattern
     // matching groups.
-    let arrMatches = null;
+    let arrMatches: RegExpExecArray | null;
 
     // Keep looping over the regular expression matches
     // until we can no longer find a match.
     while (arrMatches = objPattern.exec(strData)) { // eslint-disable-line
 
+        // A match of no characters (an empty first field before a quote
+        // that is never closed) would be found again at the same index
+        // forever, so search on from the next one
+        if (!arrMatches[0].length) {
+            objPattern.lastIndex++;
+        }
+
         // Get the delimiter that was found.
         const strMatchedDelimiter = arrMatches[1];
+
+        // Data that starts with a field delimiter starts with an empty field,
+        // which the pattern skips: it takes the delimiter as the start of
+        // the second field
+        if (arrMatches.index === 0 && strMatchedDelimiter === strDelimiter) {
+            arrData[0].push('');
+        }
 
         // Check to see if the given delimiter has a length
         // (is not the start of string) and if it matches

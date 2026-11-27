@@ -21,14 +21,17 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         dark: { type: Boolean, default: false },
         wide: { type: Boolean, default: false },
         ariaExpanded: { type: Boolean, default: null },
         ariaLabel: { type: String, default: null }
-    }
-};
+    },
+    emits: ['click', 'keydown']
+});
 </script>
 
 <style lang="less" scoped>

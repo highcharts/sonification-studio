@@ -1,6 +1,0 @@
-node_modules
-dist
-docs
-vendor
-.cache
-!**/.eslintrc.js

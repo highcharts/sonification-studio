@@ -23,8 +23,10 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { keyPressed, Keys, Modifiers } from '../core/utils/keyboardUtils';
-import { mapState } from 'vuex';
+import { mapState } from 'pinia';
+import { useViewStore } from '../store/modules/view';
 import playIcon from '../assets/play.svg';
 import stopIcon from '../assets/stop.svg';
 import pauseIcon from '../assets/pause.svg';
@@ -32,7 +34,7 @@ import loopIcon from '../assets/loop.svg';
 import PlayButton from './PlayButton.vue';
 import PlayCheckbox from './PlayCheckbox.vue';
 
-export default {
+export default defineComponent({
     components: {
         PlayButton, PlayCheckbox
     },
@@ -45,11 +47,9 @@ export default {
             stopIcon, pauseIcon, loopIcon
         };
     },
-    computed: mapState({
-        selectedHeaderTabId: (state: any) => state.viewStore.selectedHeaderTabId,
-        reactToParameterUpdates: (state: any) => state.viewStore.reactToParameterUpdates,
-        reactToDataUpdates: (state: any) => state.dataStore.reactToDataUpdates,
-    }),
+    computed: {
+        ...mapState(useViewStore, ['selectedHeaderTabId', 'reactToParameterUpdates', 'reactToDataUpdates'])
+    },
     // Stop playing when something changes.
     watch: {
         reactToParameterUpdates() {
@@ -63,7 +63,13 @@ export default {
         }
     },
     mounted() {
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', this.onDocumentKeydown);
+    },
+    beforeUnmount() {
+        document.removeEventListener('keydown', this.onDocumentKeydown);
+    },
+    methods: {
+        onDocumentKeydown(e: KeyboardEvent) {
             if (this.selectedHeaderTabId === 'Chart') {
                 if (keyPressed(Keys.K, Modifiers.Ctrl, e)) {
                     this.onPlayPauseClick();
@@ -73,32 +79,30 @@ export default {
                     e.preventDefault();
                 } else if (keyPressed(Keys.T, Modifiers.Ctrl, e)) {
                     this.loopEnabled = !this.loopEnabled;
-                    (this as any).$announcer.announce('Loop ' + (this.loopEnabled ? 'enabled' : 'disabled') + '.');
+                    this.$announcer.announce('Loop ' + (this.loopEnabled ? 'enabled' : 'disabled') + '.');
                     e.preventDefault();
                 } else if (keyPressed(Keys.Left, Modifiers.Ctrl + Modifiers.Shift, e)) {
                     this.resetPlayPauseBtn();
-                    (this as any).$chartBridge.playAdjacent(false);
+                    this.$chartBridge.playAdjacent(false);
                 } else if (keyPressed(Keys.Right, Modifiers.Ctrl + Modifiers.Shift, e)) {
                     this.resetPlayPauseBtn();
-                    (this as any).$chartBridge.playAdjacent(true);
+                    this.$chartBridge.playAdjacent(true);
                 }
             }
             if (keyPressed(Keys.Esc, Modifiers.None, e)) {
                 this.onStopClick();
             }
-        });
-    },
-    methods: {
+        },
         onPlayPauseClick() {
             this.paused = false;
             this.playPauseIcon = this.playing ? playIcon : pauseIcon;
             if (this.playing) {
-                (this as any).$chartBridge.pauseChart();
+                this.$chartBridge.pauseChart();
                 this.paused = true;
             } else if (this.loopEnabled) {
-                (this as any).$chartBridge.playChart(void 0, true);
+                this.$chartBridge.playChart(void 0, true);
             } else {
-                (this as any).$chartBridge.playChart(this.resetPlayPauseBtn.bind(this));
+                this.$chartBridge.playChart(this.resetPlayPauseBtn.bind(this));
             }
             this.playing = !this.playing;
         },
@@ -110,10 +114,10 @@ export default {
         onStopClick() {
             this.paused = false;
             this.resetPlayPauseBtn();
-            (this as any).$chartBridge.stopChart();
+            this.$chartBridge.stopChart();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

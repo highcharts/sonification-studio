@@ -28,16 +28,18 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEAccordionContainer from '../basic/SEAccordionContainer.vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
 import ChartMappingsGlobalBasic from './ChartMappingsGlobalBasic.vue';
 import ChartMappingsGlobalAdvanced from './ChartMappingsGlobalAdvanced.vue';
 import ChartMappingsGlobalAxis from './ChartMappingsGlobalAxis.vue';
 
-import { mapState } from 'vuex';
 import { GenericObject } from '../../core/utils/objects';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
 
-export default {
+export default defineComponent({
     components: {
         SEAccordionContainer,
         SEAccordionItem,
@@ -66,18 +68,19 @@ export default {
             }]
         };
     },
-    computed: mapState({
-        expandedAccordionItems: (state: any) => state.viewStore.expandedChartMappingsAccordionItems
-    }),
+    computed: {
+        ...mapStores(useViewStore),
+        ...mapState(useViewStore, { expandedAccordionItems: 'expandedChartMappingsAccordionItems' })
+    },
     methods: {
         onAccordionItemClick(e: Event, item: GenericObject, isSelected: boolean) {
-            this.$store.commit('viewStore/setExpandedChartMappingsAccordionItem', {
+            this.viewStore.setExpandedChartMappingsAccordionItem({
                 itemName: item.heading,
                 expanded: isSelected
             });
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

@@ -40,6 +40,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
 import SEAccordionItem from '../basic/SEAccordionItem.vue';
@@ -54,11 +55,11 @@ import AudioMappingsSeriesHighpass from './AudioMappingsSeriesHighpass.vue';
 import AudioMappingsSeriesTremoloDepth from './AudioMappingsSeriesTremoloDepth.vue';
 import AudioMappingsSeriesTremoloSpeed from './AudioMappingsSeriesTremoloSpeed.vue';
 import { GenericObject } from '../../core/utils/objects';
-import { makeSelectedAudioMappingSeriesPropertyMapping } from '../../store/storeUtils';
 import { getSeriesId } from '../../core/utils/chartUtils';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SEDropdown,
@@ -107,13 +108,17 @@ export default {
         };
     },
     computed: {
-        ...mapState({
-            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates,
-            expandedAccordionItems: (state: any) => state.viewStore.expandedSeriesAudioAccordionItems
+        ...mapStores(useViewStore),
+        ...mapState(useViewStore, {
+            reactToDataUpdates: 'reactToDataUpdates',
+            expandedAccordionItems: 'expandedSeriesAudioAccordionItems'
         }),
-        selectedSeries: makeSelectedAudioMappingSeriesPropertyMapping(),
-        dataSeries() {
-            const chartBridge = (this as any).$chartBridge;
+        selectedSeries: {
+            get(): string { return this.viewStore.selectedDataSeriesAudioMapping; },
+            set(val: string) { this.viewStore.setSelectedDataSeriesAudioMapping(val); }
+        },
+        dataSeries(): Array<{ name: string; value: string }> {
+            const chartBridge = this.$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
 
             return series.map((s: GenericObject) => ({
@@ -124,13 +129,13 @@ export default {
     },
     methods: {
         onAccordionItemClick(e: Event, item: GenericObject, isSelected: boolean) {
-            this.$store.commit('viewStore/setExpandedSeriesAudioAccordionItem', {
+            this.viewStore.setExpandedSeriesAudioAccordionItem({
                 itemName: item.heading,
                 expanded: isSelected
             });
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

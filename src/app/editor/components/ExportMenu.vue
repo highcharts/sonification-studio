@@ -20,6 +20,8 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
 import { downloadURI } from '../core/utils/browserUtils';
 import menuIcon from '../assets/bars-solid.svg';
 import jsIcon from '../assets/js-square-brands.svg';
@@ -32,8 +34,17 @@ import htmlIcon from '../assets/file-code-solid.svg';
 import spinnerIcon from '../assets/spinner-solid.svg';
 import SEDropdownMenu from './basic/SEDropdownMenu.vue';
 import SEModalMessage from './basic/SEModalMessage.vue';
+import { useDataStore } from '../store/modules/data';
 
-export default {
+// A button item in SEDropdownMenu's options format
+interface MenuButtonOption {
+    label: string;
+    icon: string;
+    type: 'button';
+    onclick: () => void;
+}
+
+export default defineComponent({
     components: {
         SEDropdownMenu,
         SEModalMessage
@@ -42,58 +53,67 @@ export default {
         return {
             menuIcon,
             spinnerIcon,
-            rendering: false,
-            menuOptions: [{
+            rendering: false
+        };
+    },
+    computed: {
+        ...mapStores(useDataStore),
+        menuOptions(): MenuButtonOption[] {
+            return [{
                 label: 'Video',
                 icon: videoIcon,
                 type: 'button',
-                onclick: () => (this as any).dlVideo()
+                onclick: () => this.dlVideo()
             }, {
                 label: 'Audio Only',
                 icon: musicIcon,
                 type: 'button',
-                onclick: () => (this as any).dlAudio()
+                onclick: () => this.dlAudio()
             }, {
                 label: 'Audio as MIDI',
                 icon: musicIcon,
                 type: 'button',
-                onclick: () => (this as any).dlMIDI()
+                onclick: () => this.dlMIDI()
             }, {
                 label: 'Image',
                 icon: pictureIcon,
                 type: 'button',
-                onclick: () => (this as any).dlPNG()
+                onclick: () => this.dlPNG()
             }, {
                 label: 'Vector Image',
                 icon: pictureIcon,
                 type: 'button',
-                onclick: () => (this as any).dlSVG()
+                onclick: () => this.dlSVG()
             }, {
                 label: 'CSV Data',
                 icon: csvIcon,
                 type: 'button',
-                onclick: () => (this as any).dlCSV()
+                onclick: () => this.dlCSV()
             }, {
                 label: 'Text Description',
                 icon: textIcon,
                 type: 'button',
-                onclick: () => (this as any).dlTextDesc()
+                onclick: () => this.dlTextDesc()
             }, {
                 label: 'Highcharts JS Config',
                 icon: jsIcon,
                 type: 'button',
-                onclick: () => (this as any).dlChartConfig()
+                onclick: () => this.dlChartConfig()
             }, {
                 label: 'HTML file',
                 icon: htmlIcon,
                 type: 'button',
-                onclick: () => (this as any).dlHTMLFile()
-            }]
-        };
+                onclick: () => this.dlHTMLFile()
+            }];
+        }
+    },
+    beforeUnmount() {
+        // Ends the "please wait" announcement loop of dlVideo()/dlAudio()
+        this.rendering = false;
     },
     methods: {
         dlVideo() {
-            const announcer = (this as any).$announcer;
+            const announcer = this.$announcer;
             const component = this;
             this.rendering = true;
             let waitAnnouncer: number;
@@ -113,19 +133,19 @@ export default {
             };
 
             try {
-                (this as any).$chartBridge.downloadVideo(24).then(() => {
+                this.$chartBridge.downloadVideo(24).then(() => {
                     clearTimeout(waitAnnouncer);
                     this.rendering = false;
                     announcer.announce('Rendering done.');
                 }).catch(fail);
             } catch (e) {
-                fail(e);
+                fail(e as Error);
             }
         },
 
         dlAudio() {
             const component = this;
-            const announcer = (this as any).$announcer;
+            const announcer = this.$announcer;
             this.rendering = true;
             let waitAnnouncer = 0;
 
@@ -144,41 +164,41 @@ export default {
             };
 
             try {
-                (this as any).$chartBridge.downloadAudio().then(() => {
+                this.$chartBridge.downloadAudio().then(() => {
                     this.rendering = false;
                     clearTimeout(waitAnnouncer);
                     announcer.announce('Rendering done.');
                 }).catch(fail);
             } catch (e) {
-                fail(e);
+                fail(e as Error);
             }
         },
 
         dlMIDI() {
-            (this as any).$chartBridge.downloadMIDI();
+            this.$chartBridge.downloadMIDI();
         },
 
         dlSVG() {
-            (this as any).$chartBridge.downloadSVG();
+            this.$chartBridge.downloadSVG();
         },
 
         dlPNG() {
-            (this as any).$chartBridge.downloadPNG();
+            this.$chartBridge.downloadPNG();
         },
 
         dlCSV() {
             downloadURI(
-                this.$store.getters['dataStore/tableCSVDataURI'],
-                (this as any).$chartBridge.getChartTitleForExport() + '.csv'
+                this.dataStore.tableCSVDataURI,
+                this.$chartBridge.getChartTitleForExport() + '.csv'
             );
         },
 
         dlTextDesc() {
-            const desc = this.$store.state.dataStore.textDescription;
+            const desc = this.dataStore.textDescription;
             if (desc) {
                 downloadURI(
                     'data:text/plain;charset=UTF-8,' + encodeURIComponent(desc),
-                    (this as any).$chartBridge.getChartTitleForExport() + '.txt'
+                    this.$chartBridge.getChartTitleForExport() + '.txt'
                 );
             } else {
                 alert('No text description has been created. Generate an automatic text description or write your own in the "Chart" tab.');
@@ -186,14 +206,14 @@ export default {
         },
 
         dlChartConfig() {
-            (this as any).$chartBridge.downloadChartConfig();
+            this.$chartBridge.downloadChartConfig();
         },
 
         dlHTMLFile() {
-            (this as any).$chartBridge.downloadHTMLFile();
+            this.$chartBridge.downloadHTMLFile();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
@@ -228,7 +248,7 @@ export default {
         }
     }
 
-    .fade-in-enter, .fade-in-leave-to {
+    .fade-in-enter-from, .fade-in-leave-to {
         opacity: 0;
     }
 

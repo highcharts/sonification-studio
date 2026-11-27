@@ -2,9 +2,32 @@
     Data store for global chart parameters.
  */
 
-import { GenericObject, firstDefined } from '../../core/utils/objects';
+import { defineStore } from 'pinia';
+import { firstDefined } from '../../core/utils/objects';
 
-const defaultState = () => ({
+export interface ChartParametersState {
+    type: string;
+    legendEnabled: boolean;
+    inverted: boolean;
+    title: string;
+    subtitle: string;
+    xAxisTitle: string;
+    xAxisType: string;
+    xAxisVisible: boolean;
+    xAxisMin: string;
+    xAxisMax: string;
+    yAxisTitle: string;
+    yAxisType: string;
+    yAxisVisible: boolean;
+    yAxisMin: string;
+    yAxisMax: string;
+    seriesLabelsEnabled: boolean;
+    sharedTooltipEnabled: boolean;
+    zoomType: string;
+    dataGroupingType: string;
+}
+
+const defaultState = (): ChartParametersState => ({
     type: 'areaspline',
     legendEnabled: true,
     inverted: false,
@@ -26,96 +49,103 @@ const defaultState = () => ({
     dataGroupingType: 'default'
 });
 
-export const chartParametersStore = {
-    namespaced: true,
+// Set one state value, keeping the value type of the key when looping over keys.
+function setStateValue<K extends keyof ChartParametersState>(
+    state: ChartParametersState,
+    key: K,
+    value: ChartParametersState[K]
+): void {
+    state[key] = value;
+}
 
-    state: defaultState(),
+export const useChartParametersStore = defineStore('chartParameters', {
+    state: defaultState,
 
-    mutations: {
+    actions: {
         // Apply a new state or restore to default if no new state is supplied.
-        restoreStoreState(state: any, newState?: GenericObject) {
+        restoreStoreState(newState?: Partial<ChartParametersState>) {
             if (newState) {
-                Object.keys(defaultState()).forEach(
-                    key => state[key] = firstDefined(newState[key], state[key]));
+                (Object.keys(defaultState()) as Array<keyof ChartParametersState>).forEach(
+                    key => setStateValue(this.$state, key, firstDefined(newState[key], this.$state[key])));
             } else {
-                Object.assign(state, defaultState());
+                Object.assign(this.$state, defaultState());
             }
         },
 
-        setType(state: any, type: string) {
-            state.type = type;
+        setType(type: string) {
+            this.type = type;
         },
 
-        setLegendEnabled(state: any, enabled: boolean) {
-            state.legendEnabled = enabled;
+        setLegendEnabled(enabled: boolean) {
+            this.legendEnabled = enabled;
         },
 
-        setChartInverted(state: any, inverted: boolean) {
-            state.inverted = inverted;
+        setChartInverted(inverted: boolean) {
+            this.inverted = inverted;
         },
 
-        setSharedTooltipEnabled(state: any, enabled: boolean) {
-            state.sharedTooltipEnabled = enabled;
+        setSharedTooltipEnabled(enabled: boolean) {
+            this.sharedTooltipEnabled = enabled;
         },
 
-        setTitle(state: any, title: string) {
-            state.title = title;
+        setTitle(title: string) {
+            this.title = title;
         },
 
-        setSubtitle(state: any, subtitle: string) {
-            state.subtitle = subtitle;
+        setSubtitle(subtitle: string) {
+            this.subtitle = subtitle;
         },
 
-        setXAxisTitle(state: any, title: string) {
-            state.xAxisTitle = title;
+        setXAxisTitle(title: string) {
+            this.xAxisTitle = title;
         },
 
-        setXAxisType(state: any, type: string) {
-            state.xAxisType = type;
+        setXAxisType(type: string) {
+            this.xAxisType = type;
         },
 
-        setXAxisVisible(state: any, visible: boolean) {
-            state.xAxisVisible = visible;
+        setXAxisVisible(visible: boolean) {
+            this.xAxisVisible = visible;
         },
 
-        setXAxisMin(state: any, value: string) {
-            state.xAxisMin = value;
+        setXAxisMin(value: string) {
+            this.xAxisMin = value;
         },
 
-        setXAxisMax(state: any, value: string) {
-            state.xAxisMax = value;
+        setXAxisMax(value: string) {
+            this.xAxisMax = value;
         },
 
-        setYAxisTitle(state: any, title: string) {
-            state.yAxisTitle = title;
+        setYAxisTitle(title: string) {
+            this.yAxisTitle = title;
         },
 
-        setYAxisType(state: any, type: string) {
-            state.yAxisType = type;
+        setYAxisType(type: string) {
+            this.yAxisType = type;
         },
 
-        setYAxisVisible(state: any, visible: boolean) {
-            state.yAxisVisible = visible;
+        setYAxisVisible(visible: boolean) {
+            this.yAxisVisible = visible;
         },
 
-        setYAxisMin(state: any, value: string) {
-            state.yAxisMin = value;
+        setYAxisMin(value: string) {
+            this.yAxisMin = value;
         },
 
-        setYAxisMax(state: any, value: string) {
-            state.yAxisMax = value;
+        setYAxisMax(value: string) {
+            this.yAxisMax = value;
         },
 
-        setSeriesLabelsEnabled(state: any, enabled: boolean) {
-            state.seriesLabelsEnabled = enabled;
+        setSeriesLabelsEnabled(enabled: boolean) {
+            this.seriesLabelsEnabled = enabled;
         },
 
-        setZoomType(state: any, type: string) {
-            state.zoomType = type;
+        setZoomType(type: string) {
+            this.zoomType = type;
         },
 
-        setDataGroupingType(state: any, type: string) {
-            state.dataGroupingType = type;
+        setDataGroupingType(type: string) {
+            this.dataGroupingType = type;
         }
     }
-};
+});

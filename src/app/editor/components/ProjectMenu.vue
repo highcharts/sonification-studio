@@ -9,61 +9,75 @@
 </template>
 
 <script lang="ts">
-import SEDropdownMenu from './basic/SEDropdownMenu.vue';
+import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
+import SEDropdownMenu, { type SEDropdownMenuOption } from './basic/SEDropdownMenu.vue';
+import type { Chart } from 'highcharts';
+import Highcharts from '../core/highchartsSetup';
 import { downloadProjectFile, restoreFromProjectFile } from '../core/utils/projectFileHandling';
+import { useSeriesParametersStore } from '../store/modules/seriesParameters';
+import { useDataStore } from '../store/modules/data';
+import { useViewStore } from '../store/modules/view';
 import projectIcon from '../assets/file-export-solid.svg';
 import menuIcon from '../assets/bars-solid.svg';
 
-export default {
+export default defineComponent({
     components: {
         SEDropdownMenu
     },
     data() {
         return {
             menuIcon,
-            projectIcon,
-            menuOptions: [{
+            projectIcon
+        };
+    },
+    computed: {
+        ...mapStores(useSeriesParametersStore, useDataStore, useViewStore),
+        menuOptions(): SEDropdownMenuOption[] {
+            return [{
                 label: 'New Project',
                 icon: projectIcon,
                 type: 'button',
-                onclick: () => (this as any).newProject()
+                onclick: () => this.newProject()
             }, {
                 label: 'Open Project',
                 icon: projectIcon,
                 type: 'fileupload',
                 fileTypes: '.hssp',
-                onload: (c: string) => (this as any).importProject(c)
+                onload: (c: string) => this.importProject(c)
             }, {
                 label: 'Save Project As',
                 icon: projectIcon,
                 type: 'button',
-                onclick: () => (this as any).dlProject()
-            }]
-        };
+                onclick: () => this.dlProject()
+            }];
+        }
     },
     methods: {
         dlProject() {
-            const projectName = (this as any).$chartBridge.getChartTitleForExport();
-            downloadProjectFile(projectName, this.$store);
+            const projectName = this.$chartBridge.getChartTitleForExport();
+            downloadProjectFile(projectName, this.$pinia);
         },
-        cleanSlateAndRecreateChart(afterRecreate: Function) {
-            this.$store.commit('seriesParametersStore/clearState');
+        cleanSlateAndRecreateChart(afterRecreate: () => void) {
+            this.seriesParametersStore.clearState();
             // Remove chart from DOM because chart.update does not remove series options
             // - even with one-to-one parameter set.
-            this.$store.commit('viewStore/setLoadingChart', true);
+            this.viewStore.setLoadingChart(true);
             setTimeout(() => {
-                this.$store.commit('viewStore/setShowChartComponent', false);
+                this.viewStore.setShowChartComponent(false);
                 this.$nextTick(() => {
                     // Add a slight delay before recreating the chart
                     setTimeout(() => {
-                        this.$store.commit('viewStore/setShowChartComponent', true);
+                        this.viewStore.setShowChartComponent(true);
                         this.$nextTick(() => {
                             try {
-                                const charts = (this as any).$chartBridge.Highcharts.charts;
-                                (this as any).$chartBridge.init(charts[charts.length - 1]);
+                                // The chart bridge's Highcharts instance, which
+                                // also renders the chart in <Preview>
+                                const charts = Highcharts.charts;
+                                this.$chartBridge.init(charts[charts.length - 1] as Chart);
                                 afterRecreate();
                             } finally {
-                                setTimeout(() => this.$store.commit('viewStore/setLoadingChart', false), 1200);
+                                setTimeout(() => this.viewStore.setLoadingChart(false), 1200);
                             }
                         });
                     }, 50);
@@ -75,10 +89,10 @@ export default {
                 this.cleanSlateAndRecreateChart(() => {
                     // After chart has been deleted and recreated, load in new options
                     try {
-                        restoreFromProjectFile(fileContents, this.$store);
-                        (this as any).$announcer.announce('Project loaded.');
+                        restoreFromProjectFile(fileContents, this.$pinia);
+                        this.$announcer.announce('Project loaded.');
                     } catch (e) {
-                        (this as any).$announcer.announce('Error loading project.');
+                        this.$announcer.announce('Error loading project.');
                         console.error('Error loading project:', e);
                     }
                 });
@@ -87,19 +101,19 @@ export default {
         newProject() {
             if (window.confirm('This will clear all data and reset all settings. Proceed?')) {
                 this.cleanSlateAndRecreateChart(() => {
-                    // Restore Vuex state to default
-                    this.$store.commit('dataStore/restoreStoreState');
+                    // Restore the data to the default (placeholder) data
+                    this.dataStore.restoreStoreState();
 
                     // Hide chart temporarily to force full remount
-                    this.$store.commit('viewStore/setShowChartComponent', false);
+                    this.viewStore.setShowChartComponent(false);
 
                     this.$nextTick(() => {
                         // Show chart again (triggers <Preview> remount and mounted() hook)
-                        this.$store.commit('viewStore/setShowChartComponent', true);
+                        this.viewStore.setShowChartComponent(true);
 
                         // Announce once the new chart will be initialized (chart logic moved to Preview.vue)
                         this.$nextTick(() => {
-                            (this as any).$announcer.announce('New project loaded.');
+                            this.$announcer.announce('New project loaded.');
                         });
                     });
                 });
@@ -107,7 +121,7 @@ export default {
         }
 
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

@@ -42,7 +42,7 @@
         <GridControls
             v-show="!sourceHasCustomUI && showGridTools"
             class="grid-toolbar-container"
-            @triggerScrollLastGridRowWithData="onTriggerScrollLastGridRowWithData()"
+            @trigger-scroll-last-grid-row-with-data="onTriggerScrollLastGridRowWithData()"
         />
         <div
             v-show="!sourceHasCustomUI"
@@ -62,6 +62,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import { getUUID } from '../core/utils/objects';
 import Grid from './Grid.vue';
 import GridControls from './GridControls.vue';
@@ -69,31 +70,34 @@ import DataGSheet from './DataGSheet.vue';
 import SEToolbarMenu from './basic/SEToolbarMenu.vue';
 import SEDropdown from './basic/SEDropdown.vue';
 import SEControl from './basic/SEControl.vue';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useDataStore } from '../store/modules/data';
+import { useViewStore } from '../store/modules/view';
 
-export default {
+export default defineComponent({
     components: {
         Grid, GridControls, DataGSheet, SEToolbarMenu, SEDropdown, SEControl
     },
     computed: {
+        ...mapStores(useDataStore, useViewStore),
         uuid: () => getUUID('se-data-input'),
-        sourceHasCustomUI() { return this.selectedDataSource === 'googlesheets'; },
+        sourceHasCustomUI(): boolean { return this.selectedDataSource === 'googlesheets'; },
         selectedDataSource: {
-            get() { return (this as any).$store.state.dataStore.selectedDataSource; },
-            set(val) { return this.$store.commit('dataStore/setSelectedDataSource', val); }
+            get(): string { return this.dataStore.selectedDataSource; },
+            set(val: string) { this.dataStore.setSelectedDataSource(val); }
         },
         showGridTools: {
-            get() { return (this as any).$store.state.viewStore.showGridTools; },
-            set(val) { return this.$store.commit('viewStore/setShowGridTools', val); }
+            get(): boolean { return this.viewStore.showGridTools; },
+            set(val: boolean) { this.viewStore.setShowGridTools(val); }
         },
-        ...mapState('dataStore', ['dataSourcesList'])
+        ...mapState(useDataStore, ['dataSourcesList'])
     },
     methods: {
         onTriggerScrollLastGridRowWithData() {
-            (this.$refs.grid as any).scrollToLastGridRowWithData();
+            (this.$refs.grid as { scrollToLastGridRowWithData: () => void }).scrollToLastGridRowWithData();
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

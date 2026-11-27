@@ -9,35 +9,43 @@
 </template>
 
 <script lang="ts">
-import SEDropdownMenu from './basic/SEDropdownMenu.vue';
+import { defineComponent } from 'vue';
+import { mapStores } from 'pinia';
+import SEDropdownMenu, { type SEDropdownMenuOption } from './basic/SEDropdownMenu.vue';
 import menuIcon from '../assets/bars-solid.svg';
 import csvIcon from '../assets/file-csv-solid.svg';
+import { useDataStore } from '../store/modules/data';
 
-export default {
+export default defineComponent({
     components: {
         SEDropdownMenu
     },
     data() {
         return {
             menuIcon,
-            csvIcon,
-            menuOptions: [{
+            csvIcon
+        };
+    },
+    computed: {
+        ...mapStores(useDataStore),
+        menuOptions(): SEDropdownMenuOption[] {
+            return [{
                 label: 'CSV Data',
                 icon: csvIcon,
                 type: 'fileupload',
-                onload: (c: string) => (this as any).importCSV(c)
-            }]
-        };
+                onload: (c: string) => this.importCSV(c)
+            }];
+        }
     },
     methods: {
         importCSV(fileContents: string) {
             if (fileContents) {
-                this.$store.dispatch('dataStore/loadFromCSV', fileContents);
-                (this as any).$announcer.announce('Data loaded.');
+                this.dataStore.loadFromCSV(fileContents);
+                this.$announcer.announce('Data loaded.');
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

@@ -25,12 +25,14 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import AudioMappingProp from './AudioMappingProp.vue';
-export default {
+
+export default defineComponent({
     components: {
         AudioMappingProp
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

@@ -44,13 +44,17 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     props: {
         heading: { type: String, required: true },
         controls: { type: String, required: true },
         selected: { type: Boolean, default: false },
         headingLevel: { type: Number, default: 5 }
     },
+    // click: (event, this component, whether it is now expanded)
+    emits: ['click'],
     data() {
         return {
             isSelected: false
@@ -60,11 +64,17 @@ export default {
         this.isSelected = this.selected;
     },
     methods: {
-        startFold(el: HTMLElement) {
-            el.style.height = el.scrollHeight + 'px';
+        // Transition hooks get an Element; the transitioned element is the
+        // content wrapper <div>.
+        startFold(el: Element) {
+            if (el instanceof HTMLElement) {
+                el.style.height = el.scrollHeight + 'px';
+            }
         },
-        endFold(el: HTMLElement) {
-            el.style.height = '';
+        endFold(el: Element) {
+            if (el instanceof HTMLElement) {
+                el.style.height = '';
+            }
         },
         onclick(e: Event) {
             this.isSelected = !this.isSelected;
@@ -80,7 +90,7 @@ export default {
             return this.isSelected;
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
@@ -145,7 +155,7 @@ export default {
         transition: height 0.2s ease;
         overflow: hidden;
     }
-    .fold-enter, .fold-leave-to {
+    .fold-enter-from, .fold-leave-to {
         height: 0 !important;
     }
 

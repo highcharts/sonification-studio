@@ -123,6 +123,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 import SEInputbox from '../basic/SEInputbox.vue';
 import SEDropdown from '../basic/SEDropdown.vue';
@@ -131,13 +132,11 @@ import SESlider from '../basic/SESlider.vue';
 import SEColorPicker from '../basic/SEColorPicker.vue';
 import { GenericObject } from '../../core/utils/objects';
 import { getSeriesId, seriesTypes } from '../../core/utils/chartUtils';
-import {
-    makeSeriesParamPropertyGetMapping,
-    makeSeriesParamPropertySetMapping
-} from '../../store/storeUtils';
-import { mapState } from 'vuex';
+import { mapState, mapStores } from 'pinia';
+import { useViewStore } from '../../store/modules/view';
+import { getSeriesParameter, setSeriesParameter } from '../../store/storeUtils';
 
-export default {
+export default defineComponent({
     components: {
         SEControl,
         SEInputbox,
@@ -150,8 +149,8 @@ export default {
         return {
             seriesTypes: [{
                 name: 'Default',
-                value: null
-            }].concat(seriesTypes as any),
+                value: null as string | null
+            }].concat(seriesTypes),
             dashStyles: [{
                 name: 'Solid',
                 value: null
@@ -177,15 +176,14 @@ export default {
         };
     },
     computed: {
-        ...mapState({
-            reactToDataUpdates: (state: any) => state.viewStore.reactToDataUpdates
-        }),
+        ...mapStores(useViewStore),
+        ...mapState(useViewStore, ['reactToDataUpdates']),
         selectedSeries: {
-            get() { return (this as any).$store.state.viewStore.selectedDataSeriesChartMapping; },
-            set(val) { return this.$store.commit('viewStore/setSelectedDataSeriesChartMapping', val); }
+            get(): string { return this.viewStore.selectedDataSeriesChartMapping; },
+            set(val: string) { this.viewStore.setSelectedDataSeriesChartMapping(val); }
         },
-        dataSeries() {
-            const chartBridge = (this as any).$chartBridge;
+        dataSeries(): Array<{ name: string; value: string }> {
+            const chartBridge = this.$chartBridge;
             const series = chartBridge?.reactiveGet('getDataSeries', this.reactToDataUpdates) || [];
 
             return series.map((s: GenericObject) => ({
@@ -193,48 +191,52 @@ export default {
                 value: getSeriesId(s)
             }));
         },
+        // Shown empty when not set, as with the old null default
         seriesName: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesName'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesName', val); }
+            get(): string { return getSeriesParameter(this.selectedSeries, 'seriesName', ''); },
+            set(val: string) { setSeriesParameter(this.selectedSeries, 'seriesName', val); }
         },
         seriesColor: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesColor', '#ffffff'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesColor', val); }
+            get(): string { return getSeriesParameter(this.selectedSeries, 'seriesColor', '#ffffff'); },
+            set(val: string) { setSeriesParameter(this.selectedSeries, 'seriesColor', val); }
         },
         seriesOpacity: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesOpacity', 100); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesOpacity', val); }
+            get(): number { return getSeriesParameter(this.selectedSeries, 'seriesOpacity', 100); },
+            set(val: number) { setSeriesParameter(this.selectedSeries, 'seriesOpacity', val); }
         },
+        // null selects the "Solid" option
         dashStyle: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'dashStyle'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'dashStyle', val); }
+            get(): string | null { return getSeriesParameter<string | null>(this.selectedSeries, 'dashStyle', null); },
+            set(val: string | null) { setSeriesParameter(this.selectedSeries, 'dashStyle', val); }
         },
+        // Shown unchecked when not set, as with the old null default
         dataLabelsEnabled: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'dataLabelsEnabled'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'dataLabelsEnabled', val); }
+            get(): boolean { return getSeriesParameter(this.selectedSeries, 'dataLabelsEnabled', false); },
+            set(val: boolean) { setSeriesParameter(this.selectedSeries, 'dataLabelsEnabled', val); }
         },
         seriesVisible: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesVisible', true); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesVisible', val); }
+            get(): boolean { return getSeriesParameter(this.selectedSeries, 'seriesVisible', true); },
+            set(val: boolean) { setSeriesParameter(this.selectedSeries, 'seriesVisible', val); }
         },
         seriesShowInLegend: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesShowInLegend', true); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesShowInLegend', val); }
+            get(): boolean { return getSeriesParameter(this.selectedSeries, 'seriesShowInLegend', true); },
+            set(val: boolean) { setSeriesParameter(this.selectedSeries, 'seriesShowInLegend', val); }
         },
+        // null selects the "Default" option
         seriesType: {
-            get() { return makeSeriesParamPropertyGetMapping(this, 'seriesType'); },
-            set(val) { return makeSeriesParamPropertySetMapping(this, 'seriesType', val); }
+            get(): string | null { return getSeriesParameter<string | null>(this.selectedSeries, 'seriesType', null); },
+            set(val: string | null) { setSeriesParameter(this.selectedSeries, 'seriesType', val); }
         }
     },
     watch: {
         seriesType(type: unknown) {
             if (!type) {
                 // Force update if clearing series type by resetting to default
-                this.$store.commit('viewStore/triggerParameterReactivity');
+                this.viewStore.triggerParameterReactivity();
             }
         }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

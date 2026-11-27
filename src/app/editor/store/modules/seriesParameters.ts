@@ -34,34 +34,41 @@
     do the conversion (see seriesOptionsMapper).
 */
 
-import Vue from 'vue';
+import { defineStore } from 'pinia';
 import { GenericObject } from '../../core/utils/objects';
 
-interface SeriesParameterOptions {
+// The parameters of one series: parameter name -> value, or parent name ->
+// the parameters nested under it. Open-ended by design (see above).
+export type SeriesOptions = GenericObject;
+
+export interface SeriesParametersState {
+    // Series id -> the parameters of that series
+    seriesParameters: Record<string, SeriesOptions>;
+}
+
+export interface SeriesParameterOptions {
     seriesId: string;
     parameterName: string;
-    parameterValue: any;
+    parameterValue: unknown;
     nestedUnderParent?: string;
 }
 
 
-export const seriesParametersStore = {
-    namespaced: true,
-
-    state: {
+export const useSeriesParametersStore = defineStore('seriesParameters', {
+    state: (): SeriesParametersState => ({
         seriesParameters: {}
-    },
+    }),
 
-    mutations: {
+    actions: {
         // Restore state for project file loading/localStorage session restore,
         // or reapply defaults if no new state is provided.
-        restoreStoreState(state: any, newState?: GenericObject) {
-            const setOption = (root: GenericObject, key: string, val: any) => {
+        restoreStoreState(newState?: SeriesParametersState) {
+            const setOption = (root: GenericObject, key: string, val: unknown) => {
                 if (typeof val !== 'object' || val === null) {
-                    Vue.set(root, key, val);
+                    root[key] = val;
                 } else {
                     if (typeof root[key] !== 'object' || root[key] === null) {
-                        Vue.set(root, key, {});
+                        root[key] = {};
                     }
                     for (const [subKey, subVal] of Object.entries(val)) {
                         setOption(root[key], subKey, subVal);
@@ -70,34 +77,34 @@ export const seriesParametersStore = {
             };
 
             // Reset
-            Vue.set(state, 'seriesParameters', {});
+            this.seriesParameters = {};
 
             if (newState) {
                 for (const [seriesId, options] of Object.entries(newState.seriesParameters)) {
-                    setOption(state.seriesParameters, seriesId, options);
+                    setOption(this.seriesParameters, seriesId, options);
                 }
             }
         },
 
-        clearState(state: any) {
-            Vue.set(state, 'seriesParameters', {});
+        clearState() {
+            this.seriesParameters = {};
         },
 
-        setSeriesParameter(state: any, options: SeriesParameterOptions) {
-            const seriesParams = state.seriesParameters;
+        setSeriesParameter(options: SeriesParameterOptions) {
+            const seriesParams = this.seriesParameters;
             const id = options.seriesId;
             if (!seriesParams[id]) {
-                Vue.set(seriesParams, id, {});
+                seriesParams[id] = {};
             }
 
             const seriesOptions = seriesParams[id];
             const parent = options.nestedUnderParent;
             if (parent && !seriesOptions[parent]) {
-                Vue.set(seriesOptions, parent, {});
+                seriesOptions[parent] = {};
             }
 
             const obj = parent ? seriesOptions[parent] : seriesOptions;
-            Vue.set(obj, options.parameterName, options.parameterValue);
+            obj[options.parameterName] = options.parameterValue;
         }
     }
-};
+});

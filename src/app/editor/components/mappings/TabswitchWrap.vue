@@ -10,16 +10,17 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import SEControl from '../basic/SEControl.vue';
 
-export default {
+export default defineComponent({
     components: {
         SEControl
     },
     props: {
         name: { type: String, required: true }
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

@@ -22,17 +22,18 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import highchartsIcon from '../assets/highcharts-logo.svg';
 import { version } from '../../../../package.json';
 
-export default {
+export default defineComponent({
     data() {
         return { highchartsIcon, version };
     },
     computed: {
         year: () => new Date().getFullYear()
     }
-};
+});
 </script>
 
 <style lang="less" scoped>

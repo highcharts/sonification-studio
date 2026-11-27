@@ -22,17 +22,20 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import arrowIcon from '../../assets/arrow-down.svg';
-export default {
+
+export default defineComponent({
     props: {
         ariaExpanded: { type: Boolean, default: null }
     },
+    emits: ['click', 'keydown'],
     data() {
         return {
             arrowIcon
         };
     }
-};
+});
 </script>
 
 <style lang="less" scoped>
