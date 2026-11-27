@@ -23,6 +23,10 @@ fixed upstream:
   Down, Home and End, and Ctrl+Home and End in the body cells, a name for the
   cell editor's input, and the CSV header as the label of its header cell
   (Grid Pro labels it with the column id).
+- [ ] **The scroll position restore in `addGridColumns`** in
+  `src/app/editor/components/Grid.vue`, once `grid.update()` keeps the
+  vertical scroll position (Grid Pro 3.2 reads it from the table it has
+  already removed, so the grid scrolls to the top when it adds columns).
 - [ ] **The playback handoff** in `ChartBridge.ts`
   (`getTimelineUpdateHookOptions`), once Highcharts keeps playback going when
   it rebuilds the sonification timeline on a render. It uses the timeline's

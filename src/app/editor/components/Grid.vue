@@ -14,12 +14,14 @@ import '@highcharts/grid-pro/css/grid-pro.css';
 import '../core/gridProSetup';
 import {
     applyCellEdit,
+    getGridColumnCount,
     getGridDataTable,
     getGridOptions,
     getGridRebuild,
     onGridCellEdit,
     prepareGridData,
-    type CellEdit
+    type CellEdit,
+    type GridTableData
 } from '../core/utils/gridData';
 import { useDataStore } from '../store/modules/data';
 import { useViewStore } from '../store/modules/view';
@@ -40,6 +42,8 @@ export default defineComponent({
             // last queued render has finished or failed.
             gridRendered: Promise.resolve() as Promise<void>,
             renderCount: 0,
+            // Number of columns the grid shows
+            gridColumnCount: 0,
             // Stops writing the current grid's edits to the store
             stopWatchingGridEdits: null as null | (() => void),
             resizeObserver: null as ResizeObserver | null,
@@ -170,8 +174,7 @@ export default defineComponent({
             this.hasMountedGridOnce = true;
 
             const tableData = prepareGridData(this.dataStore.tableRowData);
-            // With the optional Grid Key, set at build time (see the README)
-            const options = getGridOptions(tableData, import.meta.env.VITE_GRID_KEY);
+            const options = this.getGridOptions(tableData);
             const renderId = ++this.renderCount;
 
             this.gridRendered = this.gridRendered.then(() => {
@@ -192,11 +195,8 @@ export default defineComponent({
                             clearTimeout(timeout);
                             // Unless a later render has replaced it
                             if (grid === this.gridInstance) {
-                                this.watchGridEdits(grid, tableData.firstDataRowIndex);
-                                // Grid Pro 3.2 workaround, see gridProSetup.ts
-                                grid.viewport?.syncAriaRowIndexes().catch((error: unknown) => {
-                                    console.error('The data grid rows could not be numbered:', error);
-                                });
+                                this.gridColumnCount = tableData.columnIds.length;
+                                this.afterGridRender(grid, tableData.firstDataRowIndex);
                             }
                             resolve();
                         })
@@ -206,6 +206,63 @@ export default defineComponent({
                 // Keep the queue going for later renders and the destroy on
                 // unmount
                 console.error('The data grid could not be rendered:', error);
+            });
+        },
+
+        // The grid's options for the data in tableData
+        getGridOptions(tableData: GridTableData): GridPro.Options {
+            return getGridOptions(
+                tableData,
+                // The optional Grid Key, set at build time (see the README)
+                import.meta.env.VITE_GRID_KEY,
+                this.addGridColumns
+            );
+        },
+
+        // Write the grid's edits to the store, and number its rows
+        afterGridRender(grid: GridPro.Grid, firstDataRowIndex: number) {
+            this.watchGridEdits(grid, firstDataRowIndex);
+            // Grid Pro 3.2 workaround, see gridProSetup.ts
+            grid.viewport?.syncAriaRowIndexes().catch((error: unknown) => {
+                console.error('The data grid rows could not be numbered:', error);
+            });
+        },
+
+        // Add columns to the grid after an edit, so that there are empty
+        // columns after the last one with a value to add data in (see
+        // getGridColumnCount). The grid's data is updated from the store,
+        // which has the edit. The grid keeps its sorting and filtering, the
+        // focused cell and the scroll position. It keeps its columns when
+        // values are deleted, until it is rebuilt.
+        addGridColumns() {
+            const grid = this.gridInstance;
+            if (!grid || getGridColumnCount(this.dataStore.tableRowData) <= this.gridColumnCount) {
+                return;
+            }
+            this.gridRendered = this.gridRendered.then(async () => {
+                // Unless a rebuild has replaced the grid, with the latest data
+                const tableData = prepareGridData(this.dataStore.tableRowData);
+                if (grid !== this.gridInstance || tableData.columnIds.length <= this.gridColumnCount) {
+                    return;
+                }
+                // The update replaces the grid's data table
+                this.stopWatchingGridEdits?.();
+                this.stopWatchingGridEdits = null;
+                // Grid Pro 3.2 restores the focus after the update, but not
+                // the vertical scroll position: it reads it from the table
+                // it has removed. So it is restored from before the update.
+                const viewportState = grid.viewport?.getStateMeta();
+                await grid.update(this.getGridOptions(tableData));
+                if (viewportState) {
+                    grid.viewport?.applyStateMeta(viewportState);
+                }
+                this.gridColumnCount = tableData.columnIds.length;
+                this.afterGridRender(grid, tableData.firstDataRowIndex);
+            }).catch((error: unknown) => {
+                // Render the grid again, so that its edits are written to the
+                // store again
+                console.error('Columns could not be added to the data grid:', error);
+                this.renderGrid();
             });
         },
 

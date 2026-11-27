@@ -64,6 +64,19 @@ describe('GridControls.vue', () => {
     });
 
     describe('Fill column from equation', () => {
+        const dropdownOptions = () => wrapper.findAll<HTMLOptionElement>('#data-fillcolumn-drop option')
+            .map(o => o.element.value);
+
+        test('Lists the columns the grid shows', async () => {
+            // The placeholder data, in A and B
+            expect(dropdownOptions()).toEqual('ABCDEFGHIJK'.split(''));
+
+            // Five empty columns after the last with a value
+            useDataStore().setTableRowData([{ A: 'x' }, { A: '1', Y: '2' }]);
+            await wrapper.vm.$nextTick();
+            expect(dropdownOptions().slice(24)).toEqual(['Y', 'Z', 'AA', 'AB', 'AC', 'AD']);
+        });
+
         test('Has help text without markup, with the values "2 * i" fills in', () => {
             // SEControl renders the help text as text, a paragraph for each <br>
             const paragraphs = wrapper.findAll('.helptext-content-container p').map(p => p.text());

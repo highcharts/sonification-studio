@@ -48,6 +48,27 @@ describe('data store fillColumn (equations)', () => {
         ]);
     });
 
+    test('Refers to the columns past Z as AA, AB, ...', () => {
+        const rows = getRows().map((row, i) => ({ ...row, AA: i ? '' + i * 10 : 'Tens' }));
+        const store = fillColumn(rows, 'AB', 'AA + B');
+        expect(store.tableRowData.map((row) => row.AB)).toEqual([undefined, '11.5', '18', '34']);
+        // Column AB is the 28th in the CSV
+        expect(store.tableCSV.split('\n')[1]).toBe('0;1.5' + ';'.repeat(25) + '10;11.5');
+    });
+
+    test('Takes the names of the columns the grid can show for columns', () => {
+        // AU is a column (empty here), not mathjs' astronomical unit
+        expect(fillColumn(getRows(), 'C', 'AU + 1').tableRowData.map((row) => row.C))
+            .toEqual(['', '', '', '']);
+        // Past AX, a name is a column only if the rows have one: PI is the
+        // constant, unless a column is named so
+        expect(fillColumn(getRows(), 'C', 'round(PI)').tableRowData.map((row) => row.C))
+            .toEqual(['', '3', '3', '3']);
+        const rows = getRows().map((row, i) => ({ ...row, PI: i ? '' + i : '' }));
+        expect(fillColumn(rows, 'C', 'PI * 2').tableRowData.map((row) => row.C))
+            .toEqual(['', '2', '4', '6']);
+    });
+
     test('Throws on invalid equations and keeps the data unchanged', () => {
         const store = useDataStore();
         store.setTableRowData(getRows());

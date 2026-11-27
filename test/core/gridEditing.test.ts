@@ -339,16 +339,16 @@ describe('Keyboard navigation', () => {
         press('Home');
         await vi.waitFor(() => expect(focused()).toEqual('A2'));
         press('End', { ctrlKey: true });
-        // The last row, and the last of the empty columns after the data
-        await vi.waitFor(() => expect(focused()).toEqual('G7'));
+        // The last row, and the last column the grid shows (at least K)
+        await vi.waitFor(() => expect(focused()).toEqual('K7'));
         press('Home', { metaKey: true });
         await vi.waitFor(() => expect(focused()).toEqual('A0'));
         press('End');
-        await vi.waitFor(() => expect(focused()).toEqual('G0'));
+        await vi.waitFor(() => expect(focused()).toEqual('K0'));
 
         // Other modifiers are left to the browser and the screen reader
         expect(press('End', { shiftKey: true }).defaultPrevented).toBe(false);
-        expect(focused()).toEqual('G0');
+        expect(focused()).toEqual('K0');
     });
 
     test('Names the cell editor by its column and row', async () => {

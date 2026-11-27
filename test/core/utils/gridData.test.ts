@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { createPinia } from 'pinia';
 import {
     applyCellEdit,
@@ -6,11 +6,15 @@ import {
     compareDates,
     detectColumnDataType,
     getCellEditorLabel,
+    getColumnId,
+    getColumnIndex,
+    getGridColumnCount,
     getGridColumnIds,
     getSeriesColumnIds,
     getGridOptions,
     getGridRebuild,
     prepareGridData,
+    renameLegacyColumnIds,
     toStoreValue,
     type TableRowData
 } from '../../../src/app/editor/core/utils/gridData';
@@ -32,13 +36,13 @@ describe('prepareGridData', () => {
         expect(data.headerRow).toEqual({ A: 'Index (X value)', B: 'Sensor Data (Y value)' });
         expect(data.firstDataRowIndex).toEqual(1);
         expect(data.columns.A).toEqual(['0', '1', '2']);
-        expect(data.columnIds).toEqual(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
-        expect(data.columns.G).toEqual(['', '', '']);
+        expect(data.columnIds).toEqual(getGridColumnIds(11));
+        expect(data.columns.K).toEqual(['', '', '']);
     });
 
-    test('Uses the columns of all rows', () => {
-        const rows: TableRowData[] = [{ A: 'x' }, { A: '1', B: '2', C: '3' }];
-        expect(prepareGridData(rows).columnIds.length).toEqual(8);
+    test('Shows the columns getGridColumnCount gives', () => {
+        const rows: TableRowData[] = [{ A: 'x' }, { A: '1', M: '2' }];
+        expect(prepareGridData(rows).columnIds).toEqual(getGridColumnIds(18));
     });
 
     test('Converts columns with data to their type', () => {
@@ -62,10 +66,22 @@ describe('Column ids', () => {
         return dataStore.tableRowData;
     }
 
-    test('A-Z, then COL1, COL2, ...', () => {
+    test('A to Z, then AA, AB, ..., as in spreadsheets', () => {
         const ids = getGridColumnIds(30);
         expect(ids.slice(0, 3)).toEqual(['A', 'B', 'C']);
-        expect(ids.slice(25)).toEqual(['Z', 'COL1', 'COL2', 'COL3', 'COL4']);
+        expect(ids.slice(25)).toEqual(['Z', 'AA', 'AB', 'AC', 'AD']);
+        expect(getGridColumnIds(50).at(-1)).toEqual('AX');
+        expect([51, 52, 701, 702, 18277].map(getColumnId))
+            .toEqual(['AZ', 'BA', 'ZZ', 'AAA', 'ZZZ']);
+    });
+
+    test('Give the index of each column id, and -1 for other keys', () => {
+        for (const index of [0, 25, 26, 51, 52, 701, 702, 18277]) {
+            expect(getColumnIndex(getColumnId(index))).toEqual(index);
+        }
+        for (const key of ['', 'a', 'Aa', 'A1', 'COL1', 'AAAA', '_', 'other']) {
+            expect(getColumnIndex(key)).toEqual(-1);
+        }
     });
 
     test('Match the columns of an imported CSV with more than 26 columns', () => {
@@ -75,19 +91,106 @@ describe('Column ids', () => {
         );
         expect(Object.keys(rows[1])).toEqual(getGridColumnIds(30));
 
-        // The grid shows the values of all columns
+        // The grid shows the values of all columns, and empty columns after
+        // them
         const data = prepareGridData(rows);
-        expect(data.columnIds.slice(26, 30)).toEqual(['COL1', 'COL2', 'COL3', 'COL4']);
-        expect(data.headerRow.COL4).toEqual('H30');
-        expect(data.columns.COL4).toEqual(['30']);
+        expect(data.columnIds.slice(26)).toEqual(['AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI']);
+        expect(data.headerRow.AD).toEqual('H30');
+        expect(data.columns.AD).toEqual(['30']);
 
         // An edit in the 30th column changes its value in the CSV
         const newRows = applyCellEdit(rows, {
-            rowIndex: 1, columnId: 'COL4', value: '99'
+            rowIndex: 1, columnId: 'AD', value: '99'
         });
         expect(Object.values(newRows[1]).join(',')).toEqual(
             values.slice(0, 29).join(',') + ',99'
         );
+    });
+});
+
+describe('getGridColumnCount', () => {
+    test('Columns A to K for little or no data', () => {
+        expect(getGridColumnCount([])).toEqual(11);
+        expect(getGridColumnCount(Array.from(Array(10), () => ({})))).toEqual(11);
+        expect(getGridColumnCount([{ A: 'x', B: 'y' }, { A: '1', B: '2' }])).toEqual(11);
+    });
+
+    test('Five empty columns after the last column with a value', () => {
+        expect(getGridColumnCount([{ A: 'x' }, { A: '1', G: '2' }])).toEqual(12);
+        // A CSV header counts
+        expect(getGridColumnCount([{ A: 'x', Z: 'only a header' }, { A: '1' }])).toEqual(31);
+        expect(getGridColumnCount([{ A: 'x' }, { AD: 0 }])).toEqual(35);
+    });
+
+    test('Empty cells and other keys do not count', () => {
+        // As in projects started from the placeholder data of v1.1.1 to
+        // v1.2.1: cells in every column to Z, values in A and B
+        const padded: TableRowData = Object.fromEntries(getGridColumnIds(26).map((id) => [id, '']));
+        expect(getGridColumnCount([
+            { ...padded, A: 'x', B: 'y' },
+            { ...padded, A: '0', B: '1' },
+            { ...padded, A: '1', B: ' ', M: null, other: 'value' }
+        ])).toEqual(11);
+    });
+
+    test('At most 50 columns, A to AX', () => {
+        expect(getGridColumnCount([{ AU: '1' }])).toEqual(50);
+        expect(getGridColumnCount([{ BZ: '1' }])).toEqual(50);
+    });
+});
+
+describe('renameLegacyColumnIds', () => {
+    test('Renames COL1, COL2, ... AA, AB, ...', () => {
+        expect(renameLegacyColumnIds([
+            { A: 'x', COL1: 'y', COL10: 'z', other: 'o' },
+            { A: '1', COL1: '2' },
+            {}
+        ])).toEqual([
+            { A: 'x', AA: 'y', AJ: 'z', other: 'o' },
+            { A: '1', AA: '2' },
+            {}
+        ]);
+    });
+
+    // A row the grid of master v1.1.1 wrote: cells in A to Z, and in its
+    // columns past Z, AA, BA, CA, ... (the 27th, 28th, 29th, ... columns)
+    const v111Row = (values: Record<string, string>): TableRowData => ({
+        ...Object.fromEntries(getGridColumnIds(26).map((id) => [id, ''])),
+        AA: '', BA: '', CA: '', DA: '', EA: '',
+        ...values
+    });
+
+    test('Renames the columns past Z of the grid in master v1.1.1', () => {
+        const rows = renameLegacyColumnIds([
+            v111Row({ A: 'x', AA: 'h1', DA: 'h4' }),
+            v111Row({ A: '1', AA: '1', BA: '2', EA: '5' })
+        ]);
+        expect(Object.keys(rows[0]).slice(26)).toEqual(['AA', 'AB', 'AC', 'AD', 'AE']);
+        expect(rows[0]).toMatchObject({ A: 'x', AA: 'h1', AB: '', AD: 'h4' });
+        expect(rows[1]).toMatchObject({ AA: '1', AB: '2', AC: '', AE: '5' });
+    });
+
+    test('A COL id wins over a v1.1.1 grid id for the same column', () => {
+        // A v1.1.1 project edited in v1.2.1, which added rows without cells
+        // and wrote the edits past Z to COL1, COL2, ...
+        const rows = renameLegacyColumnIds([
+            v111Row({ A: 'x', BA: 'h2' }),
+            v111Row({ A: '1', BA: 'old', COL2: 'new' }),
+            { COL2: 'new', BA: 'old' }
+        ]);
+        expect(rows[0]).toMatchObject({ AA: '', AB: 'h2', AC: '' });
+        expect(rows[1]).toMatchObject({ A: '1', AB: 'new' });
+        expect(rows[2]).toEqual({ AB: 'new' });
+    });
+
+    test('Keeps rows with the current column ids as they are', () => {
+        const rows: TableRowData[] = [{ A: 'x', AA: 'y', AB: 'z', BA: 'w' }, { A: '1' }];
+        expect(renameLegacyColumnIds(rows)).toBe(rows);
+        // BA without other ids of two letters: the 53rd column of an
+        // imported CSV whose columns AB to AZ are empty, without cells in
+        // all of A to Z in a row
+        const wideRows: TableRowData[] = [{ A: 'x', AA: 'y', BA: 'z' }, { B: '1', BA: '2' }];
+        expect(renameLegacyColumnIds(wideRows)).toBe(wideRows);
     });
 });
 
@@ -169,6 +272,17 @@ describe('getGridOptions', () => {
         expect(getColumn(options, 'C')?.cells?.editMode).toBeUndefined();
     });
 
+    test('Calls afterEdit after an edit', () => {
+        const afterEdit = vi.fn();
+        const options = getGridOptions(prepareGridData(getRows()), void 0, afterEdit);
+        // Grid Pro calls it on the edited cell
+        const onAfterEdit = options.columnDefaults?.cells?.events?.afterEdit as (() => void) | undefined;
+        onAfterEdit?.();
+        expect(afterEdit).toHaveBeenCalledOnce();
+        expect(getGridOptions(prepareGridData(getRows())).columnDefaults?.cells?.events)
+            .toBeUndefined();
+    });
+
     test('CSV headers', () => {
         const rows: TableRowData[] = [{ A: 'Cost {USD}', B: '' }, { A: '1', B: '2' }];
         const options = getGridOptions(prepareGridData(rows));
@@ -206,7 +320,7 @@ describe('getSeriesColumnIds', () => {
         expect([...getSeriesColumnIds([
             { A: 'x', B: 'y', C: 'z', D: 'only a header' },
             { A: '0', C: '1' },
-            { A: '1', C: '2', COL1: '' }
+            { A: '1', C: '2', AA: '' }
         ])]).toEqual(['A', 'C']);
     });
 });

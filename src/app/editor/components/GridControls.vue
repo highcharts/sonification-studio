@@ -83,6 +83,7 @@ import SEDropdown from './basic/SEDropdown.vue';
 import SEInputbox from './basic/SEInputbox.vue';
 import SEControl from './basic/SEControl.vue';
 import { type TableRow, useDataStore } from '../store/modules/data';
+import { getGridColumnCount, getGridColumnIds } from '../core/utils/gridData';
 
 type ColumnDropdownItem = { name: string; value: string };
 
@@ -93,9 +94,6 @@ export default defineComponent({
     emits: ['triggerScrollLastGridRowWithData'],
     data() {
         return {
-            fillDropdownList: [
-                { name: 'A', value: 'A' }
-            ] as ColumnDropdownItem[],
             rowsToAdd: 10,
             fillEquation: '',
             fillEquationColumn: '',
@@ -104,11 +102,12 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapStores(useDataStore)
-    },
-    beforeMount() {
-        this.fillDropdownList = 'ABCDEFGHIJK'.split('')
-            .map((x): ColumnDropdownItem => ({ name: x, value: x }));
+        ...mapStores(useDataStore),
+        // The columns the grid shows
+        fillDropdownList(): ColumnDropdownItem[] {
+            return getGridColumnIds(getGridColumnCount(this.dataStore.tableRowData))
+                .map((id) => ({ name: id, value: id }));
+        }
     },
     methods: {
         onClearDataClick() {

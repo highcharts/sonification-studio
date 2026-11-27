@@ -58,10 +58,26 @@ describe('data store', () => {
 
             expect(store.textDescription).toBe('');
             expect(store.tableRowData).toHaveLength(200);
-            expect(store.tableRowData[0]).toMatchObject({ A: 'Index (X value)', B: 'Sensor Data (Y value)', C: '' });
-            expect(Object.keys(store.tableRowData[0])).toHaveLength(26);
-            expect(store.tableRowData[2]).toMatchObject({ A: '1', B: ((Math.sin(1 / 3) * 1) / 2).toFixed(3), Z: '' });
+            // Cells in A and B only: the grid shows the columns after them
+            // empty
+            expect(store.tableRowData[0]).toEqual({ A: 'Index (X value)', B: 'Sensor Data (Y value)' });
+            expect(store.tableRowData[2]).toEqual({ A: '1', B: ((Math.sin(1 / 3) * 1) / 2).toFixed(3) });
             expect(store.tableCSV).toBe(toCSV(store.tableRowData));
+        });
+
+        test('Renames the columns past Z of rows saved by v1.2.1 and earlier', () => {
+            const store = useDataStore();
+            store.restoreStoreState({
+                tableRowData: [
+                    { A: 'x', Z: 'z', COL1: 'h1', COL3: 'h3' },
+                    { A: '1', COL1: '2', COL3: '4' }
+                ]
+            });
+            expect(store.tableRowData).toEqual([
+                { A: 'x', Z: 'z', AA: 'h1', AC: 'h3' },
+                { A: '1', AA: '2', AC: '4' }
+            ]);
+            expect(store.tableCSV).toBe('x' + ';'.repeat(25) + 'z;h1;;h3\n1' + ';'.repeat(26) + '2;;4');
         });
 
         test('Resets the data source settings, but not the Google API key', () => {
@@ -133,7 +149,7 @@ describe('data store', () => {
 
     test('The CSV has each value in its column', () => {
         const store = useDataStore();
-        store.setTableRowData([{ C: 'c', A: 'a', other: 'x' }, { B: '2' }, { COL2: 'z', A: 0 }]);
+        store.setTableRowData([{ C: 'c', A: 'a', other: 'x' }, { B: '2' }, { AB: 'z', A: 0 }]);
         expect(store.tableCSV).toBe(
             'a;;c;x\n;2\n0' + ';'.repeat(27) + 'z'
         );
@@ -357,7 +373,7 @@ describe('data store', () => {
             expect(store.tableRowData).toEqual([{ B: 'b' }]);
         });
 
-        test('Names columns past Z COL1, COL2, ...', () => {
+        test('Names columns past Z AA, AB, ...', () => {
             const store = useDataStore();
             const cells = Array.from({ length: 28 }, (_, i) => 'v' + i);
             store.loadFromCSV(cells.join(',') + '\n1');
@@ -365,8 +381,8 @@ describe('data store', () => {
             expect(Object.keys(header)).toHaveLength(28);
             expect(header.A).toBe('v0');
             expect(header.Z).toBe('v25');
-            expect(header.COL1).toBe('v26');
-            expect(header.COL2).toBe('v27');
+            expect(header.AA).toBe('v26');
+            expect(header.AB).toBe('v27');
             expect(store.tableRowData[1]).toEqual({ A: '1' });
         });
 
@@ -404,9 +420,9 @@ describe('data store', () => {
         test('tableColumnNamesWithData lists the columns in column order, other keys last', () => {
             const store = useDataStore();
             store.setTableRowData([
-                { other: 'o', COL10: '10', COL2: '2', D: 'd', COL1: '1', _: '_', Z: 'z', B: 'b' }
+                { other: 'o', BA: '53', AB: '28', D: 'd', AA: '27', _: '_', Z: 'z', B: 'b' }
             ]);
-            expect(store.tableColumnNamesWithData).toEqual(['B', 'D', 'Z', 'COL1', 'COL2', 'COL10', '_', 'other']);
+            expect(store.tableColumnNamesWithData).toEqual(['B', 'D', 'Z', 'AA', 'AB', 'BA', '_', 'other']);
         });
 
         test('column returns the values of a column, null where missing', () => {
