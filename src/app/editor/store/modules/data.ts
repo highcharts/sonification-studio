@@ -13,15 +13,21 @@
 
 import { defineStore } from 'pinia';
 import { parseCSV } from '../../core/utils/csvParser';
-import { getColumnIndex } from '../../core/utils/gridData';
+import {
+    getColumnIndex,
+    getGridColumnIds,
+    maxGridColumnCount,
+    renameLegacyColumnIds
+} from '../../core/utils/gridData';
 import { compile, isSymbolNode, parse, type MathNode } from 'mathjs';
 
 // Value of one grid cell. Usually a string, but the grid and project files
 // can hold other primitives.
 export type TableCellValue = string | number | boolean | null;
 
-// One grid row: column name ('A' to 'Z', then 'COL1', 'COL2', ...) -> cell value.
-// Row 0 holds the column headers.
+// One grid row: column name ('A' to 'Z', then 'AA', 'AB', ...) -> cell value.
+// Row 0 holds the column headers. A row has no cells for the columns it has
+// no value in (loadFromCSV), unless they were emptied in the grid.
 export type TableRow = Record<string, TableCellValue>;
 
 export interface FillColumnProps {
@@ -40,6 +46,13 @@ export interface DataSourceOption {
     value: string;
 }
 
+// The version of the column ids the rows are keyed by, saved with them in
+// project files and sessions: 2 for A to Z, then AA, AB, ... Rows saved
+// without it (by v1.2.1 and earlier) can have older ids, which are renamed
+// when they are restored (renameLegacyColumnIds). Rows saved with it are
+// restored as they are: their ids could pass for older ones.
+export const columnIdsVersion = 2;
+
 export interface DataState {
     tableCSV: string;
     tableRowData: TableRow[];
@@ -54,6 +67,8 @@ export interface DataState {
     googleSheetStatus: GoogleSheetStatus;
     googleSheetErrorMessage: string;
     dataSourcesList: DataSourceOption[];
+    // Always columnIdsVersion: the rows are renamed to it when restored
+    columnIdsVersion: number;
 }
 
 // The part of the data state that is restored from project files and
@@ -62,6 +77,7 @@ export interface DataState {
 // editor has.
 export interface DataRestoreState {
     tableRowData: TableRow[];
+    columnIdsVersion?: number;
     textDescription?: string;
     selectedDataSource?: string;
     spreadsheetSetupComplete?: boolean;
@@ -77,14 +93,23 @@ function isEmptyCell(value: TableCellValue | undefined): boolean {
     return value === undefined || value === null || String(value).trim() === '';
 }
 
-// The columns an equation refers to. A column name (A to Z, COL1, ...) always
-// means the column, also where mathjs has a constant or a unit with that name
-// (E, F, ...), so that a column is never taken for one when it is empty.
-function getEquationColumnNames(equation: string): string[] {
+// The columns an equation refers to. The name of a column the grid can show
+// (A to AX), or of a column in the rows, always means the column, also where
+// mathjs has a constant or a unit with that name (E, F, AU, ...), so that a
+// column is never taken for one when it is empty. Other names, such as PI,
+// keep their mathjs meaning.
+function getEquationColumnNames(equation: string, rows: TableRow[]): string[] {
+    const isColumnName = (name: string): boolean => {
+        const index = getColumnIndex(name);
+        return index >= 0 && (
+            index < maxGridColumnCount ||
+            rows.some((row) => Object.hasOwn(row, name))
+        );
+    };
     const names = new Set<string>();
     parse(equation).traverse((node: MathNode, path: string) => {
         // Not the name of a function called, as "sin" in "sin(A)"
-        if (isSymbolNode(node) && path !== 'fn' && getColumnIndex(node.name) >= 0) {
+        if (isSymbolNode(node) && path !== 'fn' && isColumnName(node.name)) {
             names.add(node.name);
         }
     });
@@ -95,7 +120,7 @@ function getEquationColumnNames(equation: string): string[] {
 // column headers, is not filled). Where a column the equation refers to has
 // an empty cell, the row's value is left empty. "i" is the row number.
 function getFillValues(rows: TableRow[], equation: string): Array<string | undefined> {
-    const columnNames = getEquationColumnNames(equation);
+    const columnNames = getEquationColumnNames(equation, rows);
     const expression = compile(equation);
     return rows.map((row, rowIx) => {
         if (!rowIx) {
@@ -112,38 +137,20 @@ function getFillValues(rows: TableRow[], equation: string): Array<string | undef
     });
 }
 
+// The data of a new project: a header row and 199 rows of values, in the
+// columns A and B. The grid shows the columns after them empty (see
+// getGridColumnCount).
 function getPlaceholderData(): Array<Record<string, string>> {
-    const columns: string[] = [];
-
-    // Generate A-Z column names
-    for (let i = 0; i < 26; i++) {
-        columns.push(String.fromCharCode(65 + i));
-    }
-
-    const data: Array<Record<string, string>> = [];
-
-    // Header row
-    const headerRow: Record<string, string> = {
+    const data: Array<Record<string, string>> = [{
         A: 'Index (X value)',
-        B: 'Sensor Data (Y value)',
-    };
-    columns.slice(2).forEach((col) => {
-        headerRow[col] = ''; // Leave rest of headers blank
-    });
-    data.push(headerRow);
-
-    // 199 data rows
+        B: 'Sensor Data (Y value)'
+    }];
     for (let i = 0; i < 199; i++) {
-        const row: Record<string, string> = {
+        data.push({
             A: '' + i,
-            B: ((Math.sin(i / 3) * i) / 2).toFixed(3),
-        };
-        columns.slice(2).forEach((col) => {
-            row[col] = ''; // fill C-Z with blank
+            B: ((Math.sin(i / 3) * i) / 2).toFixed(3)
         });
-        data.push(row);
     }
-
     return data;
 }
 
@@ -211,6 +218,7 @@ export const useDataStore = defineStore('data', {
             { name: 'Grid', value: 'table' },
             { name: 'Google Sheets', value: 'googlesheets' },
         ],
+        columnIdsVersion,
     }),
 
     // The Vuex module also had a textDescription getter returning the state
@@ -239,8 +247,8 @@ export const useDataStore = defineStore('data', {
                 }
             }
 
-            // In column order (A to Z, then COL1, COL2, ...), other keys
-            // after them by name
+            // In column order (A to Z, then AA, AB, ...), other keys after
+            // them by name
             const getOrder = (columnName: string): number => {
                 const index = getColumnIndex(columnName);
                 return index < 0 ? Infinity : index;
@@ -275,9 +283,15 @@ export const useDataStore = defineStore('data', {
         // Restore the data and the data source settings from a project file
         // or a localStorage session, or without a state, reset them to the
         // placeholder data and the defaults. The Google API key is kept,
-        // unless the state has one.
+        // unless the state has one. The columns past Z of rows saved by
+        // v1.2.1 and earlier are renamed AA, AB, ...
         restoreStoreState(newState?: DataRestoreState) {
-            this.tableRowData = newState ? newState.tableRowData : getPlaceholderData();
+            const savedVersion = newState?.columnIdsVersion;
+            this.tableRowData = !newState ?
+                getPlaceholderData() :
+                typeof savedVersion === 'number' && savedVersion >= columnIdsVersion ?
+                    newState.tableRowData :
+                    renameLegacyColumnIds(newState.tableRowData);
             this.textDescription = newState ? newState.textDescription || '' : '';
             this.tableCSV = generateCSV(this.tableRowData);
 
@@ -378,17 +392,14 @@ export const useDataStore = defineStore('data', {
                 return Math.max(len, row.length);
             }, 0);
 
-            const columnHeaders: string[] = [];
-            for (let i = 0; i < maxRowLen; i++) {
-                columnHeaders.push(i < 26 ? String.fromCharCode(65 + i) : `COL${i - 25}`);
-            }
+            const columnIds = getGridColumnIds(maxRowLen);
 
+            // No cells for empty values
             const objectifiedArr = arr.map((row: string[]) => {
                 const rowObject: TableRow = {};
                 row.forEach((cell: string, i: number) => {
                     if (cell) {
-                        const columnName = columnHeaders[i] || '_';
-                        rowObject[columnName] = cell;
+                        rowObject[columnIds[i]] = cell;
                     }
                 });
                 return rowObject;

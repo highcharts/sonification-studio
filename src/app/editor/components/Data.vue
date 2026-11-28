@@ -42,6 +42,7 @@
         <GridControls
             v-show="!sourceHasCustomUI && showGridTools"
             class="grid-toolbar-container"
+            :grid-column-count="gridColumnCount"
             @trigger-scroll-last-grid-row-with-data="onTriggerScrollLastGridRowWithData()"
         />
         <div
@@ -51,7 +52,10 @@
             <h3 class="sr-only">
                 Data Grid
             </h3>
-            <Grid ref="grid" />
+            <Grid
+                ref="grid"
+                @column-count-change="gridColumnCount = $event"
+            />
         </div>
 
         <DataGSheet
@@ -77,6 +81,12 @@ import { useViewStore } from '../store/modules/view';
 export default defineComponent({
     components: {
         Grid, GridControls, DataGSheet, SEToolbarMenu, SEDropdown, SEControl
+    },
+    data() {
+        return {
+            // The number of columns the grid shows, 0 until it has rendered
+            gridColumnCount: 0
+        };
     },
     computed: {
         ...mapStores(useDataStore, useViewStore),

@@ -3,8 +3,10 @@
     and the Grid Pro runtime so it can be unit tested.
 
     The store keeps the table as an array of row objects keyed by column id
-    (A-Z, then COL1, COL2, ...). Its first row holds the CSV headers, which
-    the grid shows as secondary column headers, not as a data row. The grid
+    (A to Z, then AA, AB, ..., as in spreadsheets). Its first row holds the
+    CSV headers, which the grid shows as secondary column headers, not as a
+    data row. The grid shows the columns up to the last one with a value, and
+    a few empty ones after it to add data in (getGridColumnCount). The grid
     gets the other rows as column arrays, with values converted to the
     detected column types. Edits in the grid are written back to the store's
     rows as text.
@@ -45,27 +47,108 @@ export interface CellEdit {
     value: string;
 }
 
-const maxColumnCount = 50;
-// Empty columns shown after the last column with data
-const extraColumnCount = 5;
+// The grid shows at least the columns A to K, and at most 50 (A to AX).
+const minGridColumnCount = 11;
+export const maxGridColumnCount = 50;
+// Empty columns shown after the last column with a value, to add data in
+const spareColumnCount = 5;
 
-// Column ids used by the grid: A-Z, then COL1, COL2, ..., the keys the store
-// gives the columns of an imported CSV (loadFromCSV in the data store).
-export function getGridColumnIds(count: number): string[] {
-    return Array.from(
-        { length: count },
-        (_, i) => i < 26 ? String.fromCharCode(65 + i) : `COL${i - 25}`
-    );
+// The id of the column at an index: A to Z, then AA, AB, ..., AZ, BA, ...,
+// ZZ, AAA, ..., as in spreadsheets. The store keys the rows' cells by these
+// ids, and the grid's columns have them.
+export function getColumnId(index: number): string {
+    let id = '';
+    for (let n = index + 1; n > 0; n = Math.floor((n - 1) / 26)) {
+        id = String.fromCharCode(65 + (n - 1) % 26) + id;
+    }
+    return id;
 }
 
-// Index of a column id ('A' is 0, 'Z' 25, 'COL1' 26, ...), or -1 for another
-// key
+// The ids of the first `count` columns
+export function getGridColumnIds(count: number): string[] {
+    return Array.from({ length: count }, (_, i) => getColumnId(i));
+}
+
+// Index of a column id ('A' is 0, 'Z' 25, 'AA' 26, ...), or -1 for another
+// key. Ids have as many letters as getColumnId gives them (AAAA is the
+// 18279th column, of a CSV that wide).
 export function getColumnIndex(columnId: string): number {
-    if (/^[A-Z]$/.test(columnId)) {
-        return columnId.charCodeAt(0) - 65;
+    if (!/^[A-Z]+$/.test(columnId)) {
+        return -1;
     }
-    const match = /^COL([1-9]\d*)$/.exec(columnId);
-    return match ? 25 + Number(match[1]) : -1;
+    let n = 0;
+    for (const letter of columnId) {
+        n = n * 26 + letter.charCodeAt(0) - 64;
+    }
+    return n - 1;
+}
+
+const legacyColumnIdPattern = /^COL([1-9]\d*)$/;
+
+// Rows with the column ids of projects and sessions saved before the columns
+// past Z were named AA, AB, ... (v1.2.1 and earlier), renamed to them. Only
+// for rows saved without the data store's columnIdsVersion: the current ids
+// can look like the older ones.
+// - COL1, COL2, ...: the columns past Z of an imported CSV, and of the grid
+//   in v1.2.0 and v1.2.1.
+// - AA, BA, CA, ...: the columns past Z of the grid in master v1.1.1, which
+//   gave each row it wrote a cell in each of its columns. Such rows have no
+//   other ids of two letters, and a row has cells in A to Z and BA. The
+//   versions without columnIdsVersion gave no other columns these ids.
+// A COL id's value wins over another for the same column, as in v1.2.1 (its
+// rowToCSV put a value under another key after the columns). Rows without
+// these ids are returned as they are.
+export function renameLegacyColumnIds(rows: TableRowData[]): TableRowData[] {
+    const keys = new Set(rows.flatMap((row) => Object.keys(row)));
+    const hasCOLIds = [...keys].some((key) => legacyColumnIdPattern.test(key));
+    const twoLetterIds = [...keys].filter((key) => /^[A-Z]{2}$/.test(key));
+    const hasV111GridIds = twoLetterIds.includes('BA') &&
+        twoLetterIds.every((key) => key[1] === 'A') &&
+        rows.some((row) => ['BA', ...getGridColumnIds(26)].every((id) => id in row));
+    if (!hasCOLIds && !hasV111GridIds) {
+        return rows;
+    }
+
+    const getNewId = (key: string): string => {
+        const match = legacyColumnIdPattern.exec(key);
+        if (match) {
+            return getColumnId(25 + Number(match[1]));
+        }
+        if (hasV111GridIds && /^[A-Z]A$/.test(key)) {
+            return getColumnId(26 + key.charCodeAt(0) - 65);
+        }
+        return key;
+    };
+    return rows.map((row) => {
+        const newRow: TableRowData = {};
+        for (const [key, value] of Object.entries(row)) {
+            const newId = getNewId(key);
+            if (!(newId in newRow) || legacyColumnIdPattern.test(key)) {
+                newRow[newId] = value;
+            }
+        }
+        return newRow;
+    });
+}
+
+// The number of columns the grid shows: up to the last column with a value
+// (a CSV header counts), and spareColumnCount empty columns after it to add
+// data in, but at least A to K and at most maxGridColumnCount. Empty cells
+// do not count, such as the ones in C to Z that projects started from the
+// placeholder data of v1.1.1 to v1.2.1 have.
+export function getGridColumnCount(rows: TableRowData[]): number {
+    let lastIndexWithValue = -1;
+    for (const row of rows) {
+        for (const [key, value] of Object.entries(row)) {
+            if (hasValue(value)) {
+                lastIndexWithValue = Math.max(lastIndexWithValue, getColumnIndex(key));
+            }
+        }
+    }
+    return Math.min(
+        maxGridColumnCount,
+        Math.max(minGridColumnCount, lastIndexWithValue + 1 + spareColumnCount)
+    );
 }
 
 // The ids of the columns that get a series in the chart: the columns a row
@@ -79,15 +162,16 @@ export function getColumnIndex(columnId: string): number {
 // - Rows edited in the grid keep the cells they have (applyCellEdit), and
 //   rows are saved and loaded as they are, so a column emptied in the grid
 //   keeps its (hidden) series while a later column has values.
-// - Columns of empty cells after the last value (the placeholder data's C to
-//   Z) get none, so they do not show as empty series.
+// - Columns of empty cells after the last value (as the C to Z of projects
+//   started from the placeholder data of v1.1.1 to v1.2.1) get none, so they
+//   do not show as empty series.
 export function getSeriesColumnIds(rows: TableRowData[]): Set<string> {
     const withCells = new Set<string>();
     let lastIndexWithValue = -1;
     for (const row of rows.slice(1)) {
         for (const [key, value] of Object.entries(row)) {
             withCells.add(key);
-            if (!isEmpty(value) && String(value).trim() !== '') {
+            if (hasValue(value)) {
                 lastIndexWithValue = Math.max(lastIndexWithValue, getColumnIndex(key));
             }
         }
@@ -102,6 +186,11 @@ export function isHeaderRow(row?: TableRowData): boolean {
 
 function isEmpty(value: unknown): boolean {
     return value === '' || value === null || value === void 0;
+}
+
+// A value that is not empty or blanks only
+function hasValue(value: unknown): boolean {
+    return !isEmpty(value) && String(value).trim() !== '';
 }
 
 function toGridCellValue(value: unknown): GridCellValue {
@@ -225,20 +314,6 @@ export function compareDates(a: GridCellValue, b: GridCellValue): number {
     return time(a) - time(b);
 }
 
-// Number of columns the rows use: the highest grid column id in any row, or
-// the number of values in a row with other keys.
-function getUsedColumnCount(rows: TableRowData[], columnIds: string[]): number {
-    let count = 0;
-    for (const row of rows) {
-        const keys = Object.keys(row);
-        count = Math.max(count, keys.length);
-        for (const key of keys) {
-            count = Math.max(count, columnIds.indexOf(key) + 1);
-        }
-    }
-    return count;
-}
-
 // Prepare the store's rows for the grid.
 export function prepareGridData(rows: TableRowData[]): GridTableData {
     const hasHeaderRow = isHeaderRow(rows[0]);
@@ -246,11 +321,7 @@ export function prepareGridData(rows: TableRowData[]): GridTableData {
     const firstDataRowIndex = hasHeaderRow ? 1 : 0;
     const bodyRows = rows.slice(firstDataRowIndex);
 
-    const columnCount = Math.min(
-        maxColumnCount,
-        getUsedColumnCount(rows, getGridColumnIds(maxColumnCount)) + extraColumnCount
-    );
-    const columnIds = getGridColumnIds(columnCount);
+    const columnIds = getGridColumnIds(getGridColumnCount(rows));
 
     const columns: Record<string, GridCellValue[]> = {};
     const dataTypes: Record<string, GridColumnDataType> = {};
@@ -376,7 +447,13 @@ function getCSVHeader(headerRow: TableRowData, columnId: string): string | undef
 }
 
 // The grid's options for the data. `gridKey` is the optional Grid Key.
-export function getGridOptions(tableData: GridTableData, gridKey?: string): Options {
+// `afterEdit` is called after a cell's edit is done: after it is written to
+// the grid's data table and the rows are sorted and filtered again.
+export function getGridOptions(
+    tableData: GridTableData,
+    gridKey?: string,
+    afterEdit?: () => void
+): Options {
     const { columnIds, dataTypes, headerColumnCount, headerRow } = tableData;
 
     // A, B, C, ... as primary headers, and the CSV headers as secondary
@@ -472,6 +549,7 @@ export function getGridOptions(tableData: GridTableData, gridKey?: string): Opti
                 editMode: {
                     enabled: true
                 },
+                ...(afterEdit && { events: { afterEdit: () => afterEdit() } }),
                 className: 'hcg-center',
                 // Show values as they are, as Grid Pro 2 did (Grid Pro 3 adds
                 // thousands separators to numbers)

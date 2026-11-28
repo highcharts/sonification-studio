@@ -83,6 +83,7 @@ import SEDropdown from './basic/SEDropdown.vue';
 import SEInputbox from './basic/SEInputbox.vue';
 import SEControl from './basic/SEControl.vue';
 import { type TableRow, useDataStore } from '../store/modules/data';
+import { getGridColumnCount, getGridColumnIds } from '../core/utils/gridData';
 
 type ColumnDropdownItem = { name: string; value: string };
 
@@ -90,12 +91,15 @@ export default defineComponent({
     components: {
         SEButton, SEDropdown, SEControl, SEInputbox
     },
+    props: {
+        // The number of columns the grid shows, 0 until it has rendered.
+        // The grid keeps its columns when values are deleted, until it is
+        // rebuilt, so it can show more than getGridColumnCount gives.
+        gridColumnCount: { type: Number, default: 0 }
+    },
     emits: ['triggerScrollLastGridRowWithData'],
     data() {
         return {
-            fillDropdownList: [
-                { name: 'A', value: 'A' }
-            ] as ColumnDropdownItem[],
             rowsToAdd: 10,
             fillEquation: '',
             fillEquationColumn: '',
@@ -104,11 +108,23 @@ export default defineComponent({
         };
     },
     computed: {
-        ...mapStores(useDataStore)
+        ...mapStores(useDataStore),
+        // The columns the grid shows, or will show when it renders
+        fillDropdownList(): ColumnDropdownItem[] {
+            const count = this.gridColumnCount ||
+                getGridColumnCount(this.dataStore.tableRowData);
+            return getGridColumnIds(count).map((id) => ({ name: id, value: id }));
+        }
     },
-    beforeMount() {
-        this.fillDropdownList = 'ABCDEFGHIJK'.split('')
-            .map((x): ColumnDropdownItem => ({ name: x, value: x }));
+    watch: {
+        // When the selected column is no longer listed (the grid was rebuilt
+        // with fewer columns), select the first one, before the dropdown
+        // updates: it would select none
+        fillDropdownList(list: ColumnDropdownItem[]) {
+            if (list.length && !list.some((item) => item.value === this.fillEquationColumn)) {
+                this.fillEquationColumn = list[0].value;
+            }
+        }
     },
     methods: {
         onClearDataClick() {
@@ -135,7 +151,7 @@ export default defineComponent({
             const equation = this.fillEquation?.trim();
             const destinationColumn = this.fillEquationColumn;
 
-            if (equation) {
+            if (equation && destinationColumn) {
                 try {
                     this.dataStore.fillColumn({
                         columnName: destinationColumn,
