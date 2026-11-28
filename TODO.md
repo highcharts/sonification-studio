@@ -7,7 +7,7 @@ Highcharts 13, Grid Pro 3) were fixed in v1.2.1, apart from the ones below.
 
 - [ ] **Set `VITE_GRID_KEY` for release builds.** Without a Grid Key, Grid Pro
   logs an error on hosts like GitHub Pages; `sonification.highcharts.com` is
-  exempt. See the README. v1.2.0 and v1.2.1 were released without one.
+  exempt. See the README. v1.2.0 to v1.2.2 were released without one.
 
 ## When upstream fixes land
 
